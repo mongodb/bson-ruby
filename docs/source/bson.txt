@@ -1,0 +1,21 @@
+====
+bson
+====
+
+TODO put text here to describe the function of the component. 
+
+.. this text can either be in it's own file that's also included here,
+.. or files like this can be constructed by hand.
+
+Cucumber Specification
+----------------------
+
+.. literalinclude:: /features/bson.feature
+   :language: cucumber
+
+Implementation (Ruby)
+---------------------
+
+.. literalinclude:: /features/step_definitons/bson_steps.rb
+   :language: ruby
+

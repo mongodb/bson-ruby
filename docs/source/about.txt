@@ -1,0 +1,12 @@
+About the MongoDB Meta Driver Project
+-------------------------------------
+
+These documents reflect version |version| of the meta-driver.
+
+This edition of the meta-driver reflects the "|branch|" branch as of
+the "|commit|" revision. This branch is explicitly accessible via
+"|hardlink|" and you can always reference the commit of the current
+manual in the :hardlink:`release.txt` file.
+
+The latest version of the meta-driver is always available at
+"http://docs.mongodb.org/meta-driver/latest/."

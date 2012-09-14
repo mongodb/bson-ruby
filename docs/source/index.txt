@@ -1,7 +1,26 @@
-:orphan:
-
 ===================
 MongoDB Meta Driver
 ===================
 
-The MongoDB Meta-Driver project
+The MongoDB Meta Driver is an attempt to formally specify the client
+library interface for MongoDB. Eventually the documents and this
+specification will enhance and eventually replace the current `MongoDB
+driver writing tutorial <http://www.mongodb.org/display/DOCS/Writing+Drivers+and+Tools>`_.
+
+Pages
+-----
+
+.. toctree:: 
+   :maxdepth: 2 
+   :glob:
+   
+   about
+   
+
+Additional Resources
+--------------------
+
+- `MongoDB.org <http://mongodb.org/>`_
+- `MongoDB Manual <http://docs.mongodb.org>`_ 
+- `MongoDB API References <http://api.monogdb.org>`_ 
+- `MongoDB Drivers <http://www.mongodb.org/display/DOCS/Drivers>`_
