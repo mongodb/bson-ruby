@@ -1,1 +1,10 @@
 Gemfile.lock
+build/*
+*.swp
+.#*
+\#*#
+*__pycache__*
+*.pyc
+*.pyo
+*.bak
+.DS_Store
