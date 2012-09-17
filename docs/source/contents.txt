@@ -1,10 +1,13 @@
-============================
-MongoDB Meta Driver Contents
-============================
+==========================================
+MongoDB Meta Driver Documentation Contents
+==========================================
 
 .. toctree:: 
    :maxdepth: 2 
    :glob:
    
-   index
-   bson
+   about
+   tutorial
+   specification
+
+.. seealso:: :ref:`genindex`

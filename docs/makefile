@@ -114,7 +114,7 @@ endif
 
 initial-dependencies:$(DOCS_SOURCE)/about.txt 
 	@echo [build]: completed the pre-publication routine for the $(primary-branch) branch of the Manual.
-static-components:$(public-branch-output)/release.txt $(public-output)/osd.xml 
+static-components:$(public-branch-output)/release.txt $(public-output)/osd.xml links
 	@echo [build]: completed building and migrating all non-Sphinx components of the build.
 sphinx-components:$(public-branch-output)/ $(public-branch-output)/sitemap.xml.gz 
 	@echo [build]: completed the publication routine for all Sphinx Components of the Manual Build.
@@ -160,6 +160,11 @@ $(public-output):
 	@mkdir -p $@
 	@echo [build]: created $(branch-output)/
 
+.PHONY:links 
+
+links: $(public-branch-output)/specifications
+$(public-branch-output)/specifications:$(public-branch-output)/specification
+	@$(DOCS_DIR)/bin/create-link $(notdir $<) $(notdir $@) $@
 
 $(public-output)/index.html:$(DOCS_DIR)/themes/meta-driver/index.html
 	@cp $< $@

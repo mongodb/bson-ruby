@@ -1,3 +1,5 @@
+:orphan: 
+
 ===================
 MongoDB Meta Driver
 ===================
@@ -7,15 +9,25 @@ library interface for MongoDB. Eventually the documents and this
 specification will enhance and eventually replace the current `MongoDB
 driver writing tutorial <http://www.mongodb.org/display/DOCS/Writing+Drivers+and+Tools>`_.
 
-Pages
------
+Documents
+---------
+
+.. toctree:: 
+   :maxdepth: 2 
+   
+   about
+   tutorial
+   specification
+
+Specifications
+--------------
 
 .. toctree:: 
    :maxdepth: 2 
    :glob:
    
-   about
-   
+   specification/*
+
 
 Additional Resources
 --------------------

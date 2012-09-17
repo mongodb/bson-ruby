@@ -1,5 +1,16 @@
-About the MongoDB Meta Driver Project
--------------------------------------
+=============================
+About the MongoDB Meta Driver
+=============================
+
+The Meta Driver
+---------------
+
+The MongoDB Meta Driver is an attempt to specify the behavior,
+operation, and implementation of the MongoDB client interface, in an
+intentional, language-independent, and behavior-driven approach.
+
+The Documentation
+-----------------
 
 These documents reflect version |version| of the meta-driver.
 
