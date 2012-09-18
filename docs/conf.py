@@ -99,8 +99,8 @@ extlinks = {
     }
 
 intersphinx_mapping = {
-    'pymongo': ('http://api.mongodb.org/python/current /', None),
-    'mongodb': ('http://docs.mongodb.org/manual/current/', None)
+    'pymongo': ('http://api.mongodb.org/python/current/', None),
+    'mongodb': ('http://docs.mongodb.org/manual/', None)
     }
 
 # -- Options for HTML output ---------------------------------------------------
