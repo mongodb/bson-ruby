@@ -79,7 +79,7 @@ push-all:publish
 
 publish-if-up-to-date:
 	@$(DOCS_DIR)/bin/published-build-check $(current-branch) $(last-commit)
-	$(MAKE) publish 
+	$(MAKE) publish
 
 publish:initial-dependencies
 	$(MAKE) sphinx-components
@@ -95,9 +95,9 @@ push-dc1:
 	rsync -arz $(public-output)/$(current-branch)/ www@www-c1.10gen.cc:/data/sites/docs/meta-driver/$(current-branch)
 push-dc2:
 	rsync -arz $(public-output)/$(current-branch)/ www@www-c1.10gen.cc:/data/sites/docs/meta-driver/$(current-branch)
-push-dc1-all:
+push-all-dc1:
 	rsync -arz $(public-output)/ www@www-c1.10gen.cc:/data/sites/docs/meta-driver/
-push-dc2-all:
+push-all-dc2:
 	rsync -arz $(public-output)/ www@www-c1.10gen.cc:/data/sites/docs/meta-driver/
 endif
 
@@ -112,11 +112,11 @@ endif
 # access these targets through the ``publish`` target.
 .PHONY: initial-dependencies static-components sphinx-components post-processing
 
-initial-dependencies:$(DOCS_SOURCE)/about.txt 
+initial-dependencies:$(DOCS_SOURCE)/about.txt
 	@echo [build]: completed the pre-publication routine for the $(primary-branch) branch of the Manual.
 static-components:$(public-branch-output)/release.txt $(public-output)/osd.xml links
 	@echo [build]: completed building and migrating all non-Sphinx components of the build.
-sphinx-components:$(public-branch-output)/ $(public-branch-output)/sitemap.xml.gz 
+sphinx-components:$(public-branch-output)/ $(public-branch-output)/sitemap.xml.gz
 	@echo [build]: completed the publication routine for all Sphinx Components of the Manual Build.
 
 #
@@ -160,7 +160,7 @@ $(public-output):
 	@mkdir -p $@
 	@echo [build]: created $(branch-output)/
 
-.PHONY:links 
+.PHONY:links
 
 links: $(public-branch-output)/specifications
 $(public-branch-output)/specifications:$(public-branch-output)/specification
