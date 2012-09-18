@@ -2,9 +2,7 @@
 bson
 ====
 
-.. warning:: 
-   
-   This specification is in draft and is not approved or finalized.
+.. include:: /includes/warning-draft-note.rst
 
 TODO put text here to describe the function of the component. 
 
