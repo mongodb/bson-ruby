@@ -2,6 +2,10 @@
 bson
 ====
 
+.. warning:: 
+   
+   This specification is in draft and is not approved or finalized.
+
 TODO put text here to describe the function of the component. 
 
 .. this text can either be in it's own file that's also included here,
@@ -13,9 +17,14 @@ Cucumber Specification
 .. literalinclude:: /features/bson.feature
    :language: cucumber
 
-Implementation (Ruby)
----------------------
+Step Definitions
+----------------
 
 .. literalinclude:: /features/step_definitons/bson_steps.rb
    :language: ruby
 
+Implementation (Ruby)
+---------------------
+
+.. literalinclude:: /implementation-ruby/bson.rb
+   :language: ruby
