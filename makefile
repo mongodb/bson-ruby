@@ -3,7 +3,7 @@ DOCS_DIR = docs
 
 include $(DOCS_DIR)/makefile
 
-.PHONY:cucumber cuke cukesgs 
+.PHONY:cucumber cuke cukes
 
 cuke cukes:cucumber
 cucumber: 
