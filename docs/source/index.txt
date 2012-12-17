@@ -1,11 +1,11 @@
-:orphan: 
+:orphan:
 
 ===================
 MongoDB Meta Driver
 ===================
 
-.. warning:: 
-   
+.. warning::
+
    This project is currently in draft status and has not been approved
    or finalized.
 
@@ -17,27 +17,34 @@ driver writing tutorial <http://www.mongodb.org/display/DOCS/Writing+Drivers+and
 Documents
 ---------
 
-.. toctree:: 
-   :maxdepth: 2 
-   
+.. toctree::
+   :maxdepth: 2
+
    about
    tutorial
-   specification
 
 Specifications
 --------------
 
-.. toctree:: 
-   :maxdepth: 2 
-   :glob:
-   
-   specification/*
+.. toctree::
+   :maxdepth: 1
+   :hidden:
 
+   specification
+
+The documents in this section outline all of the :doc:`Meta Driver
+Specifications <specification>`:
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   specification/*
 
 Additional Resources
 --------------------
 
 - `MongoDB.org <http://mongodb.org/>`_
-- `MongoDB Manual <http://docs.mongodb.org>`_ 
-- `MongoDB API References <http://api.monogdb.org>`_ 
+- `MongoDB Manual <http://docs.mongodb.org>`_
+- `MongoDB API References <http://api.monogdb.org>`_
 - `MongoDB Drivers <http://www.mongodb.org/display/DOCS/Drivers>`_
