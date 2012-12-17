@@ -10,7 +10,7 @@ bson
 Cucumber Specification
 ----------------------
 
-.. literalinclude:: /features/bson.feature
+.. literalinclude:: /features/serialize.feature
    :language: cucumber
 
 Step Definitions

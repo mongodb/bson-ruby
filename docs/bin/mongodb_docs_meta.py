@@ -6,7 +6,7 @@ This module defines a class.
 import subprocess
 import re
 
-MANUAL_BRANCH = "manual"
+MANUAL_BRANCH = "master"
 
 def shell_value( args ):
     import subprocess
@@ -22,9 +22,9 @@ class VersionMeta():
     def __init__(self):
         self.branch = shell_value('git symbolic-ref HEAD').split('/')[2]
         self.commit = shell_value('git rev-parse --verify HEAD')
-        
+
         if self.branch == MANUAL_BRANCH:
-            self.manual_path = "manaul"
+            self.manual_path = "latest"
         else:
             self.manual_path = self.branch
 

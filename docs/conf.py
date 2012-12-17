@@ -158,7 +158,8 @@ html_theme_options = { 'branch': current_git_branch,
                        'pdfpath':  manual_edition_path + '.pdf',
                        'epubpath':  manual_edition_path + '.epub',
                        'manual_path': meta.manual_path,
-                       'repo_name': "mongo-meta-driver"
+                       'repo_name': "mongo-meta-driver",
+                       'project_name': 'meta-driver',
                        }
 
 # If true, an OpenSearch description file will be output, and all pages will
