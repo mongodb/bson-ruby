@@ -21,7 +21,6 @@ meta = {
     'date': str(datetime.date.today().year),
 }
 
-
 # -- General configuration ----------------------------------------------------
 
 needs_sphinx = '1.0'
@@ -96,6 +95,7 @@ html_theme_options = {
     'jira_project': 'DOCS',
     'google_analytics': 'UA-7301842-8',
     'is_manual': False,
+    'project': 'meta-driver'
 }
 
 html_sidebars = {
