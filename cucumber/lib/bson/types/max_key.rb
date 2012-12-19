@@ -1,6 +1,6 @@
 module BSON
   class MaxKey
-    def __bson_export__(io, key)
+    def to_bson(io, key)
       io << Types::MAX_KEY
       io << key.to_bson_cstring
     end

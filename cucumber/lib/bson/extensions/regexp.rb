@@ -1,7 +1,7 @@
 module BSON
   module Extensions
     module Regexp
-      def __bson_export__(io, key)
+      def to_bson(io, key)
         io << Types::REGEX
         io << key.to_bson_cstring
         io << source.to_bson_cstring
@@ -10,6 +10,11 @@ module BSON
         io << 'ms' if (options & ::Regexp::MULTILINE) != 0
         io << 'x'  if (options & ::Regexp::EXTENDED) != 0
         io << NULL_BYTE
+      end
+
+      module ClassMethods
+        def from_bson
+        end
       end
     end
   end

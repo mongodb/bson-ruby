@@ -1,10 +1,10 @@
 module BSON
   module Extensions
     module TrueClass
-      def __bson_export__(io, key)
+      def to_bson(io, key)
         io << Types::BOOLEAN
         io << key.to_bson_cstring
-        io << 0x01
+        io << Types::TRUE
       end
     end
   end

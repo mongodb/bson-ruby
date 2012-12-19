@@ -11,7 +11,7 @@ module BSON
       !scope.empty?
     end
 
-    def __bson_export__(io, key)
+    def to_bson(io, key)
       if scoped?
         io << Types::CODE_WITH_SCOPE
         io << key.to_bson_cstring

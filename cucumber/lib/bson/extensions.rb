@@ -11,6 +11,7 @@ require 'bson/extensions/true_class'
 require 'bson/extensions/time'
 
 class Array
+  extend  BSON::Extensions::Array::ClassMethods
   include BSON::Extensions::Array
 end
 
@@ -19,10 +20,12 @@ class FalseClass
 end
 
 class Float
+  extend  BSON::Extensions::Float::ClassMethods
   include BSON::Extensions::Float
 end
 
 class Hash
+  extend  BSON::Extensions::Hash::ClassMethods
   include BSON::Extensions::Hash
 end
 
@@ -31,34 +34,30 @@ class Integer
 end
 
 class NilClass
+  extend  BSON::Extensions::NilClass::ClassMethods
   include BSON::Extensions::NilClass
 end
 
+class Regexp
+  extend  BSON::Extensions::Regexp::ClassMethods
+  include BSON::Extensions::Regexp
+end
+
 class String
+  extend  BSON::Extensions::String::ClassMethods
   include BSON::Extensions::String
+end
+
+class Symbol
+  extend BSON::Extensions::Symbol::ClassMethods
+  include BSON::Extensions::Symbol
+end
+
+class Time
+  extend  BSON::Extensions::Time::ClassMethods
+  include BSON::Extensions::Time
 end
 
 class TrueClass
   include BSON::Extensions::TrueClass
 end
-
-class Time
-  include BSON::Extensions::Time
-end
-
-class NilClass
-  include BSON::Extensions::NilClass
-end
-
-class Regexp
-  include BSON::Extensions::Regexp
-end
-
-class Symbol
-  include BSON::Extensions::Symbol
-end
-
-class Integer
-  include BSON::Extensions::Integer
-end
-

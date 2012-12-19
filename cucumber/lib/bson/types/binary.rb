@@ -17,10 +17,7 @@ module BSON
       @type = type
     end
 
-    def __bson_import__
-    end
-
-    def __bson_export__(io, key)
+    def to_bson(io, key)
       io << Types::BINARY
       io << key.to_bson_cstring
       if type == :old
@@ -34,6 +31,10 @@ module BSON
         io << data
       end
     end
+
+    def from_bson
+    end
+
 
     def inspect
       "#<#{self.class.name} type=#{type.inspect} length=#{data.bytesize}>"

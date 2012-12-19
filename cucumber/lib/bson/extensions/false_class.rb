@@ -1,10 +1,10 @@
 module BSON
   module Extensions
     module FalseClass
-      def __bson_export__(io, key)
+      def to_bson(io, key)
         io << Types::BOOLEAN
         io << key.to_bson_cstring
-        io << 0x00
+        io << Types::FALSE
       end
     end
   end

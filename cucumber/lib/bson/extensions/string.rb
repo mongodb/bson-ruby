@@ -1,7 +1,7 @@
 module BSON
   module Extensions
     module String
-      def __bson_export__(io, key)
+      def to_bson(io, key)
         io << Types::STRING
         io << key.to_bson_cstring
 
@@ -36,6 +36,11 @@ module BSON
 
       def from_utf8_binary
         force_encoding(UTF8_ENCODING).encode!
+      end
+
+      module ClassMethods
+        def from_bson
+        end
       end
     end
   end

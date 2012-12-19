@@ -1,10 +1,7 @@
 module BSON
   module Extensions
     module Hash
-      def __bson_import__
-      end
-
-      def __bson_export__(io = "", key = nil)
+      def to_bson(io = "", key = nil)
         #if key
         #  io << Types::HASH
         #  io << key.to_bson_cstring
@@ -13,7 +10,7 @@ module BSON
         start = io.bytesize
 
         io << SIZE_SPACER
-        each {|k,v| v.__bson_export__(io, k.to_s)}
+        each {|k,v| v.to_bson(io, k.to_s)}
         io << EOD
 
         stop = io.bytesize
@@ -21,6 +18,19 @@ module BSON
         io[start, 4] = [stop - start].pack INT32_PACK
         
         io
+      end
+
+      module ClassMethods
+        def from_bson(io, document = new)
+          io.read(4)
+
+          while(bson_type = io.readbyte) != 0
+            e_name = io.gets(NULL_BYTE).from_utf8_binary.chop!
+            document[e_name] = Types::MAP[bson_type].from_bson(io)
+          end
+
+          document
+        end
       end
     end
   end

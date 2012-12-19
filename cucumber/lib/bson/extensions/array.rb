@@ -1,10 +1,12 @@
 module BSON
   module Extensions
     module Array
-      def __bson_import__
+      def to_bson(io = "")
       end
 
-      def __bson_export__(io = "")
+      module ClassMethods
+        def from_bson
+        end
       end
     end
   end

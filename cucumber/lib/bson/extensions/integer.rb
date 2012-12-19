@@ -6,11 +6,8 @@ module BSON
 
       INT64_MIN = (-2**64 / 2)
       INT64_MAX = (2**64 / 2 - 1)
-      
-      def __bson_import__
-      end
 
-      def __bson_export__(io, key)
+      def to_bson(io, key)
         if self >= INT32_MIN && self <= INT32_MAX
           io << Types::INT32
           io << key.to_bson_cstring
