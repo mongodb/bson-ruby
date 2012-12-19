@@ -7,7 +7,8 @@ module BSON
       end
 
       module ClassMethods
-        def from_bson
+        def from_bson(io)
+          nil
         end
       end
     end

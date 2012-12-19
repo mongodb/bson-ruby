@@ -1,6 +1,6 @@
 module BSON
   class Binary
-    BSON_SUB_TYPES = {
+    SUB_TYPES = {
       :generic  => 0x00,
       :function => 0x01,
       :old      => 0x02,
@@ -22,19 +22,35 @@ module BSON
       io << key.to_bson_cstring
       if type == :old
         io << [data.bytesize + 4].pack(INT32_PACK)
-        io << BSON_SUB_TYPES[type]
+        io << SUB_TYPES[type]
         io << [data.bytesize].pack(INT32_PACK)
         io << data
       else
         io << [data.bytesize].pack(INT32_PACK)
-        io << BSON_SUB_TYPES[type]
+        io << SUB_TYPES[type]
         io << data
       end
     end
 
-    def from_bson
+    def ==(other)
+      BSON::Binary === other && data == other.data && type == other.type
     end
+    alias eql? ==
 
+    class << self
+      def from_bson(io)
+        length = io.read(4).unpack(INT32_PACK).first
+        type = SUB_TYPES.invert[io.readbyte]
+
+        if type == :old
+          size -= 4
+          io.read(4)
+        end
+
+        data = io.read(length)
+        new(data, type)
+      end
+    end
 
     def inspect
       "#<#{self.class.name} type=#{type.inspect} length=#{data.bytesize}>"

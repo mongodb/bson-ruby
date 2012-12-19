@@ -43,7 +43,7 @@ module BSON
     UNDEFINED = 0x06.freeze
     OBJECT_ID = 0x07.freeze
     BOOLEAN = 0x08.freeze
-    TIME = 0x09.freeze
+    DATETIME = 0x09.freeze
     NULL = 0x0A.freeze
     REGEX = 0x0B.freeze
     DB_POINTER = 0x0C.freeze

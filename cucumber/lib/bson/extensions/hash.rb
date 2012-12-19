@@ -22,7 +22,7 @@ module BSON
 
       module ClassMethods
         def from_bson(io, document = new)
-          io.read(4)
+          length = io.read(4)
 
           while(bson_type = io.readbyte) != 0
             e_name = io.gets(NULL_BYTE).from_utf8_binary.chop!

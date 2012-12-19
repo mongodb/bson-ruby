@@ -39,9 +39,9 @@ Transform /^int64 value (-?\d+)$/ do |int64|
 end
 
 Transform /^min_key value (\S+)$/ do |min_key|
-  BSON::MinKey.new
+  BSON::MinKey
 end
 
 Transform /^max_key value (\S+)$/ do |max_key|
-  BSON::MaxKey.new
+  BSON::MaxKey
 end

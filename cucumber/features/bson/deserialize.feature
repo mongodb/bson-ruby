@@ -5,13 +5,13 @@ Feature: Deserialize Documents
   I want the driver to deserialize documents
 
   Scenario Outline: Serialize Simple Documents
-    Given an IO stream with containing <hex_bytes>
-    When I deserialize the IO stream
+    Given an IO stream containing <hex_bytes>
+    When I deserialize the stream
     Then the result should be the <type> value <value>
 
     Examples:
       | hex_bytes                              | type     | value      |
-      | 10000000016b0026e4839ecd2a094000       | float    | 3.1459     |
+      | 10000000016b0026e4839ecd2a094000       | double   | 3.1459     |
       | 11000000026b0005000000746573740000     | string   | test       |
       | 13000000056b00060000000062696e61727900 | binary   | binary     |
       | 09000000086b000100                     | boolean  | true       |
