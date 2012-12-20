@@ -16,7 +16,6 @@ Clients should connect to the database with a regular TCP/IP socket.
 Currently, there is no connection handshake.
 
 .. important:: To describe the message structure, a C-like ``struct`` is
-
    used. The types used in this document (``cstring``, ``int32``, etc.)
    are the same as those defined in the
    `BSON specification <http://bsonspec.org/#/specification>`_.
@@ -26,7 +25,7 @@ Currently, there is no connection handshake.
    In the case where more than one of something is possible (like in a
    :ref:`OP_INSERT <wire-op-insert>` or :ref:`OP_KILL_CURSORS
    <wire-op-kill-cursors>`), we again use the notation from the
-  `BSON specification <http://bsonspec.org/#/specification>`_.
+   `BSON specification <http://bsonspec.org/#/specification>`_.
    (e.g. ``int64*``). This simply indicates that one or more
    of the specified type can be written to the socket, one after
    another.
@@ -37,53 +36,95 @@ Currently, there is no connection handshake.
 Messages Types and Formats
 --------------------------
 
-There are two types of messages, client requests and database responses, each having a slightly different structure.
+There are two types of messages, client requests and database responses,
+each having a slightly different structure.
 
 Standard Message Header
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-In general, each message consists of a standard message header followed by request-specific data. The standard message header is structured as follows :
+In general, each message consists of a standard message header followed
+by request-specific data. The standard message header is structured as
+follows :
 
-struct MsgHeader {
-    int32   messageLength; // total message size, including this
-    int32   requestID;     // identifier for this message
-    int32   responseTo;    // requestID from the original request
-                           //   (used in reponses from db)
-    int32   opCode;        // request type - see table below
-}
-messageLength : This is the total size of the message in bytes. This total includes the 4 bytes that holds the message length.
+.. code-block:: sh
 
-requestID : This is a client or database-generated identifier that uniquely identifies this message. For the case of client-generated messages (e.g. OP_QUERY and CONTRIB:OP_GET_MORE), it will be returned in the
-responseTo field of the CONTRIB:OP_REPLY message. Along with the reponseTo field in responses, clients can use this to associate query responses with the originating query.
+   struct MsgHeader {
+       int32   messageLength; // total message size, including this
+       int32   requestID;     // identifier for this message
+       int32   responseTo;    // requestID from the original request
+                              //   (used in reponses from db)
+       int32   opCode;        // request type - see table below
+   }
 
-responseTo : In the case of a message from the database, this will be the requestID taken from the CONTRIB:OP_QUERY or CONTRIB:OP_GET_MORE messages from the client. Along with the requestID field in queries, clients can use this to associate query responses with the originating query.
+**messageLength**: This is the total size of the message in bytes. This
+total includes the 4 bytes that holds the message length.
 
-opCode : Type of message. See the table below in the next section.
+**requestID**: This is a client or database-generated identifier that
+uniquely identifies this message. For the case of client-generated
+messages (e.g. :ref:`OP_QUERY <wire-op-query>` and
+:ref:`CONTRIB:OP_GET_MORE <wire-op-get-more>`), it will be returned in
+the ``responseTo`` field of the :ref:`CONTRIB:OP_REPLY <wire-op-reply>`
+message. Along with the ``reponseTo`` field in responses, clients can use
+this to associate query responses with the originating query.
+
+**responseTo**: In the case of a message from the database, this will be
+the ``requestID`` taken from the :ref:`CONTRIB:OP_QUERY <wire-op-query>`
+or :ref:`CONTRIB:OP_GET_MORE <wire-op-get-more>` messages from the
+client. Along with the ``requestID`` field in queries, clients can use this
+to associate query responses with the originating query.
+
+**opCode**: Type of message. See the table below in the next section.
 
 Request Opcodes
 ~~~~~~~~~~~~~~~
 
 The following are the currently supported opcodes :
 
-Opcode Name	 opCode value	 Comment
-OP_REPLY	 1	 Reply to a client request. responseTo is set
-OP_MSG	 1000	 generic msg command followed by a string
-OP_UPDATE	 2001	 update document
-OP_INSERT	 2002	 insert new document
-RESERVED	 2003	 formerly used for OP_GET_BY_OID
-OP_QUERY	 2004	 query a collection
-OP_GETMORE	 2005	 Get more data from a query. See Cursors
-OP_DELETE	 2006	 Delete documents
-OP_KILL_CURSORS	 2007	 Tell database client is done with a cursor
+.. list-table:: Opcodes
+   :widths: 15 15 100
+   :header-rows: 1
+
+   * - Opcode Name
+     - opCode value
+     - Comment
+   * - OP_REPLY
+     - 1
+     - Reply to a client request. responseTo is set
+   * - OP_MSG
+     - 1000
+     - generic msg command followed by a string
+   * - OP_UPDATE
+     - 2001
+     - update document
+   * - OP_INSERT
+     - 2002
+     - insert new document
+   * - RESERVED
+     - 2003
+     - formerly used for OP_GET_BY_OID
+   * - OP_QUERY
+     - 2004
+     - query a collection
+   * - OP_GET_MORE
+     - 2005
+     - Get more data from a query. See Cursors
+   * - OP_DELETE
+     - 2006
+     - Delete documents
+   * - OP_KILL_CURSORS
+     - 2007
+     - Tell database client is done with a cursor
 
 Client Request Messages
 -----------------------
 
-TableOfContents
+Clients can send all messages except for :ref:`CONTRIB:OP_REPLY
+<wire-op-reply>`. This is reserved for use by the database.
 
-Clients can send all messages except for CONTRIB:OP_REPLY. This is reserved for use by the database.
-
-Note that only the CONTRIB:OP_QUERY and CONTRIB:OP_GET_MORE messages result in a response from the database. There will be no response sent for any other message.
+Only the :ref:`CONTRIB:OP_QUERY <wire-op-query>` and
+:ref:`CONTRIB:OP_GET_MORE <wire-op-get-more>` messages result in a
+response from the database. There will be no response sent for any other
+message.
 
 You can determine if a message was successful with a getLastError command.
 
@@ -92,27 +133,49 @@ You can determine if a message was successful with a getLastError command.
 OP_UPDATE
 ~~~~~~~~~
 
-The OP_UPDATE message is used to update a document in a collection. The format of a OP_UPDATE message is
+The OP_UPDATE message is used to update a document in a collection. The
+format of a OP_UPDATE message is the following:
 
-struct OP_UPDATE {
-    MsgHeader header;             // standard message header
-    int32     ZERO;               // 0 - reserved for future use
-    cstring   fullCollectionName; // "dbname.collectionname"
-    int32     flags;              // bit vector. see below
-    document  selector;           // the query to select the document
-    document  update;             // specification of the update to perform
-}
-fullCollectionName : The full collection name. The full collection name is the concatenation of the database name with the collection name, using a "." for the concatenation. For example, for the database "foo" and the collection "bar", the full collection name is "foo.bar".
+.. code-block:: sh
 
-flags :
+   struct OP_UPDATE {
+       MsgHeader header;             // standard message header
+       int32     ZERO;               // 0 - reserved for future use
+       cstring   fullCollectionName; // "dbname.collectionname"
+       int32     flags;              // bit vector. see below
+       document  selector;           // the query to select the document
+       document  update;             // specification of the update to perform
+   }
 
-bit num	 name	 description
-0	 Upsert	 If set, the database will insert the supplied object into the collection if no matching document is found.
-1	 MultiUpdate	 If set, the database will update all matching objects in the collection. Otherwise only updates first matching doc.
-2-31	 Reserved	 Must be set to 0.
-selector : BSON document that specifies the query for selection of the document to update.
+**fullCollectionName**: The full collection name. The full collection
+name is the concatenation of the database name with the collection name,
+using a ``.`` for the concatenation. For example, for the database ``foo``
+and the collection ``bar``, the full collection name is ``foo.bar``.
 
-update : BSON document that specifies the update to be performed. For information on specifying updates see the documentation on Updating.
+.. list-table:: Flags
+   :widths: 15 15 100
+   :header-rows: 1
+
+   * - bit num
+     - name
+     - description
+   * - 0
+     - Upsert
+     - If set, the database will insert the supplied object into the
+       collection if no matching document is found.
+   * - 1
+     - MultiUpdate
+     - If set, the database will update all matching objects in the
+       collection. Otherwise only updates first matching doc.
+   * - 2-31
+     - Reserved
+     - Must be set to 0.
+
+**selector**: BSON document that specifies the query for selection of the
+document to update.
+
+**update**: BSON document that specifies the update to be performed. For
+information on specifying updates see :ref:`/applications/update`.
 
 There is no response to an OP_UPDATE message.
 
@@ -133,11 +196,20 @@ fullCollectionName : The full collection name. The full collection name is the c
 
 documents : One or more documents to insert into the collection. If there are more than one, they are written to the socket in sequence, one after another.
 
-flags :
+.. list-table:: Flags
+   :widths: 15 15 100
+   :header-rows: 1
 
-bit num	 name	 description
-0	 ContinueOnError	 If set, the database will not stop processing a bulk insert if one fails (eg due to duplicate IDs). This makes bulk insert behave similarly to a series of single inserts, except lastError will be set if any insert fails, not just the last one. If multiple errors occur, only the most recent will be reported by getLastError. (new in 1.9.1)
-1-31	 Reserved	 Must be set to 0.
+   * - bit num
+     - name
+     - description
+   * - 0
+     - ContinueOnError
+     - If set, the database will not stop processing a bulk insert if one fails (eg due to duplicate IDs). This makes bulk insert behave similarly to a series of single inserts, except lastError will be set if any insert fails, not just the last one. If multiple errors occur, only the most recent will be reported by getLastError. (new in 1.9.1)
+   * - 1-31
+     - Reserved
+     - Must be set to 0.
+
 There is no response to an OP_INSERT message.
 
 .. _wire-op-query:
@@ -158,37 +230,77 @@ struct OP_QUERY {
   [ document  returnFieldSelector; ] // Optional. Selector indicating the fields
                                      //  to return.  See below for details.
 }
-flags :
 
-bit num	 name	 description
-0	 Reserved	 Must be set to 0.
-1	 TailableCursor	 Tailable means cursor is not closed when the last data is retrieved. Rather, the cursor marks the final object's position. You can resume using the cursor later, from where it was located, if more data were received. Like any "latent cursor", the cursor may become invalid at some point (CursorNotFound) – for example if the final object it references were deleted.
-2	 SlaveOk	 Allow query of replica slave. Normally these return an error except for namespace "local".
-3	 OplogReplay	 Internal replication use only - driver should not set
-4	 NoCursorTimeout	 The server normally times out idle cursors after an inactivity period (10 minutes) to prevent excess memory use. Set this option to prevent that.
-5	 AwaitData	 Use with TailableCursor. If we are at the end of the data, block for a while rather than returning no data. After a timeout period, we do return as normal.
-6	 Exhaust	 Stream the data down full blast in multiple "more" packages, on the assumption that the client will fully read all data queried. Faster when you are pulling a lot of data and know you want to pull it all down. Note: the client is not allowed to not read all the data unless it closes the connection.
-7	 Partial	 Get partial results from a mongos if some shards are down (instead of throwing an error)
-8-31	 Reserved	 Must be set to 0.
-fullCollectionName : The full collection name. The full collection name is the concatenation of the database name with the collection name, using a "." for the concatenation. For example, for the database "foo" and the collection "bar", the full collection name is "foo.bar".
+.. list-table:: Flags
+   :widths: 15 15 100
+   :header-rows: 1
 
-numberToSkip : Sets the number of documents to omit - starting from the first document in the resulting dataset - when returning the result of the query.
+   * - bit num
+     - name
+     - description
+   * - 0
+     - Reserved
+     - Must be set to 0.
+   * - 1
+     - TailableCursor
+     - Tailable means cursor is not closed when the last data is retrieved. Rather, the cursor marks the final object's position. You can resume using the cursor later, from where it was located, if more data were received. Like any "latent cursor", the cursor may become invalid at some point (CursorNotFound) – for example if the final object it references were deleted.
+   * - 2
+     - SlaveOk
+     - Allow query of replica slave. Normally these return an error except for namespace "local".
+   * - 3
+     - OplogReplay
+     - Internal replication use only - driver should not set
+   * - 4
+     - NoCursorTimeout
+     - The server normally times out idle cursors after an inactivity period (10 minutes) to prevent excess memory use. Set this option to prevent that.
+   * - 5
+     - AwaitData
+     - Use with TailableCursor. If we are at the end of the data, block for a while rather than returning no data. After a timeout period, we do return as normal.
+   * - 6
+     - Exhaust
+     - Stream the data down full blast in multiple "more" packages, on the assumption that the client will fully read all data queried. Faster when you are pulling a lot of data and know you want to pull it all down. Note: the client is not allowed to not read all the data unless it closes the connection.
+   * - 7
+     - Partial
+     - Get partial results from a mongos if some shards are down (instead of throwing an error)
+   * - 8-31
+     - Reserved
+     - Must be set to 0.
 
-numberToReturn : Limits the number of documents in the first CONTRIB:OP_REPLY message to the query. However, the database will still establish a cursor and return the cursorID to the client if there are more results than numberToReturn. If the client driver offers 'limit' functionality (like the SQL LIMIT keyword), then it is up to the client driver to ensure that no more than the specified number of document are returned to the calling application. If numberToReturn is 0, the db will use the default return size. If the number is negative, then the database will return that number and close the cursor. No futher results for that query can be fetched. If numberToReturn is 1 the server will treat it as -1 (closing the cursor automatically).
+fullCollectionName : The full collection name. The full collection name
+is the concatenation of the database name with the collection name,
+using a "." for the concatenation. For example, for the database "foo"
+and the collection "bar", the full collection name is "foo.bar".
+
+numberToSkip : Sets the number of documents to omit - starting from the
+first document in the resulting dataset - when returning the result of
+the query.
+
+numberToReturn : Limits the number of documents in the first
+:ref:`CONTRIB:OP_REPLY <wire-op-reply>` message to the query. However,
+the database will still establish a cursor and return the cursorID to
+the client if there are more results than numberToReturn. If the client
+driver offers 'limit' functionality (like the SQL LIMIT keyword), then
+it is up to the client driver to ensure that no more than the specified
+number of document are returned to the calling application. If
+numberToReturn is 0, the db will use the default return size. If the
+number is negative, then the database will return that number and close
+the cursor. No futher results for that query can be fetched. If
+numberToReturn is 1 the server will treat it as -1 (closing the cursor
+automatically).
 
 query : BSON document that represents the query. The query will contain one or more elements, all of which must match for a document to be included in the result set. Possible elements include $query, $orderby, $hint, $explain, and $snapshot.
 
 returnFieldsSelector : OPTIONAL BSON document that limits the fields in the returned documents. The returnFieldsSelector contains one or more elements, each of which is the name of a field that should be returned, and and the integer value 1. In JSON notation, a returnFieldsSelector to limit to the fields "a", "b" and "c" would be :
 
-{ a : 1, b : 1, c : 1}
-The database will respond to an OP_QUERY message with an CONTRIB:OP_REPLY message.
+{ a : 1, b : 1, c : 1} The database will respond to an OP_QUERY message
+with an :ref:`CONTRIB:OP_REPLY <wire-op-reply>` message.
 
-.. _wire-op-getmore:
+.. _wire-op-get-more:
 
-OP_GETMORE
-~~~~~~~~~~
+OP_GET_MORE
+~~~~~~~~~~~
 
-The OP_GETMORE message is used to query the database for documents in a collection. The format of the OP_GETMORE message is :
+The OP_GET_MORE message is used to query the database for documents in a collection. The format of the OP_GET_MORE message is :
 
 struct {
     MsgHeader header;             // standard message header
@@ -199,11 +311,11 @@ struct {
 }
 fullCollectionName : The full collection name. The full collection name is the concatenation of the database name with the collection name, using a "." for the concatenation. For example, for the database "foo" and the collection "bar", the full collection name is "foo.bar".
 
-numberToReturn : Limits the number of documents in the first CONTRIB:OP_REPLY message to the query. However, the database will still establish a cursor and return the cursorID to the client if there are more results than numberToReturn. If the client driver offers 'limit' functionality (like the SQL LIMIT keyword), then it is up to the client driver to ensure that no more than the specified number of document are returned to the calling application. If numberToReturn is 0, the db will used the default return size.
+numberToReturn : Limits the number of documents in the first :ref:`CONTRIB:OP_REPLY <wire-op-reply>` message to the query. However, the database will still establish a cursor and return the cursorID to the client if there are more results than numberToReturn. If the client driver offers 'limit' functionality (like the SQL LIMIT keyword), then it is up to the client driver to ensure that no more than the specified number of document are returned to the calling application. If numberToReturn is 0, the db will used the default return size.
 
-cursorID : Cursor identifier that came in the CONTRIB:OP_REPLY. This must be the value that came from the database.
+cursorID : Cursor identifier that came in the :ref:`CONTRIB:OP_REPLY <wire-op-reply>`. This must be the value that came from the database.
 
-The database will respond to an OP_GETMORE message with an CONTRIB:OP_REPLY message.
+The database will respond to an OP_GET_MORE message with an :ref:`CONTRIB:OP_REPLY <wire-op-reply>` message.
 
 .. _wire-op-delete:
 
@@ -221,11 +333,20 @@ struct {
 }
 fullCollectionName : The full collection name. The full collection name is the concatenation of the database name with the collection name, using a "." for the concatenation. For example, for the database "foo" and the collection "bar", the full collection name is "foo.bar".
 
-flags :
+.. list-table:: Flags
+   :widths: 15 15 100
+   :header-rows: 1
 
-bit num	 name	 description
-0	 SingleRemove	 If set, the database will remove only the first matching document in the collection. Otherwise all matching documents will be removed.
-1-31	 Reserved	 Must be set to 0.
+   * - bit num
+     - name
+     - description
+   * - 0
+     - SingleRemove
+     - If set, the database will remove only the first matching document in the collection. Otherwise all matching documents will be removed.
+   * - 1-31
+     - Reserved
+     - Must be set to 0.
+
 selector : BSON document that represent the query used to select the documents to be removed. The selector will contain one or more elements, all of which must match for a document to be removed from the collection. Please see $$$ TODO QUERY for more information.
 
 There is no reponse to an OP_DELETE message.
@@ -247,7 +368,9 @@ numberOfCursorIDs : The number of cursors that are in the message.
 
 cursorIDs : "array" of cursor IDs to be closed. If there are more than one, they are written to the socket in sequence, one after another.
 
-Note that if a cursor is read until exhausted (read until OP_QUERY or OP_GETMORE returns zero for the cursor id), there is no need to kill the cursor.
+Note that if a cursor is read until exhausted (read until :ref:`OP_QUERY
+<wire-op-query>` or :ref:`OP_GET_MORE <wire-op-get-more>` returns zero for
+the cursor id), there is no need to kill the cursor.
 
 .. _wire-op-msg:
 
@@ -270,8 +393,9 @@ Database Response Messages
 OP_REPLY
 ~~~~~~~~
 
-The OP_REPLY message is sent by the database in response to an CONTRIB:OP_QUERY or CONTRIB:OP_GET_MORE
-message. The format of an OP_REPLY message is:
+The OP_REPLY message is sent by the database in response to an
+:ref:`CONTRIB:OP_QUERY <wire-op-query>` or :ref:`CONTRIB:OP_GET_MORE <wire-op-get-more>` message.
+The format of an OP_REPLY message is:
 
 struct {
     MsgHeader header;         // standard message header
@@ -281,12 +405,33 @@ struct {
     int32     numberReturned; // number of documents in the reply
     document* documents;      // documents
 }
-responseFlags :
 
-bit num	 name	 description
-0	 CursorNotFound	 Set when getMore is called but the cursor id is not valid at the server. Returned with zero results.
-1	 QueryFailure	 Set when query failed. Results consist of one document containing an "$err" field describing the failure.
-2	 ShardConfigStale	 Drivers should ignore this. Only mongos will ever see this set, in which case, it needs to update config from the server.
-3	 AwaitCapable	 Set when the server supports the AwaitData Query option. If it doesn't, a client should sleep a little between getMore's of a Tailable cursor. Mongod version 1.6 supports AwaitData and thus always sets AwaitCapable.
-4-31	 Reserved	 Ignore
-cursorID : The cursorID that this OP_REPLY is a part of. In the event that the result set of the query fits into one OP_REPLY message, cursorID will be 0. This cursorID must be used in any CONTRIB:OP_GET_MORE messages used to get more data, and also must be closed by the client when no longer needed via a CONTRIB:OP_KILL_CURSORS message.
+.. list-table:: responseFlags
+   :widths: 15 15 100
+   :header-rows: 1
+
+   * - bit num
+     - name
+     - description
+   * - 0
+     - CursorNotFound
+     - Set when getMore is called but the cursor id is not valid at the server. Returned with zero results.
+   * - 1
+     - QueryFailure
+     - Set when query failed. Results consist of one document containing an "$err" field describing the failure.
+   * - 2
+     - ShardConfigStale
+     - Drivers should ignore this. Only mongos will ever see this set, in which case, it needs to update config from the server.
+   * - 3
+     - AwaitCapable
+     - Set when the server supports the AwaitData Query option. If it doesn't, a client should sleep a little between getMore's of a Tailable cursor. Mongod version 1.6 supports AwaitData and thus always sets AwaitCapable.
+   * - 4-31
+     - Reserved
+     - Ignore
+
+cursorID : The cursorID that this OP_REPLY is a part of. In the event
+that the result set of the query fits into one OP_REPLY message,
+cursorID will be 0. This cursorID must be used in any
+:ref:`CONTRIB:OP_GET_MORE <wire-op-get-more>` messages used to get more
+data, and also must be closed by the client when no longer needed via a
+:ref:`CONTRIB:OP_KILL_CURSORS <wire-op-kill-cursors>` message.
