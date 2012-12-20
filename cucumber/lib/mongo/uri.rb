@@ -1,4 +1,4 @@
 module Mongo
-  class Database
+  class URI
   end
 end

@@ -1,4 +1,5 @@
 # language: en
+@bson
 Feature: Serialize Documents 
   As a user of MongoDB
   In order to store data in the database
@@ -24,3 +25,8 @@ Feature: Serialize Documents
       | int64    | 2147483648 | 10000000126b00000000800000000000       |
       | min_key  | min        | 08000000ff6b0000                       |
       | max_key  | max        | 080000007f6b0000                       |
+
+  Scenario Outline: Serialize Complex Documents
+    Given a <document>
+    When I serialize the document
+    Then the result should be 

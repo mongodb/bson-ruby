@@ -1,4 +1,4 @@
 module Mongo
-  class Database
+  module Protocol
   end
 end
