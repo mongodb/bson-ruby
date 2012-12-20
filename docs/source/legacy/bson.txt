@@ -30,8 +30,8 @@ both top-level and nested BSON keys.
 Language-Specific Examples
 --------------------------
 
-We often map from a language's "dictionary" type – which may be its
-native objects – to BSON. The mapping is particularly natural in
+We often map from a language's "dictionary" type, which may be its
+native objects, to BSON. The mapping is particularly natural in
 dynamically typed languages:
 
 .. code-block:: sh
