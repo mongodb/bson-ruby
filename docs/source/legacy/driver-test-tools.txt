@@ -1,0 +1,17 @@
+====================
+Driver Testing Tools
+====================
+
+Object IDs
+----------
+
+- driverOIDTest for testing toString
+
+  .. code-block:: javascript
+
+     > db.runCommand( { "driverOIDTest" : new ObjectId() } )
+     {
+         "oid" : ObjectId("4b8991f221752a6e61a88267"),
+         "str" : "4b8991f221752a6e61a88267",
+         "ok" : 1
+     }
