@@ -1,6 +1,6 @@
-=============================
-Conventions for Mongo Drivers
-=============================
+===============================
+Conventions for MongoDB Drivers
+===============================
 
 Interface Conventions
 ---------------------

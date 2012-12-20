@@ -30,7 +30,7 @@ Recommended
 - Database :doc:`$cmd </reference/command>` support and helpers
 
 - Detect ``{ $err: ... }`` response from a database query and handle
-  appropriately. See :wiki:`Error Handling in Mongo Drivers <Error+Handling+in+Mongo+Drivers>`
+  appropriately. See :wiki:`Error Handling in MongoDB Drivers <Error+Handling+in+Mongo+Drivers>`
 
 - Automatically connect to proper server, and failover, when connecting
   to a :term:`replica set`

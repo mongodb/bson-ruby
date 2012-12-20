@@ -1,6 +1,6 @@
-==================================
-Notes on Pooling for Mongo Drivers
-==================================
+====================================
+Notes on Pooling for MongoDB Drivers
+====================================
 
 Note that with the database write operations can be sent asynchronously
 or synchronously, the latter indicating a :dbcommand:`getLastError
