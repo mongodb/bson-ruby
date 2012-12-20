@@ -27,7 +27,7 @@ Recommended
 
 - Automatic ``_id`` generation
 
-- Database :doc:`$cmd </reference/commands>` support and helpers
+- Database :doc:`$cmd </reference/command>` support and helpers
 
 - Detect ``{ $err: ... }`` response from a database query and handle
   appropriately. See :wiki:`Error Handling in Mongo Drivers <Error+Handling+in+Mongo+Drivers>`
