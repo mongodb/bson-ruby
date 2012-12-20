@@ -2,4 +2,5 @@
 GridFS Specification
 ====================
 
-For the GridFS Specification, see `http://docs.mongodb.org/manual/applications/gridfs/ <>`_.
+For the GridFS Specification, see
+`http://docs.mongodb.org/manual/applications/gridfs/ <http://docs.mongodb.org/manual/applications/gridfs/>`_.
