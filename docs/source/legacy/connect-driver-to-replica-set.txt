@@ -1,0 +1,68 @@
+==================================
+Connecting Drivers to Replica Sets
+==================================
+
+Ideally a MongoDB driver can connect to a cluster of servers which
+represent a :term:`replica set`, and automatically find the right set
+member with which to communicate. Failover should be automatic too. The
+general steps are:
+
+1. The user, when opening the connection, specifies ``host[:port]`` for one
+   or more members of the set. Not all members need be specified. In
+   fact the exact members of the set might change over time. This list
+   for the connect call is the seed list.
+
+2. The driver then connects to all servers on the seed list, perhaps in
+   parallel to minimize connect time. Send an :dbcommand:`isMaster` command
+   to each server.
+
+3. When the server is in ``replSet`` mode, it will return a hosts field with
+   all members of the set that are potentially eligible to serve data.
+   The client should cache this information. Ideally this refreshes too,
+   as the set's config could change over time.
+
+4. Choose a server with which to communicate.
+
+   - If ``ismaster == true``, that server is :term:`primary` for the set. This
+     server can be used for writes and immediately consistent reads.
+
+   - If ``secondary == true``, that server is not primary, but is available
+     for eventually consistent reads. In this case, you can use the
+     primary field to see which server the master should be. (If primary
+     is not set, you may want to poll other nodes at random; it is
+     conceivable that the member to which we are talking is partitioned
+     from the other members, and thus it cannot determine who is primary
+     on its own. This is unlikely but possible.)
+
+5. If an error occurs with the current connection, find the new primary
+   and resume use there.
+
+For example, if we run the ismaster command on a non-primary server, we
+might get something like:
+
+.. code-block:: javascript
+
+   > db.runCommand("ismaster")
+   {
+        "ismaster" : false,
+        "secondary" : true,
+        "hosts" : [
+                "ny1.acme.com",
+                "ny2.acme.com",
+                "sf1.acme.com"
+        ],
+        "passives" : [
+             "ny3.acme.com",
+             "sf3.acme.com"
+        ],
+        "arbiters" : [
+            "sf2.acme.com",
+        ]
+        "primary" : "ny2.acme.com",
+        "ok" : true
+   }
+
+There are three servers with priority > 0 (``ny1``, ``ny2``, and ``sf1``), two
+passive servers (``ny3`` and ``sf3``), and an arbiter (``sf2``). The primary should
+be ``ny2``, but the driver should call :dbcommand:`isMaster` on that server before it
+assumes it is.
