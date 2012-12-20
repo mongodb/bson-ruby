@@ -8,7 +8,7 @@ user data.
 
 The error object's first field has the reserved key ``$err``. For example:
 
-.. code-block::
+.. code-block:: sh
 
    { $err : "some error message" }
 
@@ -18,7 +18,7 @@ Drivers typically check for this return code explicitly and take action
 rather than return the object to the user. The query results flags
 include a set bit when ``$err`` is returned.
 
-.. code-block::
+.. code-block:: sh
 
    /* db response format
 
