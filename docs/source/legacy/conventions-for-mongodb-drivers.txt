@@ -1,0 +1,24 @@
+=============================
+Conventions for Mongo Drivers
+=============================
+
+Interface Conventions
+---------------------
+
+It is desirable to keep driver interfaces consistent when possible. Of
+course, idioms vary by language, and when they do adaptation is
+appropriate. However, when the idiom is the same, keeping the interfaces
+consistent across drivers is desirable.
+
+Terminology
+-----------
+
+In general, use these terms when naming identifiers. Adapt the names to
+the normal "punctuation" style of your language -- ``foo_bar`` in C might be
+``fooBar`` in Java.
+
+.. todo The following text was also on the wiki page:
+
+   database - what does this mean?
+   collection
+   index
