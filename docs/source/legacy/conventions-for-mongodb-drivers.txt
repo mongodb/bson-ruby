@@ -17,8 +17,6 @@ In general, use these terms when naming identifiers. Adapt the names to
 the normal "punctuation" style of your language -- ``foo_bar`` in C might be
 ``fooBar`` in Java.
 
-.. todo The following text was also on the wiki page:
-
-   database - what does this mean?
-   collection
-   index
+- database
+- collection
+- index
