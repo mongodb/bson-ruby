@@ -16,7 +16,7 @@ High Priority
 - :term:`BSON` serialization/deserialization
 - full cursor support (e.g. support ``OP_GET_MORE`` operation)
 - close exhausted cursors via ``OP_KILL_CURSORS``
-- support for running :ref:`database commands </reference/commands>`
+- support for running :doc:`database commands </reference/commands>`
 - handle query errors
 - convert all strings to UTF-8 (part of proper support for BSON)
 - :method:`hint() <cursor.hint()>`, :method:`explain() <cursor.explain()>`,
