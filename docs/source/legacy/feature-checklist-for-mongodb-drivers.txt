@@ -1,0 +1,83 @@
+=====================================
+Feature Checklist for MongoDB Drivers
+=====================================
+
+This section lists tasks the driver author might handle.
+
+Essential
+---------
+
+- :term:`BSON` serialization/deserialization
+
+- Basic operations: ``query``, ``insert``, ``update``, ``remove``,
+  ``ensureIndex``, ``findOne``, ``limit``, ``sort``
+
+- Fetch more data from a cursor when necessary (``dbGetMore``)
+
+- Sending the :wiki:`KillCursors
+  <Mongo+Wire+Protocol#MongoWireProtocol-OPKILLCURSORS>` operation when
+  use of a cursor has completed. For efficiency, send these in batches.
+
+- Convert all strings to UTF-8.
+
+- :wiki:`Authentication <Implementing+Authentication+in+a+Driver>`
+
+Recommended
+-----------
+
+- Automatic ``_id`` generation
+
+- Database :doc:`$cmd </reference/commands>` support and helpers
+
+- Detect ``{ $err: ... }`` response from a database query and handle
+  appropriately. See :wiki:`Error Handling in Mongo Drivers <Error+Handling+in+Mongo+Drivers>`
+
+- Automatically connect to proper server, and failover, when connecting
+  to a :term:`replica set`
+
+- :method:`ensureIndex <db.collection.ensureIndex()>` commands should be
+  cached to prevent excessive communication with the database. Or, the
+  driver user should be informed that :method:`ensureIndex
+  <db.collection.ensureIndex()>` is not a lightweight operation for the
+  particular driver.
+
+- Support detecting max BSON size on connection (e.g., using
+  :dbcommand:`buildInfo` or :dbcommand:`isMaster` commands) and allowing
+  users to insert docs up to that size.
+
+More Recommended
+----------------
+
+- :method:`getLastError() <db.getLastError()>`
+- :method:`count() <cursor.count()>`
+- :method:`eval() <db.eval()>`
+- :method:`explain() <cursor.explain()>`
+- :method:`hint() <cursor.hint()>`
+- ``$where``
+- File chunking (:doc:`/applications/gridfs`)
+
+More Optional
+-------------
+
+- :method:`addUser() <db.addUser()>`
+- :method: `logout() <db.logout()>`
+- Allow client user to specify :method:`setSlaveOk() <mongo.setSlaveOk()>` for a query
+- :wiki:`Tailable cursor <Tailable+Cursors>` support
+- In/out buffer pooling, if implementing in garbage collected language
+
+More Optional
+-------------
+
+- Connection pooling
+- Automatic reconnect on connection failure
+- :doc:`DBRef Support </applications/database-references>`:
+  - Ability to generate easily
+  - Automatic traversal
+
+.. seealso::
+
+   - The :wiki:`Driver and Integration Center
+     <Writing+Drivers+and+Tools>` for information about the latest
+     drivers
+
+   - The main :wiki:`Database Internals page <Database+Internals>`
