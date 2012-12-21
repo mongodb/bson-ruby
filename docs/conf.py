@@ -83,6 +83,7 @@ html_split_index = False
 html_show_sourcelink = False
 html_show_sphinx = True
 html_show_copyright = True
+htmlhelp_basename = 'MongoDBdoc'
 
 manual_edition_path = 'http://docs.mongodb.org/meta-driver/' + current_git_branch + '/' + project + '-Manual-' + current_git_branch
 
@@ -101,7 +102,7 @@ html_theme_options = {
 html_sidebars = {
     '**': ['localtoc.html', 'pagenav.html'],
 }
-htmlhelp_basename = 'MongoDBdoc'
+
 
 # -- Options for LaTeX output --------------------------------------------------
 

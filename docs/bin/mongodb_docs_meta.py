@@ -4,7 +4,7 @@ import datetime
 import re
 import subprocess
 
-MANUAL_BRANCH = 'manual'
+MANUAL_BRANCH = 'latest'
 
 def shell_value( args ):
     if isinstance( args , str ):
