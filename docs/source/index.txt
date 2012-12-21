@@ -42,7 +42,7 @@ Specifications <specification>`:
    specification/*
 
 Legacy
----------
+------
 
 .. toctree::
    :maxdepth: 1

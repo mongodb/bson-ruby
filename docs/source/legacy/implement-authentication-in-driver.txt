@@ -156,9 +156,9 @@ For drivers that support :term:`replica sets <replica set>`,
 authentication requires additional considerations:
 
 - When switching from one server in a replica set to another, such as
-  in a failover situation, you must reauthenticate. Clients might
+  in a failover situation, you must re-authenticate. Clients might
   consider caching authentication from the user so that the clients can
-  reauthenticate with the new server when appropriate.
+  re-authenticate with the new server when appropriate.
 
 - Logging out from some but not all members of a replica set could be
   problematic.
