@@ -41,6 +41,14 @@ Specifications <specification>`:
 
    specification/*
 
+Legacy
+------
+
+.. toctree::
+   :maxdepth: 1
+   
+   legacy/implement-authentication-in-driver
+
 Additional Resources
 --------------------
 

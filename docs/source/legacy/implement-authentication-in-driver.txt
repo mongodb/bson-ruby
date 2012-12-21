@@ -1,0 +1,170 @@
+====================================
+Implement Authentication in a Driver
+====================================
+
+.. default-domain:: mongodb
+
+Overview
+--------
+
+The current version of MongoDB supports only the very basic
+authentication of a username and password for a particular database.
+Once authenticated, the user has full read and write access to that
+database.
+
+The exception is the authentication for the :term:`admin database`.
+Authentication on the :term:`admin database` gives the user read and
+write access to *all* databases on the server. Effectively, admin
+access means root access to the database.
+
+.. note::
+
+   On a single socket, it is possible to authenticate for any number of
+   databases and as different users. This authentication persists for
+   the life of the database connection, barring a :ref:`logout
+   <implement-authentication-logout>` command.
+
+Authentication Process
+----------------------
+
+Authentication is a two step process:
+
+#. The driver runs a :dbcommand:`getnonce` command to get a nonce for
+   use in the subsequent authentication, as in the following example in
+   the :program:`mongo` shell:
+
+   .. Q: Should I use the shell wrapper db.runCommand()?
+
+   .. code-block:: javascript
+   
+      db.$cmd.findOne( { getnonce: 1} )
+
+   The result of the command displays the ``nonce`` as a hexadecimal
+   String:
+   
+   .. code-block:: javascript
+
+      { "nonce" : "7ca422a24f326f2a", "ok" : 1 }
+
+#. The driver then runs the ``authenticate`` command for the
+   database on which to authenticate. 
+
+   .. Q: Should I just refer to the db.authenticate() command?
+
+   The authenticate command has the following syntax:
+
+   .. code-block:: javascript
+
+      db.runCommand( { authenticate : 1, user : <username>, nonce : <nonce>, key : <digest> }
+
+   - ``<username>`` is a username in the database's ``system.users``
+     collection.
+     
+   - ``<nonce>`` is the nonce returned from a previous
+     :dbcommand:`getnonce` step.
+
+   - ``<digest>`` is the hex encoding of an MD5 message digest.
+
+     - The MD5 message digest is the MD5 hash of the concatenation of
+       ``<nonce>``, ``<username>``, ``<password_digest>``.
+
+     - The ``<password_digest>`` is the value in the ``pwd`` field
+       associated with the ``<username>`` in the database's
+       ``system.users`` collection. The ``pwd`` is the hex encoding of
+       MD5( ``<username>`` + ``":mongo:"`` + ``<password_text>`` ).
+
+   The result of the command should display:
+
+   .. code-block:: javascript
+
+      { "ok" : 1 }
+
+   If the authentication fails, you can review the details in the
+   MongoDB server log files.
+
+Consider the following implementation of authentication that uses the
+MongoDB JavaScript driver:
+
+.. code-block:: javascript
+
+   DB.prototype.addUser = function( username , pass ){
+       var c = this.getCollection( "system.users" );
+
+       var u = c.findOne( { user : username } ) || { user : username };
+       u.pwd = hex_md5( username + ":mongo:" + pass );
+       print( tojson( u ) );
+
+       c.save( u );
+   }
+
+   DB.prototype.auth = function( username , pass ){
+       var n = this.runCommand( { getnonce : 1 } );
+
+       var a = this.runCommand(
+           {
+               authenticate : 1 ,
+               user : username ,
+               nonce : n.nonce ,
+               key : hex_md5( n.nonce + username + hex_md5( username + ":mongo:" + pass ) )
+           }
+       );
+
+       return a.ok;
+   }      
+
+.. _implement-authentication-logout:
+
+Logout
+-------
+
+.. Drivers may optionally implement the logout command which
+   deauthorizes usage for the specified database for this connection. Note
+   other databases may still be authorized.  Alternatively, you can close the
+   socket to deauthorize.
+
+Drivers may implement the :dbcommand:`logout` command which, for the
+connection, deauthorizes the usage for the specified database. Other
+databases may still be authorized.
+
+.. Q: Should I use the shell wrapper db.runCommand()?
+
+.. code-block:: javascript
+
+   db.$cmd.findOne( { logout: 1 } )
+
+The result of the command should display:
+
+.. code-block:: javascript
+
+   { "ok" : 1 }
+
+Alternatively, you can close the socket to deauthorize.
+
+Replica Sets and Authentication
+-------------------------------
+
+.. For drivers that support , extra care with
+   replication is required. When switching from one server in a replica
+   set to another, for example in a failover situation, you must
+   reauthenticate. Clients will likely want to cache authentication from
+   the user so that the client can reauthenticate with the new server when
+   appropriate. Be careful also with operations such as Logout. If you log
+   out from only some members of a replica set, that could be an issue.
+   Authenticating with a server in slave mode is allowed.
+
+For drivers that support :term:`replica sets <replica set>`,
+authentication requires additional considerations:
+
+- When switching from one server in a replica set to another, such as
+  in a failover situation, you must re-authenticate. Clients might
+  consider caching authentication from the user so that the clients can
+  re-authenticate with the new server when appropriate.
+
+- Logging out from some but not all members of a replica set could be
+  problematic.
+
+- Authenticating with a server in slave mode is allowed.
+
+.. seealso::
+
+   :wiki:`Security and Authentication`
