@@ -1,0 +1,231 @@
+===========================
+MongoDB Driver Requirements
+===========================
+
+This is a high-level list of features that a driver for MongoDB might
+provide. We attempt to group those features by priority. This list
+should be taken with a grain of salt, and probably used more for
+inspiration than as law that must be adhered to. A great way to learn
+about implementing a driver is by reading the source code of any of the
+existing :doc:`drivers </applications/drivers>`, especially the ones
+listed as "mongodb.org supported".
+
+High Priority
+-------------
+
+- :term:`BSON` serialization/deserialization
+- full cursor support (e.g. support ``OP_GET_MORE`` operation)
+- close exhausted cursors via ``OP_KILL_CURSORS``
+- support for running :doc:`database commands </reference/commands>`
+- handle query errors
+- convert all strings to UTF-8 (part of proper support for BSON)
+- :method:`hint() <cursor.hint()>`, :method:`explain() <cursor.explain()>`,
+  :method:`count() <db.collection.count()>`, :operator:`$where`
+- database profiling: set/get profiling level, get profiling info
+- `advanced connection management (replica sets, slave okay) <http://www.mongodb.org/display/DOCS/Connecting+Drivers+to+Replica+Sets>`_
+- automatic reconnection
+
+Medium Priority
+---------------
+
+- validate a collection in a database
+- buffer pooling
+- Tailable cursor support
+
+A driver should be able to connect to a single server. By default this
+must be ``localhost:27017``, and must also allow the server to be specified
+by hostname and port.
+
+.. code-block:: sh
+
+   Mongo m = new Mongo();   // go to localhost, default port
+
+   Mongo m = new Mongo(String host, int port);
+
+How the driver does this is up to the driver - make it idiomatic.
+However, a driver should make it explicit and clear what is going on.
+
+Replica Sets
+~~~~~~~~~~~~
+
+A driver must be able to support "Replica-Set" configurations, where
+multiple :program:`mongod` servers are specified, and configured for
+hot-failover.
+
+The driver should determine which of the nodes is the current master,
+and send all operations to that server. In the event of an error, either
+socket error or a "not a master" error, the driver must restart the
+determination process.
+
+**Cluster Mode** Connect to master in master-slave cluster
+
+.. code-block:: sh
+
+   ServerCluster sc = new ServerCluster(INETAddr...); // again, give one and discover?
+   Mongo m = new Mongo(sc);
+
+## Connect to slave in read-only mode in master-slave cluster
+
+.. code-block:: sh
+
+   ServerCluster sc = new ServerCluster(INETAddr...); // again, give one and discover?
+   sc.setTarget(...)
+   Mongo m = new Mongo(sc);
+
+   or maybe make it like *Default/Simple* w/ a flag?
+
+Other than that, we need a way to get a DB object:
+
+.. code-block:: sh
+
+   Mongo m = new Mongo();
+
+   DB db = m.getDB(name);
+
+And a list of db names (useful for tools...) :
+
+.. code-block:: sh
+
+   List<String> getDBNameList();
+
+Database Object
+---------------
+
+Simple operations on a database object :
+
+.. code-block:: sh
+
+   /**
+    *  get name of database
+    */
+   String    dbName = db.getName();
+
+   /**
+    * Get a list of all the collection names in this database
+    */
+   List<String> cols = db.getCollectionNames();
+
+   /**
+    * get a collection object.  Can optionally create it if it
+    *  doesn't exist, or just  be strict.  (XJDM has strictness as an option)
+    */
+   Collection coll = db.getCollection(string);
+
+   /**
+    * Create a collection w/ optional options.  Can fault
+    * if the collection exists, or can just return it if it already does
+    */
+   Collection coll = db.createCollection( string);
+   Collection coll = db.createCollection( string, options);
+
+   /**
+    * Drop a collection by its name or by collection object.
+    * Driver could invalidate any outstanding Collection objects
+    * for that collection, or just hope for the best.
+    */
+   boolean  b  = db.dropCollection(name);
+   boolean  b  = db.dropCollection(Collection);
+
+   /**
+    * Execute a command on the database, returning the
+    * BSON doc with the results
+    */
+   Document d = db.executeCommand(command);
+
+   /**
+    * Close the [logical] database
+    */
+   void  db.close();
+
+   /**
+    * Erase / drop an entire database
+    */
+   bool dropDatabase(dbname)
+
+Database Administration
+-----------------------
+
+These methods have to do with database metadata: profiling levels and
+collection validation. Each admin object is associated with a database.
+These methods could either be built into the Database class or provided
+in a separate Admin class whose instances are only available from a
+database instance.
+
+.. code-block:: sh
+
+   /* get an admin object from a database object. */
+   Admin admin = db.getAdmin();
+
+   /**
+    * Get profiling level. Returns one of the strings "off", "slowOnly", or
+    * "all". Note that the database returns an integer. This method could
+    * return an int or an enum instead --- in Ruby, for example, we return
+    * symbols.
+    */
+   String profilingLevel = admin.getProfilingLevel();
+
+   /**
+    * Set profiling level. Takes whatever getProfilingLevel() returns.
+    */
+   admin.setProfilingLevel("off");
+
+   /**
+    * Retrieves the database's profiling info.
+    */
+   Document profilingInfo = admin.getProfilingInfo();
+
+   /**
+    * Returns true if collection is valid; raises an exception if not.
+    */
+   boolean admin.validateCollection(collectionName);
+
+Collection
+----------
+
+Basic Ops
+~~~~~~~~~
+
+.. code-block:: javascript
+
+   /**
+    *   full query capabilities - limit, skip, returned fields, sort, etc
+    */
+   Cursor        find(...);
+
+   void          insert(...) // insert one or more objects into the collection, local variants on args
+   void          remove(query) // remove objects that match the query
+   void          update(selector, modifier)  // modify all objects that match selector w/ modifier object
+   void          updateFirst(selector, object)   // replace first object that match selector w/ specified object
+   void          upsert(selector, object)   // replace first object that matches, or insert
+   long          getCount();
+   long          getCount(query);
+
+Index Operations
+~~~~~~~~~~~~~~~~
+
+.. code-block:: javascript
+
+   void          createIndex( index_info)
+   void          dropIndex(name)
+   void          dropIndexes()
+   List<info>    getIndexInformation()
+
+Misc Operations
+~~~~~~~~~~~~~~~
+
+.. code-block:: javascript
+
+   document      explain(query)
+   options       getOptions();
+   string        getName();
+   void          close();
+
+Cursor Object
+-------------
+
+.. code-block:: javascript
+
+   document      getNextDocument()
+   iterator      getIterator()  // again, local to language
+   bool          hasMore()
+   void          close()
