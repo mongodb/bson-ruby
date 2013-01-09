@@ -2,6 +2,8 @@
 MongoDB Wire Protocol
 =====================
 
+.. include:: /includes/note-legacy.rst
+
 Introduction
 ------------
 

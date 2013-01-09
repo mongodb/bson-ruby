@@ -2,6 +2,8 @@
 Feature Checklist for MongoDB Drivers
 =====================================
 
+.. include:: /includes/note-legacy.rst
+
 This section lists tasks the driver author might handle.
 
 Essential

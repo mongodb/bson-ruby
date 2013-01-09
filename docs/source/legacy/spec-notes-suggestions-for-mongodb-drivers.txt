@@ -2,6 +2,8 @@
 Spec, Notes and Suggestions for MongoDB Drivers
 ===============================================
 
+.. include:: /includes/note-legacy.rst
+
 Assume that the :term:`BSON` objects returned from the database may be up to
 16 megabytes. For more information on limits, see :doc:`/reference/limits`.
 

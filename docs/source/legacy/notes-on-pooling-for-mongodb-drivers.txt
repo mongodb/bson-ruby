@@ -2,6 +2,8 @@
 Notes on Pooling for MongoDB Drivers
 ====================================
 
+.. include:: /includes/note-legacy.rst
+
 Note that with the database write operations can be sent asynchronously
 or synchronously, the latter indicating a :dbcommand:`getLastError
 <getLastError>` request after the write.

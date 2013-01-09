@@ -4,6 +4,8 @@ Implement Authentication in a Driver
 
 .. default-domain:: mongodb
 
+.. include:: /includes/note-legacy.rst
+
 Overview
 --------
 
@@ -36,18 +38,18 @@ Authentication is a two step process:
    .. Q: Should I use the shell wrapper db.runCommand()?
 
    .. code-block:: javascript
-   
+
       db.$cmd.findOne( { getnonce: 1} )
 
    The result of the command displays the ``nonce`` as a hexadecimal
    String:
-   
+
    .. code-block:: javascript
 
       { "nonce" : "7ca422a24f326f2a", "ok" : 1 }
 
 #. The driver then runs the ``authenticate`` command for the
-   database on which to authenticate. 
+   database on which to authenticate.
 
    .. Q: Should I just refer to the db.authenticate() command?
 
@@ -59,7 +61,7 @@ Authentication is a two step process:
 
    - ``<username>`` is a username in the database's ``system.users``
      collection.
-     
+
    - ``<nonce>`` is the nonce returned from a previous
      :dbcommand:`getnonce` step.
 
@@ -110,7 +112,7 @@ MongoDB JavaScript driver:
        );
 
        return a.ok;
-   }      
+   }
 
 .. _implement-authentication-logout:
 

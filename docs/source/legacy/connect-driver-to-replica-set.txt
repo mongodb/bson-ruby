@@ -2,6 +2,8 @@
 Connecting Drivers to Replica Sets
 ==================================
 
+.. include:: /includes/note-legacy.rst
+
 Ideally a MongoDB driver can connect to a cluster of servers which
 represent a :term:`replica set`, and automatically find the right set
 member with which to communicate. Failover should be automatic too. The
