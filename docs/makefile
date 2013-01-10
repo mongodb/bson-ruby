@@ -36,7 +36,7 @@ SED_ARGS_REGEX = -E
 endif
 
 # Sphinx variables.
-SPHINXOPTS = -c $(DOCS_DIR)/
+SPHINXOPTS = -c $(DOCS_DIR)
 SPHINXBUILD = sphinx-build
 PAPER = letter
 PAPEROPT_a4 = -D latex_paper_size=a4
@@ -192,7 +192,6 @@ clean-all:
 
 .PHONY: html dirhtml singlehtml epub sitemap
 html:
-
 	@echo [html]: build starting at `date`.
 	@mkdir -p $(branch-output)/html
 	@echo [html]: created $(branch-output)/html
