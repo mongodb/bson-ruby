@@ -2,6 +2,8 @@
 MongoDB Driver Requirements
 ===========================
 
+.. default-domain:: mongodb
+
 .. include:: /includes/note-legacy.rst
 
 This is a high-level list of features that a driver for MongoDB might
@@ -9,7 +11,7 @@ provide. We attempt to group those features by priority. This list
 should be taken with a grain of salt, and probably used more for
 inspiration than as law that must be adhered to. A great way to learn
 about implementing a driver is by reading the source code of any of the
-existing :doc:`drivers </applications/drivers>`, especially the ones
+existing :manual:`drivers </applications/drivers>`, especially the ones
 listed as "mongodb.org supported".
 
 High Priority
@@ -18,13 +20,13 @@ High Priority
 - :term:`BSON` serialization/deserialization
 - full cursor support (e.g. support ``OP_GET_MORE`` operation)
 - close exhausted cursors via ``OP_KILL_CURSORS``
-- support for running :doc:`database commands </reference/commands>`
+- support for running :manual:`database commands </reference/commands>`
 - handle query errors
 - convert all strings to UTF-8 (part of proper support for BSON)
 - :method:`hint() <cursor.hint()>`, :method:`explain() <cursor.explain()>`,
   :method:`count() <db.collection.count()>`, :operator:`$where`
 - database profiling: set/get profiling level, get profiling info
-- `advanced connection management (replica sets, slave okay) <http://www.mongodb.org/display/DOCS/Connecting+Drivers+to+Replica+Sets>`_
+- :doc:`advanced connection management (replica sets, slaveOkay) </legacy/connect-driver-to-replica-set>`
 - automatic reconnection
 
 Medium Priority

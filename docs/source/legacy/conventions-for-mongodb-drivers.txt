@@ -2,6 +2,8 @@
 Conventions for MongoDB Drivers
 ===============================
 
+.. default-domain:: mongodb
+
 .. include:: /includes/note-legacy.rst
 
 Interface Conventions

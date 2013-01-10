@@ -2,6 +2,8 @@
 Connecting Drivers to Replica Sets
 ==================================
 
+.. default-domain:: mongodb
+
 .. include:: /includes/note-legacy.rst
 
 Ideally a MongoDB driver can connect to a cluster of servers which

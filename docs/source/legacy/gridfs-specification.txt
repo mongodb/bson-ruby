@@ -2,6 +2,8 @@
 GridFS Specification
 ====================
 
+.. default-domain:: mongodb
+
 .. include:: /includes/note-legacy.rst
 
 For the GridFS Specification, see

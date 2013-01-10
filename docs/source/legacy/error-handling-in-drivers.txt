@@ -2,6 +2,8 @@
 Error Handling in MongoDB Drivers
 =================================
 
+.. default-domain:: mongodb
+
 .. include:: /includes/note-legacy.rst
 
 If an error occurs on a query or on a ``getMore`` operation sent by a

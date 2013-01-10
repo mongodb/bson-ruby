@@ -2,6 +2,8 @@
 Feature Checklist for MongoDB Drivers
 =====================================
 
+.. default-domain:: mongodb
+
 .. include:: /includes/note-legacy.rst
 
 This section lists tasks the driver author might handle.
@@ -29,7 +31,7 @@ Recommended
 
 - Automatic ``_id`` generation
 
-- Database :doc:`$cmd </reference/command>` support and helpers
+- Database :manual:`$cmd </reference/command>` support and helpers
 
 - Detect ``{ $err: ... }`` response from a database query and handle
   appropriately. See :wiki:`Error Handling in MongoDB Drivers <Error+Handling+in+Mongo+Drivers>`
@@ -56,7 +58,7 @@ More Recommended
 - :method:`explain() <cursor.explain()>`
 - :method:`hint() <cursor.hint()>`
 - ``$where``
-- File chunking (:doc:`/applications/gridfs`)
+- File chunking (:manual:`/applications/gridfs`)
 
 More Optional
 -------------
@@ -72,7 +74,7 @@ More Optional
 
 - Connection pooling
 - Automatic reconnect on connection failure
-- :doc:`DBRef Support </applications/database-references>`:
+- :manual:`DBRef Support </applications/database-references>`:
   - Ability to generate easily
   - Automatic traversal
 

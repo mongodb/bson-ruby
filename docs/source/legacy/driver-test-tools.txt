@@ -2,6 +2,8 @@
 Driver Testing Tools
 ====================
 
+.. default-domain:: mongodb
+
 .. include:: /includes/note-legacy.rst
 
 Object IDs

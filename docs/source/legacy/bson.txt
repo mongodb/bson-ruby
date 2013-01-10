@@ -2,6 +2,8 @@
 BSON
 ====
 
+.. default-domain:: mongodb
+
 .. include:: /includes/note-legacy.rst
 
 bsonspec.org

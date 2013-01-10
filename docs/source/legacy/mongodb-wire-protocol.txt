@@ -2,6 +2,8 @@
 MongoDB Wire Protocol
 =====================
 
+.. default-domain:: mongodb
+
 .. include:: /includes/note-legacy.rst
 
 Introduction
@@ -32,7 +34,8 @@ Currently, there is no connection handshake.
    of the specified type can be written to the socket, one after
    another.
 
-.. warning:: Byte Ordering
+.. admonition:: Byte Ordering
+
    Like BSON documents, all data in the MongoDB wire protocol is little-endian.
 
 Messages Types and Formats
@@ -177,7 +180,8 @@ and the collection ``bar``, the full collection name is ``foo.bar``.
 document to update.
 
 **update**: BSON document that specifies the update to be performed. For
-information on specifying updates see :doc:`/applications/update`.
+information on specifying updates see the :manual:`Update Operations
+</applications/update>` documentation from the MongoDB Manual.
 
 There is no response to an OP_UPDATE message.
 

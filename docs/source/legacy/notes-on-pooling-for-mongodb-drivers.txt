@@ -2,6 +2,8 @@
 Notes on Pooling for MongoDB Drivers
 ====================================
 
+.. default-domain:: mongodb
+
 .. include:: /includes/note-legacy.rst
 
 Note that with the database write operations can be sent asynchronously
