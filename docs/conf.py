@@ -46,6 +46,7 @@ rst_epilog = ".. |branch| replace:: ``" + current_git_branch + "``" + """
 .. |hardlink| replace:: http://docs.mongodb.org/""" + current_git_branch
 
 exclude_patterns = []
+composite_pages = []
 pygments_style = 'sphinx'
 
 extlinks = {
