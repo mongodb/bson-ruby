@@ -10,13 +10,13 @@ bson
 Cucumber Specification
 ----------------------
 
-.. literalinclude:: /features/serialize.feature
+.. literalinclude:: /features/bson/serialize.feature
    :language: cucumber
 
 Step Definitions
 ----------------
 
-.. literalinclude:: /features/step_definitons/bson_steps.rb
+.. literalinclude:: /features/bson/step_definitons/bson_steps.rb
    :language: ruby
 
 Implementation (Ruby)
