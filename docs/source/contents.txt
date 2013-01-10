@@ -9,5 +9,6 @@ MongoDB Meta Driver Documentation Contents
    about
    tutorial
    specification
+   legacy
 
 .. seealso:: :ref:`genindex`

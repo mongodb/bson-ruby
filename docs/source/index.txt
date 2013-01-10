@@ -41,24 +41,7 @@ Specifications <specification>`:
 
    specification/*
 
-Legacy
-------
-
-.. toctree::
-   :maxdepth: 1
-
-   legacy/mongodb-driver-requirements
-   legacy/feature-checklist-for-mongodb-drivers
-   legacy/conventions-for-mongodb-drivers
-   legacy/bson
-   legacy/mongodb-wire-protocol
-   legacy/driver-test-tools
-   legacy/connect-driver-to-replica-set
-   legacy/notes-on-pooling-for-mongodb-drivers
-   legacy/spec-notes-suggestions-for-mongodb-drivers
-   legacy/error-handling-in-drivers
-   legacy/gridfs-specification
-   legacy/implement-authentication-in-driver
+.. include:: legacy.txt
 
 Additional Resources
 --------------------
