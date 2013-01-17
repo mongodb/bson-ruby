@@ -40,7 +40,7 @@ A driver should be able to connect to a single server. By default this
 must be ``localhost:27017``, and must also allow the server to be specified
 by hostname and port.
 
-.. code-block:: sh
+.. code-block:: cpp
 
    Mongo m = new Mongo();   // go to localhost, default port
 
@@ -63,14 +63,14 @@ determination process.
 
 **Cluster Mode** Connect to master in master-slave cluster
 
-.. code-block:: sh
+.. code-block:: cpp
 
    ServerCluster sc = new ServerCluster(INETAddr...); // again, give one and discover?
    Mongo m = new Mongo(sc);
 
 ## Connect to slave in read-only mode in master-slave cluster
 
-.. code-block:: sh
+.. code-block:: cpp
 
    ServerCluster sc = new ServerCluster(INETAddr...); // again, give one and discover?
    sc.setTarget(...)
@@ -80,7 +80,7 @@ determination process.
 
 Other than that, we need a way to get a DB object:
 
-.. code-block:: sh
+.. code-block:: cpp
 
    Mongo m = new Mongo();
 
@@ -88,7 +88,7 @@ Other than that, we need a way to get a DB object:
 
 And a list of db names (useful for tools...) :
 
-.. code-block:: sh
+.. code-block:: cpp
 
    List<String> getDBNameList();
 
@@ -97,7 +97,7 @@ Database Object
 
 Simple operations on a database object :
 
-.. code-block:: sh
+.. code-block:: cpp
 
    /**
     *  get name of database
@@ -155,7 +155,7 @@ These methods could either be built into the Database class or provided
 in a separate Admin class whose instances are only available from a
 database instance.
 
-.. code-block:: sh
+.. code-block:: cpp
 
    /* get an admin object from a database object. */
    Admin admin = db.getAdmin();

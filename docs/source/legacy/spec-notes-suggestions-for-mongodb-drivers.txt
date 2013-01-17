@@ -10,8 +10,8 @@ Assume that the :term:`BSON` objects returned from the database may be up to
 16 megabytes. For more information on limits, see :manual:`Limits
 Reference </reference/limits>`.
 
-..seealso::
+.. seealso::
 
-  - :wiki:`Driver Requirements <Mongo+Driver+Requirements>`
+   - :doc:`/legacy/mongodb-driver-requirements`
 
-  - :wiki:`Database Internals <Database+Internals>`
+   - :wiki:`Database Internals <Database+Internals>`
