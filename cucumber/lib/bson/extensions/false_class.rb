@@ -1,10 +1,10 @@
 module BSON
   module Extensions
     module FalseClass
-      def to_bson(io, key)
-        io << Types::BOOLEAN
-        io << key.to_bson_cstring
-        io << Types::FALSE
+      BSON_TYPE = "\x08"
+
+      def to_bson
+        "\x00"
       end
     end
   end

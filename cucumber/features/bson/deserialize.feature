@@ -1,5 +1,4 @@
 # language: en
-@bson
 Feature: Deserialize Documents 
   As a user of MongoDB
   In order to retreive data from the database

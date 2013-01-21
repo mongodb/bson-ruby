@@ -1,13 +1,15 @@
 module BSON
   class Binary
-    SUB_TYPES = {
-      :generic  => 0x00,
-      :function => 0x01,
-      :old      => 0x02,
-      :uuid_old => 0x03,
-      :uuid     => 0x04,
-      :md5      => 0x05,
-      :user     => 0x80
+    BSON_TYPE = "\x05"
+
+    BSON_SUB_TYPES = {
+      :generic  => "\x00",
+      :function => "\x01",
+      :old      => "\x02",
+      :uuid_old => "\x03",
+      :uuid     => "\x04",
+      :md5      => "\x05",
+      :user     => "\x80"
     }
 
     attr_reader :data, :type
@@ -18,17 +20,15 @@ module BSON
     end
 
     def to_bson(io, key)
-      io << Types::BINARY
-      io << key.to_bson_cstring
       if type == :old
-        io << [data.bytesize + 4].pack(INT32_PACK)
-        io << SUB_TYPES[type]
-        io << [data.bytesize].pack(INT32_PACK)
-        io << data
+        [data.bytesize + 4].pack(INT32_PACK)
+        SUB_TYPES[type]
+        [data.bytesize].pack(INT32_PACK)
+        data
       else
-        io << [data.bytesize].pack(INT32_PACK)
-        io << SUB_TYPES[type]
-        io << data
+        [data.bytesize].pack(INT32_PACK)
+        SUB_TYPES[type]
+        data
       end
     end
 

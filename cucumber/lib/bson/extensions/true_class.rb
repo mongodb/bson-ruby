@@ -1,10 +1,10 @@
 module BSON
   module Extensions
     module TrueClass
-      def to_bson(io, key)
-        io << Types::BOOLEAN
-        io << key.to_bson_cstring
-        io << Types::TRUE
+      BSON_TYPE = "\x08"
+
+      def to_bson
+        "\x01"
       end
     end
   end

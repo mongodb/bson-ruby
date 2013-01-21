@@ -25,7 +25,6 @@ class Float
 end
 
 class Hash
-  extend  BSON::Extensions::Hash::ClassMethods
   include BSON::Extensions::Hash
 end
 
@@ -49,7 +48,7 @@ class String
 end
 
 class Symbol
-  extend BSON::Extensions::Symbol::ClassMethods
+  extend  BSON::Extensions::Symbol::ClassMethods
   include BSON::Extensions::Symbol
 end
 

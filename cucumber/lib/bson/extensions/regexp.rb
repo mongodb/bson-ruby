@@ -1,15 +1,16 @@
 module BSON
   module Extensions
     module Regexp
-      def to_bson(io, key)
-        io << Types::REGEX
-        io << key.to_bson_cstring
-        io << source.to_bson_cstring
+      BSON_TYPE = "\x0B"
 
-        io << 'i'  if (options & ::Regexp::IGNORECASE) != 0
-        io << 'ms' if (options & ::Regexp::MULTILINE) != 0
-        io << 'x'  if (options & ::Regexp::EXTENDED) != 0
-        io << NULL_BYTE
+      def bson_option
+        'i'  if (options & ::Regexp::IGNORECASE) != 0
+        'ms' if (options & ::Regexp::MULTILINE) != 0
+        'x'  if (options & ::Regexp::EXTENDED) != 0
+      end
+
+      def to_bson
+        [source.to_bson_cstring, bson_option, NULL_BYTE].join
       end
 
       module ClassMethods

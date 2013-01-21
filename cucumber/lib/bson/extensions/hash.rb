@@ -1,36 +1,21 @@
 module BSON
   module Extensions
     module Hash
-      def to_bson(io = "", key = nil)
-        #if key
-        #  io << Types::HASH
-        #  io << key.to_bson_cstring
-        #end
+      BSON_TYPE = "\x03"
 
-        start = io.bytesize
-
-        io << SIZE_SPACER
-        each {|k,v| v.to_bson(io, k.to_s)}
-        io << EOD
-
-        stop = io.bytesize
-
-        io[start, 4] = [stop - start].pack INT32_PACK
-        
-        io
+      def e_list
+        map do |k,v|
+          [BSON::Types::get_binary(v), k.to_bson_cstring, v.to_bson].join
+        end
       end
 
-      module ClassMethods
-        def from_bson(io, document = new)
-          length = io.read(4)
+      def to_bson
+        elements = e_list
+        [[bytesize(elements)].pack(INT32_PACK), elements, EOD].join
+      end
 
-          while(bson_type = io.readbyte) != 0
-            e_name = io.gets(NULL_BYTE).from_utf8_binary.chop!
-            document[e_name] = Types::MAP[bson_type].from_bson(io)
-          end
-
-          document
-        end
+      def bytesize(e_list)
+        e_list.map(&:bytesize).reduce(5, :+)
       end
     end
   end

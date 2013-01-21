@@ -1,11 +1,13 @@
 module BSON
   module Extensions
     module Array
-      def to_bson(io = "")
+      BSON_TYPE = "\x04"
+
+      def to_bson
       end
 
       module ClassMethods
-        def from_bson
+        def from_bson(bson)
         end
       end
     end

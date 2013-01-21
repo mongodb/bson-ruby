@@ -1,15 +1,13 @@
 module BSON
   module Extensions
     module String
-      def to_bson(io, key)
-        io << Types::STRING
-        io << key.to_bson_cstring
+      BSON_TYPE = "\x02"
 
+      def to_bson
         data = to_utf8_binary
 
-        io << [ data.bytesize + 1 ].pack(INT32_PACK)
-        io << data
-        io << NULL_BYTE
+        length = [ data.bytesize + 1 ].pack(INT32_PACK)
+        [length, data, NULL_BYTE]
       end
 
       def to_bson_string
@@ -39,8 +37,8 @@ module BSON
       end
 
       module ClassMethods
-        def from_bson(io)
-          io.read(*io.read(4).unpack(INT32_PACK)).from_utf8_binary.chop!
+        def from_bson(bson)
+          from_utf8_binary.chop!
         end
       end
     end

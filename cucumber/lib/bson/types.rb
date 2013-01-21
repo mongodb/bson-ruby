@@ -35,28 +35,10 @@ module BSON
     MAP[127] = MaxKey
     MAP[255] = MinKey
 
-    FLOAT = 0x01.freeze
-    STRING = 0x02.freeze
-    HASH = 0x03.freeze
-    ARRAY = 0x04.freeze
-    BINARY = 0x05.freeze
-    UNDEFINED = 0x06.freeze
-    OBJECT_ID = 0x07.freeze
-    BOOLEAN = 0x08.freeze
-    DATETIME = 0x09.freeze
-    NULL = 0x0A.freeze
-    REGEX = 0x0B.freeze
-    DB_POINTER = 0x0C.freeze
-    CODE = 0x0D.freeze
-    SYMBOL = 0x0E.freeze
-    CODE_WITH_SCOPE = 0x0F.freeze
-    INT32 = 0x10.freeze
-    TIMESTAMP = 0x11.freeze
-    INT64 = 0x12.freeze
-    MAX_KEY = 0x7F.freeze
-    MIN_KEY = 0xFF.freeze
-
-    FALSE = 0.chr.freeze
-    TRUE  = 1.chr.freeze
+    class << self
+      def get_binary(obj)
+        defined?(obj.class::BSON_TYPE) ? obj.class::BSON_TYPE : obj.bson_type
+      end
+    end
   end
 end
