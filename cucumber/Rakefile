@@ -1,6 +1,9 @@
 require 'cucumber/rake/task'
+require 'rspec/core/rake_task'
 
 $:.unshift(File.dirname(__FILE__) + '/lib')
+
+RSpec::Core::RakeTask.new(:spec)
 
 Cucumber::Rake::Task.new do |t|
   t.cucumber_opts = %w{--format pretty}
