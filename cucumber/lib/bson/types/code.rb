@@ -11,27 +11,18 @@ module BSON
       !scope.empty?
     end
 
-    def to_bson(io, key)
+    def bson_type
+      scoped? ? "\x0F" : "\x0D"
+    end
+
+    def to_bson
       if scoped?
-        io << Types::CODE_WITH_SCOPE
-        io << key.to_bson_cstring
-
-        code_start = io.bytesize
-
-        io << START_LENGTH
-
         data = code.to_utf8_binary
-        io << [data.bytesize+1].pack(INT32_PACK)
-        io << data
-        io << NULL_BYTE
+        data_size = [data.bytesize+1].pack(INT32_PACK)
 
-        scope.__bson_dump__(io)
-
-        io[code_start, 4] = [io.bytesize - code_start].pack(INT32_PACK)
+        [bson_type, [data_size, data, NULL_BYTE].join]
       else
-        io << Types::CODE
-        io << key.to_bson_cstring
-        io << code.to_bson_string
+        [bson_type, code.to_bson_string]
       end
     end
   end

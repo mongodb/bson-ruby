@@ -4,7 +4,7 @@ module BSON
       BSON_TYPE = "\x01"
 
       def to_bson
-        [self].pack(FLOAT_PACK)
+        [BSON_TYPE, [self].pack(FLOAT_PACK)]
       end
 
       module ClassMethods

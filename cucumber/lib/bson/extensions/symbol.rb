@@ -4,7 +4,7 @@ module BSON
       BSON_TYPE = "\x0E"
 
       def to_bson
-        to_s.to_bson_string
+        [BSON_TYPE, to_s.to_bson_string]
       end
 
       module ClassMethods

@@ -1,6 +1,6 @@
 module Mongo
   module Protocol
-    class Query
+    class Query < Message
       OPCODE = 2004
     end
   end

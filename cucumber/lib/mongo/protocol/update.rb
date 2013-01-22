@@ -1,6 +1,6 @@
 module Mongo
   module Protocol
-    class Update
+    class Update < Message
       OPCODE = 2001
     end
   end

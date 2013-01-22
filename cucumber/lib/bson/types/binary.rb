@@ -14,21 +14,21 @@ module BSON
 
     attr_reader :data, :type
 
-    def initialize(data, type=:generic)
+    def initialize(data="", type=:generic)
       @data = data
       @type = type
     end
 
-    def to_bson(io, key)
+    def to_bson
       if type == :old
-        [data.bytesize + 4].pack(INT32_PACK)
-        SUB_TYPES[type]
-        [data.bytesize].pack(INT32_PACK)
-        data
+        [@data.bytesize + 4].pack(INT32_PACK)
+        BSON_SUB_TYPES[@type]
+        [@data.bytesize].pack(INT32_PACK)
+        [BSON_TYPE, @data]
       else
-        [data.bytesize].pack(INT32_PACK)
-        SUB_TYPES[type]
-        data
+        [@data.bytesize].pack(INT32_PACK)
+        BSON_SUB_TYPES[@type]
+        [BSON_TYPE, @data]
       end
     end
 

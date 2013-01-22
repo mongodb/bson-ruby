@@ -1,6 +1,6 @@
 module Mongo
   module Protocol
-    class Insert
+    class Insert < Message
       OPCODE = 2002
     end
   end

@@ -6,7 +6,7 @@ Feature: Serialize Documents
   I want the driver to serialize documents
 
   Scenario Outline: Serialize BSON Types
-    Given a value of type <value_type>
+    Given a <value_type> value
     When I serialize the value
     Then the BSON element has the BSON type <bson_type>
 
@@ -34,7 +34,7 @@ Feature: Serialize Documents
       | max_key      | 0x7F      |
 
   Scenario Outline: Serialize scalar BSON Values
-    Given a <type> value <value>
+    Given <type> value <value>
     When I serialize the value
     Then the result should be <hex_bytes>
 

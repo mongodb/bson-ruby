@@ -5,7 +5,8 @@ module BSON
 
       def e_list
         map do |k,v|
-          [BSON::Types::get_binary(v), k.to_bson_cstring, v.to_bson].join
+          type, value = v.to_bson
+          [type, k.to_bson_cstring, value].join
         end
       end
 

@@ -34,11 +34,5 @@ module BSON
     MAP[18]  = Int64
     MAP[127] = MaxKey
     MAP[255] = MinKey
-
-    class << self
-      def get_binary(obj)
-        defined?(obj.class::BSON_TYPE) ? obj.class::BSON_TYPE : obj.bson_type
-      end
-    end
   end
 end

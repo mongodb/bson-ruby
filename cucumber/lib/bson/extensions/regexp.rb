@@ -10,7 +10,7 @@ module BSON
       end
 
       def to_bson
-        [source.to_bson_cstring, bson_option, NULL_BYTE].join
+        [BSON_TYPE, [source.to_bson_cstring, bson_option, NULL_BYTE].join]
       end
 
       module ClassMethods

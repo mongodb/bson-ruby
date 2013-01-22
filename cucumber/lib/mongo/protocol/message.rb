@@ -1,6 +1,6 @@
 module Mongo
   module Protocol
-    module Message
+    class Message
       
     end
   end

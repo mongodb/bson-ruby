@@ -7,7 +7,7 @@ module BSON
         data = to_utf8_binary
 
         length = [ data.bytesize + 1 ].pack(INT32_PACK)
-        [length, data, NULL_BYTE]
+        [BSON_TYPE, [length, data, NULL_BYTE].join]
       end
 
       def to_bson_string

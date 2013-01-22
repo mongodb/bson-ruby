@@ -1,6 +1,6 @@
 module Mongo
   module Protocol
-    class Reply
+    class Reply < Message
       OPCODE = 1
     end
   end

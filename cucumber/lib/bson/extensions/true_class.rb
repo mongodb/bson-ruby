@@ -4,7 +4,7 @@ module BSON
       BSON_TYPE = "\x08"
 
       def to_bson
-        "\x01"
+        [BSON_TYPE, "\x01"]
       end
     end
   end
