@@ -96,12 +96,11 @@ html_theme_options = {
     'repo_name': "mongo-meta-driver",
     'jira_project': 'DOCS',
     'google_analytics': 'UA-7301842-8',
-    'is_manual': False,
     'project': 'meta-driver'
 }
 
 html_sidebars = {
-    '**': ['localtoc.html', 'pagenav.html'],
+    '**': ['pagenav.html', 'intrasites.html'],
 }
 
 
