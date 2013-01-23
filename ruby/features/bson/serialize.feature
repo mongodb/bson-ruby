@@ -8,7 +8,7 @@ Feature: Serialize Documents
   Scenario Outline: Serialize BSON Types
     Given a <value_type> value
     When I serialize the value
-    Then the BSON element has the BSON type <bson_type>
+    Then the BSON element should have the BSON type <bson_type>
 
     Examples:
       | value_type   | bson_type |
@@ -48,9 +48,7 @@ Feature: Serialize Documents
       | boolean    | true                     | 01                       |
       | datetime   | 946702800                | 8054e26bdc000000         |
       | regex      | regex                    | 72656765780000           |
-      | db_pointer |                          |                          |
       | code       | function(){}             |                          |
       | symbol     | symbol                   | 0700000073796d626f6c00   |
       | int32      | 12345                    | 39300000                 |
-      | timestamp  |                          |                          |
       | int64      | 2147483648               | 0000008000000000         |

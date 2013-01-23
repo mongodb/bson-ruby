@@ -31,6 +31,6 @@ When /^I serialize the value$/ do
   @bson = BSON::serialize(@value)
 end
 
-Then /^the BSON element has the BSON type (\S+)$/ do |type|
+Then /^the BSON element should have the BSON type (\S+)$/ do |type|
   @bson.first.should eq(type.hex.chr)
 end

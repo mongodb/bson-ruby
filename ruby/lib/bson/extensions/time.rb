@@ -8,8 +8,8 @@ module BSON
       end
 
       module ClassMethods
-        def from_bson(io)
-          seconds, fragment = io.read(8).unpack(INT64_PACK)[0].divmod 1000
+        def from_bson(bson)
+          seconds, fragment = bson.read(8).unpack(INT64_PACK).first.divmod 1000
           at(seconds, fragment * 1000).utc
         end
       end

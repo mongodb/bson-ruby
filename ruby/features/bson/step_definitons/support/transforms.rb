@@ -51,7 +51,7 @@ Transform /^regex value(?: (\S+))?$/ do |regex|
 end
 
 Transform /^db_pointer value(?: (\S+))?$/ do |db_pointer|
-  BSON::DBPointer.new(db_pointer)
+  BSON::DBPointer.new("a.b", BSON::ObjectId.new("50d3409d82cb8a4fc7000001"))
 end
 
 Transform /^code value(?: (\S+))?$/ do |code|
@@ -67,7 +67,7 @@ Transform /^int32 value(?: (-?\d+))?$/ do |int32|
 end
 
 Transform /^timestamp value(?: (-?\d+))?$/ do |ts|
-  BSON::Timestamp.new(ts)
+  BSON::Timestamp.new(Time.now, 0)
 end
 
 Transform /^int64 value(?: (-?\d+))?$/ do |int64|
