@@ -1,3 +1,0 @@
---tty
---colour
---format <%= ENV["CI"] ? 'progress' : 'documentation'%>
