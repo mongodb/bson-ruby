@@ -3,16 +3,18 @@ module BSON
     module Hash
       BSON_TYPE = "\x03"
 
-      def e_list
-        map do |k,v|
-          type, value = v.to_bson
-          [type, k.to_bson_cstring, value].join
+      def elements
+        map do |e_name, value|
+          bson_type, bson_value = value.to_bson
+          [bson_type, e_name.to_bson_cstring, bson_value].join
         end
       end
 
       def to_bson
-        elements = e_list
-        [[bytesize(elements)].pack(INT32_PACK), elements, EOD].join
+        e_list = elements
+        size = [bytesize(elements)].pack(INT32_PACK)
+        document = [size, e_list, EOD].join
+        [BSON_TYPE, document]
       end
 
       def bytesize(e_list)

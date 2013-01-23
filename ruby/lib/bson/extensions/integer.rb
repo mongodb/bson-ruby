@@ -19,7 +19,7 @@ module BSON
 
       def to_bson
         type = bson_type
-        [type, [self].pack(type ? INT32_PACK : INT64_PACK)]
+        [type, [self].pack(type == "\x10" ? INT32_PACK : INT64_PACK)]
       end
     end
   end

@@ -6,6 +6,10 @@ module BSON
       @id = id
     end
 
+    def self.from_string(string)
+      new([string].pack("H24"))
+    end
+
     def to_bson
       [BSON_TYPE, @id]
     end

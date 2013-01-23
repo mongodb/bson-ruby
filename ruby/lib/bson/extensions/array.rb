@@ -4,6 +4,7 @@ module BSON
       BSON_TYPE = "\x04"
 
       def to_bson
+        [BSON_TYPE]
       end
 
       module ClassMethods

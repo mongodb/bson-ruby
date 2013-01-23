@@ -7,7 +7,11 @@ Transform /^string value(?: (\S+))?$/ do |string|
 end
 
 Transform /^document value(?: (\S+))?$/ do |document|
-  Hash.new()
+  Hash.new
+end
+
+Transform /^array value(?: (\S+))?$/ do |array|
+  Array.new
 end
 
 Transform /^binary value(?: (\S+))?$/ do |binary|
@@ -19,7 +23,7 @@ Transform /^undefined value(?: (\S+))?$/ do |undefined|
 end
 
 Transform /^object_id value(?: (\S+))?$/ do |obj_id|
-  BSON::ObjectId.new(obj_id)
+  BSON::ObjectId.from_string(obj_id)
 end
 
 Transform /^boolean value(?: (\S+))?$/ do |boolean|
@@ -30,7 +34,7 @@ Transform /^datetime value(?: (\S+))?$/ do |datetime|
   Time.at(datetime.to_i)
 end
 
-Transform /^null value$/ do |null|
+Transform /^null value(?: (\S+))?$/ do |null|
   nil
 end
 
@@ -70,10 +74,10 @@ Transform /^int64 value(?: (-?\d+))?$/ do |int64|
  int64 ? int64.to_i : 2**62
 end
 
-Transform /^min_key value$/ do |min_key|
+Transform /^min_key value(?: (\S+))?$/ do |min_key|
   BSON::MinKey
 end
 
-Transform /^max_key value$/ do |max_key|
+Transform /^max_key value(?: (\S+))?$/ do |max_key|
   BSON::MaxKey
 end

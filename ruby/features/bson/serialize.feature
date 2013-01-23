@@ -34,16 +34,16 @@ Feature: Serialize Documents
       | max_key      | 0x7F      |
 
   Scenario Outline: Serialize scalar BSON Values
-    Given <type> value <value>
+    Given a <value_type> value <value>
     When I serialize the value
     Then the result should be <hex_bytes>
 
     Examples:
-      | type       | value                    | hex_bytes                |
+      | value_type | value                    | hex_bytes                |
       | double     | 3.1459                   | 26e4839ecd2a0940         |
       | string     | test                     | 050000007465737400       | 
       | binary     | binary                   | 62696e617279             |
-      | objectid   | 50d3409d82cb8a4fc7000001 | 50d3409d82cb8a4fc7000001 |
+      | object_id  | 50d3409d82cb8a4fc7000001 | 50d3409d82cb8a4fc7000001 |
       | boolean    | false                    | 00                       |
       | boolean    | true                     | 01                       |
       | datetime   | 946702800                | 8054e26bdc000000         |

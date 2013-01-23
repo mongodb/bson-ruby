@@ -9,7 +9,7 @@ module BSON
 
       module ClassMethods
         def from_bson(bson)
-          bson.unpack(FLOAT_PACK).first
+          bson.read(8).unpack(FLOAT_PACK).first
         end
       end
     end

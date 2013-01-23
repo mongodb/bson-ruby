@@ -38,7 +38,7 @@ module BSON
 
       module ClassMethods
         def from_bson(bson)
-          from_utf8_binary.chop!
+          bson.read(*bson.read(4).unpack(INT32_PACK)).from_utf8_binary.chop!
         end
       end
     end

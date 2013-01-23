@@ -10,8 +10,5 @@ module BSON
 
       document
     end
-
-    def self.to_bson
-    end
   end
 end

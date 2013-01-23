@@ -38,16 +38,16 @@ module BSON
     alias eql? ==
 
     class << self
-      def from_bson(io)
-        length = io.read(4).unpack(INT32_PACK).first
-        type = SUB_TYPES.invert[io.readbyte]
+      def from_bson(bson)
+        length = bson.read(4).unpack(INT32_PACK).first
+        type = BSON_SUB_TYPES.invert[bson.read(1)]
 
         if type == :old
           size -= 4
-          io.read(4)
+          bson.read(4)
         end
 
-        data = io.read(length)
+        data = bson.read(length)
         new(data, type)
       end
     end
