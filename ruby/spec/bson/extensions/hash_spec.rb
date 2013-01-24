@@ -9,12 +9,16 @@ module BSON
         hash.bson_type.should == "\x03"
       end
 
-      it 'should be a hash with index values as keys' do
-        hash.bson_value == BSON::serialize([
-          '1' => 'a',
-          '2' => 'b',
-          '3' => 'c'
-        ])
+      describe "bson value" do
+        let(:bson) { hash.bson_value }
+
+        it 'should start with an int32 representing the bytesize' do
+          bson[0..4].unpack(INT32_PACK).first == bson[4..-1].bytesize
+        end
+
+        it 'should end with a null byte' do
+          bson[-1].should == NULL_BYTE
+        end
       end
     end
   end

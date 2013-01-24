@@ -10,14 +10,14 @@ module BSON
       end
 
       describe "bson value" do
-        before { @bson = array.bson_value }
+        let (:bson) { array.bson_value }
 
         it 'should start with an int32 representing the bytesize' do
-          @bson[0..4].unpack(INT32_PACK).first == @bson[4..-1].bytesize
+          bson[0..4].unpack(INT32_PACK).first == bson[4..-1].bytesize
         end
 
         it 'should be a hash with index values as keys' do
-          @bson.should == BSON::Document[
+          bson.should == BSON::Document[
             '1' => 'a',
             '2' => 'b',
             '3' => 'c'
@@ -25,7 +25,7 @@ module BSON
         end
 
         it 'should end with a null byte' do
-          @bson[-1].should == NULL_BYTE
+          bson[-1].should == NULL_BYTE
         end
       end
     end
