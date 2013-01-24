@@ -1,6 +1,8 @@
 module BSON
   module Extensions
     module Hash
+      include BSON::Element
+
       BSON_TYPE = "\x03"
 
       def elements
@@ -10,11 +12,10 @@ module BSON
         end
       end
 
-      def to_bson
+      def bson_value
         e_list = elements
         size = [bytesize(elements)].pack(INT32_PACK)
-        document = [size, e_list, EOD].join
-        [BSON_TYPE, document]
+        [size, e_list, EOD].join
       end
 
       def bytesize(e_list)

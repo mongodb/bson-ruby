@@ -1,5 +1,7 @@
 module BSON
   class Timestamp
+    include BSON::Element
+
     BSON_TYPE = "\x11"
 
     attr_reader :seconds, :increment
@@ -9,9 +11,8 @@ module BSON
       @increment = increment
     end
 
-    def to_bson
-      timestamp = [increment.to_bson, seconds.to_bson].join
-      [BSON_TYPE, timestamp]
+    def bson_value
+      [increment.to_bson, seconds.to_bson].join
     end
   end
 end

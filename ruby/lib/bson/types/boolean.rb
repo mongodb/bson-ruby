@@ -1,5 +1,7 @@
 module BSON
   class Boolean
+    include BSON::Element
+
     BSON_TYPE = "\x08"
     
     def self.from_bson(io)

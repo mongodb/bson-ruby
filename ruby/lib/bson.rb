@@ -1,3 +1,4 @@
+require 'bson/element'
 require 'bson/extensions'
 require 'bson/types'
 
@@ -16,8 +17,8 @@ module BSON
       document.to_bson
     end
 
-    def deserialize(io)
-      Document.from_bson(io)
+    def deserialize(bson)
+      Document.from_bson(bson)
     end
   end
 end

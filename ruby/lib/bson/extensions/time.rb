@@ -1,10 +1,12 @@
 module BSON
   module Extensions
     module Time
+      include BSON::Element
+
       BSON_TYPE = "\x09"
 
-      def to_bson
-        [BSON_TYPE, [(to_i * 1000) + (usec / 1000)].pack(INT64_PACK)]
+      def bson_value
+        [(to_i * 1000) + (usec / 1000)].pack(INT64_PACK)
       end
 
       module ClassMethods

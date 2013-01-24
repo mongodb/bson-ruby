@@ -1,5 +1,6 @@
 module BSON
   class Code
+    include BSON::Element
     attr_reader :code, :scope
 
     def initialize(code, scope={})
@@ -15,14 +16,14 @@ module BSON
       scoped? ? "\x0F" : "\x0D"
     end
 
-    def to_bson
+    def bson_value
       if scoped?
         data = code.to_utf8_binary
         data_size = [data.bytesize+1].pack(INT32_PACK)
 
-        [bson_type, [data_size, data, NULL_BYTE].join]
+        [data_size, data, NULL_BYTE].join
       else
-        [bson_type, code.to_bson_string]
+        code.to_bson_string
       end
     end
   end

@@ -1,5 +1,7 @@
 module BSON
   class ObjectId
+    include BSON::Element
+
     BSON_TYPE = "\x07"
 
     def initialize(id)
@@ -10,8 +12,8 @@ module BSON
       new([string].pack("H24"))
     end
 
-    def to_bson
-      [BSON_TYPE, @id]
+    def bson_value
+      @id
     end
   end
 end

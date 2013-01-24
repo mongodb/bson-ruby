@@ -1,13 +1,15 @@
 module BSON
   module Extensions
     module String
+      include BSON::Element
+
       BSON_TYPE = "\x02"
 
-      def to_bson
+      def bson_value
         data = to_utf8_binary
 
         length = [ data.bytesize + 1 ].pack(INT32_PACK)
-        [BSON_TYPE, [length, data, NULL_BYTE].join]
+        [length, data, NULL_BYTE].join
       end
 
       def to_bson_string

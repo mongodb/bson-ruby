@@ -1,10 +1,12 @@
 module BSON
   module Extensions
     module Float
+      include BSON::Element
+      
       BSON_TYPE = "\x01"
 
-      def to_bson
-        [BSON_TYPE, [self].pack(FLOAT_PACK)]
+      def bson_value
+        [self].pack(FLOAT_PACK)
       end
 
       module ClassMethods

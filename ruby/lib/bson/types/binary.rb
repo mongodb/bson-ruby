@@ -1,5 +1,7 @@
 module BSON
   class Binary
+    include BSON::Element
+
     BSON_TYPE = "\x05"
 
     BSON_SUB_TYPES = {
@@ -19,16 +21,16 @@ module BSON
       @type = type
     end
 
-    def to_bson
+    def bson_value
       if type == :old
         [@data.bytesize + 4].pack(INT32_PACK)
         BSON_SUB_TYPES[@type]
         [@data.bytesize].pack(INT32_PACK)
-        [BSON_TYPE, @data]
+        @data
       else
         [@data.bytesize].pack(INT32_PACK)
         BSON_SUB_TYPES[@type]
-        [BSON_TYPE, @data]
+        @data
       end
     end
 

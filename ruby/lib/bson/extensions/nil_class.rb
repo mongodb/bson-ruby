@@ -1,11 +1,9 @@
 module BSON
   module Extensions
     module NilClass
-      BSON_TYPE = "\x0A"
+      include BSON::Element
 
-      def to_bson
-        [BSON_TYPE]
-      end
+      BSON_TYPE = "\x0A"
 
       module ClassMethods
         def from_bson(bson)

@@ -19,7 +19,7 @@ Transform /^binary value(?: (\S+))?$/ do |binary|
 end
 
 Transform /^undefined value(?: (\S+))?$/ do |undefined|
-  BSON::Undefined.new
+  BSON::Undefined
 end
 
 Transform /^object_id value(?: (\S+))?$/ do |obj_id|

@@ -1,10 +1,12 @@
 module BSON
   module Extensions
     module FalseClass
+      include BSON::Element
+
       BSON_TYPE = "\x08"
 
-      def to_bson
-        [BSON_TYPE, "\x00"]
+      def bson_value
+        "\x00"
       end
     end
   end

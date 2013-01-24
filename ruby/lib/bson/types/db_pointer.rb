@@ -1,5 +1,7 @@
 module BSON
   class DBPointer
+    include BSON::Element
+
     BSON_TYPE = "\x0C"
 
     attr_reader :ns, :id
@@ -9,9 +11,8 @@ module BSON
       @id = id
     end
 
-    def to_bson
-      pointer = [ns.to_bson, id.to_bson].join
-      [BSON_TYPE, pointer]
+    def bson_value
+      [ns.to_bson, id.to_bson].join
     end
   end
 end

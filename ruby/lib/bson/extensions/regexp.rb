@@ -1,6 +1,8 @@
 module BSON
   module Extensions
     module Regexp
+      include BSON::Element
+
       BSON_TYPE = "\x0B"
 
       def bson_option
@@ -9,8 +11,8 @@ module BSON
         'x'  if (options & ::Regexp::EXTENDED) != 0
       end
 
-      def to_bson
-        [BSON_TYPE, [source.to_bson_cstring, bson_option, NULL_BYTE].join]
+      def bson_value
+        [source.to_bson_cstring, bson_option, NULL_BYTE].join
       end
 
       module ClassMethods
