@@ -2,6 +2,10 @@ module BSON
   class Document < Hash
     include BSON::Element
 
+    def to_bson
+      bson_value
+    end
+
     def self.from_bson(bson, document = new)
       length = bson.read(4)
 

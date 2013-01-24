@@ -9,7 +9,7 @@ module BSON
         string.bson_type.should == "\x02"
       end
 
-      it 'should start with an int32 representing length' do
+      it 'should start with an int32 representing bytesize' do
         string.bson_value[0..4].unpack(INT32_PACK).first.should == string.length + 1
       end
 
