@@ -2,9 +2,9 @@ require 'spec_helper'
 
 module BSON
   describe Float do
-    let(:float) { 3.14159 }
-
     context 'when serialized' do
+      let(:float) { 3.14159 }
+
       it 'should have BSON type \x01' do
         float.bson_type.should == "\x01"
       end

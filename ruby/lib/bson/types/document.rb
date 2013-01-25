@@ -9,7 +9,7 @@ module BSON
     def self.from_bson(bson, document = new)
       length = bson.read(4)
 
-      while(bson_type = bson.readbyte) != 0
+      while(bson_type = bson.readbyte).chr != EOD
         e_name = bson.gets(NULL_BYTE).from_utf8_binary.chop!
         document[e_name] = Types::MAP[bson_type].from_bson(bson)
       end
