@@ -13,8 +13,8 @@ module BSON
   UTF8_ENCODING   = Encoding.find 'utf-8'
 
   class << self
-    def serialize(document)
-      document.to_bson
+    def serialize(obj)
+      Document[obj].to_bson
     end
 
     def deserialize(bson)

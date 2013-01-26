@@ -18,9 +18,9 @@ module BSON
 
         it 'should be a hash with index values as keys' do
           bson.should == BSON::Document[
-            '1' => 'a',
-            '2' => 'b',
-            '3' => 'c'
+            '0' => 'a',
+            '1' => 'b',
+            '2' => 'c'
           ].to_bson
         end
 

@@ -7,8 +7,8 @@ module BSON
 
       def elements
         map do |e_name, value|
-          bson_type, bson_value = value.to_bson
-          [bson_type, e_name.to_s.to_bson_cstring, bson_value].join
+          type, value = value.to_bson
+          [type, e_name.to_s.to_bson_cstring, value].join
         end
       end
 

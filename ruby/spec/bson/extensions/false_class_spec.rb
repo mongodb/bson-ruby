@@ -2,14 +2,10 @@ require 'spec_helper'
 
 module BSON
   describe FalseClass do
-    context 'when serialized' do
-      it 'should have BSON type \x08' do
-        false.bson_type.should == "\x08"
-      end
+    let(:type) { "\x08" }
+    let(:obj)  { false }
+    let(:value) { "\x00" }
 
-      it 'should have BSON value \x00' do
-        false.bson_value.should == "\x00"
-      end
-    end
+    it_behaves_like "a bson element"
   end
 end

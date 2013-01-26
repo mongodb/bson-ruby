@@ -23,15 +23,14 @@ module BSON
 
     def bson_value
       if type == :old
-        [@data.bytesize + 4].pack(INT32_PACK)
-        BSON_SUB_TYPES[@type]
-        [@data.bytesize].pack(INT32_PACK)
-        @data
+        #[@data.bytesize + 4].pack(INT32_PACK)
+        #BSON_SUB_TYPES[@type]
+        #[@data.bytesize].pack(INT32_PACK)
+        #@data
       else
-        [@data.bytesize].pack(INT32_PACK)
-        BSON_SUB_TYPES[@type]
-        @data
+        bson_size = [@data.bytesize].pack(INT32_PACK)
       end
+      [bson_size, BSON_SUB_TYPES[type], @data].join
     end
 
     def ==(other)

@@ -6,7 +6,7 @@ module BSON
       BSON_TYPE = "\x04"
 
       def elements
-        to_enum.with_index(1).inject({}) do |array, (element, index)|
+        to_enum.each_with_index.inject({}) do |array, (element, index)|
           array[index] = element
           array
         end
@@ -17,7 +17,15 @@ module BSON
       end
 
       module ClassMethods
-        def from_bson(bson)
+        def from_bson(bson, array = new)
+          bson.read(4)
+
+          while (type = bson.readbyte).chr != NULL_BYTE
+            bson.gets(NULL_BYTE)
+            array << Types::MAP[type].from_bson(bson)
+          end
+
+          array
         end
       end
     end

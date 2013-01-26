@@ -1,6 +1,6 @@
 module BSON
   class MinKey
-    extend BSON::Element
+    include BSON::Element
 
     BSON_TYPE = "\xFF"
 

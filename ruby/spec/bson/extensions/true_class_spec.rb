@@ -2,14 +2,10 @@ require 'spec_helper'
 
 module BSON
   describe TrueClass do
-    context 'when serialized' do
-      it 'should have BSON type \x08' do
-        true.bson_type.should == "\x08"
-      end
+    let(:type) { "\x08" }
+    let(:obj)  { true }
+    let(:value) { "\x01" }
 
-      it 'should have BSON value \x01' do
-        true.bson_value.should == "\x01"
-      end
-    end
+    it_behaves_like "a bson element"
   end
 end

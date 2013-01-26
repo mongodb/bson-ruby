@@ -1,3 +1,4 @@
+require 'bson'
 require 'mongo/client'
 require 'mongo/cluster'
 require 'mongo/collection'
