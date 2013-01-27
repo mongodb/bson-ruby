@@ -10,7 +10,7 @@ Transform /^document value(?: (\S+))?$/ do |document|
   Hash.new
 end
 
-Transform /^array value(?: (\S+))?$/ do |array|
+Transform /^array value(?: (\[.*\]))?$/ do |array|
   Array.new
 end
 

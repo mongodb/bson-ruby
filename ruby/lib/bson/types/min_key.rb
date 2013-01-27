@@ -5,7 +5,7 @@ module BSON
     BSON_TYPE = "\xFF"
 
     def self.bson_value
-      String.new
+      nil
     end
 
     def self.bson_type

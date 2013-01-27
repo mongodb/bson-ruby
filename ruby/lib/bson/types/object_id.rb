@@ -1,6 +1,6 @@
 module BSON
   class ObjectId
-    include Element
+    include BSON::Element
 
     BSON_TYPE = "\x07"
 

@@ -23,14 +23,25 @@ Then /^the result should be the ((?:\S+) value (?:\S+))$/ do |value|
 end
 
 
-Given /^a (\S+ value(?: \S+)?)$/ do |value|
+Given /^a (\S+ value(?: .*)?)$/ do |value|
   @value = value
 end
 
 When /^I serialize the value$/ do
-  @bson = BSON::serialize(@value)
+  @bson = @value.to_bson
 end
 
 Then /^the BSON element should have the BSON type (\S+)$/ do |type|
-  @bson.first.should eq(type.hex.chr)
+  @bson.first.should == [type].pack("H*")
 end
+
+
+
+Given /^an array value with the following elements:$/ do |table|
+  puts table.rows.flatten
+end
+
+Then /^the result should contain:$/ do |table|
+  table.rows.flatten.join.should == @bson.last
+end
+

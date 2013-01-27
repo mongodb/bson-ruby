@@ -8,7 +8,9 @@ module BSON
       def elements
         map do |e_name, value|
           type, value = value.to_bson
-          [type, e_name.to_s.to_bson_cstring, value].join
+          element = [type, e_name.to_s.to_bson_cstring]
+          element << value if value
+          element.join
         end
       end
 
