@@ -1,15 +1,19 @@
 module BSON
-  class MinKey
-    include BSON::Element
+  module MinKey
+    extend BSON::Element
 
     BSON_TYPE = "\xFF"
 
-    def self.from_bson(bson)
-      self
+    def self.bson_value
+      String.new
     end
 
-    def self.to_bson
-      [BSON_TYPE]
+    def self.bson_type
+      BSON_TYPE
+    end
+
+    def self.from_bson(bson)
+      self
     end
   end
 end

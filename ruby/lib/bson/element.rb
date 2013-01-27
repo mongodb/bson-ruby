@@ -11,5 +11,9 @@ module BSON
     def bson_value
       self
     end
+
+    def self.from_bson
+      self
+    end
   end
 end

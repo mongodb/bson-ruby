@@ -1,15 +1,19 @@
 module BSON
-  class MaxKey
-    include BSON::Element
+  module MaxKey
+    extend BSON::Element
 
     BSON_TYPE = "\x7F"
+
+    def self.bson_value
+      String.new
+    end
+
+    def self.bson_type
+      BSON_TYPE
+    end
  
     def self.from_bson(bson)
       self
-    end
-
-    def self.to_bson
-      [BSON_TYPE]
     end
   end
 end

@@ -64,6 +64,14 @@ module BSON
     end
   end
 
+  describe ObjectId do
+    it_behaves_like 'a bson element' do
+      let(:obj)   { ObjectId.new("a") }
+      let(:type)  { "\x07" }
+      let(:value) { "\x01\x00\x00\x00\x00a" }
+    end
+  end
+
   describe FalseClass do
     it_behaves_like "a bson element" do
       let(:obj)   { false }
@@ -77,6 +85,94 @@ module BSON
       let(:obj)   { true }
       let(:type)  { "\x08" }
       let(:value) { "\x01" }
+    end
+  end
+
+  describe Time do
+    it_behaves_like 'a bson element' do
+      let(:obj)   { ObjectId.new("a") }
+      let(:type)  { "\x07" }
+      let(:value) { "\x01\x00\x00\x00\x00a" }
+    end
+  end
+
+  describe nil do
+    it_behaves_like 'a bson element' do
+      let(:obj)   { ObjectId.new("a") }
+      let(:type)  { "\x07" }
+      let(:value) { "\x01\x00\x00\x00\x00a" }
+    end
+  end
+
+  describe Regexp do
+    it_behaves_like 'a bson element' do
+      let(:obj)   { ObjectId.new("a") }
+      let(:type)  { "\x07" }
+      let(:value) { "\x01\x00\x00\x00\x00a" }
+    end
+  end
+
+  describe DBPointer do
+    it_behaves_like 'a bson element' do
+      let(:obj)   { ObjectId.new("a") }
+      let(:type)  { "\x07" }
+      let(:value) { "\x01\x00\x00\x00\x00a" }
+    end
+  end
+
+  describe Code do
+    it_behaves_like 'a bson element' do
+      let(:obj)   { ObjectId.new("a") }
+      let(:type)  { "\x07" }
+      let(:value) { "\x01\x00\x00\x00\x00a" }
+    end
+  end
+
+  describe Symbol do
+    it_behaves_like 'a bson element' do
+      let(:obj)   { ObjectId.new("a") }
+      let(:type)  { "\x07" }
+      let(:value) { "\x01\x00\x00\x00\x00a" }
+    end
+  end
+
+  describe Int32 do
+    it_behaves_like 'a bson element' do
+      let(:obj)   { ObjectId.new("a") }
+      let(:type)  { "\x07" }
+      let(:value) { "\x01\x00\x00\x00\x00a" }
+    end
+  end
+
+  describe Timestamp do
+    it_behaves_like 'a bson element' do
+      let(:obj)   { ObjectId.new("a") }
+      let(:type)  { "\x07" }
+      let(:value) { "\x01\x00\x00\x00\x00a" }
+    end
+  end
+
+  describe Int64 do
+    it_behaves_like 'a bson element' do
+      let(:obj)   { ObjectId.new("a") }
+      let(:type)  { "\x07" }
+      let(:value) { "\x01\x00\x00\x00\x00a" }
+    end
+  end
+
+  describe MinKey do
+    it_behaves_like 'a bson element' do
+      let(:obj)   { MinKey }
+      let(:type)  { "\xFF" }
+      let(:value) { "" }
+    end
+  end
+
+  describe MaxKey do
+    it_behaves_like 'a bson element' do
+      let(:obj)   { MaxKey }
+      let(:type)  { "\x7F" }
+      let(:value) { "" }
     end
   end
 end
