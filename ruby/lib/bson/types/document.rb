@@ -1,6 +1,6 @@
 module BSON
   class Document < Hash
-    include BSON::Element
+    include Element
 
     def to_bson
       bson_value

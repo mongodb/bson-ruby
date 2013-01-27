@@ -1,7 +1,7 @@
 module BSON
   module Extensions
     module Float
-      include BSON::Element
+      include Element
       
       BSON_TYPE = "\x01"
 

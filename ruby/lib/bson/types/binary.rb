@@ -1,6 +1,6 @@
 module BSON
   class Binary
-    include BSON::Element
+    include Element
 
     BSON_TYPE = "\x05"
 

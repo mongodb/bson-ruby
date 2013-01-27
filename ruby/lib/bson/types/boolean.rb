@@ -1,6 +1,6 @@
 module BSON
   class Boolean
-    include BSON::Element
+    include Element
 
     BSON_TYPE = "\x08"
     

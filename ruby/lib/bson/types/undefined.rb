@@ -1,6 +1,6 @@
 module BSON
   class Undefined
-    extend BSON::Element
+    extend Element
 
     BSON_TYPE ="\x06"
 

@@ -1,6 +1,6 @@
 module BSON
   module MaxKey
-    extend BSON::Element
+    extend Element
 
     BSON_TYPE = "\x7F"
 

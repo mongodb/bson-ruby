@@ -1,6 +1,8 @@
 module Mongo
   module Protocol
-    class KillCursors < Message
+    class KillCursors
+      include Message
+
       OPCODE = 2007
     end
   end

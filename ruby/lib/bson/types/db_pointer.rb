@@ -1,6 +1,6 @@
 module BSON
   class DBPointer
-    include BSON::Element
+    include Element
 
     BSON_TYPE = "\x0C"
 

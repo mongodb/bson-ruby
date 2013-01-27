@@ -1,7 +1,7 @@
 module BSON
   module Extensions
     module Regexp
-      include BSON::Element
+      include Element
 
       BSON_TYPE = "\x0B"
 

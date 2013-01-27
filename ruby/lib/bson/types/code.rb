@@ -1,6 +1,6 @@
 module BSON
   class Code
-    include BSON::Element
+    include Element
     attr_reader :code, :scope
 
     def initialize(code, scope={})

@@ -1,6 +1,6 @@
 module BSON
   class Timestamp
-    include BSON::Element
+    include Element
 
     BSON_TYPE = "\x11"
 
