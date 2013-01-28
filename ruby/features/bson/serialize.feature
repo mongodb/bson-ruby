@@ -5,7 +5,7 @@ Feature: Serialize Elements
   In order to store data in the database
   The driver needs to serialize bson elements
 
-  Scenario Outline: Serialize BSON Types
+  Scenario Outline: Serialize BSON types
     Given a <value_type> value
     When I serialize the value
     Then the BSON element should have the BSON type <bson_type>
@@ -33,7 +33,7 @@ Feature: Serialize Elements
       | min_key      | FF        |
       | max_key      | 7F        |
 
-  Scenario Outline: Serialize simple BSON Values
+  Scenario Outline: Serialize simple BSON values
     Given a <value_type> value <value>
     When I serialize the value
     Then the result should be <hex_bytes>
@@ -90,4 +90,14 @@ Feature: Serialize Elements
       | data  | uuid_old    | 080000000364617461         |
       | data  | uuid        | 080000000464617461         |
       | data  | md5         | 080000000564617461         |
-      | data  | user        | 080000008064617461         | 
+      | data  | user        | 080000008064617461         |
+
+  Scenario Outline: Serialize code values
+    Given a code value <code> with scope <scope>
+    When I serialize the value
+    Then the result should be <hex_bytes>
+
+    Examples:
+      | code         | scope     | hex_bytes |
+      | function(){} |           |           |
+      | function(){} | {:a => 1} |           |

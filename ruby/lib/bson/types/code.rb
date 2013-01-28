@@ -18,8 +18,8 @@ module BSON
 
     def bson_value
       if scoped?
-        data = code.to_utf8_binary
-        data_size = [data.bytesize+1].pack(INT32_PACK)
+        code = code.to_utf8_binary
+        data_size = [data.bytesize + 1].pack(INT32_PACK)
 
         [data_size, data, NULL_BYTE].join
       else
