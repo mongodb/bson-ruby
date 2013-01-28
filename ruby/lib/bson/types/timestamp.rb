@@ -14,5 +14,9 @@ module BSON
     def bson_value
       [increment.to_bson, seconds.to_bson].join
     end
+
+    def self.from_bson
+      new(*io.read(8).unpack(INT32_PACK * 2).reverse)
+    end
   end
 end

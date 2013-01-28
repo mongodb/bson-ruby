@@ -8,7 +8,7 @@ module BSON
 
     def initialize(ns, id)
       @ns = ns
-      @id = id
+      @id = ObjectId.new(id)
     end
 
     def bson_value

@@ -31,17 +31,15 @@ When /^I serialize the value$/ do
   @bson = @value.to_bson
 end
 
-Then /^the BSON element should have the BSON type (\S+)$/ do |type|
-  @bson.first.should == [type].pack("H*")
+Then /^the BSON element should have the (BSON type \S+)$/ do |type|
+  @bson.first.should == type
 end
 
-
-
-Given /^an array value with the following elements:$/ do |table|
-  puts table.rows.flatten
+Given /^a (?:\S+) with the following items:$/ do |obj|
+  @value = obj
 end
 
-Then /^the result should contain:$/ do |table|
-  table.rows.flatten.join.should == @bson.last
+Then /^the result should be the bson document:$/ do |doc|
+  @bson.last.should == doc
 end
 

@@ -8,7 +8,7 @@ module BSON
 
     def initialize
       super
-      self.default_proc= proc { |hash, key| hash.key?(key.to_s) ? hash[key.to_s] : nil }
+      self.default_proc = proc { |hash, key| hash.key?(key.to_s) ? hash[key.to_s] : nil }
     end
 
     def self.from_bson(bson, document = new)
