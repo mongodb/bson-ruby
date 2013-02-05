@@ -67,14 +67,14 @@ total includes the 4 bytes that holds the message length.
 **requestID**: This is a client or database-generated identifier that
 uniquely identifies this message. For the case of client-generated
 messages (e.g. :ref:`OP_QUERY <wire-op-query>` and
-:ref:`CONTRIB:OP_GET_MORE <wire-op-get-more>`), it will be returned in
-the ``responseTo`` field of the :ref:`CONTRIB:OP_REPLY <wire-op-reply>`
+:ref:`OP_GET_MORE <wire-op-get-more>`), it will be returned in
+the ``responseTo`` field of the :ref:`OP_REPLY <wire-op-reply>`
 message. Along with the ``reponseTo`` field in responses, clients can use
 this to associate query responses with the originating query.
 
 **responseTo**: In the case of a message from the database, this will be
-the ``requestID`` taken from the :ref:`CONTRIB:OP_QUERY <wire-op-query>`
-or :ref:`CONTRIB:OP_GET_MORE <wire-op-get-more>` messages from the
+the ``requestID`` taken from the :ref:`OP_QUERY <wire-op-query>`
+or :ref:`OP_GET_MORE <wire-op-get-more>` messages from the
 client. Along with the ``requestID`` field in queries, clients can use this
 to associate query responses with the originating query.
 
@@ -123,11 +123,11 @@ The following are the currently supported opcodes:
 Client Request Messages
 -----------------------
 
-Clients can send all messages except for :ref:`CONTRIB:OP_REPLY
+Clients can send all messages except for :ref:`OP_REPLY
 <wire-op-reply>`. This is reserved for use by the database.
 
-Only the :ref:`CONTRIB:OP_QUERY <wire-op-query>` and
-:ref:`CONTRIB:OP_GET_MORE <wire-op-get-more>` messages result in a
+Only the :ref:`OP_QUERY <wire-op-query>` and
+:ref:`OP_GET_MORE <wire-op-get-more>` messages result in a
 response from the database. There will be no response sent for any other
 message.
 
@@ -314,7 +314,7 @@ first document in the resulting dataset - when returning the result of
 the query.
 
 **numberToReturn**: Limits the number of documents in the first
-:ref:`CONTRIB:OP_REPLY <wire-op-reply>` message to the query. However,
+:ref:`OP_REPLY <wire-op-reply>` message to the query. However,
 the database will still establish a cursor and return the ``cursorID``
 to the client if there are more results than ``numberToReturn``. If the
 client driver offers 'limit' functionality (like the SQL LIMIT keyword),
@@ -343,7 +343,7 @@ would be:
    { a : 1, b : 1, c : 1}
 
 The database will respond to an OP_QUERY message with an
-:ref:`CONTRIB:OP_REPLY <wire-op-reply>` message.
+:ref:`OP_REPLY <wire-op-reply>` message.
 
 .. _wire-op-get-more:
 
@@ -369,7 +369,7 @@ using a ``.`` for the concatenation. For example, for the database ``foo``
 and the collection ``bar``, the full collection name is ``foo.bar``.
 
 **numberToReturn**: Limits the number of documents in the first
-:ref:`CONTRIB:OP_REPLY <wire-op-reply>` message to the query. However,
+:ref:`OP_REPLY <wire-op-reply>` message to the query. However,
 the database will still establish a cursor and return the ``cursorID`` to
 the client if there are more results than ``numberToReturn``. If the client
 driver offers 'limit' functionality (like the SQL LIMIT keyword), then
@@ -377,11 +377,11 @@ it is up to the client driver to ensure that no more than the specified
 number of document are returned to the calling application. If
 ``numberToReturn`` is ``0``, the db will used the default return size.
 
-**cursorID**: Cursor identifier that came in the :ref:`CONTRIB:OP_REPLY
+**cursorID**: Cursor identifier that came in the :ref:`OP_REPLY
 <wire-op-reply>`. This must be the value that came from the database.
 
 The database will respond to an OP_GET_MORE message with an
-:ref:`CONTRIB:OP_REPLY <wire-op-reply>` message.
+:ref:`OP_REPLY <wire-op-reply>` message.
 
 .. _wire-op-delete:
 
@@ -483,7 +483,7 @@ OP_REPLY
 ~~~~~~~~
 
 The OP_REPLY message is sent by the database in response to an
-:ref:`CONTRIB:OP_QUERY <wire-op-query>` or :ref:`CONTRIB:OP_GET_MORE
+:ref:`OP_QUERY <wire-op-query>` or :ref:`OP_GET_MORE
 <wire-op-get-more>` message. The format of an OP_REPLY message is:
 
 .. code-block:: sh
@@ -529,6 +529,6 @@ The OP_REPLY message is sent by the database in response to an
 **cursorID**: The ``cursorID`` that this OP_REPLY is a part of. In the event
 that the result set of the query fits into one OP_REPLY message,
 ``cursorID`` will be 0. This ``cursorID`` must be used in any
-:ref:`CONTRIB:OP_GET_MORE <wire-op-get-more>` messages used to get more
+:ref:`OP_GET_MORE <wire-op-get-more>` messages used to get more
 data, and also must be closed by the client when no longer needed via a
-:ref:`CONTRIB:OP_KILL_CURSORS <wire-op-kill-cursors>` message.
+:ref:`OP_KILL_CURSORS <wire-op-kill-cursors>` message.
