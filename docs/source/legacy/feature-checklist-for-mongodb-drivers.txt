@@ -64,7 +64,7 @@ More Optional
 -------------
 
 - :method:`addUser() <db.addUser()>`
-- :method: `logout() <db.logout()>`
+- :method:`logout() <db.logout()>`
 - Allow client user to specify :method:`setSlaveOk() <mongo.setSlaveOk()>` for a query
 - :wiki:`Tailable cursor <Tailable+Cursors>` support
 - In/out buffer pooling, if implementing in garbage collected language
