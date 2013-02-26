@@ -89,6 +89,16 @@ module BSON
         bson_int32? ? INT32_TYPE : (bson_int64? ? INT64_TYPE : nil)
       end
 
+      # Get the integer as encoded BSON.
+      #
+      # @example Get the integer as encoded BSON.
+      #   1024.to_bson
+      #
+      # @return [ String ] The encoded string.
+      #
+      # @see http://bsonspec.org/#/specification
+      #
+      # @since 2.0.0
       def to_bson
         [ self ].pack(bson_pack_directive)
       end
