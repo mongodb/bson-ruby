@@ -32,7 +32,7 @@ source_suffix = '.txt'
 master_doc = 'contents'
 
 project = u'MongoDB Meta Driver'
-copyright = u'2012, 10gen, Inc.'
+copyright = u'2012-' + meta['date'] + ', 10gen, Inc.'
 
 version = '0.1'
 release = version + '-dev'
@@ -134,7 +134,7 @@ man_pages = [
 epub_title = u'MongoDB'
 epub_author = u'MongoDB Documentation Project'
 epub_publisher = u'MongoDB Documentation Project'
-epub_copyright = u'2011, 10gen Inc.'
+epub_copyright = u'2012-' + meta['date'] + ', 10gen Inc.'
 epub_theme = 'epub_mongodb'
 epub_tocdup = True
 epub_tocdepth = 3
