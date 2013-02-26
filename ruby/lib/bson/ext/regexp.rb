@@ -3,7 +3,7 @@ module BSON
   module Ext
 
     # Injects behaviour for encoding and decoding regular expression values to
-    # and from # raw bytes as specified by the BSON spec.
+    # and from raw bytes as specified by the BSON spec.
     #
     # @see http://bsonspec.org/#/specification
     #
