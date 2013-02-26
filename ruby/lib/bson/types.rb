@@ -1,38 +1,42 @@
-require 'bson/types/code'
-require 'bson/types/min_key'
-require 'bson/types/max_key'
-require 'bson/types/binary'
-require 'bson/types/document'
-require 'bson/types/timestamp'
-require 'bson/types/int32'
-require 'bson/types/int64'
-require 'bson/types/object_id'
-require 'bson/types/undefined'
-require 'bson/types/db_pointer'
-require 'bson/types/boolean'
+# encoding: utf-8
+require "bson/max_key"
+require "bson/min_key"
+require "bson/timestamp"
 
 module BSON
+
+  # Provides constant values for each to the BSON types and mappings from raw
+  # bytes back to these types.
+  #
+  # @see http://bsonspec.org/#/specification
+  #
+  # @since 2.0.0
   module Types
-    MAP = {}
-    MAP[1]   = Float
-    MAP[2]   = String
-    MAP[3]   = Document
-    MAP[4]   = Array
-    MAP[5]   = Binary
-    MAP[6]   = Undefined # deprecated
-    MAP[7]   = ObjectId
-    MAP[8]   = Boolean
-    MAP[9]   = Time
-    MAP[10]  = NilClass
-    MAP[11]  = Regexp
-    MAP[12]  = DBPointer # deprecated
-    MAP[13]  = Code
-    MAP[14]  = Symbol
-    MAP[15]  = Code
-    MAP[16]  = Int32
-    MAP[17]  = Timestamp
-    MAP[18]  = Int64
-    MAP[127] = MaxKey
-    MAP[255] = MinKey
+    extend self
+
+    # A Mapping of all the BSON types to their corresponding Ruby classes.
+    #
+    # @since 2.0.0
+    MAPPINGS = {
+      MaxKey::BSON_TYPE    => MaxKey,
+      MinKey::BSON_TYPE    => MinKey,
+      String::BSON_TYPE    => String,
+      Timestamp::BSON_TYPE => Timestamp
+    }
+
+    # Get the class for the single byte identifier for the type in the BSON
+    # specification.
+    #
+    # @example Get the type for the byte.
+    #   BSON::Types.get("\x01")
+    #
+    # @return [ Class ] The corresponding Ruby class for the type.
+    #
+    # @see http://bsonspec.org/#/specification
+    #
+    # @since 2.0.0
+    def get(byte)
+      MAPPINGS.fetch(byte)
+    end
   end
 end
