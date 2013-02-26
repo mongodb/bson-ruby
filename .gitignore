@@ -8,3 +8,4 @@ build/*
 *.pyo
 *.bak
 .DS_Store
+.rvmrc
