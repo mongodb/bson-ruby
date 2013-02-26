@@ -15,6 +15,11 @@ module BSON
   module Document
     extend self
 
+    # Constant for binary string encoding.
+    #
+    # @since 2.0.0
+    BINARY = "BINARY".freeze
+
     # Serialize a document into a raw string of bytes.
     #
     # @example Serialize the document into it's raw bytes.
@@ -26,7 +31,7 @@ module BSON
     #
     # @since 2.0.0
     def serialize(document)
-      buffer = "".force_encoding("BINARY")
+      buffer = "".force_encoding(BINARY)
       document.each do |field, value|
         buffer << Element.new(field, value).to_bson
       end
