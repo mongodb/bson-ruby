@@ -27,7 +27,7 @@ describe BSON::Ext::String do
     end
 
     it "returns the encoded string" do
-      expect(encoded).to eq("\x05\x00\x00\x00test\x00")
+      expect(encoded).to eq("#{5.to_bson}test#{BSON::NULL_BYTE}")
     end
   end
 
@@ -42,7 +42,7 @@ describe BSON::Ext::String do
     end
 
     it "returns the encoded string" do
-      expect(encoded).to eq("test\x00")
+      expect(encoded).to eq("test#{BSON::NULL_BYTE}")
     end
   end
 end
