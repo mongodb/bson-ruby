@@ -10,11 +10,6 @@ module BSON
     # @since 2.0.0
     module Date
 
-      # A date is type 0x09 in the BSON spec.
-      #
-      # @since 2.0.0
-      BSON_TYPE = 9.chr.freeze
-
       # Get the BSON single byte type for a date.
       #
       # @example Get the bson type.
@@ -26,7 +21,7 @@ module BSON
       #
       # @since 2.0.0
       def bson_type
-        BSON_TYPE
+        Time::BSON_TYPE
       end
 
       # Get the date as encoded BSON.

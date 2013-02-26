@@ -2,17 +2,10 @@ require "spec_helper"
 
 describe BSON::Ext::TrueClass do
 
-  describe "::BSON_TYPE" do
-
-    it "returns 0x08" do
-      expect(TrueClass::BSON_TYPE).to eq(8.chr)
-    end
-  end
-
   describe "#bson_type" do
 
     it "returns the BSON_TYPE" do
-      expect(true.bson_type).to eq(TrueClass::BSON_TYPE)
+      expect(true.bson_type).to eq(FalseClass::BSON_TYPE)
     end
   end
 

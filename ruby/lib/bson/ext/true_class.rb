@@ -10,11 +10,6 @@ module BSON
     # @since 2.0.0
     module TrueClass
 
-      # A boolean is type 0x08 in the BSON spec.
-      #
-      # @since 2.0.0
-      BSON_TYPE = 8.chr.freeze
-
       # Get the BSON single byte type for a boolean.
       #
       # @example Get the bson type.
@@ -26,7 +21,7 @@ module BSON
       #
       # @since 2.0.0
       def bson_type
-        BSON_TYPE
+        FalseClass::BSON_TYPE
       end
 
       # Get the true boolean as encoded BSON.
