@@ -2,7 +2,7 @@
 require "bson/ext/integer"
 require "bson/ext/string"
 
-# Determin if we are using JRuby or not.
+# Determine if we are using JRuby or not.
 #
 # @example Are we running with JRuby?
 #   jruby?
