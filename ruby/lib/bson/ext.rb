@@ -5,6 +5,7 @@ require "bson/ext/integer"
 require "bson/ext/nil_class"
 require "bson/ext/regexp"
 require "bson/ext/string"
+require "bson/ext/symbol"
 require "bson/ext/true_class"
 
 # Determine if we are using JRuby or not.
