@@ -1,2 +1,14 @@
+require "bundler"
+Bundler.setup
+
+require "rake"
+require "cucumber/rake/task"
 require "rspec/core/rake_task"
+
 RSpec::Core::RakeTask.new(:spec)
+
+Cucumber::Rake::Task.new do |t|
+  t.cucumber_opts = %w{--format pretty}
+end
+
+task :default => :spec
