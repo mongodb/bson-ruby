@@ -1,4 +1,5 @@
 # encoding: utf-8
+require "bson/ext/array"
 require "bson/ext/date"
 require "bson/ext/false_class"
 require "bson/ext/float"
