@@ -56,6 +56,11 @@ module BSON
       def to_bson_cstring
         self + NULL_BYTE
       end
+
+      # Register this type when the module is loaded.
+      #
+      # @since 2.0.0
+      Registry.register(BSON_TYPE, ::String)
     end
 
     # Enrich the core String class with this module.

@@ -69,6 +69,11 @@ module BSON
       def bson_multiline
         (options & ::Regexp::MULTILINE != 0) ? "ms" : NO_VALUE
       end
+
+      # Register this type when the module is loaded.
+      #
+      # @since 2.0.0
+      Registry.register(BSON_TYPE, ::Regexp)
     end
 
     # Enrich the core Regexp class with this module.

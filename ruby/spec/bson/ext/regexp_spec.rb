@@ -117,4 +117,15 @@ describe BSON::Ext::Regexp do
       end
     end
   end
+
+  context "when the class is loaded" do
+
+    let(:registered) do
+      BSON::Registry.get(Regexp::BSON_TYPE)
+    end
+
+    it "registers the type" do
+      expect(registered).to eq(Regexp)
+    end
+  end
 end

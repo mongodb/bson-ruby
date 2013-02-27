@@ -34,4 +34,15 @@ describe BSON::Ext::Float do
       expect(encoded).to eq(expected)
     end
   end
+
+  context "when the class is loaded" do
+
+    let(:registered) do
+      BSON::Registry.get(Float::BSON_TYPE)
+    end
+
+    it "registers the type" do
+      expect(registered).to eq(Float)
+    end
+  end
 end

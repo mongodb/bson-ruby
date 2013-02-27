@@ -166,4 +166,23 @@ describe BSON::Ext::Integer do
       pending "should we raise an error"
     end
   end
+
+  context "when the class is loaded" do
+
+    let(:registered_small) do
+      BSON::Registry.get(Integer::INT32_TYPE)
+    end
+
+    let(:registered_large) do
+      BSON::Registry.get(Integer::INT64_TYPE)
+    end
+
+    it "registers the int32 type" do
+      expect(registered_small).to eq(Integer)
+    end
+
+    it "registers the int64 type" do
+      expect(registered_large).to eq(Integer)
+    end
+  end
 end

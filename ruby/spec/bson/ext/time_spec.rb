@@ -60,4 +60,15 @@ describe BSON::Ext::Time do
       end
     end
   end
+
+  context "when the class is loaded" do
+
+    let(:registered) do
+      BSON::Registry.get(Time::BSON_TYPE)
+    end
+
+    it "registers the type" do
+      expect(registered).to eq(Time)
+    end
+  end
 end

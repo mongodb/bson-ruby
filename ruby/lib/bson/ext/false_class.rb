@@ -42,6 +42,11 @@ module BSON
       def to_bson
         NULL_BYTE
       end
+
+      # Register this type when the module is loaded.
+      #
+      # @since 2.0.0
+      Registry.register(BSON_TYPE, ::FalseClass)
     end
 
     # Enrich the core FalseClass class with this module.

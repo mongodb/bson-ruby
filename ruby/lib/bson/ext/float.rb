@@ -47,6 +47,11 @@ module BSON
       def to_bson
         [ self ].pack(DOUBLE_PACK)
       end
+
+      # Register this type when the module is loaded.
+      #
+      # @since 2.0.0
+      Registry.register(BSON_TYPE, ::Float)
     end
 
     # Enrich the core Float class with this module.

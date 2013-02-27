@@ -26,4 +26,15 @@ describe BSON::Ext::FalseClass do
       expect(encoded).to eq(BSON::NULL_BYTE)
     end
   end
+
+  context "when the class is loaded" do
+
+    let(:registered) do
+      BSON::Registry.get(FalseClass::BSON_TYPE)
+    end
+
+    it "registers the type" do
+      expect(registered).to eq(FalseClass)
+    end
+  end
 end

@@ -45,4 +45,15 @@ describe BSON::Ext::String do
       expect(encoded).to eq("test#{BSON::NULL_BYTE}")
     end
   end
+
+  context "when the class is loaded" do
+
+    let(:registered) do
+      BSON::Registry.get(String::BSON_TYPE)
+    end
+
+    it "registers the type" do
+      expect(registered).to eq(String)
+    end
+  end
 end

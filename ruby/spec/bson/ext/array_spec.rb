@@ -21,4 +21,15 @@ describe BSON::Ext::Array do
   end
 
   pending "#to_bson"
+
+  context "when the class is loaded" do
+
+    let(:registered) do
+      BSON::Registry.get(Array::BSON_TYPE)
+    end
+
+    it "registers the type" do
+      expect(registered).to eq(Array)
+    end
+  end
 end

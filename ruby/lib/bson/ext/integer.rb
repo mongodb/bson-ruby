@@ -108,6 +108,12 @@ module BSON
       def bson_pack_directive
         bson_int32? ? INT32_PACK : (bson_int64? ? INT64_PACK : nil)
       end
+
+      # Register this type when the module is loaded.
+      #
+      # @since 2.0.0
+      Registry.register(INT32_TYPE, ::Integer)
+      Registry.register(INT64_TYPE, ::Integer)
     end
 
     # Enrich the core Integer class with this module.

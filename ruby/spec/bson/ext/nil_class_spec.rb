@@ -26,4 +26,15 @@ describe BSON::Ext::NilClass do
       expect(encoded).to be_empty
     end
   end
+
+  context "when the class is loaded" do
+
+    let(:registered) do
+      BSON::Registry.get(NilClass::BSON_TYPE)
+    end
+
+    it "registers the type" do
+      expect(registered).to eq(NilClass)
+    end
+  end
 end

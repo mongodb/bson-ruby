@@ -42,6 +42,11 @@ module BSON
       def to_bson
         (to_f * 1000).to_i.to_bson
       end
+
+      # Register this type when the module is loaded.
+      #
+      # @since 2.0.0
+      Registry.register(BSON_TYPE, ::Time)
     end
 
     # Enrich the core Time class with this module.
