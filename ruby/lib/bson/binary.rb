@@ -13,6 +13,23 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 5.chr.freeze
 
+    # The mappings of subtypes to their single byte identifiers.
+    #
+    # @since 2.0.0
+    SUBTYPES = {
+      generic: 0.chr,
+      function: 1.chr,
+      old: 2.chr,
+      uuid: 3.chr,
+      md5: 5.chr,
+      user: 128.chr
+    }.freeze
+
+    # The mappings of single byte subtypes to their symbol counterparts.
+    #
+    # @since 2.0.0
+    TYPES = SUBTYPES.invert.freeze
+
     # Get the BSON single byte type for a binary.
     #
     # @example Get the bson type.
