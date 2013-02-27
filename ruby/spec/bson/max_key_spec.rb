@@ -1,7 +1,5 @@
 require "spec_helper"
 
-require "spec_helper"
-
 describe BSON::MaxKey do
 
   describe "::BSON_TYPE" do
