@@ -1,4 +1,5 @@
 # encoding: utf-8
+require "bson/code"
 require "bson/max_key"
 require "bson/min_key"
 require "bson/timestamp"
