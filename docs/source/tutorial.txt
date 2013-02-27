@@ -4,7 +4,7 @@ Build a MongoDB Driver
 
 Eventually, the MongoDB Meta Site will provide a clear and canonical
 reference for the internal operation and construction of MongoDB
-client libraries or "driers." In the mean time the existing
+client libraries or "drivers." In the mean time the existing
 :wiki:`Writing Drivers and Tools <Writing+Drivers+and+Tools>` page on
 the :wiki:`MongoDB Wiki <>` provides a good starting point for
 building these interfaces.
