@@ -32,7 +32,7 @@ module BSON
     # @example Encode the code.
     #   code.to_bson
     #
-    # @return [ String ] An empty string.
+    # @return [ String ] The encoded string.
     #
     # @see http://bsonspec.org/#/specification
     #

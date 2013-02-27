@@ -15,7 +15,7 @@ describe BSON::Code do
       described_class.new
     end
 
-    it "returns 0xFF" do
+    it "returns 0x0D" do
       expect(code.bson_type).to eq(BSON::Code::BSON_TYPE)
     end
   end
