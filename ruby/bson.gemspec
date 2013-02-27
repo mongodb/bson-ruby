@@ -1,15 +1,24 @@
+# encoding: utf-8
+lib = File.expand_path('../lib/', __FILE__)
+$:.unshift lib unless $:.include?(lib)
+
+require "bson/version"
+
 Gem::Specification.new do |s|
-  s.name              = 'bson'
-  s.authors           = 'Tyler Brock'
-  s.email             = 'mongodb-dev@googlegroups.com'
-  s.homepage          = 'http://www.bsonspec.org'
-  s.summary           = 'Ruby implementation of BSON'
-  s.description       = 'A Ruby BSON implementation'
-  s.rubyforge_project = 'bson'
+  s.name        = "bson"
+  s.version     = BSON::VERSION
+  s.platform    = Gem::Platform::RUBY
+  s.authors     = ["Tyler Brock", "Durran Jordan"]
+  s.email       = ["mongodb-dev@googlegroups.com"]
+  s.homepage    = "http://bsonspec.org"
+  s.summary     = "Ruby Implementation of the BSON specification"
+  s.description = "A full featured BSON specification implementation, in Ruby"
+  s.license     = "Apache"
 
-  s.version           = File.read(File.join(File.dirname(__FILE__), 'VERSION'))
-  s.platform          = Gem::Platform::RUBY
+  s.required_ruby_version     = ">= 1.9.3"
+  s.required_rubygems_version = ">= 1.3.6"
+  s.rubyforge_project         = "bson"
 
-  s.files             = ['lib/bson.rb']
-  s.require_paths     = ['lib']
+  s.files        = Dir.glob("lib/**/*") + %w(CHANGELOG.md LICENSE README.md Rakefile)
+  s.require_path = 'lib'
 end
