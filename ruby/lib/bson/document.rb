@@ -6,6 +6,7 @@ require "bson/element"
 require "bson/ext"
 require "bson/max_key"
 require "bson/min_key"
+require "bson/object_id"
 require "bson/timestamp"
 
 module BSON

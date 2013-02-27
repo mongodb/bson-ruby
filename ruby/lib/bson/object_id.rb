@@ -1,24 +1,24 @@
 # encoding: utf-8
 module BSON
 
-  # Represents binary data.
+  # Represents object_id data.
   #
   # @see http://bsonspec.org/#/specification
   #
   # @since 2.0.0
-  class Binary
+  class ObjectId
 
-    # A binary is type 0x05 in the BSON spec.
+    # A object_id is type 0x07 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 5.chr.freeze
+    BSON_TYPE = 7.chr.freeze
 
-    # Get the BSON single byte type for a binary.
+    # Get the BSON single byte type for a object_id.
     #
     # @example Get the bson type.
-    #   binary.bson_type
+    #   object_id.bson_type
     #
-    # @return [ String ] 0x05.
+    # @return [ String ] 0x07.
     #
     # @see http://bsonspec.org/#/specification
     #
@@ -27,12 +27,12 @@ module BSON
       BSON_TYPE
     end
 
-    # Encode the binary type
+    # Encode the object_id type
     #
-    # @example Encode the binary.
-    #   binary.to_bson
+    # @example Encode the object_id.
+    #   object_id.to_bson
     #
-    # @return [ String ] The encoded binary.
+    # @return [ String ] The encoded object_id.
     #
     # @see http://bsonspec.org/#/specification
     #
