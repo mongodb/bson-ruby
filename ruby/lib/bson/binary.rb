@@ -20,7 +20,8 @@ module BSON
       generic: 0.chr,
       function: 1.chr,
       old: 2.chr,
-      uuid: 3.chr,
+      uuid_old: 3.chr,
+      uuid: 4.chr,
       md5: 5.chr,
       user: 128.chr
     }.freeze
@@ -78,6 +79,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
+      data.bytesize.to_bson + SUBTYPES.fetch(type) + data
     end
 
     # Register this type when the module is loaded.
