@@ -1,10 +1,4 @@
 # encoding: utf-8
-require "bson/code"
-require "bson/code_with_scope"
-require "bson/max_key"
-require "bson/min_key"
-require "bson/timestamp"
-
 module BSON
 
   # Provides constant values for each to the BSON types and mappings from raw
@@ -13,24 +7,19 @@ module BSON
   # @see http://bsonspec.org/#/specification
   #
   # @since 2.0.0
-  module Types
+  module Registry
     extend self
 
     # A Mapping of all the BSON types to their corresponding Ruby classes.
     #
     # @since 2.0.0
-    MAPPINGS = {
-      MaxKey::BSON_TYPE    => MaxKey,
-      MinKey::BSON_TYPE    => MinKey,
-      String::BSON_TYPE    => String,
-      Timestamp::BSON_TYPE => Timestamp
-    }
+    MAPPINGS = {}
 
     # Get the class for the single byte identifier for the type in the BSON
     # specification.
     #
     # @example Get the type for the byte.
-    #   BSON::Types.get("\x01")
+    #   BSON::Registry.get("\x01")
     #
     # @return [ Class ] The corresponding Ruby class for the type.
     #
@@ -40,5 +29,21 @@ module BSON
     def get(byte)
       MAPPINGS.fetch(byte)
     end
+
+    # Register the Ruby type for the corresponding single byte.
+    #
+    # @example Register the type.
+    #   BSON::Registry.register("\x01", Float)
+    #
+    # @param [ String ] byte The single byte.
+    # @param [ Class ] The class the byte maps to.
+    #
+    # @return [ Class ] The class.
+    #
+    # @since 2.0.0
+    def register(byte, type)
+      MAPPINGS[byte] = type
+    end
   end
 end
+

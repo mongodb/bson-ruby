@@ -1,10 +1,14 @@
 require "spec_helper"
 
-describe BSON::Types do
+describe BSON::Registry do
 
   describe ".get" do
 
     context "when the type has a correspoding class" do
+
+      before do
+        described_class.register(BSON::MinKey::BSON_TYPE, BSON::MinKey)
+      end
 
       let(:klass) do
         described_class.get(BSON::MinKey::BSON_TYPE)
