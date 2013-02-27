@@ -11,12 +11,31 @@ describe BSON::Binary do
 
   describe "#bson_type" do
 
-    let(:code) do
-      described_class.new
+    let(:binary) do
+      described_class.new(:md5, "test")
     end
 
     it "returns 0x0D" do
-      expect(code.bson_type).to eq(BSON::Binary::BSON_TYPE)
+      expect(binary.bson_type).to eq(BSON::Binary::BSON_TYPE)
+    end
+  end
+
+  describe "#initialize" do
+
+    let(:data) do
+      "testing"
+    end
+
+    let(:binary) do
+      described_class.new(:md5, data)
+    end
+
+    it "sets the type" do
+      expect(binary.type).to eq(:md5)
+    end
+
+    it "sets the data" do
+      expect(binary.data).to eq(data)
     end
   end
 

@@ -30,6 +30,15 @@ module BSON
     # @since 2.0.0
     TYPES = SUBTYPES.invert.freeze
 
+    # @!attribute type
+    #   @return [ Symbol ] The binary type.
+    #   @since 2.0.0
+    #
+    # @!attribute data
+    #   @return [ Object ] The raw binary data.
+    #   @since 2.0.0
+    attr_reader :type, :data
+
     # Get the BSON single byte type for a binary.
     #
     # @example Get the bson type.
@@ -42,6 +51,20 @@ module BSON
     # @since 2.0.0
     def bson_type
       BSON_TYPE
+    end
+
+    # Instantiate the new binary object.
+    #
+    # @example Instantiate a binary.
+    #   BSON::Binary.new(:md5, data)
+    #
+    # @param [ Symbol ] type The binary type.
+    # @param [ Object ] data The raw binary data.
+    #
+    # @since 2.0.0
+    def initialize(type, data)
+      @type = type
+      @data = data
     end
 
     # Encode the binary type
