@@ -18,7 +18,7 @@ module BSON
       # Get the BSON single byte type for an array.
       #
       # @example Get the bson type.
-      #   [ 1, 2, 3 ].to_bson
+      #   [ 1, 2, 3 ].bson_type
       #
       # @return [ String ] 0x04.
       #

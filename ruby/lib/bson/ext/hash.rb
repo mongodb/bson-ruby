@@ -2,25 +2,25 @@
 module BSON
   module Ext
 
-    # Injects behaviour for encoding and decoding time values to
+    # Injects behaviour for encoding and decoding hashes to
     # and from raw bytes as specified by the BSON spec.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    module Time
+    module Hash
 
-      # A time is type 0x09 in the BSON spec.
+      # An hash (embedded document) is type 0x03 in the BSON spec.
       #
       # @since 2.0.0
-      BSON_TYPE = 9.chr.freeze
+      BSON_TYPE = 3.chr.freeze
 
-      # Get the BSON single byte type for a time.
+      # Get the BSON single byte type for a hash.
       #
       # @example Get the bson type.
-      #   Time.now.bson_type
+      #   { field: "value" }.bson_type
       #
-      # @return [ String ] 0x09.
+      # @return [ String ] 0x03.
       #
       # @see http://bsonspec.org/#/specification
       #
@@ -29,10 +29,10 @@ module BSON
         BSON_TYPE
       end
 
-      # Get the time as encoded BSON.
+      # Get the hash as encoded BSON.
       #
-      # @example Get the time as encoded BSON.
-      #   Time.new(2012, 1, 1, 0, 0, 0).to_bson
+      # @example Get the hash as encoded BSON.
+      #   { field: "value" }.to_bson
       #
       # @return [ String ] The encoded string.
       #
@@ -40,13 +40,12 @@ module BSON
       #
       # @since 2.0.0
       def to_bson
-        (to_f * 1000).to_i.to_bson
       end
     end
 
-    # Enrich the core Time class with this module.
+    # Enrich the core Hash class with this module.
     #
     # @since 2.0.0
-    ::Time.send(:include, Time)
+    ::Hash.send(:include, Hash)
   end
 end

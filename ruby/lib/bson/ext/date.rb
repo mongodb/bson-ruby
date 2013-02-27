@@ -13,7 +13,7 @@ module BSON
       # Get the BSON single byte type for a date.
       #
       # @example Get the bson type.
-      #   Date.now.to_bson
+      #   Date.now.bson_type
       #
       # @return [ String ] 0x09.
       #
