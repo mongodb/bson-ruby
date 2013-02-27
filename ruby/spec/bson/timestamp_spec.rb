@@ -34,4 +34,15 @@ describe BSON::Timestamp do
       expect(timestamp.to_bson).to eq(packed_timestamp)
     end
   end
+
+  context "when the class is loaded" do
+
+    let(:registered) do
+      BSON::Registry.get(BSON::Timestamp::BSON_TYPE)
+    end
+
+    it "registers the type" do
+      expect(registered).to eq(described_class)
+    end
+  end
 end

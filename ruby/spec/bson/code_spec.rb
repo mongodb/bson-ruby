@@ -21,4 +21,15 @@ describe BSON::Code do
   end
 
   pending "#to_bson"
+
+  context "when the class is loaded" do
+
+    let(:registered) do
+      BSON::Registry.get(BSON::Code::BSON_TYPE)
+    end
+
+    it "registers the type" do
+      expect(registered).to eq(described_class)
+    end
+  end
 end

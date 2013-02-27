@@ -32,4 +32,15 @@ describe BSON::MaxKey do
       expect(max_key.to_bson).to be_empty
     end
   end
+
+  context "when the class is loaded" do
+
+    let(:registered) do
+      BSON::Registry.get(BSON::MaxKey::BSON_TYPE)
+    end
+
+    it "registers the type" do
+      expect(registered).to eq(described_class)
+    end
+  end
 end

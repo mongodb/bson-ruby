@@ -40,5 +40,10 @@ module BSON
     # @since 2.0.0
     def to_bson
     end
+
+    # Register this type when the module is loaded.
+    #
+    # @since 2.0.0
+    Registry.register(BSON_TYPE, self)
   end
 end

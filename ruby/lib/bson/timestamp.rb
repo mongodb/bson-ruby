@@ -67,5 +67,10 @@ module BSON
     def to_bson
       [ increment, seconds ].pack(TIMESTAMP_PACK)
     end
+
+    # Register this type when the module is loaded.
+    #
+    # @since 2.0.0
+    Registry.register(BSON_TYPE, self)
   end
 end
