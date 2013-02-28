@@ -9,3 +9,4 @@ build/*
 *.bak
 .DS_Store
 .rvmrc
+ruby/tmp/*
