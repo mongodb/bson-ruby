@@ -43,8 +43,15 @@ module BSON
     # @since 2.0.0
     def register(byte, type)
       MAPPINGS.store(byte, type)
-      type.define_method(:bson_type) { byte }
+      define_type_reader(type)
+    end
+
+    private
+
+    def define_type_reader(type)
+      type.module_eval <<-MOD
+        def bson_type; BSON_TYPE; end
+      MOD
     end
   end
 end
-
