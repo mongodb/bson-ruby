@@ -1,9 +1,14 @@
 require "bundler"
 Bundler.setup
 
+$LOAD_PATH.unshift(File.expand_path("../lib", __FILE__))
+
 require "rake"
 require "cucumber/rake/task"
 require "rspec/core/rake_task"
+
+require "bson/version"
+require_relative "perf/bench"
 
 RSpec::Core::RakeTask.new(:spec)
 
@@ -11,4 +16,49 @@ Cucumber::Rake::Task.new do |t|
   t.cucumber_opts = %w{--format pretty}
 end
 
-task :default => :spec
+def extension
+  RUBY_PLATFORM =~ /darwin/ ? "bundle" : "so"
+end
+
+def compile!
+  puts "Compiling native extensions..."
+  Dir.chdir(Pathname(__FILE__).dirname + "ext/bson") do
+    `bundle exec ruby extconf.rb`
+    `make`
+    `cp native.#{extension} ../../lib/bson`
+  end
+end
+
+task :compile do
+  compile!
+end
+
+task :clean do
+  puts "Cleaning out native extensions..."
+  begin
+    Dir.chdir(Pathname(__FILE__).dirname + "lib/bson") do
+      `rm native.#{extension}`
+    end
+  rescue Exception => e
+    puts e.message
+  end
+end
+
+namespace :benchmark do
+
+  task :ruby => :clean do
+    puts "Benchmarking pure Ruby..."
+    require "bson"
+    benchmark!
+  end
+
+  task :c => :compile do
+    puts "Benchmarking with C extensions..."
+    load "bson/ext.rb"
+    benchmark!
+  end
+end
+
+task :bench => [ "benchmark:ruby", "benchmark:c" ]
+
+task :default => [ :clean, :spec ]
