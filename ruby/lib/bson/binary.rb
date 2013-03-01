@@ -17,13 +17,13 @@ module BSON
     #
     # @since 2.0.0
     SUBTYPES = {
-      generic: 0.chr,
-      function: 1.chr,
-      old: 2.chr,
-      uuid_old: 3.chr,
-      uuid: 4.chr,
-      md5: 5.chr,
-      user: 128.chr
+      :generic => 0.chr,
+      :function => 1.chr,
+      :old =>  2.chr,
+      :uuid_old => 3.chr,
+      :uuid => 4.chr,
+      :md5 => 5.chr,
+      :user => 128.chr
     }.freeze
 
     # The mappings of single byte subtypes to their symbol counterparts.
