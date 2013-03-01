@@ -15,20 +15,6 @@ module BSON
       # @since 2.0.0
       BSON_TYPE = 11.chr.freeze
 
-      # Get the BSON single byte type for a regular expression.
-      #
-      # @example Get the bson type.
-      #   %r{\d+}.bson_type
-      #
-      # @return [ String ] 0x0B.
-      #
-      # @see http://bsonspec.org/#/specification
-      #
-      # @since 2.0.0
-      def bson_type
-        BSON_TYPE
-      end
-
       # Get the regular expression as encoded BSON.
       #
       # @example Get the regular expression as encoded BSON.

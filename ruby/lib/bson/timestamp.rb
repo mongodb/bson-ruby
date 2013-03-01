@@ -27,20 +27,6 @@ module BSON
     #   @since 2.0.0
     attr_reader :increment, :seconds
 
-    # Get the BSON type for the timestamp as a single byte.
-    #
-    # @example Get the single byte BSON type.
-    #   timestamp.bson_type
-    #
-    # @return [ String ] The single byte type.
-    #
-    # @see http://bsonspec.org/#/specification
-    #
-    # @since 2.0.0
-    def bson_type
-      BSON_TYPE
-    end
-
     # Instantiate the new timestamp.
     #
     # @example Instantiate the timestamp.

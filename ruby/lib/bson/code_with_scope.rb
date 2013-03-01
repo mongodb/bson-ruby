@@ -14,20 +14,6 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 15.chr.freeze
 
-    # Get the BSON single byte type for javascript code with scope.
-    #
-    # @example Get the bson type.
-    #   code_with_scope.bson_type
-    #
-    # @return [ String ] 0x0F.
-    #
-    # @see http://bsonspec.org/#/specification
-    #
-    # @since 2.0.0
-    def bson_type
-      BSON_TYPE
-    end
-
     # Encode the javascript code with scope.
     #
     # @example Encode the code with scope.

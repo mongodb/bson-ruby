@@ -18,20 +18,6 @@ module BSON
       # @since 2.0.0
       BSON_TYPE = 14.chr.freeze
 
-      # Get the BSON single byte type for a symbol.
-      #
-      # @example Get the bson type.
-      #   :test.bson_type
-      #
-      # @return [ Symbol ] 0x0E.
-      #
-      # @see http://bsonspec.org/#/specification
-      #
-      # @since 2.0.0
-      def bson_type
-        BSON_TYPE
-      end
-
       # Get the symbol as encoded BSON.
       #
       # @example Get the symbol as encoded BSON.

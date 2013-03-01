@@ -15,20 +15,6 @@ module BSON
       # @since 2.0.0
       BSON_TYPE = 9.chr.freeze
 
-      # Get the BSON single byte type for a time.
-      #
-      # @example Get the bson type.
-      #   Time.now.bson_type
-      #
-      # @return [ String ] 0x09.
-      #
-      # @see http://bsonspec.org/#/specification
-      #
-      # @since 2.0.0
-      def bson_type
-        BSON_TYPE
-      end
-
       # Get the time as encoded BSON.
       #
       # @example Get the time as encoded BSON.

@@ -40,20 +40,6 @@ module BSON
     #   @since 2.0.0
     attr_reader :type, :data
 
-    # Get the BSON single byte type for a binary.
-    #
-    # @example Get the bson type.
-    #   binary.bson_type
-    #
-    # @return [ String ] 0x05.
-    #
-    # @see http://bsonspec.org/#/specification
-    #
-    # @since 2.0.0
-    def bson_type
-      BSON_TYPE
-    end
-
     # Instantiate the new binary object.
     #
     # @example Instantiate a binary.

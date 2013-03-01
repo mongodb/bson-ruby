@@ -15,20 +15,6 @@ module BSON
       # @since 2.0.0
       BSON_TYPE = 3.chr.freeze
 
-      # Get the BSON single byte type for a hash.
-      #
-      # @example Get the bson type.
-      #   { field: "value" }.bson_type
-      #
-      # @return [ String ] 0x03.
-      #
-      # @see http://bsonspec.org/#/specification
-      #
-      # @since 2.0.0
-      def bson_type
-        BSON_TYPE
-      end
-
       # Get the hash as encoded BSON.
       #
       # @example Get the hash as encoded BSON.

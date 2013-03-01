@@ -20,20 +20,6 @@ module BSON
       # @since 2.0.0
       DOUBLE_PACK = "E".freeze
 
-      # Get the BSON single byte type for a floating point value.
-      #
-      # @example Get the bson type.
-      #   1.223223.bson_type
-      #
-      # @return [ String ] 0x01.
-      #
-      # @see http://bsonspec.org/#/specification
-      #
-      # @since 2.0.0
-      def bson_type
-        BSON_TYPE
-      end
-
       # Get the floating point as encoded BSON.
       #
       # @example Get the floating point as encoded BSON.

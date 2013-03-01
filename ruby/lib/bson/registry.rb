@@ -43,6 +43,7 @@ module BSON
     # @since 2.0.0
     def register(byte, type)
       MAPPINGS[byte] = type
+      type.define_method(:bson_type) { byte }
     end
   end
 end

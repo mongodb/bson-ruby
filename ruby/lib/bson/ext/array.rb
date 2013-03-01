@@ -15,20 +15,6 @@ module BSON
       # @since 2.0.0
       BSON_TYPE = 4.chr.freeze
 
-      # Get the BSON single byte type for an array.
-      #
-      # @example Get the bson type.
-      #   [ 1, 2, 3 ].bson_type
-      #
-      # @return [ String ] 0x04.
-      #
-      # @see http://bsonspec.org/#/specification
-      #
-      # @since 2.0.0
-      def bson_type
-        BSON_TYPE
-      end
-
       # Get the array as encoded BSON.
       #
       # @example Get the array as encoded BSON.

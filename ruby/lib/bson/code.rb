@@ -13,20 +13,6 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 13.chr.freeze
 
-    # Get the BSON single byte type for javascript code.
-    #
-    # @example Get the bson type.
-    #   code.bson_type
-    #
-    # @return [ String ] 0x0D.
-    #
-    # @see http://bsonspec.org/#/specification
-    #
-    # @since 2.0.0
-    def bson_type
-      BSON_TYPE
-    end
-
     # Encode the javascript code.
     #
     # @example Encode the code.

@@ -15,20 +15,6 @@ module BSON
       # @since 2.0.0
       BSON_TYPE = 10.chr.freeze
 
-      # Get the BSON single byte type for a nil.
-      #
-      # @example Get the bson type.
-      #   nil.bson_type
-      #
-      # @return [ String ] 0x0A.
-      #
-      # @see http://bsonspec.org/#/specification
-      #
-      # @since 2.0.0
-      def bson_type
-        BSON_TYPE
-      end
-
       # Get the nil as encoded BSON.
       #
       # @example Get the nil as encoded BSON.

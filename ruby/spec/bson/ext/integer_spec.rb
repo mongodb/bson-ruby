@@ -9,20 +9,6 @@ describe BSON::Ext::Integer do
     end
   end
 
-  describe "::INT32_TYPE" do
-
-    it "returns 0x10" do
-      expect(Integer::INT32_TYPE).to eq(16.chr)
-    end
-  end
-
-  describe "::INT64_TYPE" do
-
-    it "returns 0x12" do
-      expect(Integer::INT64_TYPE).to eq(18.chr)
-    end
-  end
-
   describe "#bson_int32?" do
 
     context "when the integer is 32 bit" do
@@ -164,25 +150,6 @@ describe BSON::Ext::Integer do
       end
 
       pending "should we raise an error"
-    end
-  end
-
-  context "when the class is loaded" do
-
-    let(:registered_small) do
-      BSON::Registry.get(Integer::INT32_TYPE)
-    end
-
-    let(:registered_large) do
-      BSON::Registry.get(Integer::INT64_TYPE)
-    end
-
-    it "registers the int32 type" do
-      expect(registered_small).to eq(Integer)
-    end
-
-    it "registers the int64 type" do
-      expect(registered_large).to eq(Integer)
     end
   end
 end

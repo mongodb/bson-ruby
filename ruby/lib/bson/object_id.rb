@@ -13,20 +13,6 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 7.chr.freeze
 
-    # Get the BSON single byte type for a object_id.
-    #
-    # @example Get the bson type.
-    #   object_id.bson_type
-    #
-    # @return [ String ] 0x07.
-    #
-    # @see http://bsonspec.org/#/specification
-    #
-    # @since 2.0.0
-    def bson_type
-      BSON_TYPE
-    end
-
     # Encode the object_id type
     #
     # @example Encode the object_id.

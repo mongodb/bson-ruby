@@ -1,9 +1,12 @@
 # encoding: utf-8
 require "bson/binary"
+require "bson/boolean"
 require "bson/code"
 require "bson/code_with_scope"
 require "bson/element"
 require "bson/ext"
+require "bson/int32"
+require "bson/int64"
 require "bson/max_key"
 require "bson/min_key"
 require "bson/object_id"

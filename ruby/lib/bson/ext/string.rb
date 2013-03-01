@@ -15,20 +15,6 @@ module BSON
       # @since 2.0.0
       BSON_TYPE = 2.chr.freeze
 
-      # Get the BSON single byte type for a string.
-      #
-      # @example Get the bson type.
-      #   "test".bson_type
-      #
-      # @return [ String ] 0x02.
-      #
-      # @see http://bsonspec.org/#/specification
-      #
-      # @since 2.0.0
-      def bson_type
-        BSON_TYPE
-      end
-
       # Get the string as encoded BSON.
       #
       # @example Get the string as encoded BSON.
