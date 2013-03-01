@@ -10,3 +10,6 @@ build/*
 .DS_Store
 .rvmrc
 ruby/tmp/*
+*.o
+*.bundle
+Makefile
