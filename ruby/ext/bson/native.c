@@ -11,9 +11,8 @@ static VALUE rb_integer_to_bson(VALUE self)
 void Init_native()
 {
   VALUE bson = rb_const_get(rb_cObject, rb_intern("BSON"));
-  VALUE ext = rb_const_get(bson, rb_intern("Ext"));
 
-  VALUE integer = rb_const_get(ext, rb_intern("Integer"));
+  VALUE integer = rb_const_get(bson, rb_intern("Integer"));
   rb_remove_method(integer, "to_bson");
   rb_define_method(integer, "to_bson", rb_integer_to_bson, 0);
 }
