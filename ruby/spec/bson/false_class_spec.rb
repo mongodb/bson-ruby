@@ -17,7 +17,7 @@ describe BSON::FalseClass do
     end
 
     it "returns the encoded string" do
-      expect(encoded).to eq(BSON::NULL_BYTE)
+      expect(encoded).to eq(BSON::FalseClass::FALSE_BYTE)
     end
   end
 end
