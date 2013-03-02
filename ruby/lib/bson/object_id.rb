@@ -200,6 +200,9 @@ module BSON
     # @since 2.0.0
     class Generator
 
+      # @!attribute machine_id
+      #   @return [ String ] The unique machine id.
+      #   @since 2.0.0
       attr_reader :machine_id
 
       # Instantiate the new object id generator. Will set the machine id once
