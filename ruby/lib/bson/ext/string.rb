@@ -40,6 +40,7 @@ module BSON
       #
       # @since 2.0.0
       def to_bson_cstring
+        check_for_illegal_characters!
         self + NULL_BYTE
       end
 
@@ -47,6 +48,14 @@ module BSON
       #
       # @since 2.0.0
       Registry.register(BSON_TYPE, ::String)
+
+      private
+
+      def check_for_illegal_characters!
+        if include?(NULL_BYTE)
+          raise EncodingError.new("Illegal C-String '#{self}' contains a null byte.")
+        end
+      end
     end
 
     # Enrich the core String class with this module.

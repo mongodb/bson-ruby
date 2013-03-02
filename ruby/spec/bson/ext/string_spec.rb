@@ -33,16 +33,32 @@ describe BSON::Ext::String do
 
   describe "#to_bson_cstring" do
 
-    let(:string) do
-      "test"
+    context "when the string is valid" do
+
+      let(:string) do
+        "test"
+      end
+
+      let(:encoded) do
+        string.to_bson_cstring
+      end
+
+      it "returns the encoded string" do
+        expect(encoded).to eq("test#{BSON::NULL_BYTE}")
+      end
     end
 
-    let(:encoded) do
-      string.to_bson_cstring
-    end
+    context "when the string contains a null byte" do
 
-    it "returns the encoded string" do
-      expect(encoded).to eq("test#{BSON::NULL_BYTE}")
+      let(:string) do
+        "test#{BSON::NULL_BYTE}ing"
+      end
+
+      it "raises an error" do
+        expect {
+          string.to_bson_cstring
+        }.to raise_error(EncodingError)
+      end
     end
   end
 
