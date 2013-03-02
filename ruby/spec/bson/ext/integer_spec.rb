@@ -90,16 +90,24 @@ describe BSON::Ext::Integer do
         Integer::MAX_64BIT + 1
       end
 
-      pending "should we raise an error"
+      it "raises an error" do
+        expect {
+          integer.bson_type
+        }.to raise_error(BSON::Int64::OutOfRange)
+      end
     end
 
     context "when the intger is too small" do
 
       let(:integer) do
-        Integer::MAX_64BIT - 1
+        Integer::MIN_64BIT - 1
       end
 
-      pending "should we raise an error"
+      it "raises an error" do
+        expect {
+          integer.bson_type
+        }.to raise_error(BSON::Int64::OutOfRange)
+      end
     end
   end
 
