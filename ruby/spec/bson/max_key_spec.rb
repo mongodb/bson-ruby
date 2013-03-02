@@ -2,6 +2,31 @@ require "spec_helper"
 
 describe BSON::MaxKey do
 
+  describe "#==" do
+
+    let(:max_key) do
+      described_class.new
+    end
+
+    context "when the objects are equal" do
+
+      let(:other) do
+        described_class.new
+      end
+
+      it "returns true" do
+        expect(max_key).to eq(other)
+      end
+    end
+
+    context "when the other object is not a max_key" do
+
+      it "returns false" do
+        expect(max_key).to_not eq("test")
+      end
+    end
+  end
+
   describe "::BSON_TYPE" do
 
     it "returns 0xFF" do

@@ -14,6 +14,20 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 127.chr.freeze
 
+    # Determine if the max key is equal to another object.
+    #
+    # @example Check max key equality.
+    #   BSON::MaxKey.new == object
+    #
+    # @param [ Object ] other The object to check against.
+    #
+    # @return [ true, false ] If the objects are equal.
+    #
+    # @since 2.0.0
+    def ==(other)
+      self.class == other.class
+    end
+
     # Encode the max key - has no value since it only needs the type and field
     # name when being encoded.
     #
