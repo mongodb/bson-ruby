@@ -40,6 +40,21 @@ module BSON
     #   @since 2.0.0
     attr_reader :type, :data
 
+    # Determine if this binary object is equal to another object.
+    #
+    # @example Check the binary equality.
+    #   binary == other
+    #
+    # @param [ Object ] other The object to compare against.
+    #
+    # @return [ true, false ] If the objects are equal.
+    #
+    # @since 2.0.0
+    def ==(other)
+      return false unless other.is_a?(Binary)
+      type == other.type && data == other.data
+    end
+
     # Instantiate the new binary object.
     #
     # @example Instantiate a binary.

@@ -2,6 +2,42 @@ require "spec_helper"
 
 describe BSON::Binary do
 
+  describe "#==" do
+
+    let(:binary) do
+      described_class.new(:md5, "test")
+    end
+
+    context "when the objects are equal" do
+
+      let(:other) do
+        described_class.new(:md5, "test")
+      end
+
+      it "returns true" do
+        expect(binary).to eq(other)
+      end
+    end
+
+    context "when the objects are not equal" do
+
+      let(:other) do
+        described_class.new(:generic, "test")
+      end
+
+      it "returns false" do
+        expect(binary).to_not eq(other)
+      end
+    end
+
+    context "when the other object is not a binary" do
+
+      it "returns false" do
+        expect(binary).to_not eq("test")
+      end
+    end
+  end
+
   describe "::BSON_TYPE" do
 
     it "returns 0x05" do
