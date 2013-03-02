@@ -64,6 +64,8 @@ module BSON
       # @example Convert to valid BSON string.
       #   "Straße".to_bson_string
       #
+      # @raise [ EncodingError ] If the string is not UTF-8.
+      #
       # @return [ String ] The binary string.
       #
       # @since 2.0.0
