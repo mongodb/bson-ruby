@@ -14,6 +14,20 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 255.chr.freeze
 
+    # Determine if the min key is equal to another object.
+    #
+    # @example Check min key equality.
+    #   BSON::MinKey.new == object
+    #
+    # @param [ Object ] other The object to check against.
+    #
+    # @return [ true, false ] If the objects are equal.
+    #
+    # @since 2.0.0
+    def ==(other)
+      self.class == other.class
+    end
+
     # Encode the min key - has no value since it only needs the type and field
     # name when being encoded.
     #
