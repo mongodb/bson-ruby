@@ -27,6 +27,28 @@ describe BSON::MinKey do
     end
   end
 
+  describe "#>" do
+
+    let(:min_key) do
+      described_class.new
+    end
+
+    it "always returns false" do
+      expect(min_key > Integer::MIN_64BIT).to be_false
+    end
+  end
+
+  describe "#<" do
+
+    let(:min_key) do
+      described_class.new
+    end
+
+    it "always returns true" do
+      expect(min_key < Integer::MIN_64BIT).to be_true
+    end
+  end
+
   describe "::BSON_TYPE" do
 
     it "returns 0xFF" do

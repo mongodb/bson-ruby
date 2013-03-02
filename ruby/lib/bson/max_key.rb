@@ -44,7 +44,7 @@ module BSON
     #
     # @return [ Integer ] Always 1.
     #
-    # @since 1.0.0
+    # @since 2.0.0
     def <=>(other)
       GREATER
     end

@@ -8,11 +8,17 @@ module BSON
   #
   # @since 2.0.0
   class MinKey
+    include Comparable
 
     # A $minKey is type 0xFF in the BSON spec.
     #
     # @since 2.0.0
     BSON_TYPE = 255.chr.freeze
+
+    # Constant for always evaluating lesser in a comparison.
+    #
+    # @since 2.0.0
+    LESSER = -1.freeze
 
     # Determine if the min key is equal to another object.
     #
@@ -26,6 +32,21 @@ module BSON
     # @since 2.0.0
     def ==(other)
       self.class == other.class
+    end
+
+    # When comparing a min key with any other object, the min key will always
+    # be lesser.
+    #
+    # @example Compare with another object.
+    #   min_key <=> 1000
+    #
+    # @param [ Object ] The object to compare against.
+    #
+    # @return [ Integer ] Always -1.
+    #
+    # @since 2.0.0
+    def <=>(other)
+      LESSER
     end
 
     # Encode the min key - has no value since it only needs the type and field
