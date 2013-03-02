@@ -143,7 +143,7 @@ describe BSON::Ext::Integer do
       it "raises an out of range error" do
         expect {
           integer.to_bson
-        }.to raise_error(BSON::Ext::Integer::OutOfRange)
+        }.to raise_error(BSON::Int64::OutOfRange)
       end
     end
 
@@ -156,7 +156,7 @@ describe BSON::Ext::Integer do
       it "raises an out of range error" do
         expect {
           integer.to_bson
-        }.to raise_error(BSON::Ext::Integer::OutOfRange)
+        }.to raise_error(BSON::Int64::OutOfRange)
       end
     end
   end

@@ -103,11 +103,6 @@ module BSON
         [ self ].pack(bson_pack_directive)
       end
 
-      # Raised if an integer value is out of range to be serialized as 8 bytes.
-      #
-      # @since 2.0.0
-      class OutOfRange < RuntimeError; end
-
       private
 
       def bson_pack_directive
@@ -115,7 +110,7 @@ module BSON
       end
 
       def out_of_range!
-        raise OutOfRange.new("#{self} is not a valid 8 byte integer value.")
+        raise Int64::OutOfRange.new("#{self} is not a valid 8 byte integer value.")
       end
     end
 
