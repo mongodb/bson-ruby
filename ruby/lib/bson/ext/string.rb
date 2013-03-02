@@ -10,10 +10,20 @@ module BSON
     # @since 2.0.0
     module String
 
+      # Constant for binary string encoding.
+      #
+      # @since 2.0.0
+      BINARY = "BINARY".freeze
+
       # A string is type 0x02 in the BSON spec.
       #
       # @since 2.0.0
       BSON_TYPE = 2.chr.freeze
+
+      # Constant for UTF-8 string encoding.
+      #
+      # @since 2.0.0
+      UTF8 = "UTF-8".freeze
 
       # Get the string as encoded BSON.
       #
@@ -41,7 +51,7 @@ module BSON
       # @since 2.0.0
       def to_bson_cstring
         check_for_illegal_characters!
-        self + NULL_BYTE
+        to_utf8_binary + NULL_BYTE
       end
 
       # Register this type when the module is loaded.
@@ -55,6 +65,10 @@ module BSON
         if include?(NULL_BYTE)
           raise EncodingError.new("Illegal C-String '#{self}' contains a null byte.")
         end
+      end
+
+      def to_utf8_binary
+        encode(UTF8).force_encoding(BINARY)
       end
     end
 

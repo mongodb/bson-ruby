@@ -1,3 +1,4 @@
+# encoding: utf-8
 require "spec_helper"
 
 describe BSON::Ext::String do
@@ -52,6 +53,57 @@ describe BSON::Ext::String do
 
       let(:string) do
         "test#{BSON::NULL_BYTE}ing"
+      end
+
+      it "raises an error" do
+        expect {
+          string.to_bson_cstring
+        }.to raise_error(EncodingError)
+      end
+    end
+
+    context "when the string contains utf-8 characters" do
+
+      let(:string) do
+        "Straße"
+      end
+
+      let(:encoded) do
+        string.to_bson_cstring
+      end
+
+      let(:char) do
+        "ß".chr.force_encoding(BSON::Ext::String::BINARY)
+      end
+
+      it "returns the encoded string" do
+        expect(encoded).to eq("Stra#{char}e#{BSON::NULL_BYTE}")
+      end
+    end
+
+    context "when the string is encoded in non utf-8" do
+
+      let(:string) do
+        "Straße".encode("iso-8859-1")
+      end
+
+      let(:encoded) do
+        string.to_bson_cstring
+      end
+
+      let(:char) do
+        "ß".chr.force_encoding(BSON::Ext::String::BINARY)
+      end
+
+      it "returns the encoded string" do
+        expect(encoded).to eq("Stra#{char}e#{BSON::NULL_BYTE}")
+      end
+    end
+
+    context "when the string contains non utf-8 characters" do
+
+      let(:string) do
+        255.chr
       end
 
       it "raises an error" do
