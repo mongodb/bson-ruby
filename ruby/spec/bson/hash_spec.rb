@@ -23,19 +23,41 @@ describe BSON::Hash do
 
   describe "#to_bson" do
 
-    let(:document) do
-      { "key" => "value" }
+    context "when the hash is a single level" do
+
+      let(:hash) do
+        { "key" => "value" }
+      end
+
+      let(:encoded) do
+        hash.to_bson
+      end
+
+      it "serializes the document" do
+        expect(encoded).to eq(
+          "#{20.to_bson}#{String::BSON_TYPE}key#{BSON::NULL_BYTE}" +
+          "#{6.to_bson}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
+        )
+      end
     end
 
-    let(:encoded) do
-      document.to_bson
-    end
+    context "when the hash is embedded" do
 
-    it "serializes the document" do
-      expect(encoded).to eq(
-        "#{20.to_bson}#{String::BSON_TYPE}key#{BSON::NULL_BYTE}" +
-        "#{6.to_bson}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
-      )
+      let(:hash) do
+        { "field" => { "key" => "value" }}
+      end
+
+      let(:encoded) do
+        hash.to_bson
+      end
+
+      it "serializes the document" do
+        expect(encoded).to eq(
+          "#{32.to_bson}#{Hash::BSON_TYPE}field#{BSON::NULL_BYTE}" +
+          "#{20.to_bson}#{String::BSON_TYPE}key#{BSON::NULL_BYTE}" +
+          "#{6.to_bson}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
+        )
+      end
     end
   end
 
