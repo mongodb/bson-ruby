@@ -2,6 +2,42 @@ require "spec_helper"
 
 describe BSON::Code do
 
+  describe "#==" do
+
+    let(:code) do
+      described_class.new("this.value == 'test'")
+    end
+
+    context "when the objects are equal" do
+
+      let(:other) do
+        described_class.new("this.value == 'test'")
+      end
+
+      it "returns true" do
+        expect(code).to eq(other)
+      end
+    end
+
+    context "when the objects are not equal" do
+
+      let(:other) do
+        described_class.new("this.field == 'test'")
+      end
+
+      it "returns false" do
+        expect(code).to_not eq(other)
+      end
+    end
+
+    context "when the other object is not a code" do
+
+      it "returns false" do
+        expect(code).to_not eq("test")
+      end
+    end
+  end
+
   describe "::BSON_TYPE" do
 
     it "returns 0x0D" do
@@ -12,7 +48,7 @@ describe BSON::Code do
   describe "#bson_type" do
 
     let(:code) do
-      described_class.new
+      described_class.new("this.value = 5")
     end
 
     it "returns 0x0D" do

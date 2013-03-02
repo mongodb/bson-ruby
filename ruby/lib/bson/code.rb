@@ -13,6 +13,38 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 13.chr.freeze
 
+    # @!attribute javascript
+    #   @return [ String ] The javascript code.
+    #   @since 2.0.0
+    attr_reader :javascript
+
+    # Determine if this code object is equal to another object.
+    #
+    # @example Check the code equality.
+    #   code == other
+    #
+    # @param [ Object ] other The object to compare against.
+    #
+    # @return [ true, false ] If the objects are equal.
+    #
+    # @since 2.0.0
+    def ==(other)
+      return false unless other.is_a?(Code)
+      javascript == other.javascript
+    end
+
+    # Instantiate the new code.
+    #
+    # @example Instantiate the new code.
+    #   BSON::Code.new("this.value = 5")
+    #
+    # @param [ String ] javascript The javascript code.
+    #
+    # @since 2.0.0
+    def initialize(javascript)
+      @javascript = javascript
+    end
+
     # Encode the javascript code.
     #
     # @example Encode the code.
