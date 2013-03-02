@@ -8,11 +8,17 @@ module BSON
   #
   # @since 2.0.0
   class MaxKey
+    include Comparable
 
     # A $maxKey is type 0x7F in the BSON spec.
     #
     # @since 2.0.0
     BSON_TYPE = 127.chr.freeze
+
+    # Constant for always evaluating greater in a comparison.
+    #
+    # @since 2.0.0
+    GREATER = 1.freeze
 
     # Determine if the max key is equal to another object.
     #
@@ -26,6 +32,21 @@ module BSON
     # @since 2.0.0
     def ==(other)
       self.class == other.class
+    end
+
+    # When comparing a max key with any other object, the max key will always
+    # be greater.
+    #
+    # @example Compare with another object.
+    #   max_key <=> 1000
+    #
+    # @param [ Object ] The object to compare against.
+    #
+    # @return [ Integer ] Always 1.
+    #
+    # @since 1.0.0
+    def <=>(other)
+      GREATER
     end
 
     # Encode the max key - has no value since it only needs the type and field

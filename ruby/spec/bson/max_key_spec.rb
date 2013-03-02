@@ -27,6 +27,28 @@ describe BSON::MaxKey do
     end
   end
 
+  describe "#>" do
+
+    let(:max_key) do
+      described_class.new
+    end
+
+    it "always returns true" do
+      expect(max_key > Integer::MAX_64BIT).to be_true
+    end
+  end
+
+  describe "#<" do
+
+    let(:max_key) do
+      described_class.new
+    end
+
+    it "always returns false" do
+      expect(max_key < Integer::MAX_64BIT).to be_false
+    end
+  end
+
   describe "::BSON_TYPE" do
 
     it "returns 0xFF" do
