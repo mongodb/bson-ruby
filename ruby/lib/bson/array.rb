@@ -8,6 +8,7 @@ module BSON
   #
   # @since 2.0.0
   module Array
+    include Encodable
 
     # An array is type 0x04 in the BSON spec.
     #
@@ -28,6 +29,11 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
+      encode_bson_with_placeholder do |encoded|
+        each_with_index do |value, index|
+          encoded << Element.new(index.to_s, value).to_bson
+        end
+      end
     end
 
     # Register this type when the module is loaded.

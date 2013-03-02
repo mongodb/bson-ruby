@@ -31,9 +31,15 @@ describe BSON::Array do
       array.to_bson
     end
 
-    it "returns the encoded string" do
-
+    let(:expected) do
+      { "0" => "one", "1" => "two" }.to_bson
     end
+
+    it "returns the encoded string" do
+      expect(encoded).to eq(expected)
+    end
+
+    it_behaves_like "a binary encoded string"
   end
 
   context "when the class is loaded" do
