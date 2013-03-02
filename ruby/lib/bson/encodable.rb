@@ -25,8 +25,7 @@ module BSON
     # @return [ String ] The encoded string.
     #
     # @since 2.0.0
-    def encode_bson_with_placeholder
-      encoded = "".force_encoding(BINARY)
+    def encode_bson_with_placeholder(encoded = "".force_encoding(BINARY))
       encoded << PLACEHOLDER
       yield(encoded)
       encoded << NULL_BYTE
