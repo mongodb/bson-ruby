@@ -19,5 +19,7 @@ describe BSON::TrueClass do
     it "returns the encoded string" do
       expect(encoded).to eq(BSON::TrueClass::TRUE_BYTE)
     end
+
+    it_behaves_like "a binary encoded string"
   end
 end

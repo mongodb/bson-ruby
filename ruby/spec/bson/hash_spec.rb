@@ -39,6 +39,8 @@ describe BSON::Hash do
           "#{6.to_bson}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
         )
       end
+
+      it_behaves_like "a binary encoded string"
     end
 
     context "when the hash is embedded" do
@@ -58,6 +60,8 @@ describe BSON::Hash do
           "#{6.to_bson}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
         )
       end
+
+      it_behaves_like "a binary encoded string"
     end
   end
 

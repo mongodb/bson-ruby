@@ -12,7 +12,7 @@ module BSON
     # A boolean is type 0x08 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 18.chr.freeze
+    BSON_TYPE = 18.chr.force_encoding(BINARY).freeze
 
     # Raised if an integer value is out of range to be serialized as 8 bytes.
     #

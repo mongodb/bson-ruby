@@ -12,7 +12,7 @@ module BSON
     # A time is type 0x09 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 9.chr.freeze
+    BSON_TYPE = 9.chr.force_encoding(BINARY).freeze
 
     # Get the time as encoded BSON.
     #

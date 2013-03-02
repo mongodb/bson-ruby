@@ -9,15 +9,10 @@ module BSON
   # @since 2.0.0
   module String
 
-    # Constant for binary string encoding.
-    #
-    # @since 2.0.0
-    BINARY = "BINARY".freeze
-
     # A string is type 0x02 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 2.chr.freeze
+    BSON_TYPE = 2.chr.force_encoding(BINARY).freeze
 
     # Constant for UTF-8 string encoding.
     #

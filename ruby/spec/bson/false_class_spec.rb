@@ -19,5 +19,7 @@ describe BSON::FalseClass do
     it "returns the encoded string" do
       expect(encoded).to eq(BSON::FalseClass::FALSE_BYTE)
     end
+
+    it_behaves_like "a binary encoded string"
   end
 end

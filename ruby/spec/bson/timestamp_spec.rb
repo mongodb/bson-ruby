@@ -67,9 +67,15 @@ describe BSON::Timestamp do
       [ 1, 10 ].pack("l2")
     end
 
-    it "returns the encoded timestamp" do
-      expect(timestamp.to_bson).to eq(packed_timestamp)
+    let(:encoded) do
+      timestamp.to_bson
     end
+
+    it "returns the encoded timestamp" do
+      expect(encoded).to eq(packed_timestamp)
+    end
+
+    it_behaves_like "a binary encoded string"
   end
 
   context "when the class is loaded" do

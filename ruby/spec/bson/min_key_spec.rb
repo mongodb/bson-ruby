@@ -74,8 +74,12 @@ describe BSON::MinKey do
       described_class.new
     end
 
+    let(:encoded) do
+      min_key.to_bson
+    end
+
     it "returns an empty string" do
-      expect(min_key.to_bson).to be_empty
+      expect(encoded).to be_empty
     end
   end
 

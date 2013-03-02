@@ -3,17 +3,6 @@ require "spec_helper"
 
 describe BSON::String do
 
-  shared_examples_for "a binary encoded string" do
-
-    let(:binary) do
-      Encoding.find(BSON::String::BINARY)
-    end
-
-    it "returns the string with binary encoding" do
-      expect(encoded.encoding).to eq(binary)
-    end
-  end
-
   describe "::BSON_TYPE" do
 
     it "returns 0x02" do
@@ -86,7 +75,7 @@ describe BSON::String do
       end
 
       let(:char) do
-        "ß".chr.force_encoding(BSON::String::BINARY)
+        "ß".chr.force_encoding(BSON::BINARY)
       end
 
       it "returns the encoded string" do
@@ -107,7 +96,7 @@ describe BSON::String do
       end
 
       let(:char) do
-        "ß".chr.force_encoding(BSON::String::BINARY)
+        "ß".chr.force_encoding(BSON::BINARY)
       end
 
       it "returns the encoded string" do
@@ -178,7 +167,7 @@ describe BSON::String do
       end
 
       let(:char) do
-        "ß".chr.force_encoding(BSON::String::BINARY)
+        "ß".chr.force_encoding(BSON::BINARY)
       end
 
       it "returns the encoded string" do
@@ -199,7 +188,7 @@ describe BSON::String do
       end
 
       let(:char) do
-        "ß".chr.force_encoding(BSON::String::BINARY)
+        "ß".chr.force_encoding(BSON::BINARY)
       end
 
       it "returns the encoded string" do

@@ -123,9 +123,15 @@ describe BSON::Integer do
         [ integer ].pack(Integer::INT32_PACK)
       end
 
-      it "returns the 32 bit raw bytes" do
-        expect(integer.to_bson).to eq(expected)
+      let(:encoded) do
+        integer.to_bson
       end
+
+      it "returns the 32 bit raw bytes" do
+        expect(encoded).to eq(expected)
+      end
+
+      it_behaves_like "a binary encoded string"
     end
 
     context "when the integer is 64 bit" do
@@ -134,13 +140,19 @@ describe BSON::Integer do
         Integer::MAX_64BIT - 1
       end
 
+      let(:encoded) do
+        integer.to_bson
+      end
+
       let(:expected) do
         [ integer ].pack(Integer::INT64_PACK)
       end
 
       it "returns the 64 bit raw bytes" do
-        expect(integer.to_bson).to eq(expected)
+        expect(encoded).to eq(expected)
       end
+
+      it_behaves_like "a binary encoded string"
     end
 
     context "when the integer is too large" do

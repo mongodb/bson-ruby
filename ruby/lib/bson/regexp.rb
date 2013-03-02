@@ -12,7 +12,7 @@ module BSON
     # A regular expression is type 0x0B in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 11.chr.freeze
+    BSON_TYPE = 11.chr.force_encoding(BINARY).freeze
 
     # Get the regular expression as encoded BSON.
     #

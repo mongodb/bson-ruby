@@ -91,6 +91,8 @@ describe BSON::Binary do
       it "serialized the length, subtype and bytes" do
         expect(encoded).to eq("#{7.to_bson}#{0.chr}testing")
       end
+
+      it_behaves_like "a binary encoded string"
     end
 
     context "when the type is function" do
@@ -106,6 +108,8 @@ describe BSON::Binary do
       it "serialized the length, subtype and bytes" do
         expect(encoded).to eq("#{7.to_bson}#{1.chr}testing")
       end
+
+      it_behaves_like "a binary encoded string"
     end
 
     context "when the type is the old default" do
@@ -121,6 +125,8 @@ describe BSON::Binary do
       it "serialized the length, subtype and bytes" do
         expect(encoded).to eq("#{7.to_bson}#{2.chr}testing")
       end
+
+      it_behaves_like "a binary encoded string"
     end
 
     context "when the type is the old uuid" do
@@ -136,6 +142,8 @@ describe BSON::Binary do
       it "serialized the length, subtype and bytes" do
         expect(encoded).to eq("#{7.to_bson}#{3.chr}testing")
       end
+
+      it_behaves_like "a binary encoded string"
     end
 
     context "when the type is uuid" do
@@ -151,6 +159,8 @@ describe BSON::Binary do
       it "serialized the length, subtype and bytes" do
         expect(encoded).to eq("#{7.to_bson}#{4.chr}testing")
       end
+
+      it_behaves_like "a binary encoded string"
     end
 
     context "when the type is md5" do
@@ -166,6 +176,8 @@ describe BSON::Binary do
       it "serialized the length, subtype and bytes" do
         expect(encoded).to eq("#{7.to_bson}#{5.chr}testing")
       end
+
+      it_behaves_like "a binary encoded string"
     end
 
     context "when the type is user" do
@@ -181,6 +193,8 @@ describe BSON::Binary do
       it "serialized the length, subtype and bytes" do
         expect(encoded).to eq("#{7.to_bson}#{128.chr}testing")
       end
+
+      it_behaves_like "a binary encoded string"
     end
   end
 

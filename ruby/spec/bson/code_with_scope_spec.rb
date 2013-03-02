@@ -77,6 +77,8 @@ describe BSON::CodeWithScope do
         "#{scope.to_bson}#{BSON::NULL_BYTE}"
       )
     end
+
+    it_behaves_like "a binary encoded string"
   end
 
   context "when the class is loaded" do

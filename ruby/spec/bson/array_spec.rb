@@ -21,7 +21,20 @@ describe BSON::Array do
     end
   end
 
-  pending "#to_bson"
+  describe "#to_bson" do
+
+    let(:array) do
+      [ "one", "two" ]
+    end
+
+    let(:encoded) do
+      array.to_bson
+    end
+
+    it "returns the encoded string" do
+
+    end
+  end
 
   context "when the class is loaded" do
 

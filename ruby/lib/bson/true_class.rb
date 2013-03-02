@@ -12,12 +12,12 @@ module BSON
     # A boolean is type 0x08 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 8.chr.freeze
+    BSON_TYPE = 8.chr.force_encoding(BINARY).freeze
 
     # A true value in the BSON spec is 0x01.
     #
     # @since 2.0.0
-    TRUE_BYTE = 1.chr.freeze
+    TRUE_BYTE = 1.chr.force_encoding(BINARY).freeze
 
     # Get the true boolean as encoded BSON.
     #

@@ -13,7 +13,7 @@ module BSON
     # A $minKey is type 0xFF in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 255.chr.freeze
+    BSON_TYPE = 255.chr.force_encoding(BINARY).freeze
 
     # Constant for always evaluating lesser in a comparison.
     #

@@ -12,7 +12,7 @@ module BSON
     # An array is type 0x04 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 4.chr.freeze
+    BSON_TYPE = 4.chr.force_encoding(BINARY).freeze
 
     # Get the array as encoded BSON.
     #

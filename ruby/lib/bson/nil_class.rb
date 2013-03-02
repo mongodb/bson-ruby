@@ -12,7 +12,7 @@ module BSON
     # A nil is type 0x0A in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 10.chr.freeze
+    BSON_TYPE = 10.chr.force_encoding(BINARY).freeze
 
     # Get the nil as encoded BSON.
     #

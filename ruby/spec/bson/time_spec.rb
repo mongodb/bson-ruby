@@ -40,6 +40,8 @@ describe BSON::Time do
       it "returns the encoded string" do
         expect(encoded).to eq(expected)
       end
+
+      it_behaves_like "a binary encoded string"
     end
 
     context "when the time is pre epoch" do
@@ -59,6 +61,8 @@ describe BSON::Time do
       it "returns the encoded string" do
         expect(encoded).to eq(expected)
       end
+
+      it_behaves_like "a binary encoded string"
     end
   end
 

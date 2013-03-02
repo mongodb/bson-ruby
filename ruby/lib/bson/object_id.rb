@@ -11,7 +11,7 @@ module BSON
     # A object_id is type 0x07 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 7.chr.freeze
+    BSON_TYPE = 7.chr.force_encoding(BINARY).freeze
 
     # Encode the object_id type
     #

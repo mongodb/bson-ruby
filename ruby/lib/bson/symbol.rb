@@ -15,7 +15,7 @@ module BSON
     # A symbol is type 0x0E in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 14.chr.freeze
+    BSON_TYPE = 14.chr.force_encoding(BINARY).freeze
 
     # Get the symbol as encoded BSON.
     #

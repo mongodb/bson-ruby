@@ -13,7 +13,7 @@ module BSON
     # A code with scope is type 0x0F in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 15.chr.freeze
+    BSON_TYPE = 15.chr.force_encoding(BINARY).freeze
 
     # @!attribute javascript
     #   @return [ String ] The javascript code.

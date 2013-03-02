@@ -30,6 +30,8 @@ describe BSON::Symbol do
     it "returns the encoded symbol" do
       expect(encoded).to eq("#{5.to_bson}test#{BSON::NULL_BYTE}")
     end
+
+    it_behaves_like "a binary encoded string"
   end
 
   describe "#to_bson_cstring" do

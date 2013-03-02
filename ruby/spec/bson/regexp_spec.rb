@@ -36,6 +36,8 @@ describe BSON::Regexp do
       it "returns the encoded string" do
         expect(encoded).to eq(expected)
       end
+
+      it_behaves_like "a binary encoded string"
     end
 
     context "when the regexp has options" do
@@ -57,6 +59,8 @@ describe BSON::Regexp do
         it "adds the encoding option" do
           expect(encoded).to eq(expected)
         end
+
+        it_behaves_like "a binary encoded string"
       end
 
       context "when matching multiline" do
@@ -76,6 +80,8 @@ describe BSON::Regexp do
         it "adds the encoding option" do
           expect(encoded).to eq(expected)
         end
+
+        it_behaves_like "a binary encoded string"
       end
 
       context "when matching extended" do
@@ -95,6 +101,8 @@ describe BSON::Regexp do
         it "adds the encoding option" do
           expect(encoded).to eq(expected)
         end
+
+        it_behaves_like "a binary encoded string"
       end
 
       context "when all options are present" do
@@ -107,7 +115,6 @@ describe BSON::Regexp do
           regexp.to_bson
         end
 
-
         let(:expected) do
           "#{regexp.source}#{BSON::NULL_BYTE}imsx#{BSON::NULL_BYTE}"
         end
@@ -115,6 +122,8 @@ describe BSON::Regexp do
         it "adds the encoding options in alphabetical order" do
           expect(encoded).to eq(expected)
         end
+
+        it_behaves_like "a binary encoded string"
       end
     end
   end

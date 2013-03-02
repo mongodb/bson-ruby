@@ -70,6 +70,8 @@ describe BSON::Code do
     it "returns the encoded string" do
       expect(encoded).to eq("#{15.to_bson}this.value = 5#{BSON::NULL_BYTE}")
     end
+
+    it_behaves_like "a binary encoded string"
   end
 
   context "when the class is loaded" do

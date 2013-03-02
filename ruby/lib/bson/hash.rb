@@ -13,7 +13,7 @@ module BSON
     # An hash (embedded document) is type 0x03 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 3.chr.freeze
+    BSON_TYPE = 3.chr.force_encoding(BINARY).freeze
 
     # Get the hash as encoded BSON.
     #

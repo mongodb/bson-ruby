@@ -34,6 +34,8 @@ describe BSON::Float do
     it "returns the encoded string" do
       expect(encoded).to eq(expected)
     end
+
+    it_behaves_like "a binary encoded string"
   end
 
   context "when the class is loaded" do

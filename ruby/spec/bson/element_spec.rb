@@ -35,6 +35,8 @@ describe BSON::Element do
           "#{String::BSON_TYPE}#{"name".to_bson_cstring}#{"value".to_bson}"
         )
       end
+
+      it_behaves_like "a binary encoded string"
     end
 
     context "when the field is a symbol" do
@@ -52,6 +54,8 @@ describe BSON::Element do
           "#{String::BSON_TYPE}#{"name".to_bson_cstring}#{"value".to_bson}"
         )
       end
+
+      it_behaves_like "a binary encoded string"
     end
   end
 end

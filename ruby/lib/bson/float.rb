@@ -12,7 +12,7 @@ module BSON
     # A floating point is type 0x01 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 1.chr.freeze
+    BSON_TYPE = 1.chr.force_encoding(BINARY).freeze
 
     # The pack directive is for 8 byte floating points.
     #

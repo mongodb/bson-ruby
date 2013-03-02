@@ -12,7 +12,7 @@ module BSON
     # A boolean is type 0x08 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 16.chr.freeze
+    BSON_TYPE = 16.chr.force_encoding(BINARY).freeze
 
     # Register this type when the module is loaded.
     #

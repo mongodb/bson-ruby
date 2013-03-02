@@ -3,3 +3,5 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
 
 require "bson"
 require "rspec"
+
+Dir["./spec/support/**/*.rb"].each { |file| require file }

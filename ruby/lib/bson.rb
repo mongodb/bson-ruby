@@ -1,4 +1,26 @@
 # encoding: utf-8
+#
+# The core namespace for all BSON related behaviour.
+#
+# @since 0.0.0
+module BSON
+
+  # Constant for binary string encoding.
+  #
+  # @since 2.0.0
+  BINARY = "BINARY".freeze
+
+  # Constant for bson types that don't actually serialize a value.
+  #
+  # @since 2.0.0
+  NO_VALUE = "".force_encoding(BINARY).freeze
+
+  # Constant for a null byte (0x00).
+  #
+  # @since 2.0.0
+  NULL_BYTE = 0.chr.force_encoding(BINARY).freeze
+end
+
 require "bson/registry"
 require "bson/document"
 require "bson/version"
@@ -32,20 +54,4 @@ begin
   end
 rescue LoadError
   $stderr.puts("BSON is using the pure Ruby implementation.")
-end
-
-# The core namespace for all BSON related behaviour.
-#
-# @since 0.0.0
-module BSON
-
-  # Constant for bson types that don't actually serialize a value.
-  #
-  # @since 2.0.0
-  NO_VALUE = "".freeze
-
-  # Constant for a null byte (0x00).
-  #
-  # @since 2.0.0
-  NULL_BYTE = 0.chr.freeze
 end

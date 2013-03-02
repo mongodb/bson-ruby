@@ -11,7 +11,7 @@ module BSON
     # A timestamp is type 0x11 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 17.chr.freeze
+    BSON_TYPE = 17.chr.force_encoding(BINARY).freeze
 
     # Constant for the timestamp pack directive.
     #

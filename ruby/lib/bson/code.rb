@@ -11,7 +11,7 @@ module BSON
     # A code is type 0x0D in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 13.chr.freeze
+    BSON_TYPE = 13.chr.force_encoding(BINARY).freeze
 
     # @!attribute javascript
     #   @return [ String ] The javascript code.

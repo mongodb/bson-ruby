@@ -22,12 +22,12 @@ module BSON
     # A 32bit integer is type 0x10 in the BSON spec.
     #
     # @since 2.0.0
-    INT32_TYPE = 16.chr.freeze
+    INT32_TYPE = 16.chr.force_encoding(BINARY).freeze
 
     # A 64bit integer is type 0x12 in the BSON spec.
     #
     # @since 2.0.0
-    INT64_TYPE = 18.chr.freeze
+    INT64_TYPE = 18.chr.force_encoding(BINARY).freeze
 
     # The maximum 32 bit integer value.
     #
