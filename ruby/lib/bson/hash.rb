@@ -14,6 +14,11 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 3.chr.freeze
 
+    # A 4 byte placeholder that would be replaced by a length at a later point.
+    #
+    # @since 2.0.0
+    PLACEHOLDER = 0.to_bson.freeze
+
     # Get the hash as encoded BSON.
     #
     # @example Get the hash as encoded BSON.
@@ -25,6 +30,22 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
+      with_placeholder do |encoded|
+        each do |field, value|
+          encoded << Element.new(field, value).to_bson
+        end
+      end
+    end
+
+    private
+
+    def with_placeholder
+      encoded = "".force_encoding(String::BINARY)
+      encoded << PLACEHOLDER
+      yield(encoded)
+      encoded << NULL_BYTE
+      encoded[0, 4] = encoded.bytesize.to_bson
+      encoded
     end
 
     # Register this type when the module is loaded.

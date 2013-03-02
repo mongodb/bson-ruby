@@ -18,7 +18,10 @@ describe BSON::Document do
         end
 
         it "serializes the document" do
-          expect(serialized).to eq("\x02key\x00\x06\x00\x00\x00value\x00")
+          expect(serialized).to eq(
+            "#{20.to_bson}#{String::BSON_TYPE}key#{BSON::NULL_BYTE}" +
+            "#{6.to_bson}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
+          )
         end
       end
     end

@@ -7,10 +7,10 @@ require "bson/code_with_scope"
 require "bson/element"
 require "bson/false_class"
 require "bson/float"
-require "bson/hash"
 require "bson/int32"
 require "bson/int64"
 require "bson/integer"
+require "bson/hash"
 require "bson/max_key"
 require "bson/min_key"
 require "bson/nil_class"
@@ -46,11 +46,7 @@ module BSON
     #
     # @since 2.0.0
     def serialize(document)
-      buffer = "".force_encoding(String::BINARY)
-      document.each do |field, value|
-        buffer << Element.new(field, value).to_bson
-      end
-      buffer
+      document.to_bson
     end
   end
 end

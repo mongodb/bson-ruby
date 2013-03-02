@@ -21,7 +21,23 @@ describe BSON::Hash do
     end
   end
 
-  pending "#to_bson"
+  describe "#to_bson" do
+
+    let(:document) do
+      { "key" => "value" }
+    end
+
+    let(:encoded) do
+      document.to_bson
+    end
+
+    it "serializes the document" do
+      expect(encoded).to eq(
+        "#{20.to_bson}#{String::BSON_TYPE}key#{BSON::NULL_BYTE}" +
+        "#{6.to_bson}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
+      )
+    end
+  end
 
   context "when the class is loaded" do
 
