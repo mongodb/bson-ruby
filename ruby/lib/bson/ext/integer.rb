@@ -86,7 +86,7 @@ module BSON
       #
       # @since 2.0.0
       def bson_type
-        bson_int32? ? INT32_TYPE : (bson_int64? ? INT64_TYPE : nil)
+        bson_int32? ? INT32_TYPE : (bson_int64? ? INT64_TYPE : out_of_range!)
       end
 
       # Get the integer as encoded BSON.
@@ -103,10 +103,19 @@ module BSON
         [ self ].pack(bson_pack_directive)
       end
 
+      # Raised if an integer value is out of range to be serialized as 8 bytes.
+      #
+      # @since 2.0.0
+      class OutOfRange < RuntimeError; end
+
       private
 
       def bson_pack_directive
-        bson_int32? ? INT32_PACK : (bson_int64? ? INT64_PACK : nil)
+        bson_int32? ? INT32_PACK : (bson_int64? ? INT64_PACK : out_of_range!)
+      end
+
+      def out_of_range!
+        raise OutOfRange.new("#{self} is not a valid 8 byte integer value.")
       end
     end
 
