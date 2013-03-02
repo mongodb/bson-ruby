@@ -30,6 +30,8 @@ module BSON
       # @example Get the string as encoded BSON.
       #   "test".to_bson
       #
+      # @raise [ EncodingError ] If the string is not UTF-8.
+      #
       # @return [ String ] The encoded string.
       #
       # @see http://bsonspec.org/#/specification
@@ -44,6 +46,8 @@ module BSON
       # @example Get the string as an encoded C string.
       #   "test".to_bson_cstring
       #
+      # @raise [ EncodingError ] If the string is not UTF-8.
+      #
       # @return [ String ] The encoded string.
       #
       # @see http://bsonspec.org/#/specification
@@ -53,11 +57,6 @@ module BSON
         check_for_illegal_characters!
         to_utf8_binary + NULL_BYTE
       end
-
-      # Register this type when the module is loaded.
-      #
-      # @since 2.0.0
-      Registry.register(BSON_TYPE, ::String)
 
       private
 
@@ -70,6 +69,11 @@ module BSON
       def to_utf8_binary
         encode(UTF8).force_encoding(BINARY)
       end
+
+      # Register this type when the module is loaded.
+      #
+      # @since 2.0.0
+      Registry.register(BSON_TYPE, ::String)
     end
 
     # Enrich the core String class with this module.
