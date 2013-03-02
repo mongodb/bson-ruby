@@ -27,6 +27,21 @@ module BSON
     #   @since 2.0.0
     attr_reader :increment, :seconds
 
+    # Determine if this timestamp is equal to another object.
+    #
+    # @example Check the timestamp equality.
+    #   timestamp == other
+    #
+    # @param [ Object ] other The object to compare against.
+    #
+    # @return [ true, false ] If the objects are equal.
+    #
+    # @since 2.0.0
+    def ==(other)
+      return false unless other.is_a?(Timestamp)
+      increment == other.increment && seconds == other.seconds
+    end
+
     # Instantiate the new timestamp.
     #
     # @example Instantiate the timestamp.
