@@ -3,6 +3,203 @@ require "spec_helper"
 
 describe BSON::ObjectId do
 
+  describe "#==" do
+
+    context "when data is identical" do
+
+      let(:time) do
+        Time.now
+      end
+
+      let(:object_id) do
+        described_class.from_time(time)
+      end
+
+      let(:other_id) do
+        described_class.from_time(time)
+      end
+
+      it "returns true" do
+        expect(object_id).to eq(other_id)
+      end
+    end
+
+    context "when the data is different" do
+
+      let(:time) do
+        Time.now
+      end
+
+      let(:object_id) do
+        described_class.from_time(time)
+      end
+
+      it "returns false" do
+        expect(object_id).to_not eq(described_class.new)
+      end
+    end
+
+    context "when other is not an object id" do
+
+      it "returns false" do
+        expect(described_class.new).to_not eq(nil)
+      end
+    end
+  end
+
+  describe "#===" do
+
+    let(:object_id) do
+      described_class.new
+    end
+
+    context "when comparing with another object id" do
+
+      context "when the data is equal" do
+
+        let(:other) do
+          described_class.from_string(object_id.to_s)
+        end
+
+        it "returns true" do
+          expect(object_id === other).to be_true
+        end
+      end
+
+      context "when the data is not equal" do
+
+        let(:other) do
+          described_class.new
+        end
+
+        it "returns false" do
+          expect(object_id === other).to be_false
+        end
+      end
+    end
+
+    context "when comparing to an object id class" do
+
+      it "returns false" do
+        expect(object_id === BSON::ObjectId).to be_false
+      end
+    end
+
+    context "when comparing with a string" do
+
+      context "when the data is equal" do
+
+        let(:other) do
+          object_id.to_s
+        end
+
+        it "returns true" do
+          expect(object_id === other).to be_true
+        end
+      end
+
+      context "when the data is not equal" do
+
+        let(:other) do
+          described_class.new.to_s
+        end
+
+        it "returns false" do
+          expect(object_id === other).to be_false
+        end
+      end
+    end
+
+    context "when comparing with a non string or object id" do
+
+      it "returns false" do
+        expect(object_id === "test").to be_false
+      end
+    end
+
+    context "when comparing with a non object id class" do
+
+      it "returns false" do
+        expect(object_id === String).to be_false
+      end
+    end
+  end
+
+  describe "#<" do
+
+    let(:object_id) do
+      described_class.from_time(Time.new(2012, 1, 1))
+    end
+
+    let(:other_id) do
+      described_class.from_time(Time.new(2012, 1, 30))
+    end
+
+    context "when the generation time before the other" do
+
+      it "returns true" do
+        expect(object_id < other_id).to be_true
+      end
+    end
+
+    context "when the generation time is after the other" do
+
+      it "returns false" do
+        expect(other_id < object_id).to be_false
+      end
+    end
+  end
+
+  describe "#>" do
+
+    let(:object_id) do
+      described_class.from_time(Time.new(2012, 1, 1))
+    end
+
+    let(:other_id) do
+      described_class.from_time(Time.new(2012, 1, 30))
+    end
+
+    context "when the generation time before the other" do
+
+      it "returns false" do
+        expect(object_id > other_id).to be_false
+      end
+    end
+
+    context "when the generation time is after the other" do
+
+      it "returns true" do
+        expect(other_id > object_id).to be_true
+      end
+    end
+  end
+
+  describe "#<=>" do
+
+    let(:object_id) do
+      described_class.from_time(Time.new(2012, 1, 1))
+    end
+
+    let(:other_id) do
+      described_class.from_time(Time.new(2012, 1, 30))
+    end
+
+    context "when the generation time before the other" do
+
+      it "returns -1" do
+        expect(object_id <=> other_id).to eq(-1)
+      end
+    end
+
+    context "when the generation time is after the other" do
+
+      it "returns false" do
+        expect(other_id <=> object_id).to eq(1)
+      end
+    end
+  end
+
   describe "::BSON_TYPE" do
 
     it "returns 0x07" do
@@ -21,7 +218,150 @@ describe BSON::ObjectId do
     end
   end
 
-  pending "#to_bson"
+  describe ".from_string" do
+
+    context "when the string is valid" do
+
+      let(:string) do
+        "4e4d66343b39b68407000001"
+      end
+
+      let(:object_id) do
+        described_class.from_string(string)
+      end
+
+      it "initializes with the string's bytes" do
+        expect(object_id.to_s).to eq(string)
+      end
+    end
+
+    context "when the string is not valid" do
+
+      it "raises an error" do
+        expect {
+          described_class.from_string("asadsf")
+        }.to raise_error(BSON::ObjectId::Invalid)
+      end
+    end
+  end
+
+  describe ".from_time" do
+
+    context "when no unique option is provided" do
+
+      let(:time) do
+        Time.at((Time.now.utc - 64800).to_i).utc
+      end
+
+      let(:object_id) do
+        described_class.from_time(time)
+      end
+
+      it "sets the generation time" do
+        expect(object_id.generation_time).to eq(time)
+      end
+
+      it "does not include process or sequence information" do
+        expect(object_id.to_s =~ /\A\h{8}0{16}\Z/).to be_true
+      end
+    end
+
+    context "when a unique option is provided" do
+
+      let(:time) do
+        Time.at((Time.now.utc - 64800).to_i).utc
+      end
+
+      let(:object_id) do
+        described_class.from_time(time, unique: true)
+      end
+
+      let(:non_unique) do
+        described_class.from_time(time, unique: true)
+      end
+
+      it "creates a new unique object id" do
+        expect(object_id).to_not eq(non_unique)
+      end
+    end
+  end
+
+  describe ".legal?" do
+
+    context "when the string is too short to be an object id" do
+
+      it "returns false" do
+        expect(described_class).to_not be_legal("a" * 23)
+      end
+    end
+
+    context "when the string contains invalid hex characters" do
+
+      it "returns false" do
+        expect(described_class).to_not be_legal("y" + "a" * 23)
+      end
+    end
+
+    context "when the string is a valid object id" do
+
+      it "returns true" do
+        expect(described_class).to be_legal("a" * 24)
+      end
+    end
+
+    context "when checking against another object id" do
+
+      let(:object_id) do
+        described_class.new
+      end
+
+      it "returns true" do
+        expect(described_class).to be_legal(object_id)
+      end
+    end
+  end
+
+  describe "#to_bson" do
+
+    let(:object_id) do
+      described_class.new
+    end
+
+    let(:data) do
+      object_id.instance_variable_get(:@raw_data)
+    end
+
+    it "returns the raw bytes" do
+      expect(object_id.to_bson).to eq(data)
+    end
+  end
+
+  describe "#to_s" do
+
+    let(:time) do
+      Time.new(2013, 1, 1)
+    end
+
+    let(:expected) do
+      "50e218f00000000000000000"
+    end
+
+    let(:object_id) do
+      described_class.from_time(time)
+    end
+
+    it "returns a hex string representation of the id" do
+      expect(object_id.to_s).to eq(expected)
+    end
+
+    it "returns the string in UTF-8" do
+      expect(object_id.to_s.encoding).to eq(Encoding.find(BSON::UTF8))
+    end
+
+    it "converts to a readable yaml string" do
+      expect(YAML.dump(object_id.to_s)).to include(expected)
+    end
+  end
 
   context "when the class is loaded" do
 

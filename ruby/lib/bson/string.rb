@@ -14,11 +14,6 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 2.chr.force_encoding(BINARY).freeze
 
-    # Constant for UTF-8 string encoding.
-    #
-    # @since 2.0.0
-    UTF8 = "UTF-8".freeze
-
     # Get the string as encoded BSON.
     #
     # @example Get the string as encoded BSON.

@@ -19,6 +19,11 @@ module BSON
   #
   # @since 2.0.0
   NULL_BYTE = 0.chr.force_encoding(BINARY).freeze
+
+  # Constant for UTF-8 string encoding.
+  #
+  # @since 2.0.0
+  UTF8 = "UTF-8".freeze
 end
 
 require "bson/registry"
