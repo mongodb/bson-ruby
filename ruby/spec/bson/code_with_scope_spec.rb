@@ -57,7 +57,27 @@ describe BSON::CodeWithScope do
     end
   end
 
-  pending "#to_bson"
+  describe "#to_bson" do
+
+    let(:scope) do
+      { :name => "test" }
+    end
+
+    let(:code_with_scope) do
+      described_class.new("this.value = name", scope)
+    end
+
+    let(:encoded) do
+      code_with_scope.to_bson
+    end
+
+    it "returns the encoded string" do
+      expect(encoded).to eq(
+        "#{47.to_bson}#{18.to_bson}this.value = name#{BSON::NULL_BYTE}" +
+        "#{scope.to_bson}#{BSON::NULL_BYTE}"
+      )
+    end
+  end
 
   context "when the class is loaded" do
 

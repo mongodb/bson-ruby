@@ -8,6 +8,7 @@ module BSON
   #
   # @since 2.0.0
   class CodeWithScope
+    include Encodable
 
     # A code with scope is type 0x0F in the BSON spec.
     #
@@ -62,6 +63,9 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
+      encode_bson_with_placeholder do |encoded|
+        encoded << javascript.to_bson << scope.to_bson
+      end
     end
 
     # Register this type when the module is loaded.
