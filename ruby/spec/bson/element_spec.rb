@@ -19,18 +19,38 @@ describe BSON::Element do
 
   describe "#to_bson" do
 
-    let(:element) do
-      described_class.new("name", "value")
+    context "when the field is a string" do
+
+      let(:element) do
+        described_class.new("name", "value")
+      end
+
+      let(:encoded) do
+        element.to_bson
+      end
+
+      it "encodes the type + field + value" do
+        expect(encoded).to eq(
+          "#{String::BSON_TYPE}#{"name".to_bson_cstring}#{"value".to_bson}"
+        )
+      end
     end
 
-    let(:encoded) do
-      element.to_bson
-    end
+    context "when the field is a symbol" do
 
-    it "encodes the type + field + value" do
-      expect(encoded).to eq(
-        "#{String::BSON_TYPE}#{"name".to_bson_cstring}#{"value".to_bson}"
-      )
+      let(:element) do
+        described_class.new(:name, "value")
+      end
+
+      let(:encoded) do
+        element.to_bson
+      end
+
+      it "encodes the type + field + value" do
+        expect(encoded).to eq(
+          "#{String::BSON_TYPE}#{"name".to_bson_cstring}#{"value".to_bson}"
+        )
+      end
     end
   end
 end
