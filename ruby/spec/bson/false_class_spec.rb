@@ -1,7 +1,7 @@
 # encoding: utf-8
 require "spec_helper"
 
-describe BSON::Ext::FalseClass do
+describe BSON::FalseClass do
 
   describe "::BSON_TYPE" do
 

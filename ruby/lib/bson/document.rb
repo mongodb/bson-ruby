@@ -1,16 +1,26 @@
 # encoding: utf-8
+require "bson/array"
 require "bson/binary"
 require "bson/boolean"
 require "bson/code"
 require "bson/code_with_scope"
 require "bson/element"
-require "bson/ext"
+require "bson/false_class"
+require "bson/float"
+require "bson/hash"
 require "bson/int32"
 require "bson/int64"
+require "bson/integer"
 require "bson/max_key"
 require "bson/min_key"
+require "bson/nil_class"
 require "bson/object_id"
+require "bson/regexp"
+require "bson/string"
+require "bson/symbol"
+require "bson/time"
 require "bson/timestamp"
+require "bson/true_class"
 
 module BSON
 
@@ -36,7 +46,7 @@ module BSON
     #
     # @since 2.0.0
     def serialize(document)
-      buffer = "".force_encoding(Ext::String::BINARY)
+      buffer = "".force_encoding(String::BINARY)
       document.each do |field, value|
         buffer << Element.new(field, value).to_bson
       end

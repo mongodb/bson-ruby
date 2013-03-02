@@ -1,7 +1,7 @@
 # encoding: utf-8
 require "spec_helper"
 
-describe BSON::Ext::Integer do
+describe BSON::Integer do
 
   describe "::INT32_PACK" do
 

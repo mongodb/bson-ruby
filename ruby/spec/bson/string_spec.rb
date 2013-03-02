@@ -1,12 +1,12 @@
 # encoding: utf-8
 require "spec_helper"
 
-describe BSON::Ext::String do
+describe BSON::String do
 
   shared_examples_for "a binary encoded string" do
 
     let(:binary) do
-      Encoding.find(BSON::Ext::String::BINARY)
+      Encoding.find(BSON::String::BINARY)
     end
 
     it "returns the string with binary encoding" do
@@ -86,7 +86,7 @@ describe BSON::Ext::String do
       end
 
       let(:char) do
-        "ß".chr.force_encoding(BSON::Ext::String::BINARY)
+        "ß".chr.force_encoding(BSON::String::BINARY)
       end
 
       it "returns the encoded string" do
@@ -107,7 +107,7 @@ describe BSON::Ext::String do
       end
 
       let(:char) do
-        "ß".chr.force_encoding(BSON::Ext::String::BINARY)
+        "ß".chr.force_encoding(BSON::String::BINARY)
       end
 
       it "returns the encoded string" do
@@ -178,7 +178,7 @@ describe BSON::Ext::String do
       end
 
       let(:char) do
-        "ß".chr.force_encoding(BSON::Ext::String::BINARY)
+        "ß".chr.force_encoding(BSON::String::BINARY)
       end
 
       it "returns the encoded string" do
@@ -199,7 +199,7 @@ describe BSON::Ext::String do
       end
 
       let(:char) do
-        "ß".chr.force_encoding(BSON::Ext::String::BINARY)
+        "ß".chr.force_encoding(BSON::String::BINARY)
       end
 
       it "returns the encoded string" do

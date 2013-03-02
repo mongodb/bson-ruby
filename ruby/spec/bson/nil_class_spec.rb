@@ -1,7 +1,7 @@
 # encoding: utf-8
 require "spec_helper"
 
-describe BSON::Ext::NilClass do
+describe BSON::NilClass do
 
   describe "::BSON_TYPE" do
 

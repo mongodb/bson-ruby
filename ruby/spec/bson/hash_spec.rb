@@ -1,7 +1,7 @@
 # encoding: utf-8
 require "spec_helper"
 
-describe BSON::Ext::Hash do
+describe BSON::Hash do
 
   describe "::BSON_TYPE" do
 
