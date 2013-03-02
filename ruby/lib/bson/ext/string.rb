@@ -55,7 +55,20 @@ module BSON
       # @since 2.0.0
       def to_bson_cstring
         check_for_illegal_characters!
-        to_utf8_binary + NULL_BYTE
+        to_bson_string + NULL_BYTE
+      end
+
+      # Convert the string to a UTF-8 string then force to binary. This is so
+      # we get errors for strings that are not UTF-8 encoded.
+      #
+      # @example Convert to valid BSON string.
+      #   "Straße".to_bson_string
+      #
+      # @return [ String ] The binary string.
+      #
+      # @since 2.0.0
+      def to_bson_string
+        encode(UTF8).force_encoding(BINARY)
       end
 
       private
@@ -64,10 +77,6 @@ module BSON
         if include?(NULL_BYTE)
           raise EncodingError.new("Illegal C-String '#{self}' contains a null byte.")
         end
-      end
-
-      def to_utf8_binary
-        encode(UTF8).force_encoding(BINARY)
       end
 
       # Register this type when the module is loaded.

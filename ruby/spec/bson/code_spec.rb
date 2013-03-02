@@ -57,7 +57,20 @@ describe BSON::Code do
     end
   end
 
-  pending "#to_bson"
+  describe "#to_bson" do
+
+    let(:code) do
+      described_class.new("this.value = 5")
+    end
+
+    let(:encoded) do
+      code.to_bson
+    end
+
+    it "returns the encoded string" do
+      expect(encoded).to eq("#{15.to_bson}this.value = 5#{BSON::NULL_BYTE}")
+    end
+  end
 
   context "when the class is loaded" do
 
