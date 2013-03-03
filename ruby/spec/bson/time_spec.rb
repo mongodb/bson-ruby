@@ -34,7 +34,7 @@ describe BSON::Time do
       end
 
       let(:expected) do
-        (time.to_f * 1000).to_i.to_bson
+        [ (time.to_f * 1000).to_i ].pack(Integer::INT64_PACK)
       end
 
       it "returns the encoded string" do
@@ -55,7 +55,7 @@ describe BSON::Time do
       end
 
       let(:expected) do
-        (time.to_f * 1000).to_i.to_bson
+        [ (time.to_f * 1000).to_i ].pack(Integer::INT64_PACK)
       end
 
       it "returns the encoded string" do

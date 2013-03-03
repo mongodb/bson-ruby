@@ -25,7 +25,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
-      (to_f * 1000).to_i.to_bson
+      [ (to_f * 1000).to_i ].pack(Integer::INT64_PACK)
     end
 
     # Register this type when the module is loaded.
