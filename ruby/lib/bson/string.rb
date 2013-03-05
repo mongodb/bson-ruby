@@ -62,6 +62,10 @@ module BSON
       encode(UTF8).force_encoding(BINARY)
     end
 
+    def from_utf8_binary
+      force_encoding(UTF8).encode!
+    end
+
     private
 
     def check_for_illegal_characters!

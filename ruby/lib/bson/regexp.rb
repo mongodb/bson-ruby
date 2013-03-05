@@ -55,6 +55,34 @@ module BSON
       (options & ::Regexp::MULTILINE != 0) ? "ms" : NO_VALUE
     end
 
+    module ClassMethods
+      # Deserialize the regular expression from BSON.
+      #
+      # @param [ BSON ] bson The bson representing a regular expression.
+      #
+      # @return [ Regexp ] The decoded regular expression.
+      #
+      # @see http://bsonspec.org/#/specification
+      #
+      # @since 2.0.0
+      def from_bson(bson)
+        pattern = bson.gets(NULL_BYTE).from_utf8_binary.chop!
+        options = 0
+        while (option = bson.readbyte) != 0
+          case option
+          when 105 # 'i'
+            options |= ::Regexp::IGNORECASE
+          when 109, 115 # 'm', 's'
+            options |= ::Regexp::MULTILINE
+          when 120 # 'x'
+            options |= ::Regexp::EXTENDED
+          end
+        end
+
+        new(pattern, options)
+      end
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
@@ -65,4 +93,5 @@ module BSON
   #
   # @since 2.0.0
   ::Regexp.send(:include, Regexp)
+  ::Regexp.send(:extend, Regexp::ClassMethods)
 end
