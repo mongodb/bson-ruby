@@ -45,6 +45,21 @@ module BSON
       to_s.to_bson_cstring
     end
 
+    module ClassMethods
+      # Deserialize a symbol from BSON.
+      #
+      # @param [ BSON ] bson The bson representing a symbol.
+      #
+      # @return [ Regexp ] The decoded symbol.
+      #
+      # @see http://bsonspec.org/#/specification
+      #
+      # @since 2.0.0
+      def from_bson(bson)
+        bson.read(*bson.read(4).unpack(INT32_PACK)).from_utf8_binary.chop!.intern
+      end
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
@@ -55,4 +70,5 @@ module BSON
   #
   # @since 2.0.0
   ::Symbol.send(:include, Symbol)
+  ::Symbol.send(:extend, Symbol::ClassMethods)
 end
