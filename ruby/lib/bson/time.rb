@@ -25,7 +25,23 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
-      [ (to_f * 1000).to_i ].pack(Integer::INT64_PACK)
+      [ (to_f * 1000).to_i ].pack(INT64_PACK)
+    end
+
+    module ClassMethods
+      # Deserialize UTC datetime from BSON.
+      #
+      # @param [ BSON ] bson The bson representing UTC datetime.
+      #
+      # @return [ Time ] The decoded UTC datetime.
+      #
+      # @see http://bsonspec.org/#/specification
+      #
+      # @since 2.0.0
+      def from_bson(bson)
+        seconds, fragment = bson.read(8).unpack(INT64_PACK).first.divmod 1000
+        at(seconds, fragment * 1000).utc
+      end
     end
 
     # Register this type when the module is loaded.
@@ -38,4 +54,5 @@ module BSON
   #
   # @since 2.0.0
   ::Time.send(:include, Time)
+  ::Time.send(:extend, Time::ClassMethods)
 end
