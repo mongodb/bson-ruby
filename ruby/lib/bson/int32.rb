@@ -14,6 +14,19 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 16.chr.force_encoding(BINARY).freeze
 
+    # Deserialize an Integer from BSON.
+    #
+    # @param [ BSON ] bson The encoded int32.
+    #
+    # @return [ Integer ] The decoded Integer.
+    #
+    # @see http://bsonspec.org/#/specification
+    #
+    # @since 2.0.0
+    def self.from_bson(bson)
+      bson.read(4).unpack(INT32_PACK).first
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
