@@ -14,11 +14,6 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 18.chr.force_encoding(BINARY).freeze
 
-    # Raised if an integer value is out of range to be serialized as 8 bytes.
-    #
-    # @since 2.0.0
-    class OutOfRange < RuntimeError; end
-
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
