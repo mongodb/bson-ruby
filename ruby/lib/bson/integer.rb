@@ -9,16 +9,6 @@ module BSON
   # @since 2.0.0
   module Integer
 
-    # Constant for the int 32 pack directive.
-    #
-    # @since 2.0.0
-    INT32_PACK = "l".freeze
-
-    # Constant for the int 64 pack directive.
-    #
-    # @since 2.0.0
-    INT64_PACK = "q".freeze
-
     # A 32bit integer is type 0x10 in the BSON spec.
     #
     # @since 2.0.0

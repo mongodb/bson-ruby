@@ -24,6 +24,16 @@ module BSON
   #
   # @since 2.0.0
   UTF8 = "UTF-8".freeze
+
+  # Constant for the int 32 pack directive.
+  #
+  # @since 2.0.0
+  INT32_PACK = "l".freeze
+
+  # Constant for the int 64 pack directive.
+  #
+  # @since 2.0.0
+  INT64_PACK = "q".freeze
 end
 
 require "bson/registry"
