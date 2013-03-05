@@ -36,6 +36,29 @@ module BSON
       end
     end
 
+    module ClassMethods
+      # Deserialize the array from BSON.
+      #
+      # @param [ BSON ] bson The bson representing an array.
+      #
+      # @return [ Array ] The decoded array.
+      #
+      # @see http://bsonspec.org/#/specification
+      #
+      # @since 2.0.0
+      def from_bson(bson)
+        array = new
+        bson.read(4) # throw away the length
+
+        while (type = bson.readbyte.chr) != NULL_BYTE
+          bson.gets(NULL_BYTE)
+          array << BSON::Registry.get(type).from_bson(bson)
+        end
+
+        array
+      end
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
@@ -46,4 +69,5 @@ module BSON
   #
   # @since 2.0.0
   ::Array.send(:include, Array)
+  ::Array.send(:extend, Array::ClassMethods)
 end
