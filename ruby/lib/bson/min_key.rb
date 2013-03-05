@@ -62,6 +62,19 @@ module BSON
       NO_VALUE
     end
 
+    # Deserialize MinKey from BSON.
+    #
+    # @param [ BSON ] bson The encoded MinKey.
+    #
+    # @return [ MinKey ] The decoded MinKey.
+    #
+    # @see http://bsonspec.org/#/specification
+    #
+    # @since 2.0.0
+    def self.from_bson(bson)
+      self
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0

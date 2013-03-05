@@ -62,6 +62,19 @@ module BSON
       NO_VALUE
     end
 
+    # Deserialize MaxKey from BSON.
+    #
+    # @param [ BSON ] bson The encoded MaxKey.
+    #
+    # @return [ MaxKey ] The decoded MaxKey.
+    #
+    # @see http://bsonspec.org/#/specification
+    #
+    # @since 2.0.0
+    def self.from_bson(bson)
+      self
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
