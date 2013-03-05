@@ -6,13 +6,13 @@ describe BSON::Binary do
   describe "#==" do
 
     let(:binary) do
-      described_class.new(:md5, "test")
+      described_class.new("test", :md5)
     end
 
     context "when the objects are equal" do
 
       let(:other) do
-        described_class.new(:md5, "test")
+        described_class.new("test", :md5)
       end
 
       it "returns true" do
@@ -23,7 +23,7 @@ describe BSON::Binary do
     context "when the objects are not equal" do
 
       let(:other) do
-        described_class.new(:generic, "test")
+        described_class.new("test")
       end
 
       it "returns false" do
@@ -49,7 +49,7 @@ describe BSON::Binary do
   describe "#bson_type" do
 
     let(:binary) do
-      described_class.new(:md5, "test")
+      described_class.new("test", :md5)
     end
 
     it "returns 0x0D" do
@@ -64,7 +64,7 @@ describe BSON::Binary do
     end
 
     let(:binary) do
-      described_class.new(:md5, data)
+      described_class.new(data, :md5)
     end
 
     it "sets the type" do
@@ -81,7 +81,7 @@ describe BSON::Binary do
     context "when the type is generic" do
 
       let(:binary) do
-        described_class.new(:generic, "testing")
+        described_class.new("testing")
       end
 
       let(:encoded) do
@@ -98,7 +98,7 @@ describe BSON::Binary do
     context "when the type is function" do
 
       let(:binary) do
-        described_class.new(:function, "testing")
+        described_class.new("testing", :function)
       end
 
       let(:encoded) do
@@ -115,7 +115,7 @@ describe BSON::Binary do
     context "when the type is the old default" do
 
       let(:binary) do
-        described_class.new(:old, "testing")
+        described_class.new("testing", :old)
       end
 
       let(:encoded) do
@@ -123,7 +123,7 @@ describe BSON::Binary do
       end
 
       it "serialized the length, subtype and bytes" do
-        expect(encoded).to eq("#{7.to_bson}#{2.chr}testing")
+        expect(encoded).to eq("#{11.to_bson}#{2.chr}#{7.to_bson}testing")
       end
 
       it_behaves_like "a binary encoded string"
@@ -132,7 +132,7 @@ describe BSON::Binary do
     context "when the type is the old uuid" do
 
       let(:binary) do
-        described_class.new(:uuid_old, "testing")
+        described_class.new("testing", :uuid_old)
       end
 
       let(:encoded) do
@@ -149,7 +149,7 @@ describe BSON::Binary do
     context "when the type is uuid" do
 
       let(:binary) do
-        described_class.new(:uuid, "testing")
+        described_class.new("testing", :uuid)
       end
 
       let(:encoded) do
@@ -166,7 +166,7 @@ describe BSON::Binary do
     context "when the type is md5" do
 
       let(:binary) do
-        described_class.new(:md5, "testing")
+        described_class.new("testing", :md5)
       end
 
       let(:encoded) do
@@ -183,7 +183,7 @@ describe BSON::Binary do
     context "when the type is user" do
 
       let(:binary) do
-        described_class.new(:user, "testing")
+        described_class.new("testing", :user)
       end
 
       let(:encoded) do

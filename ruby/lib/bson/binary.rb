@@ -31,14 +31,14 @@ module BSON
     # @since 2.0.0
     TYPES = SUBTYPES.invert.freeze
 
+    # @!attribute data
+    #   @return [ Object ] The raw binary data.
+    #   @since 2.0.0
     # @!attribute type
     #   @return [ Symbol ] The binary type.
     #   @since 2.0.0
     #
-    # @!attribute data
-    #   @return [ Object ] The raw binary data.
-    #   @since 2.0.0
-    attr_reader :type, :data
+    attr_reader :data, :type
 
     # Determine if this binary object is equal to another object.
     #
@@ -60,13 +60,28 @@ module BSON
     # @example Instantiate a binary.
     #   BSON::Binary.new(:md5, data)
     #
-    # @param [ Symbol ] type The binary type.
     # @param [ Object ] data The raw binary data.
+    # @param [ Symbol ] type The binary type.
     #
     # @since 2.0.0
-    def initialize(type, data)
-      @type = type
+    def initialize(data, type=:generic)
       @data = data
+      @type = type
+    end
+
+    # Get the binary data formatted for its subtype
+    #
+    # If type is :old we include the size of the data
+    #
+    # @see http://bsonspec.org/#specification
+    #
+    # @since @2.0.0
+    def bin_data
+      if type == :old
+        data.bytesize.to_bson + data
+      else
+        data
+      end
     end
 
     # Encode the binary type
@@ -80,7 +95,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
-      data.bytesize.to_bson + SUBTYPES.fetch(type) + data
+      bin_data.bytesize.to_bson + SUBTYPES.fetch(type) + bin_data
     end
 
     # Deserialize the binary data from BSON.
@@ -97,12 +112,11 @@ module BSON
       type = SUBTYPES.invert[bson.read(1)]
 
       if type == :old
-        size -= 4
-        bson.read(4)
+        length = bson.read(4).unpack(INT32_PACK).first
       end
 
       data = bson.read(length)
-      new(type, data)
+      new(data, type)
     end
 
     # Register this type when the module is loaded.
