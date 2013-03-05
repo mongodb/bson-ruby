@@ -64,7 +64,7 @@ describe BSON::Timestamp do
     end
 
     let(:packed_timestamp) do
-      [ 1, 10 ].pack("l2")
+      [ 10, 1 ].pack("l2")
     end
 
     let(:encoded) do
