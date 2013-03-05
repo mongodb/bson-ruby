@@ -33,6 +33,21 @@ module BSON
       [ self ].pack(DOUBLE_PACK)
     end
 
+    module ClassMethods
+      # Deserialize an instance of a Float from a BSON double.
+      #
+      # @param [ BSON ] bson The encoded double.
+      #
+      # @return [ Float ] The decoded Float.
+      #
+      # @see http://bsonspec.org/#/specification
+      #
+      # @since 2.0.0
+      def from_bson(bson)
+        bson.read(8).unpack(DOUBLE_PACK).first
+      end
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
@@ -43,4 +58,5 @@ module BSON
   #
   # @since 2.0.0
   ::Float.send(:include, Float)
+  ::Float.send(:extend, Float::ClassMethods)
 end
