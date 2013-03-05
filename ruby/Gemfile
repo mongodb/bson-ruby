@@ -10,5 +10,6 @@ group :development, :test do
     gem "guard-rspec"
     gem "pry"
     gem "rb-fsevent"
+    gem 'terminal-notifier-guard'
   end
 end
