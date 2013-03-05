@@ -18,14 +18,15 @@ module BSON
     # @since 2.0.0
     TIMESTAMP_PACK = "l2".freeze
 
+    # @!attribute seconds
+    #   @return [ Integer ] The number of seconds.
+    #   @since 2.0.0
+    #
     # @!attribute increment
     #   @return [ Integer ] The incrementing value.
     #   @since 2.0.0
     #
-    # @!attribute seconds
-    #   @return [ Integer ] The number of seconds.
-    #   @since 2.0.0
-    attr_reader :increment, :seconds
+    attr_reader :seconds, :increment
 
     # Determine if this timestamp is equal to another object.
     #
@@ -39,7 +40,7 @@ module BSON
     # @since 2.0.0
     def ==(other)
       return false unless other.is_a?(Timestamp)
-      increment == other.increment && seconds == other.seconds
+      seconds == other.seconds && increment == other.increment
     end
 
     # Instantiate the new timestamp.
@@ -47,12 +48,12 @@ module BSON
     # @example Instantiate the timestamp.
     #   BSON::Timestamp.new(5, 30)
     #
-    # @param [ Integer ] increment The increment value.
     # @param [ Integer ] seconds The number of seconds.
+    # @param [ Integer ] increment The increment value.
     #
     # @since 2.0.0
-    def initialize(increment, seconds)
-      @increment, @seconds = increment, seconds
+    def initialize(seconds, increment)
+      @seconds, @increment = seconds, increment
     end
 
     # Get the timestamp as its encoded raw BSON bytes.
@@ -79,7 +80,7 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(bson)
-      new(*bson.read(8).unpack(INT32_PACK * 2))
+      new(*bson.read(8).unpack(INT32_PACK * 2).reverse)
     end
 
     # Register this type when the module is loaded.
