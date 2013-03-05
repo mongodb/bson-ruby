@@ -83,6 +83,28 @@ module BSON
       data.bytesize.to_bson + SUBTYPES.fetch(type) + data
     end
 
+    # Deserialize the binary data from BSON.
+    #
+    # @param [ BSON ] bson The bson representing binary data.
+    #
+    # @return [ Binary ] The decoded binary data.
+    #
+    # @see http://bsonspec.org/#/specification
+    #
+    # @since 2.0.0
+    def self.from_bson(bson)
+      length = bson.read(4).unpack(INT32_PACK).first
+      type = SUBTYPES.invert[bson.read(1)]
+
+      if type == :old
+        size -= 4
+        bson.read(4)
+      end
+
+      data = bson.read(length)
+      new(type, data)
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
