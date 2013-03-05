@@ -28,6 +28,21 @@ module BSON
       NO_VALUE
     end
 
+    module ClassMethods
+      # Deserialize NilClass from BSON.
+      #
+      # @param [ BSON ] bson The encoded Null value.
+      #
+      # @return [ nil ] The decoded nil value.
+      #
+      # @see http://bsonspec.org/#/specification
+      #
+      # @since 2.0.0
+      def self.from_bson(bson)
+        nil
+      end
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
@@ -38,4 +53,5 @@ module BSON
   #
   # @since 2.0.0
   ::NilClass.send(:include, NilClass)
+  ::NilClass.send(:extend, NilClass::ClassMethods)
 end
