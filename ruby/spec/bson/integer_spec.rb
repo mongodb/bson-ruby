@@ -3,13 +3,6 @@ require "spec_helper"
 
 describe BSON::Integer do
 
-  describe "::INT32_PACK" do
-
-    it "returns l" do
-      expect(Integer::INT32_PACK).to eq("l")
-    end
-  end
-
   describe "#bson_int32?" do
 
     context "when the integer is 32 bit" do
@@ -93,7 +86,7 @@ describe BSON::Integer do
       it "raises an error" do
         expect {
           integer.bson_type
-        }.to raise_error(BSON::Int64::OutOfRange)
+        }.to raise_error(BSON::Integer::OutOfRange)
       end
     end
 
@@ -106,7 +99,7 @@ describe BSON::Integer do
       it "raises an error" do
         expect {
           integer.bson_type
-        }.to raise_error(BSON::Int64::OutOfRange)
+        }.to raise_error(BSON::Integer::OutOfRange)
       end
     end
   end
@@ -120,7 +113,7 @@ describe BSON::Integer do
       end
 
       let(:expected) do
-        [ integer ].pack(Integer::INT32_PACK)
+        [ integer ].pack(BSON::INT32_PACK)
       end
 
       let(:encoded) do
@@ -145,7 +138,7 @@ describe BSON::Integer do
       end
 
       let(:expected) do
-        [ integer ].pack(Integer::INT64_PACK)
+        [ integer ].pack(BSON::INT64_PACK)
       end
 
       it "returns the 64 bit raw bytes" do
@@ -164,7 +157,7 @@ describe BSON::Integer do
       it "raises an out of range error" do
         expect {
           integer.to_bson
-        }.to raise_error(BSON::Int64::OutOfRange)
+        }.to raise_error(BSON::Integer::OutOfRange)
       end
     end
 
@@ -177,7 +170,7 @@ describe BSON::Integer do
       it "raises an out of range error" do
         expect {
           integer.to_bson
-        }.to raise_error(BSON::Int64::OutOfRange)
+        }.to raise_error(BSON::Integer::OutOfRange)
       end
     end
   end

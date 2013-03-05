@@ -39,6 +39,11 @@ module BSON
     # @since 2.0.0
     MIN_64BIT = -(1 << 63)
 
+    # Raised if an integer value is out of range to be serialized as 8 bytes.    
+    #
+    # @since 2.0.0
+    class OutOfRange < RuntimeError; end
+
     # Is this integer a valid BSON 32 bit value?
     #
     # @example Is the integer a valid 32 bit value?
@@ -99,7 +104,7 @@ module BSON
     end
 
     def out_of_range!
-      raise Int64::OutOfRange.new("#{self} is not a valid 8 byte integer value.")
+      raise OutOfRange.new("#{self} is not a valid 8 byte integer value.")
     end
   end
 
