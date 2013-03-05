@@ -69,6 +69,19 @@ module BSON
       [ increment, seconds ].pack(TIMESTAMP_PACK)
     end
 
+    # Deserialize timestamp from BSON.
+    #
+    # @param [ BSON ] bson The bson representing a timestamp.
+    #
+    # @return [ Timestamp ] The decoded timestamp.
+    #
+    # @see http://bsonspec.org/#/specification
+    #
+    # @since 2.0.0
+    def self.from_bson(bson)
+      new(*bson.read(8).unpack(INT32_PACK * 2))
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
