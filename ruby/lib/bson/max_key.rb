@@ -52,7 +52,7 @@ module BSON
     # Encode the max key - has no value since it only needs the type and field
     # name when being encoded.
     #
-    # @example Encode the max key.
+    # @example Encode the max key value.
     #   max_key.to_bson
     #
     # @return [ String ] An empty string.

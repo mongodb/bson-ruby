@@ -52,7 +52,7 @@ module BSON
     # Encode the min key - has no value since it only needs the type and field
     # name when being encoded.
     #
-    # @example Encode the min key.
+    # @example Encode the min key value.
     #   min_key.to_bson
     #
     # @return [ String ] An empty string.
