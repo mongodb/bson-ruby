@@ -22,6 +22,7 @@ require "bson/symbol"
 require "bson/time"
 require "bson/timestamp"
 require "bson/true_class"
+require "bson/undefined"
 
 module BSON
 
