@@ -66,6 +66,21 @@ module BSON
       force_encoding(UTF8).encode!
     end
 
+    module ClassMethods
+      # Deserialize a string from BSON.
+      #
+      # @param [ BSON ] bson The bson representing a string.
+      #
+      # @return [ Regexp ] The decoded string.
+      #
+      # @see http://bsonspec.org/#/specification
+      #
+      # @since 2.0.0
+      def from_bson(bson)
+        bson.read(*bson.read(4).unpack(INT32_PACK)).from_utf8_binary.chop!
+      end
+    end
+
     private
 
     def check_for_illegal_characters!
@@ -84,4 +99,5 @@ module BSON
   #
   # @since 2.0.0
   ::String.send(:include, String)
+  ::String.send(:extend, String::ClassMethods)
 end
