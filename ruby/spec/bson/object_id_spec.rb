@@ -343,7 +343,7 @@ describe BSON::ObjectId do
     end
 
     let(:expected) do
-      "50e26d500000000000000000"
+      "50e218f00000000000000000"
     end
 
     let(:object_id) do
