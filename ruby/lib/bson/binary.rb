@@ -7,6 +7,7 @@ module BSON
   #
   # @since 2.0.0
   class Binary
+    include JSON
 
     # A binary is type 0x05 in the BSON spec.
     #
@@ -37,7 +38,6 @@ module BSON
     # @!attribute type
     #   @return [ Symbol ] The binary type.
     #   @since 2.0.0
-    #
     attr_reader :data, :type
 
     # Determine if this binary object is equal to another object.
@@ -55,18 +55,16 @@ module BSON
       type == other.type && data == other.data
     end
 
-    # Instantiate the new binary object.
+    # Get the binary as JSON hash data.
     #
-    # @example Instantiate a binary.
-    #   BSON::Binary.new(:md5, data)
+    # @example Get the binary as a JSON hash.
+    #   binary.as_json
     #
-    # @param [ Object ] data The raw binary data.
-    # @param [ Symbol ] type The binary type.
+    # @return [ Hash ] The binary as a JSON hash.
     #
     # @since 2.0.0
-    def initialize(data="", type=:generic)
-      @data = data
-      @type = type
+    def as_json(*args)
+      { "$binary" => data, "$type" => type }
     end
 
     # Get the binary data formatted for its subtype
@@ -82,6 +80,20 @@ module BSON
       else
         data
       end
+    end
+
+    # Instantiate the new binary object.
+    #
+    # @example Instantiate a binary.
+    #   BSON::Binary.new(data, :md5)
+    #
+    # @param [ Object ] data The raw binary data.
+    # @param [ Symbol ] type The binary type.
+    #
+    # @since 2.0.0
+    def initialize(data = "", type = :generic)
+      @data = data
+      @type = type
     end
 
     # Encode the binary type

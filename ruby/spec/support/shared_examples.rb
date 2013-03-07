@@ -29,3 +29,10 @@ module BSON
     end
   end
 end
+
+shared_examples_for "a JSON serializable object" do
+
+  it "serializes the JSON from #as_json" do
+    expect(object.to_json).to eq(object.as_json.to_json)
+  end
+end
