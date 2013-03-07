@@ -64,7 +64,7 @@ module BSON
     # @param [ Symbol ] type The binary type.
     #
     # @since 2.0.0
-    def initialize(data, type=:generic)
+    def initialize(data="", type=:generic)
       @data = data
       @type = type
     end
