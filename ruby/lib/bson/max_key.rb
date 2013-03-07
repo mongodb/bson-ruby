@@ -72,7 +72,7 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(bson)
-      self
+      new
     end
 
     # Register this type when the module is loaded.
