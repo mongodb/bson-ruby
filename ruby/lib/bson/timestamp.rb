@@ -80,7 +80,7 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(bson)
-      new(*bson.read(8).unpack(INT32_PACK * 2).reverse)
+      new(*bson.read(8).unpack(Int32::PACK * 2).reverse)
     end
 
     # Register this type when the module is loaded.
