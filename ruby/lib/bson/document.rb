@@ -1,4 +1,5 @@
 # encoding: utf-8
+require "bson/json"
 require "bson/int32"
 require "bson/int64"
 require "bson/integer"
