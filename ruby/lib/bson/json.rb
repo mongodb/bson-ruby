@@ -1,4 +1,6 @@
 # encoding: utf-8
+require "json"
+
 module BSON
 
   # Provides common behaviour for JSON serialization of objects.

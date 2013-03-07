@@ -11,6 +11,7 @@ module BSON
   # @since 2.0.0
   class ObjectId
     include Comparable
+    include JSON
 
     # A object_id is type 0x07 in the BSON spec.
     #
@@ -45,6 +46,18 @@ module BSON
     def ===(other)
       return to_str === other.to_str if other.respond_to?(:to_str)
       super
+    end
+
+    # Return the object id as a JSON hash representation.
+    #
+    # @example Get the object id as JSON.
+    #   object_id.as_json
+    #
+    # @return [ Hash ] The object id as a JSON hash.
+    #
+    # @since 2.0.0
+    def as_json(*args)
+      { "$oid" => to_s }
     end
 
     # Compare this object id with another object for use in sorting.
