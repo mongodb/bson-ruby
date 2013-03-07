@@ -17,7 +17,7 @@ module BSON
     # The pack directive is for 8 byte floating points.
     #
     # @since 2.0.0
-    DOUBLE_PACK = "E".freeze
+    PACK = "E".freeze
 
     # Get the floating point as encoded BSON.
     #
@@ -30,7 +30,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
-      [ self ].pack(DOUBLE_PACK)
+      [ self ].pack(PACK)
     end
 
     module ClassMethods
@@ -44,7 +44,7 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(bson)
-        bson.read(8).unpack(DOUBLE_PACK).first
+        bson.read(8).unpack(PACK).first
       end
     end
 

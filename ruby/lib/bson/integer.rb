@@ -100,7 +100,7 @@ module BSON
     private
 
     def bson_pack_directive
-      bson_int32? ? INT32_PACK : (bson_int64? ? INT64_PACK : out_of_range!)
+      bson_int32? ? Int32::PACK : (bson_int64? ? Int64::PACK : out_of_range!)
     end
 
     def out_of_range!

@@ -14,6 +14,11 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 18.chr.force_encoding(BINARY).freeze
 
+    # Constant for the int 64 pack directive.
+    #
+    # @since 2.0.0
+    PACK = "q".freeze
+
     # Deserialize an Integer from BSON.
     #
     # @param [ BSON ] bson The encoded int64.
@@ -24,7 +29,7 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(bson)
-      bson.read(8).unpack(INT64_PACK).first
+      bson.read(8).unpack(PACK).first
     end
 
     # Register this type when the module is loaded.
