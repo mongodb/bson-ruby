@@ -1,79 +1,24 @@
 # encoding: utf-8
 require "spec_helper"
 
-describe BSON::Time do
+describe Time do
+  let(:type) { 9.chr }
 
-  describe "::BSON_TYPE" do
+  it_behaves_like "a bson element"
 
-    it "returns 0x09" do
-      expect(Time::BSON_TYPE).to eq(9.chr)
-    end
+  context "when the time is post epoch" do
+    let(:obj)  { Time.new(2012, 1, 1, 0, 0, 0) }
+    let(:bson) { [ (obj.to_f * 1000).to_i ].pack(BSON::Int64::PACK) }
+
+    it_behaves_like "a serializable bson element"
+    it_behaves_like "a deserializable bson element"
   end
 
-  describe "#bson_type" do
+  context "when the time is pre epoch" do
+    let(:obj)  { Time.new(1969, 1, 1, 0, 0, 0) }
+    let(:bson) { [ (obj.to_f * 1000).to_i ].pack(BSON::Int64::PACK) }
 
-    let(:time) do
-      Time.now
-    end
-
-    it "returns the BSON_TYPE" do
-      expect(time.bson_type).to eq(Time::BSON_TYPE)
-    end
-  end
-
-  describe "#to_bson" do
-
-    context "when the time is post epoch" do
-
-      let(:time) do
-        Time.new(2012, 1, 1, 0, 0, 0)
-      end
-
-      let(:encoded) do
-        time.to_bson
-      end
-
-      let(:expected) do
-        [ (time.to_f * 1000).to_i ].pack(BSON::Int64::PACK)
-      end
-
-      it "returns the encoded string" do
-        expect(encoded).to eq(expected)
-      end
-
-      it_behaves_like "a binary encoded string"
-    end
-
-    context "when the time is pre epoch" do
-
-      let(:time) do
-        Time.new(1969, 1, 1, 0, 0, 0)
-      end
-
-      let(:encoded) do
-        time.to_bson
-      end
-
-      let(:expected) do
-        [ (time.to_f * 1000).to_i ].pack(BSON::Int64::PACK)
-      end
-
-      it "returns the encoded string" do
-        expect(encoded).to eq(expected)
-      end
-
-      it_behaves_like "a binary encoded string"
-    end
-  end
-
-  context "when the class is loaded" do
-
-    let(:registered) do
-      BSON::Registry.get(Time::BSON_TYPE)
-    end
-
-    it "registers the type" do
-      expect(registered).to eq(Time)
-    end
+    it_behaves_like "a serializable bson element"
+    it_behaves_like "a deserializable bson element"
   end
 end

@@ -1,16 +1,22 @@
 # encoding: utf-8
 require "spec_helper"
 
-describe BSON::Boolean do
+module BSON
+  describe Boolean do
+    let(:type) { 8.chr }
 
-  context "when the class is loaded" do
-
-    let(:registered) do
-      BSON::Registry.get(BSON::Boolean::BSON_TYPE)
+    it_behaves_like "a bson element"
+    
+    context "true class" do
+      let(:obj)  { true }
+      let(:bson) { 1.chr }
+      it_behaves_like "a deserializable bson element"
     end
 
-    it "registers the type" do
-      expect(registered).to eq(described_class)
+    context "false class" do
+      let(:obj)  { false }
+      let(:bson) { 0.chr }
+      it_behaves_like "a deserializable bson element"
     end
   end
 end

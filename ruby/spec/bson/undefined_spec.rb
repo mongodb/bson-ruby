@@ -1,25 +1,14 @@
 # encoding: utf-8
 require "spec_helper"
 
-describe BSON::Undefined do
+module BSON
+  describe Undefined do
+    let(:type) { 6.chr }
+    let(:obj)  { described_class.new }
+    let(:bson) { NO_VALUE }
 
-  describe "::BSON_TYPE" do
-
-    it "returns 0x06" do
-      expect(BSON::Undefined::BSON_TYPE).to eq(6.chr)
-    end
-  end
-
-  describe "#to_bson" do
-
-    let(:encoded) do
-      described_class.new.to_bson
-    end
-
-    it "returns the encoded string" do
-      expect(encoded).to eq(BSON::NO_VALUE)
-    end
-
-    it_behaves_like "a binary encoded string"
+    it_behaves_like "a bson element"
+    it_behaves_like "a serializable bson element"
+    it_behaves_like "a deserializable bson element"
   end
 end

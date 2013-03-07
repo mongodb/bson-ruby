@@ -1,30 +1,13 @@
 # encoding: utf-8
 require "spec_helper"
 
-describe BSON::Int32 do
+module BSON
+  describe Int32 do
+    let(:type) { 16.chr }
+    let(:obj)  { 123 }
+    let(:bson) { [ obj ].pack(Int32::PACK) }
 
-  describe "::INT32_TYPE" do
-
-    it "returns 0x10" do
-      expect(Integer::INT32_TYPE).to eq(16.chr)
-    end
-  end
-
-  describe "::PACK" do
-
-    it "returns l" do
-      expect(BSON::Int32::PACK).to eq("l")
-    end
-  end
-
-  context "when the class is loaded" do
-
-    let(:registered) do
-      BSON::Registry.get(Integer::INT32_TYPE)
-    end
-
-    it "registers the int32 type" do
-      expect(registered).to eq(described_class)
-    end
+    it_behaves_like "a bson element"
+    it_behaves_like "a deserializable bson element"
   end
 end

@@ -1,25 +1,9 @@
 # encoding: utf-8
 require "spec_helper"
 
-describe BSON::FalseClass do
+describe FalseClass do
+  let(:obj)  { false }
+  let(:bson) { 0.chr }
 
-  describe "::BSON_TYPE" do
-
-    it "returns 0x08" do
-      expect(FalseClass::BSON_TYPE).to eq(8.chr)
-    end
-  end
-
-  describe "#to_bson" do
-
-    let(:encoded) do
-      false.to_bson
-    end
-
-    it "returns the encoded string" do
-      expect(encoded).to eq(BSON::FalseClass::FALSE_BYTE)
-    end
-
-    it_behaves_like "a binary encoded string"
-  end
+  it_behaves_like "a serializable bson element"
 end
