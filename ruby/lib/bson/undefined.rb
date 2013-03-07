@@ -13,6 +13,20 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 6.chr.force_encoding(BINARY).freeze
 
+    # Determine if undefined is equal to another object.
+    #
+    # @example Check undefined equality.
+    #   BSON::Undefined.new == object
+    #
+    # @param [ Object ] other The object to check against.
+    #
+    # @return [ true, false ] If the objects are equal.
+    #
+    # @since 2.0.0
+    def ==(other)
+      self.class == other.class
+    end
+
     # Encode the Undefined field - has no value since it only needs the type 
     # and field name when being encoded.
     #
@@ -36,7 +50,7 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(bson)
-      self
+      new
     end
 
     # Register this type when the module is loaded.
