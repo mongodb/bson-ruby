@@ -23,7 +23,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def from_bson(bson)
+    def self.from_bson(bson)
       bson.readbyte == 1
     end
 
