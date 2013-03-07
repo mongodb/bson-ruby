@@ -68,6 +68,21 @@ module BSON
       end
     end
 
+    # Deserialize a code with scope from BSON.
+    #
+    # @param [ BSON ] bson The encoded code with scope.
+    #
+    # @return [ TrueClass, FalseClass ] The decoded code with scope.
+    #
+    # @see http://bsonspec.org/#/specification
+    #
+    # @since 2.0.0
+    def self.from_bson(bson)
+      code_with_scope = bson.read(*bson.read(4).unpack(Int32::PACK))
+      code = code_with_scope.read(*code_with_scope.read(4).unpack(Int32::PACK))
+      scope = Document.from_bson
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0

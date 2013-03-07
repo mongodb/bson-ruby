@@ -60,6 +60,19 @@ module BSON
       (raw.bytesize + 1).to_bson + javascript.to_bson_cstring
     end
 
+    # Deserialize code from BSON.
+    #
+    # @param [ BSON ] bson The encoded code.
+    #
+    # @return [ TrueClass, FalseClass ] The decoded code.
+    #
+    # @see http://bsonspec.org/#/specification
+    #
+    # @since 2.0.0
+    def self.from_bson(bson)
+      new(bson.read(*bson.read(4).unpack(Int32::PACK)).from_utf8_binary.chop!)
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
