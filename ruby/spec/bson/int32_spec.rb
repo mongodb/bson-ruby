@@ -10,6 +10,13 @@ describe BSON::Int32 do
     end
   end
 
+  describe "::PACK" do
+
+    it "returns l" do
+      expect(BSON::Int32::PACK).to eq("l")
+    end
+  end
+
   context "when the class is loaded" do
 
     let(:registered) do

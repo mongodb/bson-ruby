@@ -25,7 +25,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
-      [ (to_f * 1000).to_i ].pack(INT64_PACK)
+      [ (to_f * 1000).to_i ].pack(Int64::PACK)
     end
 
     module ClassMethods
@@ -39,7 +39,7 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(bson)
-        seconds, fragment = bson.read(8).unpack(INT64_PACK).first.divmod 1000
+        seconds, fragment = bson.read(8).unpack(Int64::PACK).first.divmod 1000
         at(seconds, fragment * 1000).utc
       end
     end

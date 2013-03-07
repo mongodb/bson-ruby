@@ -10,6 +10,13 @@ describe BSON::Int64 do
     end
   end
 
+  describe "::PACK" do
+
+    it "returns q" do
+      expect(BSON::Int64::PACK).to eq("q")
+    end
+  end
+
   context "when the class is loaded" do
 
     let(:registered) do

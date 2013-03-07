@@ -10,6 +10,13 @@ describe BSON::Float do
     end
   end
 
+  describe "::PACK" do
+
+    it "returns E" do
+      expect(Float::PACK).to eq("E")
+    end
+  end
+
   describe "#bson_type" do
 
     it "returns the BSON_TYPE" do
@@ -28,7 +35,7 @@ describe BSON::Float do
     end
 
     let(:expected) do
-      [ float ].pack(Float::DOUBLE_PACK)
+      [ float ].pack(Float::PACK)
     end
 
     it "returns the encoded string" do

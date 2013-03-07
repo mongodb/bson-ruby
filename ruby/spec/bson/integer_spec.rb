@@ -113,7 +113,7 @@ describe BSON::Integer do
       end
 
       let(:expected) do
-        [ integer ].pack(BSON::INT32_PACK)
+        [ integer ].pack(BSON::Int32::PACK)
       end
 
       let(:encoded) do
@@ -138,7 +138,7 @@ describe BSON::Integer do
       end
 
       let(:expected) do
-        [ integer ].pack(BSON::INT64_PACK)
+        [ integer ].pack(BSON::Int64::PACK)
       end
 
       it "returns the 64 bit raw bytes" do
