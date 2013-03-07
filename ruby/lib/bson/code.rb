@@ -41,7 +41,7 @@ module BSON
     # @param [ String ] javascript The javascript code.
     #
     # @since 2.0.0
-    def initialize(javascript)
+    def initialize(javascript = "")
       @javascript = javascript
     end
 

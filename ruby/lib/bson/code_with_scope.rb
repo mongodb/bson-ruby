@@ -47,7 +47,7 @@ module BSON
     # @param [ Hash ] scope The variable scope.
     #
     # @since 2.0.0
-    def initialize(javascript, scope = {})
+    def initialize(javascript = "", scope = {})
       @javascript = javascript
       @scope = scope
     end
