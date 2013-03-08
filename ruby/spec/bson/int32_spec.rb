@@ -1,13 +1,12 @@
 # encoding: utf-8
 require "spec_helper"
 
-module BSON
-  describe Int32 do
-    let(:type) { 16.chr }
-    let(:obj)  { 123 }
-    let(:bson) { [ obj ].pack(Int32::PACK) }
+describe BSON::Int32 do
 
-    it_behaves_like "a bson element"
-    it_behaves_like "a deserializable bson element"
-  end
+  let(:type) { 16.chr }
+  let(:obj)  { 123 }
+  let(:bson) { [ obj ].pack(BSON::Int32::PACK) }
+
+  it_behaves_like "a bson element"
+  it_behaves_like "a deserializable bson element"
 end
