@@ -2,6 +2,20 @@
 require "spec_helper"
 
 describe BSON::Timestamp do
+
+  describe "#as_json" do
+
+    let(:object) do
+      described_class.new(10, 50)
+    end
+
+    it "returns the binary data plus type" do
+      expect(object.as_json).to eq({ "t" => 10, "i" => 50 })
+    end
+
+    it_behaves_like "a JSON serializable object"
+  end
+
   let(:type) { 17.chr }
   let(:obj)  { described_class.new(1, 10) }
   let(:bson) { [ 10, 1 ].pack("l2") }

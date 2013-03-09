@@ -7,6 +7,7 @@ module BSON
   #
   # @since 2.0.0
   class Timestamp
+    include JSON
 
     # A timestamp is type 0x11 in the BSON spec.
     #
@@ -41,6 +42,18 @@ module BSON
     def ==(other)
       return false unless other.is_a?(Timestamp)
       seconds == other.seconds && increment == other.increment
+    end
+
+    # Get the timestamp as JSON hash data.
+    #
+    # @example Get the timestamp as a JSON hash.
+    #   timestamp.as_json
+    #
+    # @return [ Hash ] The timestamp as a JSON hash.
+    #
+    # @since 2.0.0
+    def as_json(*args)
+      { "t" => seconds, "i" => increment }
     end
 
     # Instantiate the new timestamp.
