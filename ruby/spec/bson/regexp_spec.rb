@@ -2,6 +2,22 @@
 require "spec_helper"
 
 describe Regexp do
+
+  describe "#as_json" do
+
+    let(:object) do
+      /\W+/i
+    end
+
+    it "returns the binary data plus type" do
+      expect(object.as_json).to eq(
+        { "$regex" => "\\W+", "$options" => "i" }
+      )
+    end
+
+    it_behaves_like "a JSON serializable object"
+  end
+
   let(:type) { 11.chr }
   let(:obj)  { /test/ }
 

@@ -8,11 +8,24 @@ module BSON
   #
   # @since 2.0.0
   module Regexp
+    include JSON
 
     # A regular expression is type 0x0B in the BSON spec.
     #
     # @since 2.0.0
     BSON_TYPE = 11.chr.force_encoding(BINARY).freeze
+
+    # Get the regexp as JSON hash data.
+    #
+    # @example Get the regexp as a JSON hash.
+    #   regexp.as_json
+    #
+    # @return [ Hash ] The regexp as a JSON hash.
+    #
+    # @since 2.0.0
+    def as_json(*args)
+      { "$regex" => source, "$options" => bson_options }
+    end
 
     # Get the regular expression as encoded BSON.
     #
