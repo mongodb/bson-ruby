@@ -7,6 +7,7 @@ module BSON
   #
   # @since 2.0.0
   class Code
+    include JSON
 
     # A code is type 0x0D in the BSON spec.
     #
@@ -31,6 +32,18 @@ module BSON
     def ==(other)
       return false unless other.is_a?(Code)
       javascript == other.javascript
+    end
+
+    # Get the code as JSON hash data.
+    #
+    # @example Get the code as a JSON hash.
+    #   code.as_json
+    #
+    # @return [ Hash ] The code as a JSON hash.
+    #
+    # @since 2.0.0
+    def as_json(*args)
+      { "$code" => javascript }
     end
 
     # Instantiate the new code.

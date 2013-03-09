@@ -3,6 +3,21 @@ require "spec_helper"
 
 describe BSON::Binary do
 
+  describe "#as_json" do
+
+    let(:object) do
+      described_class.new("testing", :user)
+    end
+
+    it "returns the binary data plus type" do
+      expect(object.as_json).to eq(
+        { "$binary" => "testing", "$type" => :user }
+      )
+    end
+
+    it_behaves_like "a JSON serializable object"
+  end
+
   let(:type) { 5.chr }
 
   it_behaves_like "a bson element"
@@ -19,21 +34,6 @@ describe BSON::Binary do
     let(:bson) { "#{7.to_bson}#{1.chr}testing" }
     it_behaves_like "a serializable bson element"
     it_behaves_like "a deserializable bson element"
-  end
-
-  describe "#as_json" do
-
-    let(:object) do
-      described_class.new("testing", :user)
-    end
-
-    it "returns the binary data plus type" do
-      expect(object.as_json).to eq(
-        { "$binary" => "testing", "$type" => :user }
-      )
-    end
-
-    it_behaves_like "a JSON serializable object"
   end
 
   describe "::BSON_TYPE" do
