@@ -9,6 +9,7 @@ module BSON
   # @since 2.0.0
   class CodeWithScope
     include Encodable
+    include JSON
 
     # A code with scope is type 0x0F in the BSON spec.
     #
@@ -36,6 +37,18 @@ module BSON
     def ==(other)
       return false unless other.is_a?(CodeWithScope)
       javascript == other.javascript && scope == other.scope
+    end
+
+    # Get the code with scope as JSON hash data.
+    #
+    # @example Get the code with scope as a JSON hash.
+    #   code_with_scope.as_json
+    #
+    # @return [ Hash ] The code with scope as a JSON hash.
+    #
+    # @since 2.0.0
+    def as_json(*args)
+      { "$code" => javascript, "$scope" => scope }
     end
 
     # Instantiate the new code with scope.
