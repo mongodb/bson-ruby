@@ -9,6 +9,7 @@ module BSON
   # @since 2.0.0
   class MinKey
     include Comparable
+    include JSON
 
     # A $minKey is type 0xFF in the BSON spec.
     #
@@ -47,6 +48,18 @@ module BSON
     # @since 2.0.0
     def <=>(other)
       LESSER
+    end
+
+    # Get the min key as JSON hash data.
+    #
+    # @example Get the min key as a JSON hash.
+    #   min_key.as_json
+    #
+    # @return [ Hash ] The min key as a JSON hash.
+    #
+    # @since 2.0.0
+    def as_json(*args)
+      { "$minKey" => 1 }
     end
 
     # Encode the min key - has no value since it only needs the type and field

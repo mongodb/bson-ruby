@@ -59,7 +59,7 @@ module BSON
     #
     # @since 2.0.0
     def as_json(*args)
-      { "$maxKey" => GREATER }
+      { "$maxKey" => 1 }
     end
 
     # Encode the max key - has no value since it only needs the type and field

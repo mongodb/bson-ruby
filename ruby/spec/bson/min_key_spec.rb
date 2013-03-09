@@ -2,6 +2,20 @@
 require "spec_helper"
 
 describe BSON::MinKey do
+
+  describe "#as_json" do
+
+    let(:object) do
+      described_class.new
+    end
+
+    it "returns the binary data plus type" do
+      expect(object.as_json).to eq({ "$minKey" => 1 })
+    end
+
+    it_behaves_like "a JSON serializable object"
+  end
+
   let(:type) { 255.chr }
   let(:obj)  { described_class.new }
   let(:bson) { BSON::NO_VALUE }
