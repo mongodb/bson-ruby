@@ -9,6 +9,7 @@ module BSON
   # @since 2.0.0
   class MaxKey
     include Comparable
+    include JSON
 
     # A $maxKey is type 0x7F in the BSON spec.
     #
@@ -47,6 +48,18 @@ module BSON
     # @since 2.0.0
     def <=>(other)
       GREATER
+    end
+
+    # Get the max key as JSON hash data.
+    #
+    # @example Get the max key as a JSON hash.
+    #   max_key.as_json
+    #
+    # @return [ Hash ] The max key as a JSON hash.
+    #
+    # @since 2.0.0
+    def as_json(*args)
+      { "$maxKey" => GREATER }
     end
 
     # Encode the max key - has no value since it only needs the type and field

@@ -3,6 +3,19 @@ require "spec_helper"
 
 describe BSON::MaxKey do
 
+  describe "#as_json" do
+
+    let(:object) do
+      described_class.new
+    end
+
+    it "returns the binary data plus type" do
+      expect(object.as_json).to eq({ "$maxKey" => 1 })
+    end
+
+    it_behaves_like "a JSON serializable object"
+  end
+
   let(:type) { 127.chr }
   let(:obj)  { described_class.new }
   let(:bson) { BSON::NO_VALUE }
