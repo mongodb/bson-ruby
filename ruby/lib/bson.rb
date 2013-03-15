@@ -27,7 +27,31 @@ module BSON
 end
 
 require "bson/registry"
-require "bson/document"
+require "bson/json"
+require "bson/int32"
+require "bson/int64"
+require "bson/integer"
+require "bson/encodable"
+require "bson/array"
+require "bson/binary"
+require "bson/boolean"
+require "bson/code"
+require "bson/code_with_scope"
+require "bson/element"
+require "bson/false_class"
+require "bson/float"
+require "bson/hash"
+require "bson/max_key"
+require "bson/min_key"
+require "bson/nil_class"
+require "bson/object_id"
+require "bson/regexp"
+require "bson/string"
+require "bson/symbol"
+require "bson/time"
+require "bson/timestamp"
+require "bson/true_class"
+require "bson/undefined"
 require "bson/version"
 
 # Determine if we are using JRuby or not.
@@ -40,6 +64,28 @@ require "bson/version"
 # @since 2.0.0
 def jruby?
   RUBY_ENGINE == "jruby"
+end
+
+# Does the Ruby runtime we are using support ordered hashes?
+#
+# @example Does the runtime support ordered hashes?
+#   ordered_hash_support?
+#
+# @return [ true, false ] If the runtime has ordered hashes.
+#
+# @since 2.0.0
+def ordered_hash_support?
+  jruby? || RUBY_VERSION > "1.9.1"
+end
+
+# If we have ordered hashes, the a BSON::Document is simply a hash. If we do
+# not, then we need to import our custom BSON::Document implementation.
+#
+# @since 2.0.0
+if ordered_hash_support?
+  class BSON::Document < Hash; end
+else
+  require "bson/document"
 end
 
 # If we are using JRuby, attempt to load the Java extensions, if we are using
