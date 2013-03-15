@@ -12,22 +12,30 @@ end
 
 shared_examples_for "a bson element" do
 
-  subject { (defined? obj) ? obj : described_class.new  }
-  its(:bson_type) { should eq(type) }
+  let(:element) do
+    obj || described_class.new
+  end
+
+  it "has the correct single byte BSON type" do
+    expect(element.bson_type).to eq(type)
+  end
 end
 
 shared_examples_for "a serializable bson element" do
 
   it "serializes to bson" do
-    obj.to_bson.should == bson
+    expect(obj.to_bson).to eq(bson)
   end
 end
 
 shared_examples_for "a deserializable bson element" do
 
+  let(:io) do
+    StringIO.new(bson)
+  end
+
   it "deserializes from bson" do
-    io = StringIO.new(bson)
-    described_class.from_bson(io).should == obj
+    expect(described_class.from_bson(io)).to eq(obj)
   end
 end
 
