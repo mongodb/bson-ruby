@@ -13,7 +13,7 @@ end
 shared_examples_for "a bson element" do
 
   let(:element) do
-    obj || described_class.new
+    defined?(obj) ? obj : described_class.new
   end
 
   it "has the correct single byte BSON type" do

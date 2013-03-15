@@ -18,7 +18,7 @@ describe BSON::CodeWithScope do
     it_behaves_like "a JSON serializable object"
   end
 
-  describe "#to_bson/#from_bson" do
+  describe "#to_bson" do
 
     let(:type) { 15.chr }
     let(:code) { "this.value == name" }
@@ -33,6 +33,25 @@ describe BSON::CodeWithScope do
 
     it_behaves_like "a bson element"
     it_behaves_like "a serializable bson element"
-    pending "a deserializable bson element"
+  end
+
+  describe "#from_bson" do
+
+    let(:type) { 15.chr }
+    let(:code) { "this.value == name" }
+    let(:scope) do
+      { :name => "test" }
+    end
+    let(:obj) { described_class.new(code, scope) }
+    let(:bson) { StringIO.new(obj.to_bson) }
+    let(:deserialized) { described_class.from_bson(bson) }
+
+    it "deserializes the javascript" do
+      expect(deserialized.javascript).to eq(code)
+    end
+
+    it "does not deserialize a scope" do
+      expect(deserialized.scope).to be_empty
+    end
   end
 end
