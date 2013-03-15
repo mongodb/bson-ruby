@@ -18,13 +18,6 @@ describe BSON::Binary do
     it_behaves_like "a JSON serializable object"
   end
 
-  describe "::BSON_TYPE" do
-
-    it "returns 5" do
-      expect(BSON::Binary::BSON_TYPE).to eq(5.chr)
-    end
-  end
-
   describe "#to_bson/#from_bson" do
 
     let(:type) { 5.chr }

@@ -16,11 +16,14 @@ describe BSON::Code do
     it_behaves_like "a JSON serializable object"
   end
 
-  let(:type) { 13.chr }
-  let(:obj)  { described_class.new("this.value = 5") }
-  let(:bson) { "#{15.to_bson}this.value = 5#{BSON::NULL_BYTE}" }
+  describe "#to_bson/#from_bson" do
 
-  it_behaves_like "a bson element"
-  it_behaves_like "a serializable bson element"
-  it_behaves_like "a deserializable bson element"
+    let(:type) { 13.chr }
+    let(:obj)  { described_class.new("this.value = 5") }
+    let(:bson) { "#{15.to_bson}this.value = 5#{BSON::NULL_BYTE}" }
+
+    it_behaves_like "a bson element"
+    it_behaves_like "a serializable bson element"
+    it_behaves_like "a deserializable bson element"
+  end
 end
