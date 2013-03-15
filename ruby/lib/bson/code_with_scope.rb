@@ -91,9 +91,8 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(bson)
-      code_with_scope = bson.read(*bson.read(4).unpack(Int32::PACK))
-      code = code_with_scope.read(*code_with_scope.read(4).unpack(Int32::PACK))
-      scope = Document.from_bson
+      code = bson.read(*bson.read(4).unpack(Int32::PACK)).from_bson_string.chop!
+      new(code)
     end
 
     # Register this type when the module is loaded.
