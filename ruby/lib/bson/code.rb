@@ -83,7 +83,7 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(bson)
-      new(bson.read(*bson.read(4).unpack(Int32::PACK)).from_utf8_binary.chop!)
+      new(bson.read(*bson.read(4).unpack(Int32::PACK)).from_bson_string.chop!)
     end
 
     # Register this type when the module is loaded.

@@ -37,6 +37,7 @@ module BSON
     end
 
     module ClassMethods
+
       # Deserialize the array from BSON.
       #
       # @param [ BSON ] bson The bson representing an array.
@@ -49,12 +50,10 @@ module BSON
       def from_bson(bson)
         array = new
         bson.read(4) # throw away the length
-
         while (type = bson.readbyte.chr) != NULL_BYTE
           bson.gets(NULL_BYTE)
           array << BSON::Registry.get(type).from_bson(bson)
         end
-
         array
       end
     end

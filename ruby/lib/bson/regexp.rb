@@ -79,7 +79,7 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(bson)
-        pattern = bson.gets(NULL_BYTE).from_utf8_binary.chop!
+        pattern = bson.gets(NULL_BYTE).from_bson_string.chop!
         options = 0
         while (option = bson.readbyte) != 0
           case option

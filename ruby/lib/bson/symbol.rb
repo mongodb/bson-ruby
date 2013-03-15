@@ -56,7 +56,7 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(bson)
-        bson.read(*bson.read(4).unpack(Int32::PACK)).from_utf8_binary.chop!.intern
+        bson.read(*bson.read(4).unpack(Int32::PACK)).from_bson_string.chop!.intern
       end
     end
 

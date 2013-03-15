@@ -62,11 +62,22 @@ module BSON
       encode(UTF8).force_encoding(BINARY)
     end
 
-    def from_utf8_binary
-      force_encoding(UTF8).encode!
+    # Take the binary string and return a UTF-8 encoded string.
+    #
+    # @example Convert from a BSON string.
+    #   "\x00".from_bson_string
+    #
+    # @raise [ EncodingError ] If the string is not UTF-8.
+    #
+    # @return [ String ] The UTF-8 string.
+    #
+    # @since 2.0.0
+    def from_bson_string
+      force_encoding(BINARY).encode(UTF8)
     end
 
     module ClassMethods
+
       # Deserialize a string from BSON.
       #
       # @param [ BSON ] bson The bson representing a string.
@@ -77,7 +88,7 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(bson)
-        bson.read(*bson.read(4).unpack(INT32_PACK)).from_utf8_binary.chop!
+        bson.read(*bson.read(4).unpack(Int32::PACK)).from_bson_string.chop!
       end
     end
 
