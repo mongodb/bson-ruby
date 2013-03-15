@@ -1,35 +1,17 @@
 # encoding: utf-8
 require "spec_helper"
 
-describe BSON::String do
+describe String do
 
-  describe "::BSON_TYPE" do
+  describe "#to_bson/#from_bson" do
 
-    it "returns 0x02" do
-      expect(String::BSON_TYPE).to eq(2.chr)
-    end
-  end
+    let(:type) { 2.chr }
+    let(:obj) { "test" }
+    let(:bson) { "#{5.to_bson}test#{BSON::NULL_BYTE}" }
 
-  describe "#bson_type" do
-
-    it "returns the BSON_TYPE" do
-      expect("test".bson_type).to eq(String::BSON_TYPE)
-    end
-  end
-
-  describe "#to_bson" do
-
-    let(:string) do
-      "test"
-    end
-
-    let(:encoded) do
-      string.to_bson
-    end
-
-    it "returns the encoded string" do
-      expect(encoded).to eq("#{5.to_bson}test#{BSON::NULL_BYTE}")
-    end
+    it_behaves_like "a bson element"
+    it_behaves_like "a serializable bson element"
+    it_behaves_like "a deserializable bson element"
   end
 
   describe "#to_bson_cstring" do
