@@ -3,6 +3,39 @@ require "spec_helper"
 
 describe BSON::MaxKey do
 
+  describe "#==" do
+
+    context "when the objects are equal" do
+
+      let(:other) { described_class.new }
+
+      it "returns true" do
+        expect(subject).to eq(other)
+      end
+    end
+
+    context "when the other object is not a max_key" do
+
+      it "returns false" do
+        expect(subject).to_not eq("test")
+      end
+    end
+  end
+
+  describe "#>" do
+
+    it "always returns true" do
+      expect(subject > Integer::MAX_64BIT).to be_true
+    end
+  end
+
+  describe "#<" do
+
+    it "always returns false" do
+      expect(subject < Integer::MAX_64BIT).to be_false
+    end
+  end
+
   describe "#as_json" do
 
     let(:object) do
@@ -16,39 +49,14 @@ describe BSON::MaxKey do
     it_behaves_like "a JSON serializable object"
   end
 
-  let(:type) { 127.chr }
-  let(:obj)  { described_class.new }
-  let(:bson) { BSON::NO_VALUE }
+  describe "#to_bson/#from_bson" do
 
-  it_behaves_like "a bson element"
-  it_behaves_like "a serializable bson element"
-  it_behaves_like "a deserializable bson element"
+    let(:type) { 127.chr }
+    let(:obj)  { described_class.new }
+    let(:bson) { BSON::NO_VALUE }
 
-  describe "#==" do
-    context "when the objects are equal" do
-      let(:other) { described_class.new }
-
-      it "returns true" do
-        expect(subject).to eq(other)
-      end
-    end
-
-    context "when the other object is not a max_key" do
-      it "returns false" do
-        expect(subject).to_not eq("test")
-      end
-    end
-  end
-
-  describe "#>" do
-    it "always returns true" do
-      expect(subject > Integer::MAX_64BIT).to be_true
-    end
-  end
-
-  describe "#<" do
-    it "always returns false" do
-      expect(subject < Integer::MAX_64BIT).to be_false
-    end
+    it_behaves_like "a bson element"
+    it_behaves_like "a serializable bson element"
+    it_behaves_like "a deserializable bson element"
   end
 end
