@@ -34,6 +34,7 @@ module BSON
     end
 
     module ClassMethods
+
       # Deserialize an instance of a Float from a BSON double.
       #
       # @param [ BSON ] bson The encoded double.
