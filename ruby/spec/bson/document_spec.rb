@@ -291,7 +291,48 @@ describe BSON::Document do
     end
   end
 
-  pending "#default"
+  describe "#default" do
+
+    context "when provided a value" do
+
+      let(:doc) do
+        described_class.new(5)
+      end
+
+      context "when provided no args" do
+
+        it "returns the default" do
+          expect(doc.default).to eq(5)
+        end
+      end
+
+      context "when provided args" do
+
+        it "returns the default" do
+          expect(doc.default(4)).to eq(5)
+        end
+      end
+    end
+
+    context "when provided a proc" do
+
+      let(:doc) do
+        described_class.new { |*args| args }
+      end
+
+      it "uses the default proc to compute a default value" do
+        expect(doc.default(5)).to eq([ doc, 5 ])
+      end
+
+      context "when no value is provided" do
+
+        it "calls default proc with nil arg" do
+          expect(doc.default).to be_nil
+        end
+      end
+    end
+  end
+
   pending "#default="
   pending "#default_proc"
   pending "#default_proc="
