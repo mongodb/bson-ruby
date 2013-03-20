@@ -192,7 +192,7 @@ describe BSON::Document do
     end
 
     it "causes #compare_by_identity? to return true" do
-      expect(doc.compare_by_identity?).to be_true
+      expect(doc).to be_compare_by_identity
     end
 
     it "returns self" do
@@ -266,7 +266,31 @@ describe BSON::Document do
     end
   end
 
-  pending "#compare_by_identity?"
+  describe "#compare_by_identity?" do
+
+    let(:doc) do
+      described_class.new
+    end
+
+    context "when the document is comparing by identity" do
+
+      before do
+        doc.compare_by_identity
+      end
+
+      it "returns true" do
+        expect(doc).to be_compare_by_identity
+      end
+    end
+
+    context "when the document is not comparing by identity" do
+
+      it "returns false" do
+        expect(doc).to_not be_compare_by_identity
+      end
+    end
+  end
+
   pending "#default"
   pending "#default="
   pending "#default_proc"
