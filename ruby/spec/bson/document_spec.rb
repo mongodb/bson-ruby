@@ -176,7 +176,96 @@ describe BSON::Document do
     end
   end
 
-  pending "#compare_by_identity"
+  describe "#compare_by_identity" do
+
+    let(:doc) do
+      described_class.new
+    end
+
+    let!(:identity) do
+      doc.compare_by_identity
+    end
+
+    it "causes future comparisons on the receiver to be made by identity" do
+      doc["a"] = :a
+      expect(doc["a"]).to be_nil
+    end
+
+    it "causes #compare_by_identity? to return true" do
+      expect(doc.compare_by_identity?).to be_true
+    end
+
+    it "returns self" do
+      expect(identity).to eql(doc)
+    end
+
+    it "uses the semantics of BasicObject#equal? to determine key identity" do
+      doc[-0.0] = :a
+      doc[-0.0] = :b
+      doc[[ 1 ]] = :c
+      doc[[ 1 ]] = :d
+      doc[:bar] = :e
+      doc[:bar] = :f
+      doc["bar"] = :g
+      doc["bar"] = :h
+      expect(doc.values).to eq([ :a, :b, :c, :d, :f, :g, :h ])
+    end
+
+    it "uses #equal? semantics, but doesn't actually call #equal? to determine identity" do
+      obj = mock("equal")
+      obj.should_not_receive(:equal?)
+      doc[:foo] = :glark
+      doc[obj] = :a
+      expect(doc[obj]).to eq(:a)
+    end
+
+    it "regards #dup'd objects as having different identities" do
+      str = "foo"
+      doc[str.dup] = :str
+      expect(doc[str]).to be_nil
+    end
+
+    it "regards #clone'd objects as having different identities" do
+      str = 'foo'
+      doc[str.clone] = :str
+      expect(doc[str]).to be_nil
+    end
+
+    it "regards references to the same object as having the same identity" do
+      o = Object.new
+      doc[o] = :o
+      doc[:a] = :a
+      expect(doc[o]).to eq(:o)
+    end
+
+    it "perists over #dups" do
+      doc["foo"] = :bar
+      doc["foo"] = :glark
+      expect(doc.dup).to eq(doc)
+      expect(doc.dup.size).to eq(doc.size)
+    end
+
+    it "persists over #clones" do
+      doc["foo"] = :bar
+      doc["foo"] = :glark
+      expect(doc.clone).to eq(doc)
+      expect(doc.clone.size).to eq(doc.size)
+    end
+
+    context "when the document is frozen" do
+
+      before do
+        doc.freeze
+      end
+
+      it "raises a RuntimeError on frozen hashes" do
+        expect {
+          doc.compare_by_identity
+        }.to raise_error(RuntimeError)
+      end
+    end
+  end
+
   pending "#compare_by_identity?"
   pending "#default"
   pending "#default="
