@@ -7,7 +7,22 @@ describe BSON::Document do
   pending "#[]"
   pending "#[]"
   pending "#[]="
-  pending "#allocate"
+
+  describe "#allocate" do
+
+    let(:document) do
+      described_class.allocate
+    end
+
+    it "returns an instance of a Document" do
+      expect(document).to be_a(described_class)
+    end
+
+    it "returns a fully-formed instance of a Document" do
+      expect(document.size).to eq(0)
+    end
+  end
+
   pending "#assoc"
   pending "#clear"
   pending "#compare_by_identity"
