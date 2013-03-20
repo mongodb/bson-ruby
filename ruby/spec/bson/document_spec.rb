@@ -107,7 +107,75 @@ describe BSON::Document do
     end
   end
 
-  pending "#clear"
+  describe "#clear" do
+
+    let(:doc) do
+      described_class[1 => 2, 3 => 4]
+    end
+
+    it "removes all key, value pairs" do
+      expect(doc.clear).to be_empty
+    end
+
+    it "returns the same instance" do
+      expect(doc.clear).to eql(doc)
+    end
+
+    context "when the document has a default" do
+
+      context "when the default is a value" do
+
+        let(:doc) do
+          described_class.new(5)
+        end
+
+        before do
+          doc.clear
+        end
+
+        it "keeps the default value" do
+          expect(doc.default).to eq(5)
+        end
+
+        it "returns the default for empty keys" do
+          expect(doc["z"]).to eq(5)
+        end
+      end
+
+      context "when the default is a proc" do
+
+        let(:doc) do
+          described_class.new { 5 }
+        end
+
+        before do
+          doc.clear
+        end
+
+        it "keeps the default proc" do
+          expect(doc.default_proc).to_not be_nil
+        end
+
+        it "returns the default for empty keys" do
+          expect(doc["z"]).to eq(5)
+        end
+      end
+    end
+
+    context "when the document is frozen" do
+
+      before do
+        doc.freeze
+      end
+
+      it "raises an error" do
+        expect {
+          doc.clear
+        }.to raise_error(RuntimeError)
+      end
+    end
+  end
+
   pending "#compare_by_identity"
   pending "#compare_by_identity?"
   pending "#default"
