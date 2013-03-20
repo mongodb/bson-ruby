@@ -1,6 +1,10 @@
 # encoding: utf-8
 require "spec_helper"
 
+# Note that hash specific specs are based off the rubyspec library, and
+# converted manually to RSpec syntax.
+#
+# @see https://github.com/rubyspec/rubyspec/tree/master/core/hash
 describe BSON::Document do
 
   pending "#=="
@@ -10,20 +14,99 @@ describe BSON::Document do
 
   describe "#allocate" do
 
-    let(:document) do
+    let(:doc) do
       described_class.allocate
     end
 
     it "returns an instance of a Document" do
-      expect(document).to be_a(described_class)
+      expect(doc).to be_a(described_class)
     end
 
     it "returns a fully-formed instance of a Document" do
-      expect(document.size).to eq(0)
+      expect(doc.size).to eq(0)
     end
   end
 
-  pending "#assoc"
+  describe "#assoc" do
+
+    let(:doc) do
+      { :apple => :green, :orange => :orange, :grape => :green, :banana => :yellow }
+    end
+
+    it "returns an Array if the argument is == to a key of the Hash" do
+      expect(doc.assoc(:apple)).to be_a(Array)
+    end
+
+    it "returns a 2-element Array if the argument is == to a key of the Hash" do
+      expect(doc.assoc(:grape).size).to eq(2)
+    end
+
+    it "sets the first element of the Array to the located key" do
+      expect(doc.assoc(:banana).first).to eq(:banana)
+    end
+
+    it "sets the last element of the Array to the value of the located key" do
+      expect(doc.assoc(:banana).last).to eq(:yellow)
+    end
+
+    it "uses #== to compare the argument to the keys" do
+      doc[1.0] = :value
+      expect(doc.assoc(1)).to eq([ 1.0, :value ])
+    end
+
+    it "returns nil if the argument is not a key of the Hash" do
+      expect(doc.assoc(:green)).to be_nil
+    end
+
+    context "when the document compares by identity" do
+
+      before do
+        doc.compare_by_identity
+        doc["pear"] = :red
+        doc["pear"] = :green
+      end
+
+      it "duplicates keys" do
+        expect(doc.keys.grep(/pear/).size).to eq(2)
+      end
+
+      it "only returns the first matching key-value pair" do
+        expect(doc.assoc("pear")).to eq([ "pear", :red ])
+      end
+    end
+
+    context "when there is a default value" do
+
+      context "when specified in the constructor" do
+
+        let(:doc) do
+          described_class.new(42).merge!(:foo => :bar)
+        end
+
+        context "when the argument is not a key" do
+
+          it "returns nil" do
+            expect(doc.assoc(42)).to be_nil
+          end
+        end
+      end
+
+      context "when specified by a block" do
+
+        let(:doc) do
+          described_class.new{|h, k| h[k] = 42}.merge!(:foo => :bar)
+        end
+
+        context "when the argument is not a key" do
+
+          it "returns nil" do
+            expect(doc.assoc(42)).to be_nil
+          end
+        end
+      end
+    end
+  end
+
   pending "#clear"
   pending "#compare_by_identity"
   pending "#compare_by_identity?"
