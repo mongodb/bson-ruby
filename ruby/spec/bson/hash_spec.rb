@@ -21,9 +21,7 @@ describe Hash do
       end
 
       it_behaves_like "a serializable bson element"
-      pending do
-        it_behaves_like "a deserializable bson element"
-      end
+      it_behaves_like "a deserializable bson element"
     end
 
     context "when the hash is embedded" do
@@ -39,9 +37,7 @@ describe Hash do
       end
 
       it_behaves_like "a serializable bson element"
-      pending do
-        it_behaves_like "a deserializable bson element"
-      end
+      it_behaves_like "a deserializable bson element"
     end
   end
 end

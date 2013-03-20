@@ -33,6 +33,28 @@ module BSON
       end
     end
 
+    module ClassMethods
+
+      # Deserialize the hash from BSON.
+      #
+      # @param [ String ] bson The bson representing a hash.
+      #
+      # @return [ Array ] The decoded hash.
+      #
+      # @see http://bsonspec.org/#/specification
+      #
+      # @since 2.0.0
+      def from_bson(bson)
+        hash = new
+        bson.read(4) # Swallow the first four bytes.
+        while (type = bson.readbyte.chr) != NULL_BYTE
+          field = bson.gets(NULL_BYTE).from_bson_string.chop!
+          hash[field] = BSON::Registry.get(type).from_bson(bson)
+        end
+        hash
+      end
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
@@ -43,4 +65,5 @@ module BSON
   #
   # @since 2.0.0
   ::Hash.send(:include, Hash)
+  ::Hash.send(:extend, Hash::ClassMethods)
 end
