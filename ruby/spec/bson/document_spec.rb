@@ -318,7 +318,39 @@ describe BSON::Document do
 
   pending "#default_proc"
   pending "#default_proc="
-  pending "#delete"
+
+  describe "#delete" do
+
+    let(:doc) { described_class[:a => 5, :b => 2] }
+
+    it "removes the entry" do
+      doc.delete(:b)
+      expect(doc).to eq(described_class[:a => 5 ])
+    end
+
+    it "returns the deleted value" do
+      expect(doc.delete(:b)).to eq(2)
+    end
+
+    context "when the key is not found" do
+
+      context "when a block is provided" do
+
+        it "calls the block" do
+          expect(doc.delete(:d){ 5 }).to eq(5)
+        end
+      end
+
+      context "when no block is provided" do
+
+        it "returns nil" do
+          expect(doc.delete(:d)).to be_nil
+        end
+      end
+    end
+
+    it_behaves_like "immutable when frozen", ->(doc){ doc.delete(1) }
+  end
 
   describe "#delete_if" do
 
