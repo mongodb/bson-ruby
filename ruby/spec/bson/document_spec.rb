@@ -152,18 +152,7 @@ describe BSON::Document do
       end
     end
 
-    context "when the document is frozen" do
-
-      before do
-        doc.freeze
-      end
-
-      it "raises an error" do
-        expect {
-          doc.clear
-        }.to raise_error(RuntimeError)
-      end
-    end
+    it_behaves_like "immutable when frozen", ->(doc){ doc.clear }
   end
 
   describe "#compare_by_identity" do
@@ -237,18 +226,7 @@ describe BSON::Document do
       expect(doc.clone.size).to eq(doc.size)
     end
 
-    context "when the document is frozen" do
-
-      before do
-        doc.freeze
-      end
-
-      it "raises a RuntimeError on frozen hashes" do
-        expect {
-          doc.compare_by_identity
-        }.to raise_error(RuntimeError)
-      end
-    end
+    it_behaves_like "immutable when frozen", ->(doc){ doc.compare_by_identity }
   end
 
   describe "#compare_by_identity?" do
@@ -335,24 +313,36 @@ describe BSON::Document do
       end
     end
 
-    context "when the document is frozen" do
-
-      before do
-        doc.freeze
-      end
-
-      it "raises a runtime error" do
-        expect {
-          doc.default = 5
-        }.to raise_error(RuntimeError)
-      end
-    end
+    it_behaves_like "immutable when frozen", ->(doc){ doc.default = 1 }
   end
 
   pending "#default_proc"
   pending "#default_proc="
   pending "#delete"
-  pending "#delete_if"
+
+  describe "#delete_if" do
+
+    let(:doc) { described_class[1 => 2, 3 => 4] }
+
+    it "yields a key and value" do
+
+    end
+
+    it "removes all entries for which the block is true" do
+
+    end
+
+    it "returns self" do
+
+    end
+
+    it "processes entries in the same order as each" do
+
+    end
+
+    it_behaves_like "immutable when frozen", ->(doc){ doc.delete_if{} }
+  end
+
   pending "#each"
   pending "#each_key"
   pending "#each_pair"

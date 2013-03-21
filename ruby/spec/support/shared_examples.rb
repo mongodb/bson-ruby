@@ -45,3 +45,19 @@ shared_examples_for "a JSON serializable object" do
     expect(object.to_json).to eq(object.as_json.to_json)
   end
 end
+
+shared_examples_for "immutable when frozen" do |block|
+
+  context "when the document is frozen" do
+
+    before do
+      doc.freeze
+    end
+
+    it "raises a runtime error" do
+      expect {
+        block.call(doc)
+      }.to raise_error(RuntimeError)
+    end
+  end
+end
