@@ -384,7 +384,28 @@ describe BSON::Document do
   end
 
   pending "#each"
-  pending "#each_key"
+
+  describe "#each_key" do
+
+    let(:doc) { described_class[1 => -1, 2 => -2, 3 => -3, 4 => -4] }
+
+    it "calls block once for each key, passing key" do
+      keys = []
+      doc.each_key { |k| keys << k }
+      expect(keys).to eq([ 1, 2, 3, 4 ])
+    end
+
+    it "returns the document" do
+      expect(doc.each_key { |k| k }).to equal(doc)
+    end
+
+    it "processes keys in the same order as keys()" do
+      keys = []
+      doc.each_key { |k| keys << k }
+      expect(keys).to eq(doc.keys)
+    end
+  end
+
   pending "#each_pair"
   pending "#each_value"
   pending "#empty?"
