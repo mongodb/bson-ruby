@@ -325,19 +325,27 @@ describe BSON::Document do
     let(:doc) { described_class[1 => 2, 3 => 4] }
 
     it "yields a key and value" do
-
+      all_args = []
+      doc.delete_if{ |*args| all_args << args }
+      expect(all_args.sort).to eq([[ 1, 2 ], [ 3, 4 ]])
     end
 
     it "removes all entries for which the block is true" do
-
+      expect(doc.delete_if{ |k, v| k < 2 }).to eq({ 3 => 4 })
     end
 
     it "returns self" do
-
+      expect(doc.delete_if{ |k, v| k < 2 }).to equal(doc)
     end
 
     it "processes entries in the same order as each" do
+      each_pairs = []
+      delete_pairs = []
 
+      doc.each_pair{ |k, v| each_pairs << [ k, v ]}
+      doc.delete_if{ |k, v| delete_pairs << [ k,v ]}
+
+      expect(each_pairs).to eq(delete_pairs)
     end
 
     it_behaves_like "immutable when frozen", ->(doc){ doc.delete_if{} }
