@@ -79,9 +79,7 @@ describe BSON::Document do
 
       context "when specified in the constructor" do
 
-        let(:doc) do
-          described_class.new(42).merge!(:foo => :bar)
-        end
+        let(:doc) { described_class.new(42).merge!(:foo => :bar) }
 
         context "when the argument is not a key" do
 
@@ -93,9 +91,7 @@ describe BSON::Document do
 
       context "when specified by a block" do
 
-        let(:doc) do
-          described_class.new{|h, k| h[k] = 42}.merge!(:foo => :bar)
-        end
+        let(:doc) { described_class.new{|h, k| h[k] = 42}.merge!(:foo => :bar) }
 
         context "when the argument is not a key" do
 
@@ -109,9 +105,7 @@ describe BSON::Document do
 
   describe "#clear" do
 
-    let(:doc) do
-      described_class[1 => 2, 3 => 4]
-    end
+    let(:doc) { described_class[1 => 2, 3 => 4] }
 
     it "removes all key, value pairs" do
       expect(doc.clear).to be_empty
@@ -125,9 +119,7 @@ describe BSON::Document do
 
       context "when the default is a value" do
 
-        let(:doc) do
-          described_class.new(5)
-        end
+        let(:doc) { described_class.new(5) }
 
         before do
           doc.clear
@@ -144,9 +136,7 @@ describe BSON::Document do
 
       context "when the default is a proc" do
 
-        let(:doc) do
-          described_class.new { 5 }
-        end
+        let(:doc) { described_class.new { 5 } }
 
         before do
           doc.clear
@@ -178,13 +168,8 @@ describe BSON::Document do
 
   describe "#compare_by_identity" do
 
-    let(:doc) do
-      described_class.new
-    end
-
-    let!(:identity) do
-      doc.compare_by_identity
-    end
+    let(:doc) { described_class.new }
+    let!(:identity) { doc.compare_by_identity }
 
     it "causes future comparisons on the receiver to be made by identity" do
       doc["a"] = :a
@@ -268,9 +253,7 @@ describe BSON::Document do
 
   describe "#compare_by_identity?" do
 
-    let(:doc) do
-      described_class.new
-    end
+    let(:doc) { described_class.new }
 
     context "when the document is comparing by identity" do
 
@@ -295,9 +278,7 @@ describe BSON::Document do
 
     context "when provided a value" do
 
-      let(:doc) do
-        described_class.new(5)
-      end
+      let(:doc) { described_class.new(5) }
 
       context "when provided no args" do
 
@@ -333,7 +314,41 @@ describe BSON::Document do
     end
   end
 
-  pending "#default="
+  describe "#default=" do
+
+    let(:doc) { described_class.new }
+
+    it "sets the default value" do
+      doc.default = 99
+      expect(doc.default).to eq(99)
+    end
+
+    context "when a deafult proc exists" do
+
+      let(:doc) do
+        described_class.new { 6 }
+      end
+
+      it "unsets the default proc" do
+        doc.default = 50
+        expect(doc.default_proc).to be_nil
+      end
+    end
+
+    context "when the document is frozen" do
+
+      before do
+        doc.freeze
+      end
+
+      it "raises a runtime error" do
+        expect {
+          doc.default = 5
+        }.to raise_error(RuntimeError)
+      end
+    end
+  end
+
   pending "#default_proc"
   pending "#default_proc="
   pending "#delete"
