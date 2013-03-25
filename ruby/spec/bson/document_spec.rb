@@ -672,7 +672,26 @@ describe BSON::Document do
   end
 
   pending "#hash"
-  pending "#include?"
+
+  describe "#include?" do
+
+    let(:doc) { described_class[:a => 1] }
+
+    context "when the document has the key" do
+
+      it "returns true" do
+        expect(doc).to include(:a)
+      end
+    end
+
+    context "when the document does not have the key" do
+
+      it "returns false" do
+        expect(doc).to_not include(:b)
+      end
+    end
+  end
+
   pending "#initialize_copy"
   pending "#inspect"
   pending "#invert"
