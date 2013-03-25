@@ -652,7 +652,25 @@ describe BSON::Document do
     end
   end
 
-  pending "#has_value?"
+  describe "#has_value?" do
+
+    let(:doc) { described_class[:a => 1] }
+
+    context "when the document has the value" do
+
+      it "returns true" do
+        expect(doc).to have_value(1)
+      end
+    end
+
+    context "when the document does not have the value" do
+
+      it "returns false" do
+        expect(doc).to_not have_value(2)
+      end
+    end
+  end
+
   pending "#hash"
   pending "#include?"
   pending "#initialize_copy"
