@@ -694,7 +694,17 @@ describe BSON::Document do
 
   pending "#initialize_copy"
   pending "#inspect"
-  pending "#invert"
+
+  describe "#invert" do
+
+    let(:doc) { described_class[1 => "a", 2 => "b", 3 => "c"] }
+    let(:inverted) { described_class["a" => 1, "b" => 2, "c" => 3] }
+
+    it "returns a new hash where keys are values and vice versa" do
+      expect(doc.invert).to eq(inverted)
+    end
+  end
+
   pending "#keep_if"
   pending "#key"
   pending "#key?"
