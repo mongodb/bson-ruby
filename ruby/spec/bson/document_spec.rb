@@ -829,7 +829,26 @@ describe BSON::Document do
   pending "#to_s"
   pending "#try_convert"
   pending "#update"
-  pending "#value?"
+
+  describe "#value?" do
+
+    let(:doc) { described_class[:a => 1] }
+
+    context "when the document has the value" do
+
+      it "returns true" do
+        expect(doc.value?(1)).to be_true
+      end
+    end
+
+    context "when the document does not have the value" do
+
+      it "returns false" do
+        expect(doc.value?(2)).to be_false
+      end
+    end
+  end
+
   pending "#values"
   pending "#values_at"
 
