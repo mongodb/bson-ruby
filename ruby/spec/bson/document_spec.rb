@@ -771,7 +771,16 @@ describe BSON::Document do
   end
 
   pending "#keys"
-  pending "#length"
+
+  describe "#length" do
+
+    let(:doc) { described_class[:a => 1, :b => 2] }
+
+    it "returns the number of elements in the document" do
+      expect(doc.length).to eq(2)
+    end
+  end
+
   pending "#member?"
   pending "#merge"
   pending "#merge!"
