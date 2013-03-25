@@ -795,7 +795,16 @@ describe BSON::Document do
   pending "#select"
   pending "#select!"
   pending "#shift"
-  pending "#size"
+
+  describe "#size" do
+
+    let(:doc) { described_class[:a => 1, :b => 2] }
+
+    it "returns the number of elements in the document" do
+      expect(doc.size).to eq(2)
+    end
+  end
+
   pending "#store"
   pending "#to_a"
   pending "#to_hash"
