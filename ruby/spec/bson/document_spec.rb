@@ -406,7 +406,42 @@ describe BSON::Document do
     end
   end
 
-  pending "#each_pair"
+  describe "#each_pair" do
+
+    let(:all_args) {[]}
+    let(:doc) { described_class[1 => 2, 3 => 4] }
+
+    context "when the block expects |key, value|" do
+
+      let!(:iterated) do
+        doc.each_pair{ |key, value| all_args << [ key, value ] }
+      end
+
+      it "yields the key and value" do
+        expect(all_args.sort).to eq([[1, 2], [3, 4]])
+      end
+
+      it "returns the document" do
+        expect(iterated).to equal(doc)
+      end
+    end
+
+    context "when the block expects |args|" do
+
+      let!(:iterated) do
+        doc.each_pair{ |args| p args; all_args << args }
+      end
+
+      it "yields a [key, value]" do
+        expect(all_args.sort).to eq([[1, 2], [3, 4]])
+      end
+
+      it "returns the document" do
+        expect(iterated).to equal(doc)
+      end
+    end
+  end
+
   pending "#each_value"
   pending "#empty?"
   pending "#eql?"
