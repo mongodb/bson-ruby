@@ -700,12 +700,38 @@ describe BSON::Document do
     let(:doc) { described_class[1 => "a", 2 => "b", 3 => "c"] }
     let(:inverted) { described_class["a" => 1, "b" => 2, "c" => 3] }
 
-    it "returns a new hash where keys are values and vice versa" do
+    it "returns a new document where keys are values and vice versa" do
       expect(doc.invert).to eq(inverted)
+      expect(doc.invert).to_not equal(doc)
     end
   end
 
-  pending "#keep_if"
+  describe "#keep_if" do
+
+    let(:doc) { described_class[1 => 2, 3 => 4] }
+    let(:all_args) {[]}
+
+    it "yields two arguments: key and value" do
+      doc.keep_if { |*args| all_args << args }
+      expect(all_args).to eq([[1, 2], [3, 4]])
+    end
+
+    it "returns the document" do
+      expect(doc.keep_if { |*args| all_args << args }).to equal(doc)
+    end
+
+    it "keeps every entry for which block is true" do
+      doc.keep_if { |k,v| v == 2 }
+      expect(doc).to eq(described_class[1 => 2])
+    end
+
+    it "returns self even if unmodified" do
+      expect(doc.keep_if { true }).to equal(doc)
+    end
+
+    it_behaves_like "immutable when frozen", ->(doc){ doc.keep_if{} }
+  end
+
   pending "#key"
   pending "#key?"
   pending "#keys"
