@@ -442,7 +442,29 @@ describe BSON::Document do
     end
   end
 
-  pending "#each_value"
+  describe "#each_value" do
+
+    let(:values) {[]}
+    let(:doc) do
+      described_class[:a => -5, :b => -3, :c => -2, :d => -1, :e => -1]
+    end
+    let!(:iterated) do
+      doc.each_value{ |v| values << v }
+    end
+
+    it "calls block once for each key, passing value" do
+      expect(values.sort).to eq([-5, -3, -2, -1, -1])
+    end
+
+    it "processes values in the same order as values()" do
+      expect(values).to eq(doc.values)
+    end
+
+    it "returns the document" do
+      expect(iterated).to equal(doc)
+    end
+  end
+
   pending "#empty?"
   pending "#eql?"
   pending "#fetch"
