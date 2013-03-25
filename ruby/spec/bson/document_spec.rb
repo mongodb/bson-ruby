@@ -465,7 +465,55 @@ describe BSON::Document do
     end
   end
 
-  pending "#empty?"
+  describe "#empty?"do
+
+    context "when the document has no default" do
+
+      let(:doc) { described_class.new }
+
+      context "when the document has no entries" do
+
+        it "returns true" do
+          expect(doc).to be_empty
+        end
+      end
+
+      context "when the document has entries" do
+
+        before do
+          doc[:a] = 1
+        end
+
+        it "returns false" do
+          expect(doc).not_to be_empty
+        end
+      end
+    end
+
+    context "when the hash has a default" do
+
+      let(:doc) { described_class.new(5) }
+
+      context "when the document has no entries" do
+
+        it "returns true" do
+          expect(doc).to be_empty
+        end
+      end
+
+      context "when the document has entries" do
+
+        before do
+          doc[:a] = 1
+        end
+
+        it "returns false" do
+          expect(doc).not_to be_empty
+        end
+      end
+    end
+  end
+
   pending "#eql?"
   pending "#fetch"
   pending "#flatten"
