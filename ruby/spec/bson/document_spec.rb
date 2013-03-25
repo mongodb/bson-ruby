@@ -568,7 +568,71 @@ describe BSON::Document do
     end
   end
 
-  pending "#flatten"
+  describe "#flatten" do
+
+    let(:doc) do
+      described_class[:plato => :greek, :witgenstein => [:austrian, :british], :russell => :welsh]
+    end
+
+    context "when called with no arguments" do
+
+      let(:flattened) do
+        doc.flatten
+      end
+
+      it "returns an Array" do
+        expect(flattened).to be_a(Array)
+      end
+
+      it "returns an empty Array for an empty Hash" do
+        expect(described_class.new.flatten).to eq([])
+      end
+
+      it "sets each even index of the Array to a key of the Hash" do
+        expect(flattened[0]).to eq(:plato)
+        expect(flattened[2]).to eq(:witgenstein)
+        expect(flattened[4]).to eq(:russell)
+      end
+
+      it "sets each odd index of the Array to the value corresponding to the previous element" do
+        expect(flattened[1]).to eq(:greek)
+        expect(flattened[3]).to eq([:austrian, :british])
+        expect(flattened[5]).to eq(:welsh)
+      end
+
+      it "does not recursively flatten Array values when called without arguments" do
+        expect(flattened[3]).to eq([:austrian, :british])
+      end
+
+      it "does not recursively flatten Hash values when called without arguments" do
+        doc[:russell] = { :born => :wales, :influenced_by => :mill }
+        expect(flattened[5]).to_not eq({:born => :wales, :influenced_by => :mill }.flatten)
+      end
+    end
+
+    context "when providing arguments" do
+
+      let(:flattened) do
+        doc.flatten(2)
+      end
+
+      it "recursively flattens Array values" do
+        expect(flattened[3]).to eq(:austrian)
+        expect(flattened[4]).to eq(:british)
+      end
+
+      it "recursively flattens Array values to the given depth" do
+        doc[:russell] = [[:born, :wales], [:influenced_by, :mill]]
+        expect(flattened[6]).to eq([:born, :wales])
+        expect(flattened[7]).to eq([:influenced_by, :mill])
+      end
+
+      it "raises an TypeError if given a non-Integer argument" do
+        expect { doc.flatten(Object.new) }.to raise_error(TypeError)
+      end
+    end
+  end
+
   pending "#has_key?"
   pending "#has_value?"
   pending "#hash"
