@@ -732,7 +732,25 @@ describe BSON::Document do
     it_behaves_like "immutable when frozen", ->(doc){ doc.keep_if{} }
   end
 
-  pending "#key"
+  describe "#key" do
+
+    let(:doc) { described_class[:a => 1] }
+
+    context "when the value exists" do
+
+      it "returns the key" do
+        expect(doc.key(1)).to eq(:a)
+      end
+    end
+
+    context "when the value does not exist" do
+
+      it "returns nil" do
+        expect(doc.key(2)).to be_nil
+      end
+    end
+  end
+
   pending "#key?"
   pending "#keys"
   pending "#length"
