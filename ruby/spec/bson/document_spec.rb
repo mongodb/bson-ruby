@@ -781,7 +781,25 @@ describe BSON::Document do
     end
   end
 
-  pending "#member?"
+  describe "#member?" do
+
+    let(:doc) { described_class[:a => 1] }
+
+    context "when the document has the key" do
+
+      it "returns true" do
+        expect(doc.member?(:a)).to be_true
+      end
+    end
+
+    context "when the document does not have the key" do
+
+      it "returns false" do
+        expect(doc.member?(:b)).to be_false
+      end
+    end
+  end
+
   pending "#merge"
   pending "#merge!"
   pending "#new"
