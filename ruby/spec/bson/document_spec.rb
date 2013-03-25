@@ -515,7 +515,59 @@ describe BSON::Document do
   end
 
   pending "#eql?"
-  pending "#fetch"
+
+  describe "#fetch" do
+
+    let(:doc) { described_class[:a => 1, :b => -1] }
+
+    it "returns the value for key" do
+      expect(doc.fetch(:b)).to eq(-1)
+    end
+
+    context "when the key is not found" do
+
+      context "when not passed a default" do
+
+        it "raises a key error" do
+          expect { doc.fetch(:c) }.to raise_error(KeyError)
+          expect { doc { 5 }.fetch(:c) }.to raise_error(KeyError)
+        end
+      end
+
+      context "when passed a default" do
+
+        it "returns the default" do
+          expect(doc.fetch(:c, nil)).to be_nil
+        end
+      end
+
+      context "when passed a block" do
+
+        context "when no default is passed" do
+
+          it "returns value of block" do
+            expect(doc.fetch('a') { |k| k + '!' }).to eq("a!")
+          end
+        end
+
+        context "when a default is passed" do
+
+          it "gives precedence to the default block" do
+            expect(doc.fetch(9, :foo) { |i| i * i }).to eq(81)
+          end
+        end
+      end
+    end
+
+    context "when passed the wrong number of arguments" do
+
+      it "raises an ArgumentError" do
+        expect { doc.fetch() }.to raise_error(ArgumentError)
+        expect { doc.fetch(1, 2, 3) }.to raise_error(ArgumentError)
+      end
+    end
+  end
+
   pending "#flatten"
   pending "#has_key?"
   pending "#has_value?"
