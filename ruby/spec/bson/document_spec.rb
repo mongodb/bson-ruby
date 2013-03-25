@@ -633,7 +633,25 @@ describe BSON::Document do
     end
   end
 
-  pending "#has_key?"
+  describe "#has_key?" do
+
+    let(:doc) { described_class[:a => 1] }
+
+    context "when the document has the key" do
+
+      it "returns true" do
+        expect(doc).to have_key(:a)
+      end
+    end
+
+    context "when the document does not have the key" do
+
+      it "returns false" do
+        expect(doc).to_not have_key(:b)
+      end
+    end
+  end
+
   pending "#has_value?"
   pending "#hash"
   pending "#include?"
