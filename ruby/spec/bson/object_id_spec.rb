@@ -353,11 +353,11 @@ describe BSON::ObjectId do
   describe "#to_s" do
 
     let(:time) do
-      Time.new(2013, 1, 1)
+      Time.utc(2013, 1, 1)
     end
 
     let(:expected) do
-      "50e218f00000000000000000"
+      "50e227000000000000000000"
     end
 
     let(:object_id) do
