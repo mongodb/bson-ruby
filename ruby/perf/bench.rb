@@ -6,7 +6,7 @@ def benchmark!
   Benchmark.bm do |bench|
 
     bench.report("Binary#to_bson -------->") do
-      count.times { BSON::Binary.new(:generic, "test").to_bson }
+      count.times { BSON::Binary.new("test", :generic).to_bson }
     end
 
     bench.report("Code#to_bson ---------->") do

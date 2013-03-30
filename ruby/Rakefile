@@ -55,11 +55,9 @@ namespace :benchmark do
 
   task :c => :compile do
     puts "Benchmarking with C extensions..."
-    load "bson.rb"
+    require "bson"
     benchmark!
   end
 end
-
-task :bench => [ "benchmark:ruby", "benchmark:c" ]
 
 task :default => [ :clean, :spec, :compile, :rspec ]
