@@ -34,7 +34,7 @@ def benchmark!
     end
 
     bench.report("ObjectId#to_bson ------>") do
-      count.times { BSON::MinKey.new.to_bson }
+      count.times { BSON::ObjectId.new.to_bson }
     end
 
     bench.report("Regexp#to_bson -------->") do

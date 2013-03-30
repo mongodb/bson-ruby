@@ -300,6 +300,21 @@ describe BSON::ObjectId do
     end
   end
 
+  describe "#generation_time" do
+
+    let(:time) do
+      Time.utc(2013, 1, 1)
+    end
+
+    let(:object_id) do
+      described_class.from_time(time)
+    end
+
+    it "returns the generation time" do
+      expect(object_id.generation_time).to eq(time)
+    end
+  end
+
   describe ".legal?" do
 
     context "when the string is too short to be an object id" do
