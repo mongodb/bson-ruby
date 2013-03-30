@@ -62,6 +62,18 @@ module BSON
       encode(UTF8).force_encoding(BINARY)
     end
 
+    # Convert the string to a hexidecimal representation.
+    #
+    # @example Convert the string to hex.
+    #   "\x01".to_hex_string
+    #
+    # @return [ String ] The string as hex.
+    #
+    # @since 2.0.0
+    def to_hex_string
+      unpack("H*")[0]
+    end
+
     # Take the binary string and return a UTF-8 encoded string.
     #
     # @example Convert from a BSON string.

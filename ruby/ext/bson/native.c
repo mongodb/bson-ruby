@@ -4,12 +4,22 @@
 /*
  * For 64 byte systems we convert to longs, for 32 byte systems we convert
  * to a long long.
+ *
+ * @since 2.0.0
  */
 #if SIZEOF_LONG == 8
 #define NUM2INT64(v) NUM2LONG(v)
 #else
 #define NUM2INT64(v) NUM2LL(v)
 #endif
+
+/*
+ * Convenience for taking the raw bytes of an object id and converting it
+ * into a hex representation.
+ *
+ * @since 2.0.0
+ */
+#define CHAR2HEX(c) ((c) > 9 ? (c) - 10 + 'a' : (c) + '0')
 
 /*
  * Convert the Ruby integer into a BSON as per the 32 bit specification,

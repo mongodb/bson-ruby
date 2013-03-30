@@ -117,7 +117,7 @@ module BSON
     #
     # @since 2.0.0
     def to_s
-      to_bson.unpack("H*")[0].force_encoding(UTF8)
+      to_bson.to_hex_string.force_encoding(UTF8)
     end
     alias :to_str :to_s
 
