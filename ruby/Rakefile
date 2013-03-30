@@ -11,6 +11,7 @@ require "bson/version"
 require_relative "perf/bench"
 
 RSpec::Core::RakeTask.new(:spec)
+RSpec::Core::RakeTask.new(:rspec)
 
 Cucumber::Rake::Task.new do |t|
   t.cucumber_opts = %w{--format pretty}
@@ -61,4 +62,4 @@ end
 
 task :bench => [ "benchmark:ruby", "benchmark:c" ]
 
-task :default => [ :clean, :spec ]
+task :default => [ :clean, :spec, :compile, :rspec ]
