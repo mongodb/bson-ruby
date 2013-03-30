@@ -14,14 +14,6 @@
 #endif
 
 /*
- * Convenience for taking the raw bytes of an object id and converting it
- * into a hex representation.
- *
- * @since 2.0.0
- */
-#define CHAR2HEX(c) ((c) > 9 ? (c) - 10 + 'a' : (c) + '0')
-
-/*
  * Convert the Ruby integer into a BSON as per the 32 bit specification,
  * which is 4 bytes.
  *
