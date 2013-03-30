@@ -71,6 +71,10 @@ push:publish-if-up-to-date
 	@echo [build]: copying the new $(current-branch) build to the web servers.
 	$(MAKE) MODE='push' push-dc1 push-dc2
 	@echo [build]: deployed a new build of the $(current-branch) branch of the Manual.
+stage:publish-if-up-to-date
+	@echo [build]: copying the new $(current-branch) build to the web servers.
+	$(MAKE) MODE='push' push-staging
+	@echo [build]: deployed a new build of the $(current-branch) branch of the Manual.
 
 push-all:publish
 	@echo [build]: copying the full docs site to the web servers.
@@ -99,6 +103,8 @@ push-all-dc1:
 	rsync -arz $(public-output)/ www@www-c1.10gen.cc:/data/sites/docs/meta-driver/
 push-all-dc2:
 	rsync -arz $(public-output)/ www@www-c1.10gen.cc:/data/sites/docs/meta-driver/
+push-staging:
+	rsync -arz $(public-output)/ public@test.docs.10gen.cc:/srv/public/test
 endif
 
 ######################################################################
