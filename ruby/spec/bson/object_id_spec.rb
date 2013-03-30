@@ -350,19 +350,16 @@ describe BSON::ObjectId do
     end
   end
 
-  describe "#to_bson" do
+  describe "#to_bson/#from_bson" do
 
-    let(:object_id) do
-      described_class.new
-    end
+    let(:time) { Time.utc(2013, 1, 1) }
+    let(:type) { 7.chr }
+    let(:obj)  { described_class.from_time(time) }
+    let(:bson) { obj.to_bson }
 
-    let(:data) do
-      object_id.instance_variable_get(:@raw_data)
-    end
-
-    it "returns the raw bytes" do
-      expect(object_id.to_bson).to eq(data)
-    end
+    it_behaves_like "a bson element"
+    it_behaves_like "a serializable bson element"
+    it_behaves_like "a deserializable bson element"
   end
 
   describe "#to_s" do

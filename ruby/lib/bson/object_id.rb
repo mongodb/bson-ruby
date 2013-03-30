@@ -134,6 +134,20 @@ module BSON
 
     class << self
 
+      # Deserialize the object id from raw BSON bytes.
+      #
+      # @example Get the object id from BSON.
+      #   ObjectId.from_bson(bson)
+      #
+      # @param [ String ] bson The raw BSON bytes.
+      #
+      # @return [ BSON::ObjectId ] The object id.
+      #
+      # @since 2.0.0
+      def from_bson(bson)
+        from_data(bson.read(12))
+      end
+
       # Create a new object id from raw bytes.
       #
       # @example Create an object id from raw bytes.
