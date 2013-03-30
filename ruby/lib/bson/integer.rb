@@ -94,17 +94,25 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
-      [ self ].pack(bson_pack_directive)
+      unless bson_int64?
+        out_of_range!
+      else
+        bson_int32? ? to_bson_int32 : to_bson_int64
+      end
     end
 
     private
 
-    def bson_pack_directive
-      bson_int32? ? Int32::PACK : (bson_int64? ? Int64::PACK : out_of_range!)
-    end
-
     def out_of_range!
       raise OutOfRange.new("#{self} is not a valid 8 byte integer value.")
+    end
+
+    def to_bson_int32
+      [ self ].pack(Int32::PACK)
+    end
+
+    def to_bson_int64
+      [ self ].pack(Int64::PACK)
     end
   end
 
