@@ -29,7 +29,13 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(bson)
-      bson.read(4).unpack(PACK).first
+      from_bson_int32(bson.read(4))
+    end
+
+    private
+
+    def self.from_bson_int32(bytes)
+      bytes.unpack(PACK).first
     end
 
     # Register this type when the module is loaded.

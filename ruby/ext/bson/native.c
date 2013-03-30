@@ -66,6 +66,25 @@ static VALUE rb_integer_to_bson_int64(VALUE self)
 }
 
 /*
+ * Converts the milliseconds time to the raw BSON bytes. We need to
+ * explicitly convert using 64 bit here.
+ *
+ * @example Convert the milliseconds value to BSON bytes.
+ *    rb_time_to_bson(time, 2124132340000);
+ *
+ * @param [ Time ] self The Ruby Time object.
+ * @param [ Integer ] milliseconds The milliseconds pre/post epoch.
+ *
+ * @return [ String ] A Ruby string of raw bytes.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_time_to_bson(VALUE self, VALUE milliseconds)
+{
+  return rb_integer_to_bson_int64(milliseconds);
+}
+
+/*
  * Initialize the bson c extension.
  *
  * @since 2.0.0
@@ -73,10 +92,16 @@ static VALUE rb_integer_to_bson_int64(VALUE self)
 void Init_native()
 {
   VALUE bson = rb_const_get(rb_cObject, rb_intern("BSON"));
-
   VALUE integer = rb_const_get(bson, rb_intern("Integer"));
-  rb_remove_method(integer, "to_bson_int32");
+  VALUE time = rb_const_get(bson, rb_intern("Time"));
+
+  // Redefine the serialization methods on the Integer class.
+  rb_undef_method(integer, "to_bson_int32");
   rb_define_private_method(integer, "to_bson_int32", rb_integer_to_bson_int32, 0);
-  rb_remove_method(integer, "to_bson_int64");
+  rb_undef_method(integer, "to_bson_int64");
   rb_define_private_method(integer, "to_bson_int64", rb_integer_to_bson_int64, 0);
+
+  // Redefine the serialization methods on the time class.
+  rb_undef_method(time, "to_bson_time");
+  rb_define_method(time, "to_bson_time", rb_time_to_bson, 1);
 }

@@ -25,10 +25,17 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
-      [ (to_f * 1000).to_i ].pack(Int64::PACK)
+      to_bson_time((to_f * 1000).to_i)
+    end
+
+    private
+
+    def to_bson_time(milliseconds)
+      [ milliseconds ].pack(Int64::PACK)
     end
 
     module ClassMethods
+
       # Deserialize UTC datetime from BSON.
       #
       # @param [ BSON ] bson The bson representing UTC datetime.
