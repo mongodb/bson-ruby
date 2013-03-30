@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.description       = 'A Ruby BSON implementation for MongoDB'
   s.rubyforge_project = 'mongo'
 
-  s.version           = File.read(File.join(File.dirname(__FILE__), 'VERSION'))
+  s.version           = '2.0.0'
   s.platform          = Gem::Platform::RUBY
 
   s.files             = ['lib/mongo.rb']
