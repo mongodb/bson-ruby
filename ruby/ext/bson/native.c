@@ -9,8 +9,10 @@
  */
 #if SIZEOF_LONG == 8
 #define NUM2INT64(v) NUM2LONG(v)
+#define INT642NUM(v) LONG2NUM(v)
 #else
 #define NUM2INT64(v) NUM2LL(v)
+#define INT642NUM(v) LL2NUM(v)
 #endif
 
 /*
@@ -77,7 +79,7 @@ static VALUE rb_integer_from_bson_int64(VALUE self, VALUE bson)
   const int64_t lower = v[0] + (v[1] << 8) + (v[2] << 16) + (v[3] << 24);
   const int64_t upper = v[4] + (v[5] << 8) + (v[6] << 16) + (v[7] << 24);
   const uint64_t integer = lower + (upper << 32);
-  return LONG2NUM(integer);
+  return INT642NUM(integer);
 }
 
 /*
