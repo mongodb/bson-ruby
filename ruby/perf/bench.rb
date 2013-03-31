@@ -57,9 +57,14 @@ def benchmark!
       count.times { true.to_bson }
     end
 
-    int_bytes = 1024.to_bson
-    bench.report("Integer#from_bson ----->") do
-      count.times { BSON::Int32.from_bson(StringIO.new(int_bytes)) }
+    int32_bytes = 1024.to_bson
+    bench.report("Int32#from_bson ------->") do
+      count.times { BSON::Int32.from_bson(StringIO.new(int32_bytes)) }
+    end
+
+    int64_bytes = (BSON::Integer::MAX_32BIT + 1).to_bson
+    bench.report("Int64#from_bson ------->") do
+      count.times { BSON::Int64.from_bson(StringIO.new(int64_bytes)) }
     end
   end
 end

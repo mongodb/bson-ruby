@@ -59,6 +59,28 @@ static VALUE rb_integer_from_bson_int32(VALUE self, VALUE bson)
 }
 
 /*
+ * Convert the provided raw bytes into a 64bit Ruby integer.
+ *
+ * @example Convert the bytes to an Integer.
+ *    rb_integer_from_bson_int64(Int64, bytes);
+ *
+ * @param [ BSON::Int64 ] self The Int64 eigenclass.
+ * @param [ String ] bytes The raw bytes.
+ *
+ * @return [ Integer ] The Ruby integer.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_integer_from_bson_int64(VALUE self, VALUE bson)
+{
+  const uint8_t *v = (const uint8_t*) RSTRING_PTR(bson);
+  const int64_t lower = v[0] + (v[1] << 8) + (v[2] << 16) + (v[3] << 24);
+  const int64_t upper = v[4] + (v[5] << 8) + (v[6] << 16) + (v[7] << 24);
+  const uint64_t integer = lower + (upper << 32);
+  return LONG2NUM(integer);
+}
+
+/*
  * Convert the Ruby integer into a BSON as per the 64 bit specification,
  * which is 8 bytes.
  *
@@ -113,11 +135,14 @@ static VALUE rb_time_to_bson(VALUE self, VALUE milliseconds)
  */
 void Init_native()
 {
+  // Get all the constants to be used in the extensions.
   VALUE bson = rb_const_get(rb_cObject, rb_intern("BSON"));
   VALUE integer = rb_const_get(bson, rb_intern("Integer"));
   VALUE time = rb_const_get(bson, rb_intern("Time"));
   VALUE int32 = rb_const_get(bson, rb_intern("Int32"));
   VALUE int32_class = rb_singleton_class(int32);
+  VALUE int64 = rb_const_get(bson, rb_intern("Int64"));
+  VALUE int64_class = rb_singleton_class(int64);
 
   // Redefine the serialization methods on the Integer class.
   rb_undef_method(integer, "to_bson_int32");
@@ -128,6 +153,10 @@ void Init_native()
   // Redefine deserialization methods on Int32 class.
   rb_undef_method(int32_class, "from_bson_int32");
   rb_define_private_method(int32_class, "from_bson_int32", rb_integer_from_bson_int32, 1);
+
+  // Redefine deserialization methods on Int64 class.
+  rb_undef_method(int64_class, "from_bson_int64");
+  rb_define_private_method(int64_class, "from_bson_int64", rb_integer_from_bson_int64, 1);
 
   // Redefine the serialization methods on the time class.
   rb_undef_method(time, "to_bson_time");
