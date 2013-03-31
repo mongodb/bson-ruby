@@ -9,15 +9,22 @@ module BSON
   # @since 2.0.0
   module TrueClass
 
-    # A boolean is type 0x08 in the BSON spec.
-    #
-    # @since 2.0.0
-    BSON_TYPE = 8.chr.force_encoding(BINARY).freeze
-
     # A true value in the BSON spec is 0x01.
     #
     # @since 2.0.0
     TRUE_BYTE = 1.chr.force_encoding(BINARY).freeze
+
+    # The BSON type for true values is the general boolean type of 0x08.
+    #
+    # @example Get the bson type.
+    #   false.bson_type
+    #
+    # @return [ String ] The character 0x08.
+    #
+    # @since 2.0.0
+    def bson_type
+      Boolean::BSON_TYPE
+    end
 
     # Get the true boolean as encoded BSON.
     #

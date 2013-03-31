@@ -7,7 +7,9 @@ describe TrueClass do
 
     let(:obj)  { true }
     let(:bson) { 1.chr }
+    let(:type) { 8.chr }
 
+    it_behaves_like "a bson element"
     it_behaves_like "a serializable bson element"
   end
 end
