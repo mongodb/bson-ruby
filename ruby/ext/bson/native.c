@@ -39,6 +39,26 @@ static VALUE rb_integer_to_bson_int32(VALUE self)
 }
 
 /*
+ * Convert the provided raw bytes into a 32bit Ruby integer.
+ *
+ * @example Convert the bytes to an Integer.
+ *    rb_integer_from_bson_int32(Int32, bytes);
+ *
+ * @param [ BSON::Int32 ] self The Int32 eigenclass.
+ * @param [ String ] bytes The raw bytes.
+ *
+ * @return [ Integer ] The Ruby integer.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_integer_from_bson_int32(VALUE self, VALUE bson)
+{
+  const uint8_t *v = (const uint8_t*) RSTRING_PTR(bson);
+  const uint32_t integer = v[0] + (v[1] << 8) + (v[2] << 16) + (v[3] << 24);
+  return INT2NUM(integer);
+}
+
+/*
  * Convert the Ruby integer into a BSON as per the 64 bit specification,
  * which is 8 bytes.
  *
@@ -96,12 +116,18 @@ void Init_native()
   VALUE bson = rb_const_get(rb_cObject, rb_intern("BSON"));
   VALUE integer = rb_const_get(bson, rb_intern("Integer"));
   VALUE time = rb_const_get(bson, rb_intern("Time"));
+  VALUE int32 = rb_const_get(bson, rb_intern("Int32"));
+  VALUE int32_class = rb_singleton_class(int32);
 
   // Redefine the serialization methods on the Integer class.
   rb_undef_method(integer, "to_bson_int32");
   rb_define_private_method(integer, "to_bson_int32", rb_integer_to_bson_int32, 0);
   rb_undef_method(integer, "to_bson_int64");
   rb_define_private_method(integer, "to_bson_int64", rb_integer_to_bson_int64, 0);
+
+  // Redefine deserialization methods on Int32 class.
+  rb_undef_method(int32_class, "from_bson_int32");
+  rb_define_private_method(int32_class, "from_bson_int32", rb_integer_from_bson_int32, 1);
 
   // Redefine the serialization methods on the time class.
   rb_undef_method(time, "to_bson_time");
