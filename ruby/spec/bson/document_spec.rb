@@ -889,4 +889,107 @@ describe BSON::Document do
       it_behaves_like "a deserializable bson element"
     end
   end
+
+  context "when encoding and decoding" do
+
+    context "when the keys are utf-8" do
+
+      let(:doc) do
+        { "gültig" => "type" }
+      end
+
+      it_behaves_like "a document able to handle utf-8"
+    end
+
+    context "when the values are utf-8" do
+
+      let(:doc) do
+        { "type" => "gültig" }
+      end
+
+      it_behaves_like "a document able to handle utf-8"
+    end
+
+    context "when both the keys and values are utf-8" do
+
+      let(:doc) do
+        { "gültig" => "gültig" }
+      end
+
+      it_behaves_like "a document able to handle utf-8"
+    end
+
+    context "when the regexps are utf-8" do
+
+      let(:doc) do
+        { "type" => /^gültig/ }
+      end
+
+      it_behaves_like "a document able to handle utf-8"
+    end
+
+    context "when the symbols are utf-8" do
+
+      let(:doc) do
+        { "type" => "gültig".to_sym }
+      end
+
+      it_behaves_like "a document able to handle utf-8"
+    end
+
+    context "when utf-8 string values are in an array" do
+
+      let(:doc) do
+        { "type" => ["gültig"] }
+      end
+
+      it_behaves_like "a document able to handle utf-8"
+    end
+
+    context "when utf-8 code values are present" do
+
+      let(:doc) do
+        { "code" => BSON::Code.new("// gültig") }
+      end
+
+      it_behaves_like "a document able to handle utf-8"
+    end
+
+    pending "when utf-8 code with scope values are present" do
+
+      let(:doc) do
+        { "code" => BSON::CodeWithScope.new("// gültig", {}) }
+      end
+
+      it_behaves_like "a document able to handle utf-8"
+    end
+
+    context "when non utf-8 values exist" do
+
+      let(:string) { "gültig" }
+      let(:doc) do
+        { "type" => string.encode("iso-8859-1") }
+      end
+
+      it "encodes and decodes the document properly" do
+        expect(BSON::Document.from_bson(StringIO.new(doc.to_bson))).to eq(
+          { "type" => string }
+        )
+      end
+    end
+
+    context "when binary strings with utf-8 values exist" do
+
+      let(:string) { "europäischen" }
+      let(:doc) do
+        { "type" => string.encode("binary", "binary") }
+      end
+
+      it "encodes and decodes the document properly" do
+        expect(BSON::Document.from_bson(StringIO.new(doc.to_bson))).to eq(
+          { "type" => string }
+        )
+      end
+    end
+  end
 end

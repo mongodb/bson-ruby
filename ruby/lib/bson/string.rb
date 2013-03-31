@@ -27,7 +27,8 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
-      (bytesize + 1).to_bson + to_bson_cstring
+      data = to_bson_string
+      (data.bytesize + 1).to_bson + data + NULL_BYTE
     end
 
     # Get the string as an encoded C string.
@@ -59,7 +60,13 @@ module BSON
     #
     # @since 2.0.0
     def to_bson_string
-      encode(UTF8).force_encoding(BINARY)
+      begin
+        encode(UTF8).force_encoding(BINARY)
+      rescue EncodingError
+        data = dup.force_encoding(UTF8)
+        raise unless data.valid_encoding?
+        data.force_encoding(BINARY)
+      end
     end
 
     # Convert the string to a hexidecimal representation.
@@ -85,7 +92,7 @@ module BSON
     #
     # @since 2.0.0
     def from_bson_string
-      force_encoding(BINARY).encode(UTF8)
+      force_encoding(UTF8).encode!
     end
 
     module ClassMethods

@@ -61,3 +61,10 @@ shared_examples_for "immutable when frozen" do |block|
     end
   end
 end
+
+shared_examples_for "a document able to handle utf-8" do
+
+  it "serializes and deserializes properly" do
+    expect(BSON::Document.from_bson(StringIO.new(doc.to_bson))).to eq(doc)
+  end
+end
