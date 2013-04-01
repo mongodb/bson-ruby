@@ -11,7 +11,7 @@ describe Time do
 
     context "when the time is post epoch" do
 
-      let(:obj)  { Time.new(2012, 1, 1, 0, 0, 0) }
+      let(:obj)  { Time.utc(2012, 1, 1, 0, 0, 0) }
       let(:bson) { [ (obj.to_f * 1000).to_i ].pack(BSON::Int64::PACK) }
 
       it_behaves_like "a serializable bson element"
@@ -20,7 +20,7 @@ describe Time do
 
     context "when the time is pre epoch" do
 
-      let(:obj)  { Time.new(1969, 1, 1, 0, 0, 0) }
+      let(:obj)  { Time.utc(1969, 1, 1, 0, 0, 0) }
       let(:bson) { [ (obj.to_f * 1000).to_i ].pack(BSON::Int64::PACK) }
 
       it_behaves_like "a serializable bson element"

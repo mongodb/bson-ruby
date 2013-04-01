@@ -129,11 +129,11 @@ describe BSON::ObjectId do
   describe "#<" do
 
     let(:object_id) do
-      described_class.from_time(Time.new(2012, 1, 1))
+      described_class.from_time(Time.utc(2012, 1, 1))
     end
 
     let(:other_id) do
-      described_class.from_time(Time.new(2012, 1, 30))
+      described_class.from_time(Time.utc(2012, 1, 30))
     end
 
     context "when the generation time before the other" do
@@ -154,11 +154,11 @@ describe BSON::ObjectId do
   describe "#>" do
 
     let(:object_id) do
-      described_class.from_time(Time.new(2012, 1, 1))
+      described_class.from_time(Time.utc(2012, 1, 1))
     end
 
     let(:other_id) do
-      described_class.from_time(Time.new(2012, 1, 30))
+      described_class.from_time(Time.utc(2012, 1, 30))
     end
 
     context "when the generation time before the other" do
@@ -179,11 +179,11 @@ describe BSON::ObjectId do
   describe "#<=>" do
 
     let(:object_id) do
-      described_class.from_time(Time.new(2012, 1, 1))
+      described_class.from_time(Time.utc(2012, 1, 1))
     end
 
     let(:other_id) do
-      described_class.from_time(Time.new(2012, 1, 30))
+      described_class.from_time(Time.utc(2012, 1, 30))
     end
 
     context "when the generation time before the other" do
@@ -287,11 +287,11 @@ describe BSON::ObjectId do
       end
 
       let(:object_id) do
-        described_class.from_time(time, unique: true)
+        described_class.from_time(time, :unique => true)
       end
 
       let(:non_unique) do
-        described_class.from_time(time, unique: true)
+        described_class.from_time(time, :unique => true)
       end
 
       it "creates a new unique object id" do

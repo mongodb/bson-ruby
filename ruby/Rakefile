@@ -8,7 +8,12 @@ require "cucumber/rake/task"
 require "rspec/core/rake_task"
 
 require "bson/version"
-require_relative "perf/bench"
+
+if RUBY_VERSION < "1.9"
+  require "perf/bench"
+else
+  require_relative "perf/bench"
+end
 
 RSpec::Core::RakeTask.new(:spec)
 RSpec::Core::RakeTask.new(:rspec)

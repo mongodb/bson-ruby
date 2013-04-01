@@ -1,4 +1,43 @@
 # encoding: utf-8
+
+# Determine if we are using JRuby or not.
+#
+# @example Are we running with JRuby?
+#   jruby?
+#
+# @return [ true, false ] If JRuby is our vm.
+#
+# @since 2.0.0
+def jruby?
+  defined?(JRUBY_VERSION)
+end
+
+# Does the Ruby runtime we are using support ordered hashes?
+#
+# @example Does the runtime support ordered hashes?
+#   ordered_hash_support?
+#
+# @return [ true, false ] If the runtime has ordered hashes.
+#
+# @since 2.0.0
+def ordered_hash_support?
+  jruby? || RUBY_VERSION > "1.9.1"
+end
+
+# In the case where we don't have encoding, we need to monkey
+# patch string to ignore the encoding directives.
+#
+# @since 2.0.0
+if RUBY_VERSION < "1.9"
+
+  class String
+
+    def force_encoding(*); self; end
+    def encode(*); self; end
+    def encode!(*); self; end
+  end
+end
+
 #
 # The core namespace for all BSON related behaviour.
 #
@@ -53,30 +92,6 @@ require "bson/timestamp"
 require "bson/true_class"
 require "bson/undefined"
 require "bson/version"
-
-# Determine if we are using JRuby or not.
-#
-# @example Are we running with JRuby?
-#   jruby?
-#
-# @return [ true, false ] If JRuby is our vm.
-#
-# @since 2.0.0
-def jruby?
-  RUBY_ENGINE == "jruby"
-end
-
-# Does the Ruby runtime we are using support ordered hashes?
-#
-# @example Does the runtime support ordered hashes?
-#   ordered_hash_support?
-#
-# @return [ true, false ] If the runtime has ordered hashes.
-#
-# @since 2.0.0
-def ordered_hash_support?
-  jruby? || RUBY_VERSION > "1.9.1"
-end
 
 # If we have ordered hashes, the a BSON::Document is simply a hash. If we do
 # not, then we need to import our custom BSON::Document implementation.

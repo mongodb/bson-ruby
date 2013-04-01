@@ -1,6 +1,7 @@
 # encoding: utf-8
 require "digest/md5"
 require "socket"
+require "thread"
 
 module BSON
 
