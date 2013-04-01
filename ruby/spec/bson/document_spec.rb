@@ -327,9 +327,6 @@ describe BSON::Document do
     it_behaves_like "immutable when frozen", ->(doc){ doc.default = 1 }
   end
 
-  pending "#default_proc"
-  pending "#default_proc="
-
   describe "#delete" do
 
     let(:doc) { described_class[:a => 5, :b => 2] }
@@ -700,8 +697,6 @@ describe BSON::Document do
       end
     end
   end
-
-  pending "#inspect"
 
   describe "#invert" do
 
