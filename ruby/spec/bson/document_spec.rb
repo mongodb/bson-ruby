@@ -816,7 +816,7 @@ describe BSON::Document do
     end
   end
 
-  shared_examples_for "a mergable object" do
+  describe "#merge" do
 
     let(:doc) { described_class[:a => 1, :b => 2] }
     let(:merged) { doc.merge(other) }
@@ -827,6 +827,10 @@ describe BSON::Document do
 
       it "merges the new elements into the document" do
         expect(merged).to eq(:a => 1, :b => 2, :c => 3)
+      end
+
+      it "returns a new document" do
+        expect(merged).to_not equal(doc)
       end
     end
 
@@ -867,29 +871,58 @@ describe BSON::Document do
     end
   end
 
-  describe "#merge" do
-
-    let(:document) do
-      described_class.new
-    end
-
-    it_behaves_like "a mergable object"
-
-    it "returns a new document" do
-      expect(document.merge({})).to_not equal(document)
-    end
-  end
-
   describe "#merge!" do
 
-    let(:document) do
-      described_class.new
+    let(:doc) { described_class[:a => 1, :b => 2] }
+    let(:merged) { doc.merge!(other) }
+
+    context "when passed another document" do
+
+      let(:other) { described_class[:c => 3] }
+
+      it "merges the new elements into the document" do
+        expect(merged).to eq(:a => 1, :b => 2, :c => 3)
+      end
+
+      it "returns the same document" do
+        expect(merged).to equal(doc)
+      end
     end
 
-    it_behaves_like "a mergable object"
+    context "when passed a hash" do
 
-    it "returns the same document" do
-      expect(document.merge!({})).to equal(document)
+      let(:other) do
+        { :c => 3 }
+      end
+
+      it "merges the new elements into the document" do
+        expect(merged).to eq(:a => 1, :b => 2, :c => 3)
+      end
+    end
+
+    context "when passed a non hash or document" do
+
+      context "when the object responds to to_hash" do
+
+        let(:other) { mock }
+
+        before do
+          other.should_receive(:to_hash).and_return(:c => 3)
+        end
+
+        it "merges the new elements into the document" do
+          expect(merged).to eq(:a => 1, :b => 2, :c => 3)
+        end
+      end
+
+      context "when the object does not respond to to_hash" do
+
+        let(:other) { "test" }
+
+        it "merges the new elements into the document" do
+          expect { merged }.to raise_error(TypeError)
+        end
+      end
     end
   end
 
@@ -947,7 +980,26 @@ describe BSON::Document do
     end
   end
 
-  pending "#reject"
+  describe "reject" do
+
+    let(:doc) { described_class[:a => 1, :b => 2, :c => 3] }
+    let(:rejected) do
+      doc.reject{ |key, value| value }
+    end
+
+    it "removes keys for which the block yields true" do
+      expect(rejected).to be_empty
+    end
+
+    it "taints the resulting hash" do
+      expect(doc.taint.reject{ false }).to be_tainted
+    end
+
+    it "returns a new document" do
+      expect(rejected).not_to equal(doc)
+    end
+  end
+
   pending "#reject!"
   pending "#replace"
   pending "#select"
