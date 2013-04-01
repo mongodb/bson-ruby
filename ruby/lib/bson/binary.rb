@@ -121,7 +121,7 @@ module BSON
     # @since 2.0.0
     def self.from_bson(bson)
       length = bson.read(4).unpack(Int32::PACK).first
-      type = SUBTYPES.invert[bson.read(1)]
+      type = TYPES[bson.read(1)]
 
       if type == :old
         length = bson.read(4).unpack(Int32::PACK).first
