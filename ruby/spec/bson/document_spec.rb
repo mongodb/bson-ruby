@@ -813,14 +813,14 @@ describe BSON::Document do
     end
   end
 
-  describe "#merge" do
+  shared_examples_for "a mergable object" do
 
     let(:doc) { described_class[:a => 1, :b => 2] }
+    let(:merged) { doc.merge(other) }
 
     context "when passed another document" do
 
       let(:other) { described_class[:c => 3] }
-      let(:merged) { doc.merge(other) }
 
       it "merges the new elements into the document" do
         expect(merged).to eq(:a => 1, :b => 2, :c => 3)
@@ -832,7 +832,6 @@ describe BSON::Document do
       let(:other) do
         { :c => 3 }
       end
-      let(:merged) { doc.merge(other) }
 
       it "merges the new elements into the document" do
         expect(merged).to eq(:a => 1, :b => 2, :c => 3)
@@ -840,8 +839,6 @@ describe BSON::Document do
     end
 
     context "when passed a non hash or document" do
-
-      let(:merged) { doc.merge(other) }
 
       context "when the object responds to to_hash" do
 
@@ -867,7 +864,32 @@ describe BSON::Document do
     end
   end
 
-  pending "#merge!"
+  describe "#merge" do
+
+    let(:document) do
+      described_class.new
+    end
+
+    it_behaves_like "a mergable object"
+
+    it "returns a new document" do
+      expect(document.merge({})).to_not equal(document)
+    end
+  end
+
+  describe "#merge!" do
+
+    let(:document) do
+      described_class.new
+    end
+
+    it_behaves_like "a mergable object"
+
+    it "returns the same document" do
+      expect(document.merge!({})).to equal(document)
+    end
+  end
+
   pending "#new"
   pending "#pretty_print"
   pending "#pretty_print_cycle"
