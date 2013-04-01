@@ -1000,7 +1000,26 @@ describe BSON::Document do
     end
   end
 
-  pending "#reject!"
+  describe "reject!" do
+
+    let(:doc) { described_class[:a => 1, :b => 2, :c => 3] }
+    let(:rejected) do
+      doc.reject!{ |key, value| value }
+    end
+
+    it "removes keys for which the block yields true" do
+      expect(rejected).to be_empty
+    end
+
+    it "taints the resulting hash" do
+      expect(doc.taint.reject{ false }).to be_tainted
+    end
+
+    it "returns the same document" do
+      expect(rejected).to equal(doc)
+    end
+  end
+
   pending "#replace"
   pending "#select"
   pending "#select!"
