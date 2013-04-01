@@ -579,12 +579,50 @@ describe BSON::Document do
     end
   end
 
+  describe "#to_bson/#from_bson" do
+
+    let(:type) { 3.chr }
+
+    it_behaves_like "a bson element"
+
+    context "when the hash is a single level" do
+
+      let(:obj) do
+        described_class["key" => "value"]
+      end
+
+      let(:bson) do
+        "#{20.to_bson}#{String::BSON_TYPE}key#{BSON::NULL_BYTE}" +
+        "#{6.to_bson}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
+      end
+
+      it_behaves_like "a serializable bson element"
+      it_behaves_like "a deserializable bson element"
+    end
+
+    context "when the hash is embedded" do
+
+      let(:obj) do
+        described_class["field" => { "key" => "value" }]
+      end
+
+      let(:bson) do
+        "#{32.to_bson}#{Hash::BSON_TYPE}field#{BSON::NULL_BYTE}" +
+        "#{20.to_bson}#{String::BSON_TYPE}key#{BSON::NULL_BYTE}" +
+        "#{6.to_bson}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
+      end
+
+      it_behaves_like "a serializable bson element"
+      it_behaves_like "a deserializable bson element"
+    end
+  end
+
   context "when encoding and decoding" do
 
     context "when the keys are utf-8" do
 
       let(:document) do
-        { "gültig" => "type" }
+        described_class["gültig" => "type"]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -593,7 +631,7 @@ describe BSON::Document do
     context "when the values are utf-8" do
 
       let(:document) do
-        { "type" => "gültig" }
+        described_class["type" => "gültig"]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -602,7 +640,7 @@ describe BSON::Document do
     context "when both the keys and values are utf-8" do
 
       let(:document) do
-        { "gültig" => "gültig" }
+        described_class["gültig" => "gültig"]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -611,7 +649,7 @@ describe BSON::Document do
     context "when the regexps are utf-8" do
 
       let(:document) do
-        { "type" => /^gültig/ }
+        described_class["type" => /^gültig/]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -620,7 +658,7 @@ describe BSON::Document do
     context "when the symbols are utf-8" do
 
       let(:document) do
-        { "type" => "gültig".to_sym }
+        described_class["type" => "gültig".to_sym]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -629,7 +667,7 @@ describe BSON::Document do
     context "when utf-8 string values are in an array" do
 
       let(:document) do
-        { "type" => ["gültig"] }
+        described_class["type" => ["gültig"]]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -638,7 +676,7 @@ describe BSON::Document do
     context "when utf-8 code values are present" do
 
       let(:document) do
-        { "code" => BSON::Code.new("// gültig") }
+        described_class["code" => BSON::Code.new("// gültig")]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -647,7 +685,7 @@ describe BSON::Document do
     pending "when utf-8 code with scope values are present" do
 
       let(:document) do
-        { "code" => BSON::CodeWithScope.new("// gültig", {}) }
+        described_class["code" => BSON::CodeWithScope.new("// gültig", {})]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -657,7 +695,7 @@ describe BSON::Document do
 
       let(:string) { "gültig" }
       let(:document) do
-        { "type" => string.encode("iso-8859-1") }
+        described_class["type" => string.encode("iso-8859-1")]
       end
 
       it "encodes and decodes the document properly" do
@@ -671,7 +709,7 @@ describe BSON::Document do
 
       let(:string) { "europäischen" }
       let(:document) do
-        { "type" => string.encode("binary", "binary") }
+        described_class["type" => string.encode("binary", "binary")]
       end
 
       it "encodes and decodes the document properly" do
