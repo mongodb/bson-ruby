@@ -813,7 +813,60 @@ describe BSON::Document do
     end
   end
 
-  pending "#merge"
+  describe "#merge" do
+
+    let(:doc) { described_class[:a => 1, :b => 2] }
+
+    context "when passed another document" do
+
+      let(:other) { described_class[:c => 3] }
+      let(:merged) { doc.merge(other) }
+
+      it "merges the new elements into the document" do
+        expect(merged).to eq(:a => 1, :b => 2, :c => 3)
+      end
+    end
+
+    context "when passed a hash" do
+
+      let(:other) do
+        { :c => 3 }
+      end
+      let(:merged) { doc.merge(other) }
+
+      it "merges the new elements into the document" do
+        expect(merged).to eq(:a => 1, :b => 2, :c => 3)
+      end
+    end
+
+    context "when passed a non hash or document" do
+
+      let(:merged) { doc.merge(other) }
+
+      context "when the object responds to to_hash" do
+
+        let(:other) { mock }
+
+        before do
+          other.should_receive(:to_hash).and_return(:c => 3)
+        end
+
+        it "merges the new elements into the document" do
+          expect(merged).to eq(:a => 1, :b => 2, :c => 3)
+        end
+      end
+
+      context "when the object does not respond to to_hash" do
+
+        let(:other) { "test" }
+
+        it "merges the new elements into the document" do
+          expect { merged }.to raise_error(TypeError)
+        end
+      end
+    end
+  end
+
   pending "#merge!"
   pending "#new"
   pending "#pretty_print"
