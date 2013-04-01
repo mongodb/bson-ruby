@@ -890,7 +890,60 @@ describe BSON::Document do
     end
   end
 
-  pending "#new"
+  describe "#new" do
+
+    context "when passed no args" do
+
+      it "creates an empty document" do
+        expect(described_class.new).to be_empty
+      end
+    end
+
+    context "when passed a default argument" do
+
+      let(:default) do
+        "test"
+      end
+
+      it "creates an empty document" do
+        expect(described_class.new(default)).to be_empty
+      end
+
+      it "does not copy the default" do
+        expect(described_class.new(default).default).to equal(default)
+      end
+    end
+
+    context "when passed a default block" do
+
+      let(:doc) do
+        described_class.new { |x| "test-#{x}" }
+      end
+
+      it "sets the default proc" do
+        expect(doc.default_proc.call(5)).to eq("test-5")
+      end
+    end
+
+    context "when passed more than one argument" do
+
+      it "raises an argument error" do
+        expect {
+          described_class.new(5, 6)
+        }.to raise_error(ArgumentError)
+      end
+    end
+
+    context "when passed both a default and default proc" do
+
+      it "raises an argument error" do
+        expect {
+          described_class.new(5) { "test" }
+        }.to raise_error(ArgumentError)
+      end
+    end
+  end
+
   pending "#pretty_print"
   pending "#pretty_print_cycle"
   pending "#rassoc"
