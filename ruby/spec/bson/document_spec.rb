@@ -155,6 +155,17 @@ describe BSON::Document do
     it_behaves_like "immutable when frozen", ->(doc){ doc.clear }
   end
 
+  describe "#clone" do
+
+    let(:doc) { described_class["key" => "value"] }
+    let(:clone) { doc.clone }
+
+    it "copies instance variable but not the objects they refer to" do
+      expect(clone).to eq(doc)
+      expect(clone.object_id).to_not eq(doc.object_id)
+    end
+  end
+
   describe "#compare_by_identity" do
 
     let(:doc) { described_class.new }
@@ -671,8 +682,6 @@ describe BSON::Document do
     end
   end
 
-  pending "#hash"
-
   describe "#include?" do
 
     let(:doc) { described_class[:a => 1] }
@@ -692,7 +701,6 @@ describe BSON::Document do
     end
   end
 
-  pending "#initialize_copy"
   pending "#inspect"
 
   describe "#invert" do
@@ -944,10 +952,6 @@ describe BSON::Document do
     end
   end
 
-  pending "#pretty_print"
-  pending "#pretty_print_cycle"
-  pending "#rassoc"
-  pending "#rehash"
   pending "#reject"
   pending "#reject!"
   pending "#replace"
