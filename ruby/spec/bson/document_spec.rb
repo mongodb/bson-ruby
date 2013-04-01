@@ -770,7 +770,20 @@ describe BSON::Document do
     end
   end
 
-  pending "#keys"
+  describe "#keys" do
+
+    let(:doc) { described_class[:a => 1, :b => 2, :c => 3] }
+
+    it "returns the keys in insertion order" do
+      expect(doc.keys).to eq([ :a, :b, :c ])
+    end
+
+    it "it uses the same order as #values" do
+      doc.size.times do |i|
+        expect(doc[doc.keys[i]]).to eq(doc.values[i])
+      end
+    end
+  end
 
   describe "#length" do
 
