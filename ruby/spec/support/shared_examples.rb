@@ -5,8 +5,10 @@ shared_examples_for "a binary encoded string" do
     Encoding.find(BSON::BINARY)
   end
 
-  it "returns the string with binary encoding" do
-    expect(encoded.encoding).to eq(binary_encoding)
+  unless RUBY_VERSION < "1.9"
+    it "returns the string with binary encoding" do
+      expect(encoded.encoding).to eq(binary_encoding)
+    end
   end
 end
 
