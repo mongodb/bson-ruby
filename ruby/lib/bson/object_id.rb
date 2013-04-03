@@ -279,8 +279,11 @@ module BSON
       #
       # @since 2.0.0
       def generate(time, counter = 0)
-        process_thread_id = "#{Process.pid}#{Thread.current.object_id}".hash % 0xFFFF
-        [ time, machine_id, process_thread_id, counter << 8 ].pack("N NX lXX NX")
+        [ time, machine_id, process_id, counter << 8 ].pack("N NX lXX NX")
+      end
+
+      def process_id
+        "#{Process.pid}#{Thread.current.object_id}".hash % 0xFFFF
       end
     end
 

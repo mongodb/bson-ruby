@@ -1,7 +1,7 @@
 #include <ruby.h>
 #include <stdint.h>
 
-/*
+/**
  * For 64 byte systems we convert to longs, for 32 byte systems we convert
  * to a long long.
  *
@@ -15,7 +15,12 @@
 #define INT642NUM(v) LL2NUM(v)
 #endif
 
-/*
+/* static VALUE rb_object_id_generator_next(VALUE self) */
+/* { */
+  // Need to generate the raw data for the object id here.
+/* } */
+
+/**
  * Convert the Ruby integer into a BSON as per the 32 bit specification,
  * which is 4 bytes.
  *
@@ -40,7 +45,7 @@ static VALUE rb_integer_to_bson_int32(VALUE self)
   return rb_str_new(bytes, 4);
 }
 
-/*
+/**
  * Convert the provided raw bytes into a 32bit Ruby integer.
  *
  * @example Convert the bytes to an Integer.
@@ -60,7 +65,7 @@ static VALUE rb_integer_from_bson_int32(VALUE self, VALUE bson)
   return INT2NUM(integer);
 }
 
-/*
+/**
  * Convert the provided raw bytes into a 64bit Ruby integer.
  *
  * @example Convert the bytes to an Integer.
@@ -82,7 +87,7 @@ static VALUE rb_integer_from_bson_int64(VALUE self, VALUE bson)
   return INT642NUM(integer);
 }
 
-/*
+/**
  * Convert the Ruby integer into a BSON as per the 64 bit specification,
  * which is 8 bytes.
  *
@@ -111,7 +116,7 @@ static VALUE rb_integer_to_bson_int64(VALUE self)
   return rb_str_new(bytes, 8);
 }
 
-/*
+/**
  * Converts the milliseconds time to the raw BSON bytes. We need to
  * explicitly convert using 64 bit here.
  *
@@ -130,7 +135,7 @@ static VALUE rb_time_to_bson(VALUE self, VALUE milliseconds)
   return rb_integer_to_bson_int64(milliseconds);
 }
 
-/*
+/**
  * Initialize the bson c extension.
  *
  * @since 2.0.0
