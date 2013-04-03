@@ -40,7 +40,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
-      value.bson_type + field.to_bson_cstring + value.to_bson
+      value.bson_type + field.to_bson_cstring << value.to_bson
     end
   end
 end

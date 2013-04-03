@@ -28,7 +28,7 @@ module BSON
     # @since 2.0.0
     def to_bson
       data = to_bson_string
-      (data.bytesize + 1).to_bson + data + NULL_BYTE
+      (data.bytesize + 1).to_bson << data << NULL_BYTE
     end
 
     # Get the string as an encoded C string.
@@ -45,7 +45,7 @@ module BSON
     # @since 2.0.0
     def to_bson_cstring
       check_for_illegal_characters!
-      to_bson_string + NULL_BYTE
+      to_bson_string << NULL_BYTE
     end
 
     # Convert the string to a UTF-8 string then force to binary. This is so

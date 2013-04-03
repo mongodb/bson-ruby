@@ -76,7 +76,7 @@ module BSON
     # @since @2.0.0
     def bin_data
       if type == :old
-        data.bytesize.to_bson + data
+        data.bytesize.to_bson << data
       else
         data
       end
@@ -107,7 +107,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
-      bin_data.bytesize.to_bson + SUBTYPES.fetch(type) + bin_data
+      bin_data.bytesize.to_bson << SUBTYPES.fetch(type) << bin_data
     end
 
     # Deserialize the binary data from BSON.

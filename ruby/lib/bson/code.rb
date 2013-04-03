@@ -70,7 +70,7 @@ module BSON
     # @since 2.0.0
     def to_bson
       raw = javascript.to_bson_string
-      (raw.bytesize + 1).to_bson + javascript.to_bson_cstring
+      (raw.bytesize + 1).to_bson << javascript.to_bson_cstring
     end
 
     # Deserialize code from BSON.

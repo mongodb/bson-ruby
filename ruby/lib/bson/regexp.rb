@@ -47,7 +47,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson
-      source.to_bson_cstring + bson_options.to_bson_cstring
+      source.to_bson_cstring << bson_options.to_bson_cstring
     end
 
     private
