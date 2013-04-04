@@ -177,7 +177,7 @@ describe BSON::Document do
     end
   end
 
-  describe "#each_val" do
+  describe "#each_value" do
 
     let(:iter_vals) {[]}
 
@@ -251,6 +251,7 @@ describe BSON::Document do
       context "when the document has been serialized" do
 
         let(:deserialized) do
+          p YAML.dump(doc)
           YAML.load(YAML.dump(doc))
         end
 
@@ -370,7 +371,7 @@ describe BSON::Document do
         other["violet"] = "ee82ee"
       end
 
-      let(:merged) do
+      let!(:merged) do
         doc.merge(other)
       end
 
@@ -479,13 +480,6 @@ describe BSON::Document do
     end
   end
 
-  describe "#to_json" do
-
-    it "returns the same as hash json" do
-      expect(doc.to_json).to eq(hash.to_json)
-    end
-  end
-
   describe "#initialize" do
 
     context "when provided for splat args" do
@@ -527,6 +521,21 @@ describe BSON::Document do
 
       it "sets the values" do
         expect(alternate.values).to eq([ 2, 4, nil ])
+      end
+    end
+
+    context "when provided hashes" do
+
+      let(:alternate) do
+        described_class[1 => 2, 3 => 4]
+      end
+
+      it "sets the keys" do
+        expect(alternate.keys).to eq([ 1, 3 ])
+      end
+
+      it "sets the values" do
+        expect(alternate.values).to eq([ 2, 4 ])
       end
     end
   end
