@@ -282,8 +282,16 @@ module BSON
         [ time, machine_id, process_id, counter << 8 ].pack("N NX lXX NX")
       end
 
-      def process_id
-        "#{Process.pid}#{Thread.current.object_id}".hash % 0xFFFF
+      private
+
+      if jruby?
+        def process_id
+          "#{Process.pid}#{Thread.current.object_id}".hash % 0xFFFF
+        end
+      else
+        def process_id
+          Process.pid % 0xFFFF
+        end
       end
     end
 
