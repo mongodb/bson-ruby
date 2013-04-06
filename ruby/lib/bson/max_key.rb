@@ -71,8 +71,8 @@ module BSON
     # @return [ String ] An empty string.
     #
     # @since 2.0.0
-    def to_bson
-      NO_VALUE
+    def to_bson(encoded = ''.force_encoding(BINARY))
+      encoded << NO_VALUE
     end
 
     # Deserialize MaxKey from BSON.

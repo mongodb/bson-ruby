@@ -36,8 +36,8 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson
-      TRUE_BYTE
+    def to_bson(encoded = ''.force_encoding(BINARY))
+      encoded << TRUE_BYTE
     end
   end
 

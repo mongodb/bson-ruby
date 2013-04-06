@@ -28,10 +28,12 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson
-      encode_bson_with_placeholder do |encoded|
+    def to_bson(encoded = ''.force_encoding(BINARY))
+      encode_bson_with_placeholder(encoded) do |encoded|
         each_with_index do |value, index|
-          encoded << Element.new(index.to_s, value).to_bson
+          #Element.new(index.to_s, value).to_bson(encoded) #review
+          encoded << value.bson_type << index.to_s.to_bson_cstring
+          value.to_bson(encoded)
         end
       end
     end

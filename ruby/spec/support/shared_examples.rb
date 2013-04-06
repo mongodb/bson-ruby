@@ -28,6 +28,10 @@ shared_examples_for "a serializable bson element" do
   it "serializes to bson" do
     expect(obj.to_bson).to eq(bson)
   end
+
+  it "serializes to bson by appending" do
+    expect(obj.to_bson('previous_content')).to eq('previous_content' << bson)
+  end
 end
 
 shared_examples_for "a deserializable bson element" do

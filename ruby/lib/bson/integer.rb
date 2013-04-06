@@ -93,11 +93,11 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson
+    def to_bson(encoded = ''.force_encoding(BINARY))
       unless bson_int64?
         out_of_range!
       else
-        bson_int32? ? to_bson_int32 : to_bson_int64
+        encoded << (bson_int32? ? to_bson_int32 : to_bson_int64)
       end
     end
 

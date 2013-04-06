@@ -24,8 +24,8 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson
-      to_bson_time((to_f * 1000).to_i)
+    def to_bson(encoded = ''.force_encoding(BINARY))
+      encoded << to_bson_time((to_f * 1000).to_i)
     end
 
     private

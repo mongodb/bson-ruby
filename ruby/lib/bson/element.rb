@@ -39,8 +39,9 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson
-      value.bson_type + field.to_bson_cstring << value.to_bson
+    def to_bson(encoded = ''.force_encoding(BINARY))
+      encoded << value.bson_type << field.to_bson_cstring
+      value.to_bson(encoded)
     end
   end
 end

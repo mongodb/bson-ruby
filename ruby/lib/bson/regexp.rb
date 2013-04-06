@@ -46,8 +46,9 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson
-      source.to_bson_cstring << bson_options.to_bson_cstring
+    def to_bson(encoded = ''.force_encoding(BINARY))
+      encoded << source.to_bson_cstring
+      encoded << bson_options.to_bson_cstring
     end
 
     private

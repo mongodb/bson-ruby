@@ -12,24 +12,25 @@ module BSON
     PLACEHOLDER = 0.to_bson.freeze
 
     # Encodes BSON to raw bytes, for types that require the length of the
-    # entire bytes to be present as the first bit of the encoded string. This
+    # entire bytes to be present as the first word of the encoded string. This
     # includes Hash, CodeWithScope.
     #
     # @example Encode the BSON with placeholder bytes.
-    #   object.encode_bson_with_placeholder do |encoded|
+    #   object.encode_bson_with_placeholder(encoded) do |encoded|
     #     each do |field, value|
-    #       encoded << Element.new(field, value).to_bson
+    #       encoded << Element.new(field, value).to_bson(encoded)
     #     end
     #   end
     #
     # @return [ String ] The encoded string.
     #
     # @since 2.0.0
-    def encode_bson_with_placeholder(encoded = "".force_encoding(BINARY))
+    def encode_bson_with_placeholder(encoded = ''.force_encoding(BINARY))
+      pos = encoded.bytesize
       encoded << PLACEHOLDER
       yield(encoded)
       encoded << NULL_BYTE
-      encoded[0, 4] = encoded.bytesize.to_bson
+      encoded[pos, 4] = (encoded.bytesize - pos).to_bson
       encoded
     end
   end

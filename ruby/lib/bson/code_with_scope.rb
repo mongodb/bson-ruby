@@ -75,9 +75,10 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson
-      encode_bson_with_placeholder do |encoded|
-        encoded << javascript.to_bson << scope.to_bson
+    def to_bson(encoded = ''.force_encoding(BINARY))
+      encode_bson_with_placeholder(encoded) do |encoded|
+        javascript.to_bson(encoded)
+        scope.to_bson(encoded)
       end
     end
 

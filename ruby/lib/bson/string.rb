@@ -26,9 +26,9 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson
+    def to_bson(encoded = ''.force_encoding(BINARY))
       data = to_bson_string
-      (data.bytesize + 1).to_bson << data << NULL_BYTE
+      (data.bytesize + 1).to_bson(encoded) << data << NULL_BYTE
     end
 
     # Get the string as an encoded C string.

@@ -13,3 +13,4 @@ ruby/tmp/*
 *.o
 *.bundle
 Makefile
+.idea/

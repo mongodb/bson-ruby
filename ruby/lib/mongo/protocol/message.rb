@@ -30,8 +30,9 @@ module Mongo
         fields.join
       end
 
-      def to_bson
-        [header, message].join
+      def to_bson(encoded = ''.force_encoding(BINARY))
+        encoded << header
+        encoded << message
       end
     end
   end

@@ -104,9 +104,10 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson
+    def to_bson(encoded = ''.force_encoding(BINARY))
       repair!(@data) if defined?(@data)
       @raw_data ||= @@generator.next
+      encoded << @raw_data
     end
 
     # Get the string representation of the object id.
