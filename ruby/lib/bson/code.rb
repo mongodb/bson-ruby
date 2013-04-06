@@ -8,6 +8,7 @@ module BSON
   # @since 2.0.0
   class Code
     include JSON
+    include Encodable
 
     # A code is type 0x0D in the BSON spec.
     #
@@ -69,8 +70,9 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
-      raw = javascript.to_bson_string
-      (raw.bytesize + 1).to_bson(encoded) << javascript.to_bson_cstring
+      encode_string_with_placeholder(encoded) do |encoded|
+        javascript.to_bson_string(encoded)
+      end
     end
 
     # Deserialize code from BSON.

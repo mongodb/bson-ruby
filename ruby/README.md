@@ -1,11 +1,11 @@
 Review
 ======
-obj.to_bson(encoded) now appends bson for obj to encoded
+obj.to_bson(encoded) appends bson for obj to encoded
+string.to_bson_string(encoded) appends bson string to encoded
 Element unused
 
 To Do
 =====
-String#to_bson optimization with placeholder
 consider append for
     to_bson_string # character encoding concerns
     to_bson_cstring # character encoding concerns

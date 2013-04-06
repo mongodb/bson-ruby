@@ -8,6 +8,7 @@ module BSON
   #
   # @since 2.0.0
   module String
+    include Encodable
 
     # A string is type 0x02 in the BSON spec.
     #
@@ -27,8 +28,9 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
-      data = to_bson_string
-      (data.bytesize + 1).to_bson(encoded) << data << NULL_BYTE
+      encode_string_with_placeholder(encoded) do |encoded|
+        to_bson_string(encoded)
+      end
     end
 
     # Get the string as an encoded C string.
@@ -59,13 +61,13 @@ module BSON
     # @return [ String ] The binary string.
     #
     # @since 2.0.0
-    def to_bson_string
+    def to_bson_string(encoded = ''.force_encoding(BINARY))
       begin
-        encode(UTF8).force_encoding(BINARY)
+        encoded << encode(UTF8).force_encoding(BINARY)
       rescue EncodingError
         data = dup.force_encoding(UTF8)
         raise unless data.valid_encoding?
-        data.force_encoding(BINARY)
+        encoded << data.force_encoding(BINARY)
       end
     end
 

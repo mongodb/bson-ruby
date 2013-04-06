@@ -33,5 +33,14 @@ module BSON
       encoded[pos, 4] = (encoded.bytesize - pos).to_bson
       encoded
     end
+
+    def encode_string_with_placeholder(encoded = ''.force_encoding(BINARY))
+      pos = encoded.bytesize
+      encoded << PLACEHOLDER
+      yield(encoded)
+      encoded << NULL_BYTE
+      encoded[pos, 4] = (encoded.bytesize - pos - 4).to_bson
+      encoded
+    end
   end
 end
