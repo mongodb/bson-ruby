@@ -32,9 +32,9 @@ describe String do
 
       it_behaves_like "a binary encoded string"
 
-      #it "appends to optional previous content" do
-      #  expect(string.to_bson_cstring('previous_content')).to eq('previous_content' << encoded)
-      #end
+      it "appends to optional previous content" do
+        expect(string.to_bson_cstring('previous_content')).to eq('previous_content' << encoded)
+      end
     end
 
     context "when the string contains a null byte" do

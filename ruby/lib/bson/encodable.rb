@@ -16,9 +16,11 @@ module BSON
     # includes Hash, CodeWithScope.
     #
     # @example Encode the BSON with placeholder bytes.
-    #   object.encode_bson_with_placeholder(encoded) do |encoded|
+    #   hash.encode_bson_with_placeholder(encoded) do |encoded|
     #     each do |field, value|
-    #       encoded << Element.new(field, value).to_bson(encoded)
+    #       encoded << value.bson_type
+    #       field.to_bson_cstring(encoded)
+    #       value.to_bson(encoded)
     #     end
     #   end
     #

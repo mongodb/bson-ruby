@@ -28,8 +28,8 @@ module BSON
     def to_bson(encoded = ''.force_encoding(BINARY))
       encode_bson_with_placeholder(encoded) do |encoded|
         each do |field, value|
-          #Element.new(field, value).to_bson(encoded)
-          encoded << value.bson_type << field.to_bson_cstring
+          encoded << value.bson_type
+          field.to_bson_cstring(encoded)
           value.to_bson(encoded)
         end
       end

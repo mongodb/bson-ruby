@@ -41,8 +41,8 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson_cstring
-      to_s.to_bson_cstring
+    def to_bson_cstring(encoded = ''.force_encoding(BINARY))
+      to_s.to_bson_cstring(encoded)
     end
 
     module ClassMethods

@@ -12,5 +12,20 @@ describe Symbol do
     it_behaves_like "a bson element"
     it_behaves_like "a serializable bson element"
     it_behaves_like "a deserializable bson element"
+
+  end
+
+  describe "#to_bson_cstring" do
+
+    let(:symbol) { :test }
+    let(:encoded) { symbol.to_s + BSON::NULL_BYTE }
+
+    it "returns the encoded string" do
+      expect(symbol.to_bson_cstring).to eq(encoded)
+    end
+
+    it "appends to optional previous content" do
+      expect(symbol.to_bson_cstring('previous_content')).to eq('previous_content' << encoded)
+    end
   end
 end

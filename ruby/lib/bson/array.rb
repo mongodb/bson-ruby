@@ -31,8 +31,8 @@ module BSON
     def to_bson(encoded = ''.force_encoding(BINARY))
       encode_bson_with_placeholder(encoded) do |encoded|
         each_with_index do |value, index|
-          #Element.new(index.to_s, value).to_bson(encoded) #review
-          encoded << value.bson_type << index.to_s.to_bson_cstring
+          encoded << value.bson_type
+          index.to_s.to_bson_cstring(encoded)
           value.to_bson(encoded)
         end
       end

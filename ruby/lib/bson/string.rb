@@ -45,9 +45,9 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson_cstring
+    def to_bson_cstring(encoded = ''.force_encoding(BINARY))
       check_for_illegal_characters!
-      to_bson_string + NULL_BYTE
+      to_bson_string(encoded) << NULL_BYTE
     end
 
     # Convert the string to a UTF-8 string then force to binary. This is so
