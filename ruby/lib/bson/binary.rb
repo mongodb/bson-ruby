@@ -8,6 +8,7 @@ module BSON
   # @since 2.0.0
   class Binary
     include JSON
+    include Encodable
 
     # A binary is type 0x05 in the BSON spec.
     #
@@ -107,7 +108,11 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
-      bin_data.bytesize.to_bson(encoded) << SUBTYPES.fetch(type) << bin_data
+      encode_binary_data_with_placeholder(encoded) do |encoded|
+        encoded << SUBTYPES.fetch(type)
+        encoded << data.bytesize.to_bson if type == :old
+        encoded << data
+      end
     end
 
     # Deserialize the binary data from BSON.

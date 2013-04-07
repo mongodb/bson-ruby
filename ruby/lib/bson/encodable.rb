@@ -44,5 +44,13 @@ module BSON
       encoded[pos, 4] = (encoded.bytesize - pos - 4).to_bson
       encoded
     end
+
+    def encode_binary_data_with_placeholder(encoded = ''.force_encoding(BINARY))
+      pos = encoded.bytesize
+      encoded << PLACEHOLDER
+      yield(encoded)
+      encoded[pos, 4] = (encoded.bytesize - pos - 4 - 1).to_bson
+      encoded
+    end
   end
 end
