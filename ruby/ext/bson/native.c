@@ -21,6 +21,8 @@
  * Holds the machine id for object id generation.
  *
  * @since 2.0.0
+ *
+ * @todo: Need to set this value properly.
  */
 static char rb_bson_machine_id[3] = "abc";
 
