@@ -251,7 +251,6 @@ describe BSON::Document do
       context "when the document has been serialized" do
 
         let(:deserialized) do
-          p YAML.dump(doc)
           YAML.load(YAML.dump(doc))
         end
 
