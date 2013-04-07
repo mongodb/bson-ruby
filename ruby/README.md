@@ -2,7 +2,7 @@ BSON
 ====
 
 Review
-======
+------
 obj.to_bson(encoded) appends bson for obj to encoded
 string.to_bson_string(encoded) appends bson string to encoded
 symbol.to_bson_cstring(encoded) appends bson cstring to encoded
@@ -12,7 +12,7 @@ unused
     Binary#bin_data
 
 To Do
-=====
+-----
 
 consider append for
 
