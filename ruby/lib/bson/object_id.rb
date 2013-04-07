@@ -216,7 +216,7 @@ module BSON
       #
       # @since 2.0.0
       def legal?(string)
-        /\A\h{24}\Z/ === string.to_s
+        string.to_s =~ /^[0-9a-f]{24}$/i ? true : false
       end
     end
 

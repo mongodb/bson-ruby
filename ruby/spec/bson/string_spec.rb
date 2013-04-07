@@ -88,16 +88,19 @@ describe String do
       it_behaves_like "a binary encoded string"
     end
 
-    context "when the string contains non utf-8 characters" do
+    if ordered_hash_support?
 
-      let(:string) do
-        255.chr
-      end
+      context "when the string contains non utf-8 characters" do
 
-      it "raises an error" do
-        expect {
-          string.to_bson_cstring
-        }.to raise_error(EncodingError)
+        let(:string) do
+          255.chr
+        end
+
+        it "raises an error" do
+          expect {
+            string.to_bson_cstring
+          }.to raise_error(EncodingError)
+        end
       end
     end
   end
@@ -180,16 +183,19 @@ describe String do
       it_behaves_like "a binary encoded string"
     end
 
-    context "when the string contains non utf-8 characters" do
+    if ordered_hash_support?
 
-      let(:string) do
-        255.chr
-      end
+      context "when the string contains non utf-8 characters" do
 
-      it "raises an error" do
-        expect {
-          string.to_bson_string
-        }.to raise_error(EncodingError)
+        let(:string) do
+          255.chr
+        end
+
+        it "raises an error" do
+          expect {
+            string.to_bson_string
+          }.to raise_error(EncodingError)
+        end
       end
     end
   end

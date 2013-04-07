@@ -35,6 +35,7 @@ if RUBY_VERSION < "1.9"
     # In versions prior to 1.9 we need to ignore the encoding requests.
     #
     # @since 2.0.0
+    def chr; self; end
     def force_encoding(*); self; end
     def encode(*); self; end
     def encode!(*); self; end
