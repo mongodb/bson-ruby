@@ -217,7 +217,7 @@ module BSON
       #
       # @since 2.0.0
       def legal?(string)
-        /\A\h{24}\Z/ === string.to_s
+        string.to_s =~ /^[0-9a-f]{24}$/i ? true : false
       end
     end
 
@@ -283,8 +283,16 @@ module BSON
         [ time, machine_id, process_id, counter << 8 ].pack("N NX lXX NX")
       end
 
-      def process_id
-        "#{Process.pid}#{Thread.current.object_id}".hash % 0xFFFF
+      private
+
+      if jruby?
+        def process_id
+          "#{Process.pid}#{Thread.current.object_id}".hash % 0xFFFF
+        end
+      else
+        def process_id
+          Process.pid % 0xFFFF
+        end
       end
     end
 

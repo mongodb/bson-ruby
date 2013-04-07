@@ -251,7 +251,6 @@ describe BSON::Document do
       context "when the document has been serialized" do
 
         let(:deserialized) do
-          p YAML.dump(doc)
           YAML.load(YAML.dump(doc))
         end
 
@@ -524,18 +523,21 @@ describe BSON::Document do
       end
     end
 
-    context "when provided hashes" do
+    if ordered_hash_support?
 
-      let(:alternate) do
-        described_class[1 => 2, 3 => 4]
-      end
+      context "when provided hashes" do
 
-      it "sets the keys" do
-        expect(alternate.keys).to eq([ 1, 3 ])
-      end
+        let(:alternate) do
+          described_class[1 => 2, 3 => 4]
+        end
 
-      it "sets the values" do
-        expect(alternate.values).to eq([ 2, 4 ])
+        it "sets the keys" do
+          expect(alternate.keys).to eq([ 1, 3 ])
+        end
+
+        it "sets the values" do
+          expect(alternate.values).to eq([ 2, 4 ])
+        end
       end
     end
   end
@@ -598,7 +600,7 @@ describe BSON::Document do
     context "when the hash is a single level" do
 
       let(:obj) do
-        described_class["key" => "value"]
+        described_class["key","value"]
       end
 
       let(:bson) do
@@ -613,7 +615,7 @@ describe BSON::Document do
     context "when the hash is embedded" do
 
       let(:obj) do
-        described_class["field" => { "key" => "value" }]
+        described_class["field", BSON::Document["key", "value"]]
       end
 
       let(:bson) do
@@ -632,7 +634,7 @@ describe BSON::Document do
     context "when the keys are utf-8" do
 
       let(:document) do
-        described_class["gültig" => "type"]
+        described_class["gültig", "type"]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -641,7 +643,7 @@ describe BSON::Document do
     context "when the values are utf-8" do
 
       let(:document) do
-        described_class["type" => "gültig"]
+        described_class["type", "gültig"]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -650,7 +652,7 @@ describe BSON::Document do
     context "when both the keys and values are utf-8" do
 
       let(:document) do
-        described_class["gültig" => "gültig"]
+        described_class["gültig", "gültig"]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -659,7 +661,7 @@ describe BSON::Document do
     context "when the regexps are utf-8" do
 
       let(:document) do
-        described_class["type" => /^gültig/]
+        described_class["type", /^gültig/]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -668,7 +670,7 @@ describe BSON::Document do
     context "when the symbols are utf-8" do
 
       let(:document) do
-        described_class["type" => "gültig".to_sym]
+        described_class["type", "gültig".to_sym]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -677,7 +679,7 @@ describe BSON::Document do
     context "when utf-8 string values are in an array" do
 
       let(:document) do
-        described_class["type" => ["gültig"]]
+        described_class["type", ["gültig"]]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -686,7 +688,7 @@ describe BSON::Document do
     context "when utf-8 code values are present" do
 
       let(:document) do
-        described_class["code" => BSON::Code.new("// gültig")]
+        described_class["code", BSON::Code.new("// gültig")]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -695,7 +697,7 @@ describe BSON::Document do
     pending "when utf-8 code with scope values are present" do
 
       let(:document) do
-        described_class["code" => BSON::CodeWithScope.new("// gültig", {})]
+        described_class["code", BSON::CodeWithScope.new("// gültig", {})]
       end
 
       it_behaves_like "a document able to handle utf-8"
@@ -705,7 +707,7 @@ describe BSON::Document do
 
       let(:string) { "gültig" }
       let(:document) do
-        described_class["type" => string.encode("iso-8859-1")]
+        described_class["type", string.encode("iso-8859-1")]
       end
 
       it "encodes and decodes the document properly" do
@@ -719,7 +721,7 @@ describe BSON::Document do
 
       let(:string) { "europäischen" }
       let(:document) do
-        described_class["type" => string.encode("binary", "binary")]
+        described_class["type", string.encode("binary", "binary")]
       end
 
       it "encodes and decodes the document properly" do

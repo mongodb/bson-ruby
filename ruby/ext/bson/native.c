@@ -1,5 +1,7 @@
 #include <ruby.h>
 #include <stdint.h>
+#include <time.h>
+#include <unistd.h>
 
 /**
  * For 64 byte systems we convert to longs, for 32 byte systems we convert
@@ -15,10 +17,73 @@
 #define INT642NUM(v) LL2NUM(v)
 #endif
 
-/* static VALUE rb_object_id_generator_next(VALUE self) */
-/* { */
-  // Need to generate the raw data for the object id here.
-/* } */
+/**
+ * Holds the machine id for object id generation.
+ *
+ * @since 2.0.0
+ *
+ * @todo: Need to set this value properly.
+ */
+static char rb_bson_machine_id[3] = "abc";
+
+/**
+ * The counter for incrementing object ids.
+ *
+ * @since 2.0.0
+ */
+static unsigned int rb_bson_object_id_counter = 0;
+
+/**
+ * Get the current time in milliseconds, used in object id generation.
+ *
+ * @example Get the current time in milliseconds.
+ *    rb_current_time_milliseconds();
+ *
+ * @return [ int ] The current time in millis.
+ *
+ * @since 2.0.0
+ */
+static unsigned long rb_current_time_milliseconds()
+{
+  struct timeval time;
+  gettimeofday(&time, NULL);
+  return (time.tv_sec) * 1000 + (time.tv_usec) / 1000;
+}
+
+/**
+ * Generate the data for the next object id.
+ *
+ * @example Generate the data for the next object id.
+ *    rb_object_id_generator_next(0, NULL, object_id);
+ *
+ * @param [ int ] argc The argument count.
+ * @param [ Time ] time The optional Ruby time.
+ * @param [ BSON::ObjectId ] self The object id.
+ *
+ * @return [ String ] The raw bytes for the id.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_object_id_generator_next(int argc, VALUE* time, VALUE self)
+{
+  char bytes[12];
+  unsigned long t;
+  unsigned short pid = htons(getpid());
+
+  if (argc == 0 || (argc == 1 && *time == Qnil)) {
+    t = rb_current_time_milliseconds();
+  }
+  else {
+    t = htonl(NUM2UINT(rb_funcall(*time, rb_intern("to_i"), 0)));
+  }
+
+  memcpy(&bytes, &time, 4);
+  memcpy(&bytes[4], rb_bson_machine_id, 3);
+  memcpy(&bytes[7], &pid, 2);
+  memcpy(&bytes[9], (unsigned char*) &rb_bson_object_id_counter, 3);
+  rb_bson_object_id_counter++;
+  return rb_str_new(bytes, 12);
+}
 
 /**
  * Convert the Ruby integer into a BSON as per the 32 bit specification,
@@ -150,6 +215,8 @@ void Init_native()
   VALUE int32_class = rb_singleton_class(int32);
   VALUE int64 = rb_const_get(bson, rb_intern("Int64"));
   VALUE int64_class = rb_singleton_class(int64);
+  VALUE object_id = rb_const_get(bson, rb_intern("ObjectId"));
+  VALUE generator = rb_const_get(object_id, rb_intern("Generator"));
 
   // Redefine the serialization methods on the Integer class.
   rb_undef_method(integer, "to_bson_int32");
@@ -168,4 +235,9 @@ void Init_native()
   // Redefine the serialization methods on the time class.
   rb_undef_method(time, "to_bson_time");
   rb_define_method(time, "to_bson_time", rb_time_to_bson, 1);
+
+  // Setup the machine id for object id generation.
+  /* memcpy(rb_bson_machine_id, RSTRING_PTR(machine_id), 16); */
+  rb_undef_method(generator, "next");
+  rb_define_method(generator, "next", rb_object_id_generator_next, -1);
 }

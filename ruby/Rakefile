@@ -44,6 +44,7 @@ task :clean do
   begin
     Dir.chdir(Pathname(__FILE__).dirname + "lib/bson") do
       `rm native.#{extension}`
+      `rm native.o`
     end
   rescue Exception => e
     puts e.message

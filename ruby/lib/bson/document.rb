@@ -21,6 +21,11 @@ module BSON
   # @since 2.0.0
   class Document < ::Hash
 
+    # Message for argument error when providing bad arguments to [].
+    #
+    # @since 2.0.0
+    ARG_ERROR = "An even number of arguments must be passed to BSON::Document[]."
+
     # Sets a value for the provided key.
     #
     # @example Set the value in the document.
@@ -298,7 +303,7 @@ module BSON
     # @since 2.0.0
     def replace(other)
       super
-      @order = other.order.dup
+      @order = other.keys
       self
     end
 
@@ -392,6 +397,21 @@ module BSON
 
     class << self
 
+      # Create a new document given the provided arguments. The args can either
+      # be empty in order to instantiate an empty document, or an array of
+      # key/value pairs in the order that they should remain in.
+      #
+      # @example Create a new empty document.
+      #   BSON::Document[]
+      #
+      # @example Create a new document with the provided elements.
+      #   BSON::Document[1, 2, 3, 4]
+      #
+      # @param [ Array<Object> ] args The key/value pairs.
+      #
+      # @return [ BSON::Document ] The new document.
+      #
+      # @since 2.0.0
       def [](*args)
         document = new
 
@@ -403,9 +423,7 @@ module BSON
           return document
         end
 
-        unless (args.size % 2 == 0)
-          raise ArgumentError.new("odd number of arguments for Hash")
-        end
+        raise ArgumentError.new(ARG_ERROR) unless (args.size % 2 == 0)
 
         args.each_with_index do |val, ind|
           next if (ind % 2 != 0)

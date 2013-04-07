@@ -276,7 +276,7 @@ describe BSON::ObjectId do
       end
 
       it "does not include process or sequence information" do
-        expect(object_id.to_s =~ /\A\h{8}0{16}\Z/).to be_true
+        expect(object_id.to_s =~ /\A[0-9a-f]{8}[0]{16}\Z/).to be_true
       end
     end
 
@@ -380,8 +380,11 @@ describe BSON::ObjectId do
       expect(object_id.to_s).to eq(expected)
     end
 
-    it "returns the string in UTF-8" do
-      expect(object_id.to_s.encoding).to eq(Encoding.find(BSON::UTF8))
+    if ordered_hash_support?
+
+      it "returns the string in UTF-8" do
+        expect(object_id.to_s.encoding).to eq(Encoding.find(BSON::UTF8))
+      end
     end
 
     it "converts to a readable yaml string" do

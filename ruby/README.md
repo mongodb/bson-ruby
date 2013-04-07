@@ -1,3 +1,6 @@
+BSON
+====
+
 Review
 ======
 obj.to_bson(encoded) appends bson for obj to encoded
@@ -24,7 +27,3 @@ optimize/examine
     Mongo::Protocol
         Insert
         Message
-
-
-
-
