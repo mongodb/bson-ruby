@@ -14,6 +14,13 @@ unused
 To Do
 -----
 
+consider array index map ~ 46% gain (41 -> 22)
+
+consider symbol to bson string map ~ 34% gain (61 -> 40)
+    no safey limit needed for non-pathological use (review this)
+
+consider string keys to bson string map with safety limit ~ 29% gain (157 -> 112)
+
 consider append for
 
     to_bson_time - has native

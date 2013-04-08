@@ -28,7 +28,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
-      encoded << to_s.to_bson
+      to_s.to_bson(encoded)
     end
 
     # Get the symbol as an encoded C symbol.
