@@ -3,7 +3,7 @@ BSON
 
 Review
 ------
-obj.to_bson(encoded) appends bson for obj to encoded
+*.to_bson(encoded) appends bson for obj to encoded
 string.to_bson_string(encoded) appends bson string to encoded
 symbol.to_bson_cstring(encoded) appends bson cstring to encoded
 
@@ -14,12 +14,13 @@ unused
 To Do
 -----
 
-consider array index map ~ 46% gain (41 -> 22)
+consider array index map ~ gain: 0.42 (35 --> 21) Xeon
 
-consider symbol to bson string map ~ 34% gain (61 -> 40)
+consider doc key memo
     no safey limit needed for non-pathological use (review this)
-
-consider string keys to bson string map with safety limit ~ 29% gain (157 -> 112)
+        symbol ~ gain: 0.25 (36 --> 27) Xeon
+        string ~ gain: 0.15 (33 --> 28) Xeon
+    with safety limit, mutex overhead eats up the benefit
 
 consider append for
 
@@ -29,8 +30,11 @@ consider append for
 
 optimize/examine
 
-    Array#to_bson index.to_s in pure Ruby
-        e.g., const array of strings for first 1024
     Mongo::Protocol
         Insert
         Message
+
+Notes
+-----
+
+modules and classes have some overhead that can be significant
