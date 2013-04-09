@@ -1,8 +1,9 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'bson'
+require 'json'
 require 'test/unit'
 require 'benchmark'
-#require 'ruby-prof'
+require 'ruby-prof'
 
 class BenchTest < Test::Unit::TestCase
 
@@ -14,6 +15,20 @@ class BenchTest < Test::Unit::TestCase
 
   def teardown
     puts
+  end
+
+  def reset_old_array_index
+    Array.class_eval <<-EVAL
+      def to_bson(encoded = ''.force_encoding(BSON::BINARY))
+        encode_bson_with_placeholder(encoded) do |encoded|
+          each_with_index do |value, index|
+            encoded << value.bson_type
+            index.to_s.to_bson_cstring(encoded)
+            value.to_bson(encoded)
+          end
+        end
+      end
+    EVAL
   end
 
   def set_new_array_index_optimize
@@ -115,17 +130,17 @@ class BenchTest < Test::Unit::TestCase
     size = 1024
     array = Array.new(size){|i| i}
 
+    measurement = []
     Benchmark.bm(@label_width) do |bench|
 
+      reset_old_array_index
+      measurement << bench.report('Array index optimize none') do
+        @count.times { array.to_bson }
+      end
+
       set_new_array_index_optimize
-      measurement = [
-         [ 'Array index optimize none',    0 ], # user Xeon 37 sec
-         [ 'Array index optimize 1000', 1000 ]  # user Xeon 22 sec - 40% gain - purposely test less than 1024)
-      ].collect do |label, _bson_index_size|
-        Array.class_variable_set(:@@_BSON_INDEX_SIZE, _bson_index_size)
-        bench.report(label) do
-          @count.times { array.to_bson }
-        end
+      measurement << bench.report('Array index optimize 1024') do
+        @count.times { array.to_bson }
       end
 
       print_gain(measurement[1], measurement[0])
@@ -186,6 +201,69 @@ class BenchTest < Test::Unit::TestCase
       print_gain(measurement[1], measurement[0])
       print_gain(measurement[2], measurement[0])
 
+    end
+  end
+
+  def reset_integer_bson_int32?
+    Integer.class_eval <<-EVAL
+      def bson_int32?
+        (MIN_32BIT <= self) && (self <= MAX_32BIT)
+      end
+    EVAL
+  end
+
+  def set_new_integer_bson_int32?
+    Integer.class_eval <<-EVAL
+      @@fixnum_highbits32 = ~((1 << 32) - 1)
+      def bson_int32?
+        (self & @@fixnum_highbits32) == 0
+      end
+    EVAL
+  end
+
+  def test_bson_int32?
+    count = 100_000_000
+    measurement = []
+    Benchmark.bm(@label_width) do |bench|
+
+      reset_integer_bson_int32?
+      measurement << bench.report('Integer#bson_int32? old') do
+        count.times {|i| i.bson_int32? }
+      end
+
+      set_new_integer_bson_int32?
+      measurement << bench.report('Integer#bson_int32? new') do
+        count.times {|i| i.bson_int32? }
+      end
+
+      reset_integer_bson_int32?
+    end
+
+    print_gain(measurement[1], measurement[0])
+  end
+
+  def test_ruby_prof
+    json_filename = '../../../training/data/sampledata/twitter.json'
+    line_limit = 10_000
+    twitter = nil
+    File.open(json_filename, 'r') do |f|
+      twitter = line_limit.times.collect { JSON.parse(f.gets) }
+    end
+
+    result = nil
+    Benchmark.bm(@label_width) do |bench|
+      bench.report('test ruby prof') do
+
+        RubyProf.start
+        twitter.each {|doc| doc.to_bson }
+        result = RubyProf.stop
+
+      end
+    end
+
+    File.open('ruby-prof.out', 'w') do |f|
+      RubyProf::FlatPrinter.new(result).print(f)
+      RubyProf::GraphPrinter.new(result).print(f, {})
     end
   end
 

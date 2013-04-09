@@ -11,5 +11,7 @@ group :development, :test do
     gem "pry"
     gem "rb-fsevent"
     gem 'terminal-notifier-guard'
+    gem 'json'
+    gem 'ruby-prof'
   end
 end

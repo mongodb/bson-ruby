@@ -10,6 +10,9 @@ module BSON
   module Array
     include Encodable
 
+    @@_BSON_INDEX_SIZE = 1024
+    @@_BSON_INDEX_ARRAY = ::Array.new(@@_BSON_INDEX_SIZE){|i| (i.to_s.force_encoding(BSON::BINARY) << BSON::NULL_BYTE).freeze}.freeze
+
     # An array is type 0x04 in the BSON spec.
     #
     # @since 2.0.0
@@ -32,7 +35,11 @@ module BSON
       encode_bson_with_placeholder(encoded) do |encoded|
         each_with_index do |value, index|
           encoded << value.bson_type
-          index.to_s.to_bson_cstring(encoded)
+          if index < @@_BSON_INDEX_SIZE
+            encoded << @@_BSON_INDEX_ARRAY[index]
+          else
+            index.to_s.to_bson_cstring(encoded)
+          end
           value.to_bson(encoded)
         end
       end
