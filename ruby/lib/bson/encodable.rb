@@ -10,8 +10,16 @@ module BSON
     #
     # @since 2.0.0
     PLACEHOLDER = 0.to_bson.freeze
-    BSON_ADJUST = 0.freeze # total number of doc bytes includes int32
-    STRING_ADJUST = -4.freeze # total number of string bytes does not include int32
+
+    # Adjustment value for total number of document bytes.
+    #
+    # @since 2.0.0
+    BSON_ADJUST = 0.freeze
+
+    # Adjustment value for total number of string bytes.
+    #
+    # @since 2.0.0
+    STRING_ADJUST = -4.freeze
 
     # Encodes BSON to raw bytes, for types that require the length of the
     # entire bytes to be present as the first word of the encoded string. This

@@ -13,7 +13,7 @@ module BSON
     # The BSON index size.
     #
     # @since 2.0.0
-    BSON_INDEX_SIZE = 1024
+    BSON_INDEX_SIZE = 1024.freeze
 
     # A hash of index values for array optimization.
     #
