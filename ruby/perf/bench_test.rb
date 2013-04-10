@@ -17,6 +17,10 @@ class BenchTest < Test::Unit::TestCase
     puts
   end
 
+  def print_gain(modification_tms, base_tms)
+    puts "gain: #{'%.2f' % (1.0 - modification_tms.utime/base_tms.utime)} (#{base_tms.utime.round} --> #{modification_tms.utime.round})"
+  end
+
   def reset_old_array_index
     Array.class_eval <<-EVAL
       def to_bson(encoded = ''.force_encoding(BSON::BINARY))
@@ -49,6 +53,124 @@ class BenchTest < Test::Unit::TestCase
           end
         end
     EVAL
+  end
+
+  def test_array_index_optimization
+    size = 1024
+    array = Array.new(size){|i| i}
+
+    measurement = []
+    Benchmark.bm(@label_width) do |bench|
+
+      reset_old_array_index
+      measurement << bench.report('Array index optimize none') do
+        @count.times { array.to_bson }
+      end
+
+      set_new_array_index_optimize
+      measurement << bench.report('Array index optimize 1024') do
+        @count.times { array.to_bson }
+      end
+
+      set_new_array_index_optimize # committed
+    end
+    print_gain(measurement[1], measurement[0])
+  end
+
+  def reset_old_encode_string_with_placeholder
+    BSON::Encodable.module_eval <<-EVAL
+      def encode_string_with_placeholder(encoded = ''.force_encoding(BSON::BINARY))
+        pos = encoded.bytesize
+        encoded << PLACEHOLDER
+        yield(encoded)
+        encoded << BSON::NULL_BYTE
+        encoded[pos, 4] = (encoded.bytesize - pos - 4).to_bson
+        encoded
+      end
+    EVAL
+  end
+
+  def set_new_encode_sring_with_placeholder
+    BSON::Encodable.module_eval <<-EVAL
+      def encode_string_with_placeholder(encoded = ''.force_encoding(BINARY))
+        pos = encoded.bytesize
+        encoded << PLACEHOLDER
+        yield(encoded)
+        encoded << BSON::NULL_BYTE
+        encoded[pos, 4] = (encoded.bytesize - pos - 4).send(:to_bson_int32) # [ encoded.bytesize - pos - 4 ].pack('l<') #
+        encoded
+      end
+    EVAL
+  end
+
+  def test_encode_string_with_placeholder
+    size = 1
+    hash = Hash[*(0..size).to_a.collect{|i| [ ('a' + i.to_s), i.to_s]}.flatten]
+    @count = 2_000_000
+    measurement = []
+    Benchmark.bm(@label_width) do |bench|
+
+      reset_old_encode_string_with_placeholder
+      measurement << bench.report('Encode string optimize none') do
+        @count.times { hash.to_bson }
+      end
+
+      set_new_encode_sring_with_placeholder
+      measurement << bench.report('Encode string optimize pack0') do
+        @count.times { hash.to_bson }
+      end
+
+      reset_old_encode_string_with_placeholder
+    end
+    print_gain(measurement[1], measurement[0])
+  end
+
+  def reset_old_encode_bson_with_placeholder
+    BSON::Encodable.module_eval <<-EVAL
+      def encode_bson_with_placeholder(encoded = ''.force_encoding(BSON::BINARY))
+        pos = encoded.bytesize
+        encoded << PLACEHOLDER
+        yield(encoded)
+        encoded << BSON::NULL_BYTE
+        encoded[pos, 4] = (encoded.bytesize - pos).to_bson
+        encoded
+      end
+     EVAL
+  end
+
+  def set_new_encode_bson_with_placeholder
+    BSON::Encodable.module_eval <<-EVAL
+      def encode_bson_with_placeholder(encoded = ''.force_encoding(BINARY))
+        pos = encoded.bytesize
+        encoded << PLACEHOLDER
+        yield(encoded)
+        encoded << BSON::NULL_BYTE
+        encoded[pos, 4] = (encoded.bytesize - pos).send(:to_bson_int32) # [ encoded.bytesize - pos ].pack('l<') #
+        encoded
+      end
+     EVAL
+  end
+
+  def test_encode_bson_with_placeholder
+    size = 1
+    hash = Hash[*(0..size).to_a.collect{|i| [ ('a' + i.to_s), i.to_s]}.flatten]
+    @count = 2_000_000
+    measurement = []
+    Benchmark.bm(@label_width) do |bench|
+
+      reset_old_encode_bson_with_placeholder
+      measurement << bench.report('Encode bson optimize none') do
+        @count.times { hash.to_bson }
+      end
+
+      set_new_encode_bson_with_placeholder
+      measurement << bench.report('Encode bson optimize pack') do
+        @count.times { hash.to_bson }
+      end
+
+      reset_old_encode_bson_with_placeholder
+    end
+    print_gain(measurement[1], measurement[0])
   end
 
   def reset_old_hash_to_bson
@@ -122,32 +244,6 @@ class BenchTest < Test::Unit::TestCase
     end
   end
 
-  def print_gain(modification_tms, base_tms)
-    puts "gain: #{'%.2f' % (1.0 - modification_tms.utime/base_tms.utime)} (#{base_tms.utime.round} --> #{modification_tms.utime.round})"
-  end
-
-  def test_array_index_optimization
-    size = 1024
-    array = Array.new(size){|i| i}
-
-    measurement = []
-    Benchmark.bm(@label_width) do |bench|
-
-      reset_old_array_index
-      measurement << bench.report('Array index optimize none') do
-        @count.times { array.to_bson }
-      end
-
-      set_new_array_index_optimize
-      measurement << bench.report('Array index optimize 1024') do
-        @count.times { array.to_bson }
-      end
-
-      print_gain(measurement[1], measurement[0])
-
-    end
-  end
-
   def test_symbol_key_optimization
     size = 1024
     hash = Hash[*(0..size).to_a.collect{|i| [ ('a' + i.to_s).to_sym, i]}.flatten]
@@ -170,10 +266,10 @@ class BenchTest < Test::Unit::TestCase
         @count.times { hash.to_bson }
       end
 
-      print_gain(measurement[1], measurement[0])
-      print_gain(measurement[2], measurement[0])
-
+      reset_old_hash_to_bson
     end
+    print_gain(measurement[1], measurement[0])
+    print_gain(measurement[2], measurement[0])
   end
 
   def test_string_key_optimization
@@ -198,10 +294,10 @@ class BenchTest < Test::Unit::TestCase
         @count.times { hash.to_bson }
       end
 
-      print_gain(measurement[1], measurement[0])
-      print_gain(measurement[2], measurement[0])
-
+      reset_old_hash_to_bson
     end
+    print_gain(measurement[1], measurement[0])
+    print_gain(measurement[2], measurement[0])
   end
 
   def reset_integer_bson_int32?
@@ -214,9 +310,9 @@ class BenchTest < Test::Unit::TestCase
 
   def set_new_integer_bson_int32?
     Integer.class_eval <<-EVAL
-      @@fixnum_highbits32 = ~((1 << 32) - 1)
+      @@FIXNUM_HIGHBITS32 = (-1 << 32)
       def bson_int32?
-        (self & @@fixnum_highbits32) == 0
+        (self & @@FIXNUM_HIGHBITS32) == 0
       end
     EVAL
   end
@@ -238,7 +334,6 @@ class BenchTest < Test::Unit::TestCase
 
       reset_integer_bson_int32?
     end
-
     print_gain(measurement[1], measurement[0])
   end
 

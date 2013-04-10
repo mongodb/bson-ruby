@@ -101,12 +101,6 @@ module BSON
       end
     end
 
-    private
-
-    def out_of_range!
-      raise OutOfRange.new("#{self} is not a valid 8 byte integer value.")
-    end
-
     def to_bson_int32
       [ self ].pack(Int32::PACK)
     end
@@ -114,6 +108,13 @@ module BSON
     def to_bson_int64
       [ self ].pack(Int64::PACK)
     end
+
+    private
+
+    def out_of_range!
+      raise OutOfRange.new("#{self} is not a valid 8 byte integer value.")
+    end
+
   end
 
   # Enrich the core Integer class with this module.

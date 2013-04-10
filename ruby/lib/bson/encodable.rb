@@ -32,7 +32,7 @@ module BSON
       encoded << PLACEHOLDER
       yield(encoded)
       encoded << NULL_BYTE
-      encoded[pos, 4] = (encoded.bytesize - pos).to_bson
+      encoded[pos, 4] = (encoded.bytesize - pos).to_bson_int32
       encoded
     end
 
@@ -41,7 +41,7 @@ module BSON
       encoded << PLACEHOLDER
       yield(encoded)
       encoded << NULL_BYTE
-      encoded[pos, 4] = (encoded.bytesize - pos - 4).to_bson
+      encoded[pos, 4] = (encoded.bytesize - pos - 4).to_bson_int32
       encoded
     end
 
@@ -49,7 +49,7 @@ module BSON
       pos = encoded.bytesize
       encoded << PLACEHOLDER
       yield(encoded)
-      encoded[pos, 4] = (encoded.bytesize - pos - 4 - 1).to_bson
+      encoded[pos, 4] = (encoded.bytesize - pos - 4 - 1).to_bson_int32
       encoded
     end
   end
