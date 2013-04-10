@@ -17,7 +17,7 @@ module BSON
     # Constant for the int 32 pack directive.
     #
     # @since 2.0.0
-    PACK = "l".freeze
+    PACK = "l<".freeze
 
     # Deserialize an Integer from BSON.
     #

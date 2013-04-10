@@ -3,11 +3,12 @@ BSON
 
 Review
 ------
-PACK specify little-ending - 'l<' 'q<'
-TIMESTAMP_PACK
+Unused
+    Element
+    Binary#bin_data
 
-Optimizations
--------------
+Optimizations committed
+-----------------------
 append to encoded
     *.to_bson(encoded) appends bson for obj to encoded
     string.to_bson_string(encoded) appends bson string to encoded
@@ -18,10 +19,6 @@ Encodable to_bson_int32
     encode_bson_with_placeholder ~ gain: 0.07 (37 --> 35) Core 2
     encode_binary_data_with_placeholder
 
-Unused
-------
-Element
-Binary#bin_data
 
 Ruby prof for encoding of twitter data looks good
     training/data/sampledata/sampledata/twitter.json is from the training files (private repo)
