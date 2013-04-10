@@ -76,7 +76,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
-      encode_bson_with_placeholder(encoded) do |encoded|
+      encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
         javascript.to_bson(encoded)
         scope.to_bson(encoded)
       end

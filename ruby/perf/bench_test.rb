@@ -24,7 +24,7 @@ class BenchTest < Test::Unit::TestCase
   def reset_old_array_index
     Array.class_eval <<-EVAL
       def to_bson(encoded = ''.force_encoding(BSON::BINARY))
-        encode_bson_with_placeholder(encoded) do |encoded|
+        encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
           each_with_index do |value, index|
             encoded << value.bson_type
             index.to_s.to_bson_cstring(encoded)
@@ -40,7 +40,7 @@ class BenchTest < Test::Unit::TestCase
         @@_BSON_INDEX_SIZE = 1024
         @@_BSON_INDEX_ARRAY = ::Array.new(@@_BSON_INDEX_SIZE){|i| (i.to_s.force_encoding(BSON::BINARY) << BSON::NULL_BYTE).freeze}.freeze
         def to_bson(encoded = ''.force_encoding(BSON::BINARY))
-          encode_bson_with_placeholder(encoded) do |encoded|
+          encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
             each_with_index do |value, index|
               encoded << value.bson_type
               if index < @@_BSON_INDEX_SIZE
@@ -79,12 +79,12 @@ class BenchTest < Test::Unit::TestCase
 
   def reset_old_encode_string_with_placeholder
     BSON::Encodable.module_eval <<-EVAL
-      def encode_string_with_placeholder(encoded = ''.force_encoding(BSON::BINARY))
+      def encode_with_placeholder_and_null(adjust, encoded = ''.force_encoding(BSON::BINARY))
         pos = encoded.bytesize
         encoded << PLACEHOLDER
         yield(encoded)
         encoded << BSON::NULL_BYTE
-        encoded[pos, 4] = (encoded.bytesize - pos - 4).to_bson
+        encoded[pos, 4] = (encoded.bytesize - pos + adjust).to_bson
         encoded
       end
     EVAL
@@ -92,12 +92,12 @@ class BenchTest < Test::Unit::TestCase
 
   def set_new_encode_sring_with_placeholder
     BSON::Encodable.module_eval <<-EVAL
-      def encode_string_with_placeholder(encoded = ''.force_encoding(BINARY))
+      def encode_with_placeholder_and_null(adjust, encoded = ''.force_encoding(BINARY))
         pos = encoded.bytesize
         encoded << PLACEHOLDER
         yield(encoded)
         encoded << BSON::NULL_BYTE
-        encoded[pos, 4] = (encoded.bytesize - pos - 4).send(:to_bson_int32) # [ encoded.bytesize - pos - 4 ].pack('l<') #
+        encoded[pos, 4] = (encoded.bytesize - pos + adjust).send(:to_bson_int32) # [ encoded.bytesize - pos - 4 ].pack('l<') #
         encoded
       end
     EVAL
@@ -127,12 +127,12 @@ class BenchTest < Test::Unit::TestCase
 
   def reset_old_encode_bson_with_placeholder
     BSON::Encodable.module_eval <<-EVAL
-      def encode_bson_with_placeholder(encoded = ''.force_encoding(BSON::BINARY))
+      def encode_with_placeholder_and_null(adjust, encoded = ''.force_encoding(BSON::BINARY))
         pos = encoded.bytesize
         encoded << PLACEHOLDER
         yield(encoded)
         encoded << BSON::NULL_BYTE
-        encoded[pos, 4] = (encoded.bytesize - pos).to_bson
+        encoded[pos, 4] = (encoded.bytesize - pos + adjust).to_bson
         encoded
       end
      EVAL
@@ -140,12 +140,12 @@ class BenchTest < Test::Unit::TestCase
 
   def set_new_encode_bson_with_placeholder
     BSON::Encodable.module_eval <<-EVAL
-      def encode_bson_with_placeholder(encoded = ''.force_encoding(BINARY))
+      def encode_with_placeholder_and_null(adjust, encoded = ''.force_encoding(BINARY))
         pos = encoded.bytesize
         encoded << PLACEHOLDER
         yield(encoded)
         encoded << BSON::NULL_BYTE
-        encoded[pos, 4] = (encoded.bytesize - pos).send(:to_bson_int32) # [ encoded.bytesize - pos ].pack('l<') #
+        encoded[pos, 4] = (encoded.bytesize - pos + adjust).send(:to_bson_int32) # [ encoded.bytesize - pos ].pack('l<') #
         encoded
       end
      EVAL
@@ -176,7 +176,7 @@ class BenchTest < Test::Unit::TestCase
   def reset_old_hash_to_bson
     Hash.class_eval <<-EVAL
       def to_bson(encoded = ''.force_encoding(BSON::BINARY))
-        encode_bson_with_placeholder(encoded) do |encoded|
+        encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
           each do |field, value|
             encoded << value.bson_type
             field.to_bson_cstring(encoded)
@@ -207,7 +207,7 @@ class BenchTest < Test::Unit::TestCase
         end
         def to_bson(encoded = ''.force_encoding(BSON::BINARY))
           if size < @@_memo_threshold
-            encode_bson_with_placeholder(encoded) do |encoded|
+            encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
               each do |field, value|
                 encoded << value.bson_type
                 encoded << _memo_set(field) { field.to_bson_cstring }
@@ -215,7 +215,7 @@ class BenchTest < Test::Unit::TestCase
               end
             end
           else
-            encode_bson_with_placeholder(encoded) do |encoded|
+            encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
               each do |field, value|
                 encoded << value.bson_type
                 encoded << _memo_fetch(field) { field.to_bson_cstring }
@@ -232,7 +232,7 @@ class BenchTest < Test::Unit::TestCase
             @@_memo_hash[field] = @@_memo_hash.fetch(field) { yield }
           end
           def to_bson(encoded = ''.force_encoding(BSON::BINARY))
-            encode_bson_with_placeholder(encoded) do |encoded|
+            encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
               each do |field, value|
                 encoded << value.bson_type
                 encoded << _memo(field) { field.to_bson_cstring }
