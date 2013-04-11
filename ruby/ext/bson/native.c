@@ -90,15 +90,16 @@ static VALUE rb_object_id_generator_next(int argc, VALUE* time, VALUE self)
  * which is 4 bytes.
  *
  * @example Convert the integer to 32bit BSON.
- *    rb_integer_to_bson_int32(128);
+ *    rb_integer_to_bson_int32(128, encoded);
  *
  * @param [ Integer ] self The Ruby integer.
+ * @param [ String ] encoded The Ruby binary string to append to.
  *
- * @return [ String ] A Ruby string of raw bytes.
+ * @return [ String ] encoded Ruby binary string with BSON raw bytes appended.
  *
  * @since 2.0.0
  */
-static VALUE rb_integer_to_bson_int32(VALUE self)
+static VALUE rb_integer_to_bson_int32(VALUE self, VALUE encoded)
 {
   const int32_t v = NUM2INT(self);
   const char bytes[4] = {
@@ -107,7 +108,7 @@ static VALUE rb_integer_to_bson_int32(VALUE self)
     (v >> 16) & 255,
     (v >> 24) & 255
   };
-  return rb_str_new(bytes, 4);
+  return rb_str_cat(encoded, bytes, 4);
 }
 
 /**
@@ -157,15 +158,16 @@ static VALUE rb_integer_from_bson_int64(VALUE self, VALUE bson)
  * which is 8 bytes.
  *
  * @example Convert the integer to 64bit BSON.
- *    rb_integer_to_bson_int64(128);
+ *    rb_integer_to_bson_int64(128, encoded);
  *
  * @param [ Integer ] self The Ruby integer.
+ * @param [ String ] encoded The Ruby binary string to append to.
  *
- * @return [ String ] A Ruby string of raw bytes.
+ * @return [ String ] encoded Ruby binary string with BSON raw bytes appended.
  *
  * @since 2.0.0
  */
-static VALUE rb_integer_to_bson_int64(VALUE self)
+static VALUE rb_integer_to_bson_int64(VALUE self, VALUE encoded)
 {
   const int64_t v = NUM2INT64(self);
   const char bytes[8] = {
@@ -178,7 +180,7 @@ static VALUE rb_integer_to_bson_int64(VALUE self)
     (v >> 48) & 255,
     (v >> 56) & 255
   };
-  return rb_str_new(bytes, 8);
+  return rb_str_cat(encoded, bytes, 8);
 }
 
 /**
@@ -186,18 +188,49 @@ static VALUE rb_integer_to_bson_int64(VALUE self)
  * explicitly convert using 64 bit here.
  *
  * @example Convert the milliseconds value to BSON bytes.
- *    rb_time_to_bson(time, 2124132340000);
+ *    rb_time_to_bson(time, 2124132340000, encoded);
  *
  * @param [ Time ] self The Ruby Time object.
  * @param [ Integer ] milliseconds The milliseconds pre/post epoch.
+ * @param [ String ] encoded The Ruby binary string to append to.
  *
- * @return [ String ] A Ruby string of raw bytes.
+ * @return [ String ] encoded Ruby binary string with time BSON raw bytes appended.
  *
  * @since 2.0.0
  */
-static VALUE rb_time_to_bson(VALUE self, VALUE milliseconds)
+static VALUE rb_time_to_bson(VALUE self, VALUE milliseconds, VALUE encoded)
 {
-  return rb_integer_to_bson_int64(milliseconds);
+  return rb_integer_to_bson_int64(milliseconds, encoded);
+}
+
+/**
+ * Set four bytes for int32 in a binary string and return it.
+ *
+ * @example Set int32 in a BSON string.
+ *   rb_string_setint32(self, pos, int32)
+ *
+ * @param [ String ] self The Ruby binary string.
+ * @param [ Fixnum ] The position to set.
+ * @param [ Fixnum ] The int32 value.
+ *
+ * @return [ String ] The binary string.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_string_setint32(VALUE str, VALUE pos, VALUE an_int32)
+{
+  const int32_t offset = NUM2INT(pos);
+  const int32_t v = NUM2INT(an_int32);
+  const char bytes[4] = {
+    v & 255,
+    (v >> 8) & 255,
+    (v >> 16) & 255,
+    (v >> 24) & 255
+  };
+  if (offset < 0 || offset + 4 > RSTRING_LEN(str))
+    rb_raise(rb_eArgError, "invalid position");
+  memcpy(RSTRING_PTR(str) + offset, bytes, 4);
+  return str;
 }
 
 /**
@@ -217,12 +250,13 @@ void Init_native()
   VALUE int64_class = rb_singleton_class(int64);
   VALUE object_id = rb_const_get(bson, rb_intern("ObjectId"));
   VALUE generator = rb_const_get(object_id, rb_intern("Generator"));
+  VALUE string = rb_const_get(bson, rb_intern("String"));
 
   // Redefine the serialization methods on the Integer class.
   rb_undef_method(integer, "to_bson_int32");
-  rb_define_private_method(integer, "to_bson_int32", rb_integer_to_bson_int32, 0);
+  rb_define_method(integer, "to_bson_int32", rb_integer_to_bson_int32, 1);
   rb_undef_method(integer, "to_bson_int64");
-  rb_define_private_method(integer, "to_bson_int64", rb_integer_to_bson_int64, 0);
+  rb_define_method(integer, "to_bson_int64", rb_integer_to_bson_int64, 1);
 
   // Redefine deserialization methods on Int32 class.
   rb_undef_method(int32_class, "from_bson_int32");
@@ -234,7 +268,11 @@ void Init_native()
 
   // Redefine the serialization methods on the time class.
   rb_undef_method(time, "to_bson_time");
-  rb_define_method(time, "to_bson_time", rb_time_to_bson, 1);
+  rb_define_method(time, "to_bson_time", rb_time_to_bson, 2);
+
+  // Redefine the setint32 method on the String class.
+  rb_undef_method(string, "setint32");
+  rb_define_method(string, "setint32", rb_string_setint32, 2);
 
   // Setup the machine id for object id generation.
   /* memcpy(rb_bson_machine_id, RSTRING_PTR(machine_id), 16); */

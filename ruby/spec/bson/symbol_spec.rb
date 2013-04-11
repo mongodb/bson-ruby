@@ -19,13 +19,14 @@ describe Symbol do
 
     let(:symbol) { :test }
     let(:encoded) { symbol.to_s + BSON::NULL_BYTE }
+    let(:previous_content) { 'previous_content'.force_encoding(BSON::BINARY) }
 
     it "returns the encoded string" do
       expect(symbol.to_bson_cstring).to eq(encoded)
     end
 
     it "appends to optional previous content" do
-      expect(symbol.to_bson_cstring('previous_content')).to eq('previous_content' << encoded)
+      expect(symbol.to_bson_cstring(previous_content)).to eq(previous_content << encoded)
     end
   end
 end

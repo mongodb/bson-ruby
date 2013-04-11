@@ -97,16 +97,16 @@ module BSON
       unless bson_int64?
         out_of_range!
       else
-        encoded << (bson_int32? ? to_bson_int32 : to_bson_int64)
+        bson_int32? ? to_bson_int32(encoded) : to_bson_int64(encoded)
       end
     end
 
-    def to_bson_int32
-      [ self ].pack(Int32::PACK)
+    def to_bson_int32(encoded)
+      encoded << [ self ].pack(Int32::PACK)
     end
 
-    def to_bson_int64
-      [ self ].pack(Int64::PACK)
+    def to_bson_int64(encoded)
+      encoded << [ self ].pack(Int64::PACK)
     end
 
     private

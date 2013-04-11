@@ -26,6 +26,10 @@ describe String do
         string.to_bson_cstring
       end
 
+      let(:previous_content) do
+        'previous_content'.force_encoding(BSON::BINARY)
+      end
+
       it "returns the encoded string" do
         expect(encoded).to eq("test#{BSON::NULL_BYTE}")
       end
@@ -33,7 +37,7 @@ describe String do
       it_behaves_like "a binary encoded string"
 
       it "appends to optional previous content" do
-        expect(string.to_bson_cstring('previous_content')).to eq('previous_content' << encoded)
+        expect(string.to_bson_cstring(previous_content)).to eq(previous_content << encoded)
       end
     end
 
@@ -121,6 +125,10 @@ describe String do
         string.to_bson_string
       end
 
+      let(:previous_content) do
+        'previous_content'.force_encoding(BSON::BINARY)
+      end
+
       it "returns the string" do
         expect(encoded).to eq(string)
       end
@@ -128,7 +136,7 @@ describe String do
       it_behaves_like "a binary encoded string"
 
       it "appends to optional previous content" do
-        expect(string.to_bson_string('previous_content')).to eq('previous_content' << encoded)
+        expect(string.to_bson_string(previous_content)).to eq(previous_content << encoded)
       end
 
     end

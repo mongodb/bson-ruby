@@ -97,6 +97,21 @@ module BSON
       force_encoding(UTF8).encode!
     end
 
+    # Set four bytes for int32 in a binary string and return it.
+    #
+    # @example Set int32 in a BSON string.
+    #   encoded(pos, int32)
+    #
+    # @param [ Fixnum ] The position to set.
+    # @param [ Fixnum ] The int32 value.
+    #
+    # @return [ String ] The binary string.
+    #
+    # @since 2.0.0
+    def setint32(pos, int32)
+      self[pos, 4] = [ int32 ].pack(BSON::Int32::PACK)
+    end
+
     module ClassMethods
 
       # Deserialize a string from BSON.

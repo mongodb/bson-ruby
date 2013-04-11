@@ -25,12 +25,16 @@ end
 
 shared_examples_for "a serializable bson element" do
 
+  let(:previous_content) do
+    'previous_content'.force_encoding(BSON::BINARY)
+  end
+
   it "serializes to bson" do
     expect(obj.to_bson).to eq(bson)
   end
 
   it "serializes to bson by appending" do
-    expect(obj.to_bson('previous_content')).to eq('previous_content' << bson)
+    expect(obj.to_bson(previous_content)).to eq(previous_content << bson)
   end
 end
 
