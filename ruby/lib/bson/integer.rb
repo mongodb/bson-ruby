@@ -94,10 +94,12 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
-      unless bson_int64?
-        out_of_range!
+      if bson_int32?
+        to_bson_int32(encoded)
+      elsif bson_int64?
+        to_bson_int64(encoded)
       else
-        bson_int32? ? to_bson_int32(encoded) : to_bson_int64(encoded)
+        out_of_range!
       end
     end
 

@@ -18,17 +18,25 @@ class BenchTest < Test::Unit::TestCase
     puts
   end
 
-  def print_gain(modification_tms, base_tms)
-    puts "gain: #{'%.2f' % (1.0 - modification_tms.utime/base_tms.utime)} (#{base_tms.utime.round} --> #{modification_tms.utime.round})"
+  def gc_allocated
+    gc_stat = []
+    GC.start
+    gc_stat << GC.stat
+    yield
+    GC.start
+    gc_stat << GC.stat
+    gc_stat[1][:total_allocated_object] - gc_stat[0][:total_allocated_object]
   end
 
   def print_gain_and_freed_objects(measurement, gc_stat, i)
     h = Hash[*[:label, :utime, :stime, :cutime, :cstime, :real].zip(measurement[i].to_a).flatten]
+    h[:allocated] = gc_stat[i+1][:total_allocated_object] - gc_stat[i][:total_allocated_object]
     h[:freed] = gc_stat[i+1][:total_freed_object] - gc_stat[i][:total_freed_object]
     h[:base] = measurement[0].utime if i > 0
     h[:gain] = 1.0 - h[:utime]/h[:base] if i > 0
     [
         [ "label: \"%s\"", :label ],
+        [ ", allocated: %d", :allocated ],
         [ ", freed: %d", :freed ],
         [ ", user: %.1f", :utime ],
         [ ", base: %.1f", :base ],
@@ -48,7 +56,7 @@ class BenchTest < Test::Unit::TestCase
       meth, label = method_label_pair
       meth.call
       measurement << Benchmark.measure(label) do
-        count.times.each_with_index {|i| yield i }
+        count.times.each_with_index {|j| yield j }
       end
       GC.start
       gc_stat << GC.stat
@@ -205,6 +213,42 @@ class BenchTest < Test::Unit::TestCase
     benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
 
+  def reset_old_integer_to_bson
+    Integer.class_eval <<-EVAL
+      def to_bson(encoded = ''.force_encoding(BINARY))
+        unless bson_int64?
+          out_of_range!
+        else
+          bson_int32? ? to_bson_int32(encoded) : to_bson_int64(encoded)
+        end
+      end
+    EVAL
+  end
+
+  def set_new_integer_to_bson
+    Integer.class_eval <<-EVAL
+      def to_bson(encoded = ''.force_encoding(BINARY))
+        if bson_int32?
+          to_bson_int32(encoded)
+        elsif bson_int64?
+          to_bson_int64(encoded)
+        else
+          out_of_range!
+        end
+      end
+    EVAL
+  end
+
+  def test_integer_to_bson_optimization
+    size = 1024
+    hash = Hash[*(0..size).to_a.collect{|i| [ ('a' + i.to_s).to_sym, i]}.flatten]
+    method_label_pairs = [
+      [ method(:reset_old_integer_to_bson), 'Integer to_bson optimize none'],
+      [ method(:set_new_integer_to_bson), 'Integer to_bson optimize test order']
+    ]
+    benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
+  end
+
   # Optimization NOT committed ----------------------------------------------------------------------------------------
 
   def reset_old_hash_to_bson
@@ -300,6 +344,8 @@ class BenchTest < Test::Unit::TestCase
     benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
 
+  # Discarded as not worthy -------------------------------------------------------------------------------------------
+
   def reset_old_hash_from_bson
     BSON::Hash.class_eval <<-EVAL
       def from_bson(bson)
@@ -367,6 +413,37 @@ class BenchTest < Test::Unit::TestCase
 
   # Ruby-prof profiling -----------------------------------------------------------------------------------------------
 
+  def doc_stats(tally, obj)
+    tally[obj.class.name] += 1
+    case obj.class.name
+      when 'Array'; obj.each {|elem| doc_stats(tally, elem) }
+      when 'FalseClass'; return
+      when 'Fixnum'; return
+      when 'Float'; return
+      when 'Hash'; obj.each {|elem| doc_stats(tally, elem) }
+      when 'NilClass'; return
+      when 'String'; return
+      when 'TrueClass'; return
+      else p obj.class; exit
+    end
+  end
+
+  def test_doc_stats
+    json_filename = '../../../training/data/sampledata/twitter.json'
+    line_limit = 10_000
+    twitter = nil
+    File.open(json_filename, 'r') do |f|
+      twitter = line_limit.times.collect { JSON.parse(f.gets) }
+    end
+    tally = Hash.new(0)
+    doc_stats(tally, twitter)
+    tally = tally.to_a.sort{|a,b| b[1] <=> a[1]}
+    pp tally
+    obj_count = tally.inject(0){|sum, elem| sum + elem[1]}
+    puts "objects: #{obj_count}"
+    puts "objects/doc: #{obj_count/line_limit}"
+  end
+
   def test_encode_ruby_prof
     json_filename = '../../../training/data/sampledata/twitter.json'
     line_limit = 10_000
@@ -375,20 +452,25 @@ class BenchTest < Test::Unit::TestCase
       twitter = line_limit.times.collect { JSON.parse(f.gets) }
     end
 
-    result = nil
-    Benchmark.bm(@label_width) do |bench|
-      bench.report('test ruby prof') do
 
-        RubyProf.start
-        twitter.each {|doc| doc.to_bson }
-        result = RubyProf.stop
+    profile = nil
+    allocated = nil
+    Benchmark.bm(@label_width) do |bench|
+      bench.report('test encode ruby prof') do
+
+        allocated = gc_allocated do
+          RubyProf.start
+          twitter.each {|doc| doc.to_bson }
+          profile = RubyProf.stop
+        end
 
       end
     end
+    puts "allocated: #{allocated} allocated/line: #{allocated/line_limit}"
 
     File.open('encode-ruby-prof.out', 'w') do |f|
-      RubyProf::FlatPrinter.new(result).print(f)
-      RubyProf::GraphPrinter.new(result).print(f, {})
+      RubyProf::FlatPrinter.new(profile).print(f)
+      RubyProf::GraphPrinter.new(profile).print(f, {})
     end
   end
 
@@ -400,20 +482,24 @@ class BenchTest < Test::Unit::TestCase
       twitter = line_limit.times.collect { StringIO.new(JSON.parse(f.gets).to_bson) }
     end
 
-    result = nil
+    profile = nil
+    allocated = nil
     Benchmark.bm(@label_width) do |bench|
-      bench.report('test ruby prof') do
+      bench.report('test decode ruby prof') do
 
-        RubyProf.start
-        twitter.each {|io| io.rewind; Hash.from_bson(io) }
-        result = RubyProf.stop
+        allocated = gc_allocated do
+          RubyProf.start
+          twitter.each {|io| io.rewind; Hash.from_bson(io) }
+          profile = RubyProf.stop
+        end
 
       end
     end
+    puts "allocated: #{allocated} allocated/line: #{allocated/line_limit}"
 
     File.open('decode-ruby-prof.out', 'w') do |f|
-      RubyProf::FlatPrinter.new(result).print(f)
-      RubyProf::GraphPrinter.new(result).print(f, {})
+      RubyProf::FlatPrinter.new(profile).print(f)
+      RubyProf::GraphPrinter.new(profile).print(f, {})
     end
   end
 

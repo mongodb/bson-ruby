@@ -3,11 +3,13 @@ BSON
 
 Review
 ------
+
 * Unused
 ** Binary#bin_data
 
 Optimizations committed
 -----------------------
+
 * append to encoded
 ** \*.to_bson(encoded) appends bson for obj to encoded
 ** string.to_bson_string(encoded) appends bson string to encoded
@@ -33,9 +35,33 @@ Optimizations committed
 *** ext  to_bson,       freed: 32000078, user: 29.5
 *** ext  to_bson_int32, freed: 20000118, user: 22.1, base: 29.5, gain: 0.25
 *** ext  setint32,      freed: 14000119, user: 18.4, base: 29.5, gain: 0.38
+* integer.to_bson test order - test bson_int32? first as most numbers fit
+** ruby bson_int64?     allocated: 71780058, freed: 71780043, user: 41.4
+** ruby bson_int32?     allocated: 51280097, freed: 51280093, user: 35.4, base: 41.4, gain: 0.14
 
-To Do
------
+Allocations
+-----------
+
+* twitter
+** documents   10000
+** objects/doc   185
+** objects   1852053
+*** String    811731
+*** Array     646586
+*** NilClass  120515
+*** Fixnum    120181
+*** FalseClass 89655
+*** Hash       44144
+*** TrueClass  18245
+*** Float        996
+** encode - allocated: 2697231 allocated/line: 248
+** decode - allocated: 3080522 allocated/line: 308
+
+To Do - Review
+--------------
+
+* getint32 - bson.read(4).unpack(Int32::PACK)
+** probably minimal but still worth refactoring - 7 occurrences
 * consider doc key memo
 ** note threading concerns
 ** no safety limit needed for non-pathological use (review this)
@@ -45,26 +71,31 @@ To Do
 *** symbol ~ gain: 0.15 (41 --> 35) Core 2
 *** string ~ gain: 0.05 (39 --> 37) Core 2
 
-* consider native - append with rb_str_buf_cat
+* consider native
 ** BSON::Integer#bson_int32?
 ** BSON::Integer#to_bson
 ** BSON::Integer#bson_int64?
-
-* consider append for
-** to_bson_time - has native
-
-* encode
-** review read garbage generation for swallow / throw away - Array#from_bson Hash@from_bson - StringIO#seek(4, IO::SEEK_CUR)
-
-* GC stats
 
 * optimize/examine
 ** Mongo::Protocol
 *** Insert
 *** Message
 
+Minimal? - Review
+-----------------
+
+
+Discarded
+---------
+
+* seek insteat of read read for swallow / throw away - StringIO#seek(4, IO::SEEK_CUR) - garbage same
+** Array#from_bson
+** Hash@from_bson
+* bson_int32? - via Ruby bit ops
+
 Notes
 -----
+
 * Ruby prof for encoding of twitter data looks good
 ** training/data/sampledata/sampledata/twitter.json is from the training files (private repo)
 * modules and classes have some overhead that can be significant
