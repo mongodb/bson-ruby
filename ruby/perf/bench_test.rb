@@ -4,9 +4,10 @@ require 'json'
 require 'stringio'
 require 'test/unit'
 require 'benchmark'
-require 'ruby-prof'
+require 'ruby-prof' unless RUBY_PLATFORM =~ /java/
 
 class BenchTest < Test::Unit::TestCase
+  RESET = 'reset'
 
   def setup
     puts
@@ -62,12 +63,13 @@ class BenchTest < Test::Unit::TestCase
       gc_stat << GC.stat
       print_gain_and_freed_objects(measurement, gc_stat, i)
     end
-    method_label_pairs.first.first.call
+    reset_method = method_label_pairs.find(method_label_pairs.first){|ml| ml[2] && ml[2] == RESET}.first
+    reset_method.call
   end
 
   # Optimization committed --------------------------------------------------------------------------------------------
 
-  def reset_old_array_index
+  def old_array_index
     Array.class_eval <<-EVAL
       def to_bson(encoded = ''.force_encoding(BSON::BINARY))
         encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
@@ -81,7 +83,7 @@ class BenchTest < Test::Unit::TestCase
     EVAL
   end
 
-  def set_new_array_index_optimize
+  def new_array_index_optimize
     Array.class_eval <<-EVAL
         @@_BSON_INDEX_SIZE = 1024
         @@_BSON_INDEX_ARRAY = ::Array.new(@@_BSON_INDEX_SIZE){|i| (i.to_s.force_encoding(BSON::BINARY) << BSON::NULL_BYTE).freeze}.freeze
@@ -105,13 +107,13 @@ class BenchTest < Test::Unit::TestCase
     size = 1024
     array = Array.new(size){|i| i}
     method_label_pairs = [
-      [ method(:reset_old_array_index), 'Array index optimize none'],
-      [ method(:set_new_array_index_optimize), 'Array index optimize 1024'] # Xeon user: 20.3, base: 33.2, gain: 0.39
+      [ method(:old_array_index),          'Array index optimize none' ],
+      [ method(:new_array_index_optimize), 'Array index optimize 1024', RESET ] # Xeon user: 20.3, base: 33.2, gain: 0.39
     ]
     benchmark_with_gc(@count, method_label_pairs) { array.to_bson }
   end
 
-  def reset_old_encode_bson_with_placeholder
+  def old_encode_bson_with_placeholder
     BSON::Encodable.module_eval <<-EVAL
       def encode_with_placeholder_and_null(adjust, encoded = ''.force_encoding(BSON::BINARY))
         pos = encoded.bytesize
@@ -124,7 +126,7 @@ class BenchTest < Test::Unit::TestCase
     EVAL
   end
 
-  def set_new_encode_bson_with_placeholder_v0
+  def new_encode_bson_with_placeholder_v0
     BSON::Encodable.module_eval <<-EVAL
       def encode_with_placeholder_and_null(adjust, encoded = ''.force_encoding(BINARY))
         pos = encoded.bytesize
@@ -137,7 +139,7 @@ class BenchTest < Test::Unit::TestCase
     EVAL
   end
 
-  def set_new_encode_bson_with_placeholder_v1
+  def new_encode_bson_with_placeholder_v1
     BSON::Encodable.module_eval <<-EVAL
       def encode_with_placeholder_and_null(adjust, encoded = ''.force_encoding(BINARY))
         pos = encoded.bytesize
@@ -155,14 +157,14 @@ class BenchTest < Test::Unit::TestCase
     hash = Hash[*(0..size).to_a.collect{|i| [ ('a' + i.to_s), i.to_s]}.flatten]
     @count = 2_000_000
     method_label_pairs = [
-        [ method(:reset_old_encode_bson_with_placeholder), 'Encode bson optimize to_bson'],
-        [ method(:set_new_encode_bson_with_placeholder_v0), 'Encode bson optimize to_bson_int32'], # user: 22.2, base: 28.5, gain: 0.22
-        [ method(:set_new_encode_bson_with_placeholder_v1), 'Encode bson optimize setint32']       # user: 22.2, base: 28.5, gain: 0.22
+        [ method(:old_encode_bson_with_placeholder),    'Encode bson optimize to_bson' ],
+        [ method(:new_encode_bson_with_placeholder_v0), 'Encode bson optimize to_bson_int32' ],  # user: 22.2, base: 28.5, gain: 0.22
+        [ method(:new_encode_bson_with_placeholder_v1), 'Encode bson optimize setint32', RESET ] # user: 22.2, base: 28.5, gain: 0.22
     ]
     benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
 
-  def reset_old_encode_string_with_placeholder
+  def old_encode_string_with_placeholder
     BSON::Encodable.module_eval <<-EVAL
       def encode_with_placeholder_and_null(adjust, encoded = ''.force_encoding(BSON::BINARY))
         pos = encoded.bytesize
@@ -175,7 +177,7 @@ class BenchTest < Test::Unit::TestCase
     EVAL
   end
 
-  def set_new_encode_string_with_placeholder_v0
+  def new_encode_string_with_placeholder_v0
     BSON::Encodable.module_eval <<-EVAL
       def encode_with_placeholder_and_null(adjust, encoded = ''.force_encoding(BINARY))
         pos = encoded.bytesize
@@ -188,7 +190,7 @@ class BenchTest < Test::Unit::TestCase
     EVAL
   end
 
-  def set_new_encode_string_with_placeholder_v1
+  def new_encode_string_with_placeholder_v1
     BSON::Encodable.module_eval <<-EVAL
       def encode_with_placeholder_and_null(adjust, encoded = ''.force_encoding(BINARY))
         pos = encoded.bytesize
@@ -206,14 +208,14 @@ class BenchTest < Test::Unit::TestCase
     hash = Hash[*(0..size).to_a.collect{|i| [ ('a' + i.to_s), i.to_s]}.flatten]
     @count = 2_000_000
     method_label_pairs = [
-        [ method(:reset_old_encode_string_with_placeholder), 'Encode string optimize to_bson'],
-        [ method(:set_new_encode_string_with_placeholder_v0), 'Encode string optimize to_bson_int32'], # Xeon user: 22.2, base: 27.7, gain: 0.20
-        [ method(:set_new_encode_string_with_placeholder_v1), 'Encode string optimize setint32']       # Xeon user: 22.2, base: 27.7, gain: 0.20
+        [ method(:old_encode_string_with_placeholder),    'Encode string optimize to_bson' ],
+        [ method(:new_encode_string_with_placeholder_v0), 'Encode string optimize to_bson_int32' ],  # Xeon user: 22.2, base: 27.7, gain: 0.20
+        [ method(:new_encode_string_with_placeholder_v1), 'Encode string optimize setint32', RESET ] # Xeon user: 22.2, base: 27.7, gain: 0.20
     ]
     benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
 
-  def reset_old_integer_to_bson
+  def old_integer_to_bson
     Integer.class_eval <<-EVAL
       def to_bson(encoded = ''.force_encoding(BINARY))
         unless bson_int64?
@@ -225,7 +227,7 @@ class BenchTest < Test::Unit::TestCase
     EVAL
   end
 
-  def set_new_integer_to_bson
+  def new_integer_to_bson
     Integer.class_eval <<-EVAL
       def to_bson(encoded = ''.force_encoding(BINARY))
         if bson_int32?
@@ -243,15 +245,15 @@ class BenchTest < Test::Unit::TestCase
     size = 1024
     hash = Hash[*(0..size).to_a.collect{|i| [ ('a' + i.to_s).to_sym, i]}.flatten]
     method_label_pairs = [
-      [ method(:reset_old_integer_to_bson), 'Integer to_bson optimize none'],
-      [ method(:set_new_integer_to_bson), 'Integer to_bson optimize test order']
+      [ method(:old_integer_to_bson), 'Integer to_bson optimize none' ],
+      [ method(:new_integer_to_bson), 'Integer to_bson optimize test order', RESET ]
     ]
     benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
 
   # Optimization NOT committed ----------------------------------------------------------------------------------------
 
-  def reset_old_hash_to_bson
+  def old_hash_to_bson
     Hash.class_eval <<-EVAL
       def to_bson(encoded = ''.force_encoding(BSON::BINARY))
         encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
@@ -265,7 +267,7 @@ class BenchTest < Test::Unit::TestCase
     EVAL
   end
 
-  def set_new_hash_to_bson_v0
+  def new_hash_to_bson_v0
     # if-else seems to work better than setting a variable to method
     # pending - mutex
     Hash.class_eval <<-EVAL
@@ -304,7 +306,7 @@ class BenchTest < Test::Unit::TestCase
     EVAL
   end
 
-  def set_new_hash_to_bson_v1
+  def new_hash_to_bson_v1
     Hash.class_eval <<-EVAL
         @@_memo_hash = Hash.new
         def _memo(field)
@@ -326,9 +328,9 @@ class BenchTest < Test::Unit::TestCase
     size = 1024
     hash = Hash[*(0..size).to_a.collect{|i| [ ('a' + i.to_s).to_sym, i]}.flatten]
     method_label_pairs = [
-      [ method(:reset_old_hash_to_bson), 'Symbol key optimize none'],
-      [ method(:set_new_hash_to_bson_v0), 'Symbol key optimize hash key v0'], # Xeon user: 33.4, base: 35.9, gain: 0.07
-      [ method(:set_new_hash_to_bson_v1), 'Symbol key optimize hash key v1']  # Xeon user: 26.4, base: 35.9, gain: 0.26
+      [ method(:old_hash_to_bson),    'Symbol key optimize none', RESET ],
+      [ method(:new_hash_to_bson_v0), 'Symbol key optimize hash key v0' ], # Xeon user: 33.4, base: 35.9, gain: 0.07
+      [ method(:new_hash_to_bson_v1), 'Symbol key optimize hash key v1' ]  # Xeon user: 26.4, base: 35.9, gain: 0.26
     ]
     benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
@@ -337,16 +339,16 @@ class BenchTest < Test::Unit::TestCase
     size = 1024
     hash = Hash[*(0..size).to_a.collect{|i| [ ('a' + i.to_s), i]}.flatten]
     method_label_pairs = [
-        [ method(:reset_old_hash_to_bson), 'Symbol key optimize none'],
-        [ method(:set_new_hash_to_bson_v0), 'Symbol key optimize hash key v0'], # Xeon user: 34.5, base: 32.6, gain: -0.06
-        [ method(:set_new_hash_to_bson_v1), 'Symbol key optimize hash key v1'] # Xeon user: 27.5, base: 32.6, gain: 0.15
+        [ method(:old_hash_to_bson),    'Symbol key optimize none', RESET ],
+        [ method(:new_hash_to_bson_v0), 'Symbol key optimize hash key v0' ], # Xeon user: 34.5, base: 32.6, gain: -0.06
+        [ method(:new_hash_to_bson_v1), 'Symbol key optimize hash key v1' ] # Xeon user: 27.5, base: 32.6, gain: 0.15
     ]
     benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
 
   # Discarded as not worthy -------------------------------------------------------------------------------------------
 
-  def reset_old_hash_from_bson
+  def old_hash_from_bson
     BSON::Hash.class_eval <<-EVAL
       def from_bson(bson)
         hash = new
@@ -360,7 +362,7 @@ class BenchTest < Test::Unit::TestCase
     EVAL
   end
 
-  def set_new_hash_from_bson
+  def new_hash_from_bson
     BSON::Hash.class_eval <<-EVAL
       def from_bson(bson)
         hash = new
@@ -379,13 +381,13 @@ class BenchTest < Test::Unit::TestCase
     hash = Hash[*(0..size).to_a.collect{|i| [ ('a' + i.to_s), i.to_s]}.flatten]
     @count = 2_000_000
     method_label_pairs = [
-        [ method(:reset_old_hash_from_bson), 'Encode bson optimize none'],
-        [ method(:set_new_hash_from_bson), 'Encode bson optimize seek'] # Xeon user: 28.2, base: 28.3, gain: 0.00
+        [ method(:old_hash_from_bson), 'Encode bson optimize none', RESET ],
+        [ method(:new_hash_from_bson), 'Encode bson optimize seek' ] # Xeon user: 28.2, base: 28.3, gain: 0.00
     ]
     benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
 
-  def reset_integer_bson_int32?
+  def old_integer_bson_int32?
     Integer.class_eval <<-EVAL
       def bson_int32?
         (MIN_32BIT <= self) && (self <= MAX_32BIT)
@@ -393,7 +395,7 @@ class BenchTest < Test::Unit::TestCase
     EVAL
   end
 
-  def set_new_integer_bson_int32?
+  def new_integer_bson_int32?
     Integer.class_eval <<-EVAL
       @@FIXNUM_HIGHBITS32 = (-1 << 32)
       def bson_int32?
@@ -405,8 +407,8 @@ class BenchTest < Test::Unit::TestCase
   def test_bson_int32?
     count = 100_000_000
     method_label_pairs = [
-        [ method(:reset_integer_bson_int32?), 'Integer#bson_int32? old'],
-        [ method(:set_new_integer_bson_int32?), 'Integer#bson_int32? new'] # user: 34.9, base: 21.4, gain: -0.63
+        [ method(:integer_bson_int32?),     'Integer#bson_int32? old', RESET ],
+        [ method(:new_integer_bson_int32?), 'Integer#bson_int32? new' ] # user: 34.9, base: 21.4, gain: -0.63
     ]
     benchmark_with_gc(count, method_label_pairs) {|i| i.bson_int32? }
   end

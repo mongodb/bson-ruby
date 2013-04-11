@@ -54,8 +54,8 @@ Allocations
 *** Hash       44144
 *** TrueClass  18245
 *** Float        996
-** encode - allocated: 2697231 allocated/line: 248
-** decode - allocated: 3080522 allocated/line: 308
+** encode - allocated: 2697231 allocated/doc: 248
+** decode - allocated: 3080522 allocated/doc: 308
 
 To Do - Review
 --------------
@@ -70,6 +70,8 @@ To Do - Review
 ** with safety limit, mutex overhead eats up the benefit on Xeon
 *** symbol ~ gain: 0.15 (41 --> 35) Core 2
 *** string ~ gain: 0.05 (39 --> 37) Core 2
+* check_for_illegal_characters - other illegals like '.' and '$'
+** optimize - anywhere not needed?
 
 * consider native
 ** BSON::Integer#bson_int32?
