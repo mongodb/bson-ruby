@@ -1,5 +1,6 @@
 source "https://rubygems.org"
 
+gem "json", :platforms => :mri_18
 gem "rake"
 
 group :development, :test do
