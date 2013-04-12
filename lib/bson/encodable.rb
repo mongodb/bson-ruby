@@ -42,7 +42,7 @@ module BSON
       encoded << PLACEHOLDER
       yield(encoded)
       encoded << NULL_BYTE
-      encoded.setint32(pos, encoded.bytesize - pos + adjust)
+      encoded.set_int32(pos, encoded.bytesize - pos + adjust)
       encoded
     end
 
@@ -50,7 +50,7 @@ module BSON
       pos = encoded.bytesize
       encoded << PLACEHOLDER
       yield(encoded)
-      encoded.setint32(pos, encoded.bytesize - pos - 5)
+      encoded.set_int32(pos, encoded.bytesize - pos - 5)
       encoded
     end
   end

@@ -207,7 +207,7 @@ static VALUE rb_time_to_bson(VALUE self, VALUE milliseconds, VALUE encoded)
  * Set four bytes for int32 in a binary string and return it.
  *
  * @example Set int32 in a BSON string.
- *   rb_string_setint32(self, pos, int32)
+ *   rb_string_set_int32(self, pos, int32)
  *
  * @param [ String ] self The Ruby binary string.
  * @param [ Fixnum ] The position to set.
@@ -217,7 +217,7 @@ static VALUE rb_time_to_bson(VALUE self, VALUE milliseconds, VALUE encoded)
  *
  * @since 2.0.0
  */
-static VALUE rb_string_setint32(VALUE str, VALUE pos, VALUE an_int32)
+static VALUE rb_string_set_int32(VALUE str, VALUE pos, VALUE an_int32)
 {
   const int32_t offset = NUM2INT(pos);
   const int32_t v = NUM2INT(an_int32);
@@ -270,9 +270,9 @@ void Init_native()
   rb_undef_method(time, "to_bson_time");
   rb_define_method(time, "to_bson_time", rb_time_to_bson, 2);
 
-  // Redefine the setint32 method on the String class.
-  rb_undef_method(string, "setint32");
-  rb_define_method(string, "setint32", rb_string_setint32, 2);
+  // Redefine the set_int32 method on the String class.
+  rb_undef_method(string, "set_int32");
+  rb_define_method(string, "set_int32", rb_string_set_int32, 2);
 
   // Setup the machine id for object id generation.
   /* memcpy(rb_bson_machine_id, RSTRING_PTR(machine_id), 16); */
