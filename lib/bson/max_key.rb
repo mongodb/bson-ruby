@@ -10,6 +10,7 @@ module BSON
   class MaxKey
     include Comparable
     include JSON
+    include Specialized
 
     # A $maxKey is type 0x7F in the BSON spec.
     #
@@ -20,20 +21,6 @@ module BSON
     #
     # @since 2.0.0
     GREATER = 1.freeze
-
-    # Determine if the max key is equal to another object.
-    #
-    # @example Check max key equality.
-    #   BSON::MaxKey.new == object
-    #
-    # @param [ Object ] other The object to check against.
-    #
-    # @return [ true, false ] If the objects are equal.
-    #
-    # @since 2.0.0
-    def ==(other)
-      self.class == other.class
-    end
 
     # When comparing a max key with any other object, the max key will always
     # be greater.
@@ -60,32 +47,6 @@ module BSON
     # @since 2.0.0
     def as_json(*args)
       { "$maxKey" => 1 }
-    end
-
-    # Encode the max key - has no value since it only needs the type and field
-    # name when being encoded.
-    #
-    # @example Encode the max key value.
-    #   max_key.to_bson
-    #
-    # @return [ String ] An empty string.
-    #
-    # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      encoded << NO_VALUE
-    end
-
-    # Deserialize MaxKey from BSON.
-    #
-    # @param [ BSON ] bson The encoded MaxKey.
-    #
-    # @return [ MaxKey ] The decoded MaxKey.
-    #
-    # @see http://bsonspec.org/#/specification
-    #
-    # @since 2.0.0
-    def self.from_bson(bson)
-      new
     end
 
     # Register this type when the module is loaded.
