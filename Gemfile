@@ -8,11 +8,12 @@ group :development, :test do
   gem "rspec"
 
   unless ENV["CI"]
-    gem "guard-rspec"
     gem "pry"
-    gem "rb-fsevent"
+    gem "guard-rspec"
+    gem "rb-inotify", :require => false # Linux
+    gem "rb-fsevent", :require => false # OS X
+    gem "rb-fchange", :require => false # Windows
     gem "terminal-notifier-guard"
-    gem "json"
     gem "ruby-prof", :platforms => :mri
   end
 end
