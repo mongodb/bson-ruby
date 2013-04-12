@@ -9,7 +9,7 @@ build/*
 *.bak
 .DS_Store
 .rvmrc
-ruby/tmp/*
+tmp/*
 *.o
 *.bundle
 Makefile
