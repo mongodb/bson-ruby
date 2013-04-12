@@ -1,6 +1,18 @@
 BSON [![Build Status](https://secure.travis-ci.org/mongodb/bson-ruby.png?branch=master&.png)](http://travis-ci.org/mongodb/bson-ruby) [![Code Climate](https://codeclimate.com/github/mongodb/bson-ruby.png)](https://codeclimate.com/github/mongodb/bson-ruby)
 ====
 
+An implementation of the BSON specification in Ruby.
+
+Compatibility
+-------------
+
+BSON is tested against MRI (1.8.7+), JRuby (1.5.0+), and REE.
+
+Documentation
+-------------
+
+Please see the [BSON specification](http://bsonspec.org) and the [API Documentation](http://rdoc.info/github/mongodb/bson-ruby/master/frames).
+
 Review
 ------
 
