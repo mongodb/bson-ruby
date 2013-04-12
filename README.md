@@ -90,7 +90,7 @@ Minimal? - Review
 Discarded
 ---------
 
-* seek insteat of read read for swallow / throw away - StringIO#seek(4, IO::SEEK_CUR) - garbage same
+* seek instead of read for swallow / throw away - StringIO#seek(4, IO::SEEK_CUR) - garbage same
 ** Array#from_bson
 ** Hash@from_bson
 * bson_int32? - via Ruby bit ops
