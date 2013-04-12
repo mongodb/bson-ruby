@@ -407,24 +407,61 @@ module BSON
       # @example Create a new document with the provided elements.
       #   BSON::Document[1, 2, 3, 4]
       #
+      # @example Create a new document with key/value array pairs.
+      #   BSON::Document[[ 1, 2 ], [ 3, 4 ]]
+      #
       # @param [ Array<Object> ] args The key/value pairs.
       #
       # @return [ BSON::Document ] The new document.
       #
       # @since 2.0.0
       def [](*args)
-        document = new
-
         if (args.length == 1 && args.first.is_a?(Array))
-          args.first.each do |pair|
-            next unless (pair.is_a?(Array))
-            document[pair[0]] = pair[1]
-          end
-          return document
+          return document_from_pairs(args)
         end
-
         raise ArgumentError.new(ARG_ERROR) unless (args.size % 2 == 0)
+        document_from_args(args)
+      end
 
+      private
+
+      # Returns a document that will be generated from an array of [ key, value ]
+      # array pairs.
+      #
+      # @api private
+      #
+      # @example Initialize a document from array pairs.
+      #   BSON::Document[[ 1, 2 ], [ 3, 4 ]]
+      #
+      # @param [ Array ] pairs The key/value pairs.
+      #
+      # @since 2.0.0
+      #
+      # @return [ BSON::Document ] The document.
+      def document_from_pairs(pairs)
+        document = new
+        pairs.first.each do |pair|
+          next unless (pair.is_a?(Array))
+          document[pair[0]] = pair[1]
+        end
+        return document
+      end
+
+      # Returns a document that will be generated from an even number of
+      # individual arguments.
+      #
+      # @api private
+      #
+      # @example Initialize a document from args.
+      #   BSON::Document[1, 2, 3, 4]
+      #
+      # @param [ Array ] args The arguments.
+      #
+      # @return [ BSON::Document ] The document.
+      #
+      # @since 2.0.0
+      def document_from_args(args)
+        document = new
         args.each_with_index do |val, ind|
           next if (ind % 2 != 0)
           document[val] = args[ind + 1]
