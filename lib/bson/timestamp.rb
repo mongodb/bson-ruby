@@ -80,7 +80,8 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
-      encoded << [ increment, seconds ].pack(TIMESTAMP_PACK)
+      increment.to_bson_int32(encoded)
+      seconds.to_bson_int32(encoded)
     end
 
     # Deserialize timestamp from BSON.

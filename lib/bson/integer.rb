@@ -103,12 +103,42 @@ module BSON
       end
     end
 
+    # Convert the integer to a 32 bit (4 bytes) raw bytes string.
+    #
+    # @example Convert the integer to it's 32 bit bytes.
+    #   1024.to_bson_int32
+    #
+    # @param [ String ] encoded The string to encode to.
+    #
+    # @return [ String ] The encoded string.
+    #
+    # @since 2.0.0
     def to_bson_int32(encoded)
-      encoded << [ self ].pack(Int32::PACK)
+      encoded << (self & 255)
+      encoded << ((self >> 8) & 255)
+      encoded << ((self >> 16) & 255)
+      encoded << ((self >> 24) & 255)
     end
 
+    # Convert the integer to a 64 bit (8 bytes) raw bytes string.
+    #
+    # @example Convert the integer to it's 64 bit bytes.
+    #   1024.to_bson_int64
+    #
+    # @param [ String ] encoded The string to encode to.
+    #
+    # @return [ String ] The encoded string.
+    #
+    # @since 2.0.0
     def to_bson_int64(encoded)
-      encoded << [ self ].pack(Int64::PACK)
+      encoded << (self & 255)
+      encoded << ((self >> 8) & 255)
+      encoded << ((self >> 16) & 255)
+      encoded << ((self >> 24) & 255)
+      encoded << ((self >> 32) & 255)
+      encoded << ((self >> 40) & 255)
+      encoded << ((self >> 48) & 255)
+      encoded << ((self >> 56) & 255)
     end
 
     private
