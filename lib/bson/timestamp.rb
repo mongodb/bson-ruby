@@ -14,11 +14,6 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 17.chr.force_encoding(BINARY).freeze
 
-    # Constant for the timestamp pack directive.
-    #
-    # @since 2.0.0
-    TIMESTAMP_PACK = "l<2".freeze
-
     # @!attribute seconds
     #   @return [ Integer ] The number of seconds.
     #   @since 2.0.0

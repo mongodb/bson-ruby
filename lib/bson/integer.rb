@@ -114,10 +114,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson_int32(encoded)
-      encoded << (self & 255)
-      encoded << ((self >> 8) & 255)
-      encoded << ((self >> 16) & 255)
-      encoded << ((self >> 24) & 255)
+      append_bson_int32(encoded)
     end
 
     # Convert the integer to a 64 bit (8 bytes) raw bytes string.
@@ -131,10 +128,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson_int64(encoded)
-      encoded << (self & 255)
-      encoded << ((self >> 8) & 255)
-      encoded << ((self >> 16) & 255)
-      encoded << ((self >> 24) & 255)
+      append_bson_int32(encoded)
       encoded << ((self >> 32) & 255)
       encoded << ((self >> 40) & 255)
       encoded << ((self >> 48) & 255)
@@ -142,6 +136,13 @@ module BSON
     end
 
     private
+
+    def append_bson_int32(encoded)
+      encoded << (self & 255)
+      encoded << ((self >> 8) & 255)
+      encoded << ((self >> 16) & 255)
+      encoded << ((self >> 24) & 255)
+    end
 
     def out_of_range!
       raise OutOfRange.new("#{self} is not a valid 8 byte integer value.")
