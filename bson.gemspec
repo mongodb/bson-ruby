@@ -1,4 +1,3 @@
-# encoding: utf-8
 lib = File.expand_path('../lib/', __FILE__)
 $:.unshift lib unless $:.include?(lib)
 
@@ -13,7 +12,7 @@ Gem::Specification.new do |s|
   s.homepage    = "http://bsonspec.org"
   s.summary     = "Ruby Implementation of the BSON specification"
   s.description = "A full featured BSON specification implementation, in Ruby"
-  s.license     = "Apache"
+  s.license     = "Apache License Version 2.0"
 
   s.required_ruby_version     = ">= 1.8.7"
   s.required_rubygems_version = ">= 1.3.6"
