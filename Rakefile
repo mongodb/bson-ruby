@@ -35,6 +35,10 @@ def compile!
   end
 end
 
+task :build do
+  system "gem build bson.gemspec"
+end
+
 task :compile do
   compile!
 end
