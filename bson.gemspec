@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version     = ">= 1.8.7"
   s.required_rubygems_version = ">= 1.3.6"
   s.rubyforge_project         = "bson"
-
+  s.extensions   = "ext/bson/extconf.rb"
   s.files        = Dir.glob("lib/**/*") + %w(CHANGELOG.md LICENSE.md README.md Rakefile)
   s.require_path = "lib"
 end
