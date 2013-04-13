@@ -4,7 +4,6 @@ Bundler.setup
 $LOAD_PATH.unshift(File.expand_path("../lib", __FILE__))
 
 require "rake"
-require "cucumber/rake/task"
 require "rspec/core/rake_task"
 
 require "bson/version"
