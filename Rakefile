@@ -55,6 +55,13 @@ task :clean do
   end
 end
 
+task :release => :build do
+  system "git tag -a v#{BSON::VERSION} -m 'Tagging release: #{BSON::VERSION}'"
+  system "git push --tags"
+  system "gem push bson-#{BSON::VERSION}.gem"
+  system "rm bson-#{BSON::VERSION}.gem"
+end
+
 namespace :benchmark do
 
   task :ruby => :clean do
