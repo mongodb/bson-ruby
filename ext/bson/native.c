@@ -86,6 +86,29 @@ static VALUE rb_object_id_generator_next(int argc, VALUE* time, VALUE self)
 }
 
 /**
+ * Check if the integer is a 32 bit integer.
+ *
+ * @example Check if the integer is 32 bit.
+ *    rb_integer_is_bson_int32(integer);
+ *
+ * @param [ Integer ] self The ruby integer.
+ *
+ * @return [ true, false ] If the integer is 32 bit.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_integer_is_bson_int32(VALUE self)
+{
+  const int64_t v = NUM2INT64(self);
+  if (INT_MIN <= v && v <= INT_MAX) {
+    return Qtrue;
+  }
+  else {
+    return Qfalse;
+  }
+}
+
+/**
  * Convert the Ruby integer into a BSON as per the 32 bit specification,
  * which is 4 bytes.
  *
@@ -227,8 +250,9 @@ static VALUE rb_string_set_int32(VALUE str, VALUE pos, VALUE an_int32)
     (v >> 16) & 255,
     (v >> 24) & 255
   };
-  if (offset < 0 || offset + 4 > RSTRING_LEN(str))
+  if (offset < 0 || offset + 4 > RSTRING_LEN(str)) {
     rb_raise(rb_eArgError, "invalid position");
+  }
   memcpy(RSTRING_PTR(str) + offset, bytes, 4);
   return str;
 }
@@ -257,6 +281,8 @@ void Init_native()
   rb_define_method(integer, "to_bson_int32", rb_integer_to_bson_int32, 1);
   rb_undef_method(integer, "to_bson_int64");
   rb_define_method(integer, "to_bson_int64", rb_integer_to_bson_int64, 1);
+  rb_undef_method(integer, "bson_int32?");
+  rb_define_method(integer, "bson_int32?", rb_integer_is_bson_int32, 0);
 
   // Redefine deserialization methods on Int32 class.
   rb_undef_method(int32_class, "from_bson_int32");

@@ -30,7 +30,7 @@ describe Integer do
       it "raises an out of range error" do
         expect {
           integer.to_bson
-        }.to raise_error(BSON::Integer::OutOfRange)
+        }.to raise_error(RangeError)
       end
     end
 
@@ -41,7 +41,7 @@ describe Integer do
       it "raises an out of range error" do
         expect {
           integer.to_bson
-        }.to raise_error(BSON::Integer::OutOfRange)
+        }.to raise_error(RangeError)
       end
     end
   end
