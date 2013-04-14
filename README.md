@@ -74,7 +74,6 @@ To Do - Review
 
 - getint32 - bson.read(4).unpack(Int32::PACK)
   probably minimal but still worth refactoring - 7 occurrences
-- consider doc key memo
 - note threading concerns
 - no safety limit needed for non-pathological use (review this)
 - symbol ~ gain: 0.25 (36 --> 27) Xeon, gain: 0.34 (41 --> 27) Core 2
@@ -84,18 +83,12 @@ To Do - Review
 - string ~ gain: 0.05 (39 --> 37) Core 2
 - check_for_illegal_characters - other illegals like '.' and '$' (not part of BSON spec - Mongo specific)
 
-- consider native
-  BSON::Integer#bson_int32?
-  BSON::Integer#to_bson
-  BSON::Integer#bson_int64?
-
 Discarded
 ---------
 
 - seek instead of read for swallow / throw away - StringIO#seek(4, IO::SEEK_CUR) - garbage same
 - Array#from_bson
 - Hash@from_bson
-- bson_int32? - via Ruby bit ops
 
 Notes
 -----
