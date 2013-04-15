@@ -14,6 +14,13 @@ Gem::Specification.new do |s|
   s.description = "A full featured BSON specification implementation, in Ruby"
   s.license     = "Apache License Version 2.0"
 
+  unless File.exists?("gem-private_key.pem")
+    warn "Warning! No private key present, creating unsigned gem."
+  else
+    s.signing_key = "gem-private_key.pem"
+    s.cert_chain  = ["gem-public_cert.pem"]
+  end
+
   s.required_ruby_version     = ">= 1.8.7"
   s.required_rubygems_version = ">= 1.3.6"
   s.rubyforge_project         = "bson"
