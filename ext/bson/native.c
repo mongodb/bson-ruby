@@ -17,6 +17,10 @@
 #define INT642NUM(v) LL2NUM(v)
 #endif
 
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX 256
+#endif
+
 /**
  * Holds the machine id for object id generation.
  *
@@ -24,7 +28,7 @@
  *
  * @todo: Need to set this value properly.
  */
-static char rb_bson_machine_id[3] = "abc";
+static char rb_bson_machine_id[HOST_NAME_MAX];
 
 /**
  * The counter for incrementing object ids.
@@ -275,6 +279,9 @@ void Init_native()
   VALUE object_id = rb_const_get(bson, rb_intern("ObjectId"));
   VALUE generator = rb_const_get(object_id, rb_intern("Generator"));
   VALUE string = rb_const_get(bson, rb_intern("String"));
+
+  gethostname(rb_bson_machine_id, sizeof rb_bson_machine_id);
+  rb_bson_machine_id[HOST_NAME_MAX - 1] = '\0';
 
   // Redefine the serialization methods on the Integer class.
   rb_undef_method(integer, "to_bson_int32");
