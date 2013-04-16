@@ -30,6 +30,12 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
+      to_bson_double(encoded)
+    end
+
+    private
+
+    def to_bson_double(encoded)
       encoded << [ self ].pack(PACK)
     end
 
