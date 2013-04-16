@@ -68,21 +68,6 @@ module BSON
       { "$binary" => data, "$type" => type }
     end
 
-    # Get the binary data formatted for its subtype
-    #
-    # If type is :old we include the size of the data
-    #
-    # @see http://bsonspec.org/#specification
-    #
-    # @since @2.0.0
-    def bin_data
-      if type == :old
-        data.bytesize.to_bson << data
-      else
-        data
-      end
-    end
-
     # Instantiate the new binary object.
     #
     # @example Instantiate a binary.
