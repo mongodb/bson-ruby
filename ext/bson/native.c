@@ -280,6 +280,7 @@ void Init_native()
   VALUE generator = rb_const_get(object_id, rb_intern("Generator"));
   VALUE string = rb_const_get(bson, rb_intern("String"));
 
+  // Get the object id machine id.
   gethostname(rb_bson_machine_id, sizeof rb_bson_machine_id);
   rb_bson_machine_id[HOST_NAME_MAX - 1] = '\0';
 
@@ -307,8 +308,7 @@ void Init_native()
   rb_undef_method(string, "set_int32");
   rb_define_method(string, "set_int32", rb_string_set_int32, 2);
 
-  // Setup the machine id for object id generation.
-  /* memcpy(rb_bson_machine_id, RSTRING_PTR(machine_id), 16); */
+  // Redefine the next method on the object id generator.
   rb_undef_method(generator, "next");
   rb_define_method(generator, "next", rb_object_id_generator_next, -1);
 }

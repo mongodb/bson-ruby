@@ -37,6 +37,11 @@ def benchmark!
       count.times { BSON::ObjectId.new.to_bson }
     end
 
+    bench.report("ObjectId#to_s --------->") do
+      object_id = BSON::ObjectId.new
+      count.times { object_id.to_s }
+    end
+
     bench.report("Regexp#to_bson -------->") do
       count.times { %r{\d+}.to_bson }
     end
