@@ -51,7 +51,13 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(bson)
-        bson.read(8).unpack(PACK).first
+        from_bson_double(bson.read(8))
+      end
+
+      private
+
+      def from_bson_double(double)
+        double.unpack(PACK).first
       end
     end
 

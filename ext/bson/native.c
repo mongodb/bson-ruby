@@ -75,6 +75,29 @@ static VALUE rb_float_to_bson_double(VALUE self, VALUE encoded)
 }
 
 /**
+ * Convert the bytes for the double into a Ruby float.
+ *
+ * @example Convert the bytes to a float.
+ *    rb_float_from_bson_double(class, bytes);
+ *
+ * @param [ Class ] The float class.
+ * @param [ String ] The double bytes.
+ *
+ * @return [ Float ] The ruby float value.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_float_from_bson_double(VALUE self, VALUE value)
+{
+  const char * bytes;
+  double v;
+  StringValue(value);
+  bytes = RSTRING_PTR(value);
+  memcpy(&v, bytes, RSTRING_LEN(value));
+  return DBL2NUM(v);
+}
+
+/**
  * Generate the data for the next object id.
  *
  * @example Generate the data for the next object id.
@@ -292,6 +315,7 @@ void Init_native()
   VALUE bson = rb_const_get(rb_cObject, rb_intern("BSON"));
   VALUE integer = rb_const_get(bson, rb_intern("Integer"));
   VALUE floats = rb_const_get(bson, rb_intern("Float"));
+  VALUE float_class = rb_const_get(floats, rb_intern("ClassMethods"));
   VALUE time = rb_const_get(bson, rb_intern("Time"));
   VALUE int32 = rb_const_get(bson, rb_intern("Int32"));
   VALUE int32_class = rb_singleton_class(int32);
@@ -313,9 +337,11 @@ void Init_native()
   rb_undef_method(integer, "bson_int32?");
   rb_define_method(integer, "bson_int32?", rb_integer_is_bson_int32, 0);
 
-  // Redefine float's to_bson.
+  // Redefine float's to_bson, from_bson.
   rb_undef_method(floats, "to_bson_double");
   rb_define_private_method(floats, "to_bson_double", rb_float_to_bson_double, 1);
+  rb_undef_method(float_class, "from_bson_double");
+  rb_define_private_method(float_class, "from_bson_double", rb_float_from_bson_double, 1);
 
   // Redefine deserialization methods on Int32 class.
   rb_undef_method(int32_class, "from_bson_int32");

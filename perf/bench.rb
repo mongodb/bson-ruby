@@ -71,5 +71,10 @@ def benchmark!
     bench.report("Int64#from_bson ------->") do
       count.times { BSON::Int64.from_bson(StringIO.new(int64_bytes)) }
     end
+
+    float_bytes = 1.23131.to_bson
+    bench.report("Float#from_bson ------->") do
+      count.times { Float.from_bson(StringIO.new(float_bytes)) }
+    end
   end
 end
