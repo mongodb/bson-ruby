@@ -44,7 +44,7 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(bson)
-        seconds, fragment = bson.read(8).unpack(Int64::PACK).first.divmod 1000
+        seconds, fragment = Int64.from_bson(bson).divmod(1000)
         at(seconds, fragment * 1000).utc
       end
     end
