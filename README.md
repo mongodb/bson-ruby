@@ -16,7 +16,6 @@ Please see the [BSON specification](http://bsonspec.org) and the [API Documentat
 TODO: Review
 ------------
 
-- Time.from_bson
 - note threading concerns
 - no safety limit needed for non-pathological use (review this)
 - symbol ~ gain: 0.25 (36 --> 27) Xeon, gain: 0.34 (41 --> 27) Core 2
