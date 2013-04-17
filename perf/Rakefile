@@ -1,0 +1,53 @@
+require 'json'
+
+# test framework for C extension versus pure Ruby
+# (consider ENV for C versus C)
+
+def sh_eval(command)
+  puts command
+  text = `#{command}`
+  eval text.split("\n").grep(/^[^.#\w]/).first
+end
+
+def hash_f(hash, precision)
+   hash.each_pair do |key, value|
+     hash[key] = "%.#{precision}f" % value if value.kind_of?(Float)
+   end
+end
+
+def print_gain(measurement)
+  tmsa = measurement.collect do |m|
+    tms, allocated = m
+    h = Hash[*[:label, :utime, :stime, :cutime, :cstime, :real].zip(tms).flatten]
+    h.merge!({allocated: allocated}).select{|k,v| [:label, :utime, :real, :allocated].include?(k)}
+  end
+  gain = 1.0 - tmsa[1][:utime]/tmsa[0][:utime]
+  tmsa.each do |t|
+    puts hash_f(t, 1).each_pair.collect{|key, value| "#{key}: #{value}" }.join(', ')
+  end
+  puts "gain: #{'%.2f' % gain}"
+end
+
+$measurement = []
+
+task :default do
+  TARGET ||= 'test_ext'
+  $measurement = []
+  [:clean, :compile].each do |t|
+    Rake::Task[t].execute
+    Rake::Task[:test].execute
+  end
+  print_gain($measurement)
+end
+
+task :clean do
+  sh "(cd .. && rake clean)"
+end
+
+task :compile do
+  sh "(cd .. && rake compile)"
+end
+
+task :test do
+  $measurement << sh_eval("ruby bench_test.rb --name #{TARGET}")
+end

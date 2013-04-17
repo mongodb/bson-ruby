@@ -23,10 +23,10 @@ class BenchTest < Test::Unit::TestCase
     gc_stat = []
     GC.start
     gc_stat << GC.stat
-    yield
+    result = yield
     GC.start
     gc_stat << GC.stat
-    gc_stat[1][:total_allocated_object] - gc_stat[0][:total_allocated_object]
+    [ result, gc_stat[1][:total_allocated_object] - gc_stat[0][:total_allocated_object] ]
   end
 
   def print_gain_and_freed_objects(measurement, gc_stat, i)
@@ -48,7 +48,7 @@ class BenchTest < Test::Unit::TestCase
     puts
   end
 
-  def benchmark_with_gc(count, method_label_pairs)
+  def benchmark_methods_with_gc(count, method_label_pairs)
     measurement = []
     gc_stat = []
     GC.start
@@ -110,7 +110,7 @@ class BenchTest < Test::Unit::TestCase
       [ method(:old_array_index),          'Array index optimize none' ],
       [ method(:new_array_index_optimize), 'Array index optimize 1024', RESET ] # Xeon user: 20.3, base: 33.2, gain: 0.39
     ]
-    benchmark_with_gc(@count, method_label_pairs) { array.to_bson }
+    benchmark_methods_with_gc(@count, method_label_pairs) { array.to_bson }
   end
 
   def old_encode_bson_with_placeholder
@@ -146,7 +146,7 @@ class BenchTest < Test::Unit::TestCase
         encoded << PLACEHOLDER
         yield(encoded)
         encoded << BSON::NULL_BYTE
-        encoded.setint32(pos, encoded.bytesize - pos + adjust) # [ encoded.bytesize - pos ].pack('l<') #
+        encoded.set_int32(pos, encoded.bytesize - pos + adjust) # [ encoded.bytesize - pos ].pack('l<') #
         encoded
       end
     EVAL
@@ -159,9 +159,9 @@ class BenchTest < Test::Unit::TestCase
     method_label_pairs = [
         [ method(:old_encode_bson_with_placeholder),    'Encode bson optimize to_bson' ],
         [ method(:new_encode_bson_with_placeholder_v0), 'Encode bson optimize to_bson_int32' ],  # user: 22.2, base: 28.5, gain: 0.22
-        [ method(:new_encode_bson_with_placeholder_v1), 'Encode bson optimize setint32', RESET ] # user: 22.2, base: 28.5, gain: 0.22
+        [ method(:new_encode_bson_with_placeholder_v1), 'Encode bson optimize set_int32', RESET ] # user: 22.2, base: 28.5, gain: 0.22
     ]
-    benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
+    benchmark_methods_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
 
   def old_encode_string_with_placeholder
@@ -196,8 +196,8 @@ class BenchTest < Test::Unit::TestCase
         pos = encoded.bytesize
         encoded << PLACEHOLDER
         yield(encoded)
-        encoded << BSON::NULL_BYTE
-        encoded.setint32(pos, encoded.bytesize - pos + adjust) # [ encoded.bytesize - pos - 4 ].pack('l<') #
+        encoded << BSON::NULL_BYTE                                           <
+        encoded.set_int32(pos, encoded.bytesize - pos + adjust) # [ encoded.bytesize - pos - 4 ].pack('l<') #
         encoded
       end
     EVAL
@@ -210,9 +210,9 @@ class BenchTest < Test::Unit::TestCase
     method_label_pairs = [
         [ method(:old_encode_string_with_placeholder),    'Encode string optimize to_bson' ],
         [ method(:new_encode_string_with_placeholder_v0), 'Encode string optimize to_bson_int32' ],  # Xeon user: 22.2, base: 27.7, gain: 0.20
-        [ method(:new_encode_string_with_placeholder_v1), 'Encode string optimize setint32', RESET ] # Xeon user: 22.2, base: 27.7, gain: 0.20
+        [ method(:new_encode_string_with_placeholder_v1), 'Encode string optimize set_int32', RESET ] # Xeon user: 22.2, base: 27.7, gain: 0.20
     ]
-    benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
+    benchmark_methods_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
 
   def old_integer_to_bson
@@ -248,7 +248,25 @@ class BenchTest < Test::Unit::TestCase
       [ method(:old_integer_to_bson), 'Integer to_bson optimize none' ],
       [ method(:new_integer_to_bson), 'Integer to_bson optimize test order', RESET ]
     ]
-    benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
+    benchmark_methods_with_gc(@count, method_label_pairs) { hash.to_bson }
+  end
+
+  # C extension in progress -------------------------------------------------------------------------------------------
+
+  def benchmark_for_ext(count, label)
+    gc_allocated do
+      measurement = Benchmark.measure(label) do
+        count.times.each_with_index {|j| yield j }
+      end
+      measurement.to_a
+    end
+  end
+
+  def test_ext
+    size = 1024
+    hash = Hash[*(0..size).to_a.collect{|i| [ ('a' + i.to_s).to_sym, i]}.flatten]
+    result_allocation = benchmark_for_ext(1000, __method__) { hash.to_bson }
+    puts result_allocation.inspect
   end
 
   # Optimization NOT committed ----------------------------------------------------------------------------------------
@@ -332,7 +350,7 @@ class BenchTest < Test::Unit::TestCase
       [ method(:new_hash_to_bson_v0), 'Symbol key optimize hash key v0' ], # Xeon user: 33.4, base: 35.9, gain: 0.07
       [ method(:new_hash_to_bson_v1), 'Symbol key optimize hash key v1' ]  # Xeon user: 26.4, base: 35.9, gain: 0.26
     ]
-    benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
+    benchmark_methods_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
 
   def test_string_key_optimization
@@ -343,7 +361,7 @@ class BenchTest < Test::Unit::TestCase
         [ method(:new_hash_to_bson_v0), 'Symbol key optimize hash key v0' ], # Xeon user: 34.5, base: 32.6, gain: -0.06
         [ method(:new_hash_to_bson_v1), 'Symbol key optimize hash key v1' ] # Xeon user: 27.5, base: 32.6, gain: 0.15
     ]
-    benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
+    benchmark_methods_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
 
   # Discarded as not worthy -------------------------------------------------------------------------------------------
@@ -384,7 +402,7 @@ class BenchTest < Test::Unit::TestCase
         [ method(:old_hash_from_bson), 'Encode bson optimize none', RESET ],
         [ method(:new_hash_from_bson), 'Encode bson optimize seek' ] # Xeon user: 28.2, base: 28.3, gain: 0.00
     ]
-    benchmark_with_gc(@count, method_label_pairs) { hash.to_bson }
+    benchmark_methods_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
 
   def old_integer_bson_int32?
@@ -407,10 +425,10 @@ class BenchTest < Test::Unit::TestCase
   def test_bson_int32?
     count = 100_000_000
     method_label_pairs = [
-        [ method(:integer_bson_int32?),     'Integer#bson_int32? old', RESET ],
+        [ method(:old_integer_bson_int32?),     'Integer#bson_int32? old', RESET ],
         [ method(:new_integer_bson_int32?), 'Integer#bson_int32? new' ] # user: 34.9, base: 21.4, gain: -0.63
     ]
-    benchmark_with_gc(count, method_label_pairs) {|i| i.bson_int32? }
+    benchmark_methods_with_gc(count, method_label_pairs) {|i| i.bson_int32? }
   end
 
   # Ruby-prof profiling -----------------------------------------------------------------------------------------------
@@ -431,7 +449,7 @@ class BenchTest < Test::Unit::TestCase
   end
 
   def test_doc_stats
-    json_filename = '../../../training/data/sampledata/twitter.json'
+    json_filename = '../../training/data/sampledata/twitter.json'
     line_limit = 10_000
     twitter = nil
     File.open(json_filename, 'r') do |f|
@@ -447,7 +465,7 @@ class BenchTest < Test::Unit::TestCase
   end
 
   def test_encode_ruby_prof
-    json_filename = '../../../training/data/sampledata/twitter.json'
+    json_filename = '../../training/data/sampledata/twitter.json'
     line_limit = 10_000
     twitter = nil
     File.open(json_filename, 'r') do |f|
@@ -460,7 +478,7 @@ class BenchTest < Test::Unit::TestCase
     Benchmark.bm(@label_width) do |bench|
       bench.report('test encode ruby prof') do
 
-        allocated = gc_allocated do
+        result, allocated = gc_allocated do
           RubyProf.start
           twitter.each {|doc| doc.to_bson }
           profile = RubyProf.stop
@@ -477,7 +495,7 @@ class BenchTest < Test::Unit::TestCase
   end
 
   def test_decode_ruby_prof
-    json_filename = '../../../training/data/sampledata/twitter.json'
+    json_filename = '../../training/data/sampledata/twitter.json'
     line_limit = 10_000
     twitter = nil
     File.open(json_filename, 'r') do |f|
@@ -489,7 +507,7 @@ class BenchTest < Test::Unit::TestCase
     Benchmark.bm(@label_width) do |bench|
       bench.report('test decode ruby prof') do
 
-        allocated = gc_allocated do
+        result, allocated = gc_allocated do
           RubyProf.start
           twitter.each {|io| io.rewind; Hash.from_bson(io) }
           profile = RubyProf.stop
