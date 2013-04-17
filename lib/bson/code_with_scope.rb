@@ -92,7 +92,7 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(bson)
-      code_with_scope = StringIO.new(bson.read(*bson.read(4).unpack(Int32::PACK)))
+      code_with_scope = StringIO.new(bson.read(Int32.from_bson(bson)))
       length = code_with_scope.read(4).unpack(Int32::PACK).first
       new(code_with_scope.read(length).from_bson_string.chop!)
     end

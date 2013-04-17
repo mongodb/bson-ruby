@@ -124,7 +124,7 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(bson)
-        bson.read(*bson.read(4).unpack(Int32::PACK)).from_bson_string.chop!
+        bson.read(Int32.from_bson(bson)).from_bson_string.chop!
       end
     end
 

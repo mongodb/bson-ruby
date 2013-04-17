@@ -110,11 +110,11 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(bson)
-      length = bson.read(4).unpack(Int32::PACK).first
+      length = Int32.from_bson(bson)
       type = TYPES[bson.read(1)]
 
       if type == :old
-        length = bson.read(4).unpack(Int32::PACK).first
+        length = Int32.from_bson(bson)
       end
 
       data = bson.read(length)
