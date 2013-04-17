@@ -216,11 +216,21 @@ static VALUE rb_integer_from_bson_int32(VALUE self, VALUE bson)
  */
 static VALUE rb_integer_from_bson_int64(VALUE self, VALUE bson)
 {
+  StringValue(bson);
   const uint8_t *v = (const uint8_t*) RSTRING_PTR(bson);
-  const int64_t lower = v[0] + (v[1] << 8) + (v[2] << 16) + (v[3] << 24);
-  const int64_t upper = v[4] + (v[5] << 8) + (v[6] << 16) + (v[7] << 24);
-  const uint64_t integer = lower + (upper << 32);
-  return INT642NUM(integer);
+  uint32_t byte0, byte1, byte2, byte3;
+  int64_t lower, upper;
+  byte0 = v[0];
+  byte1 = v[1];
+  byte2 = v[2];
+  byte3 = v[3];
+  lower = byte0 + (byte1 << 8) + (byte2 << 16) + (byte3 << 24);
+  byte0 = v[4];
+  byte1 = v[5];
+  byte2 = v[6];
+  byte3 = v[7];
+  upper = byte0 + (byte1 << 8) + (byte2 << 16) + (byte3 << 24);
+  return INT642NUM(lower + (upper << 32));
 }
 
 /**
