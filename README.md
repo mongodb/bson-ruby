@@ -24,13 +24,6 @@ TODO: Review
 - symbol ~ gain: 0.15 (41 --> 35) Core 2
 - string ~ gain: 0.05 (39 --> 37) Core 2
 
-Notes
------
-
-- Ruby prof for encoding of twitter data looks good
-- modules and classes have some overhead that can be significant
-- optimization in Ruby seems to have more effect for Core 2 and less for Xeon
-
 License
 -------
 
