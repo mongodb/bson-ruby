@@ -17,6 +17,10 @@
 #define INT642NUM(v) LL2NUM(v)
 #endif
 
+#ifndef DBL2NUM
+#define DBL2NUM(dbl) rb_float_new(dbl)
+#endif
+
 #ifndef HOST_NAME_MAX
 #define HOST_NAME_MAX 256
 #endif
