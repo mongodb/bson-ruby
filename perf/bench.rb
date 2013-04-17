@@ -76,5 +76,55 @@ def benchmark!
     bench.report("Float#from_bson ------->") do
       count.times { Float.from_bson(StringIO.new(float_bytes)) }
     end
+
+    binary_bytes = BSON::Binary.new("test", :generic).to_bson
+    bench.report("Binary#from_bson ------>") do
+      count.times { BSON::Binary.from_bson(StringIO.new(binary_bytes)) }
+    end
+
+    code_bytes = BSON::Code.new("this.value = 1").to_bson
+    bench.report("Code#from_bson -------->") do
+      count.times { BSON::Code.from_bson(StringIO.new(code_bytes)) }
+    end
+
+    false_bytes = false.to_bson
+    bench.report("Binary#from_bson ------>") do
+      count.times { BSON::Binary.from_bson(StringIO.new(false_bytes)) }
+    end
+
+    max_key_bytes = BSON::MaxKey.new.to_bson
+    bench.report("MaxKey#from_bson ------>") do
+      count.times { BSON::MaxKey.from_bson(StringIO.new(max_key_bytes)) }
+    end
+
+    min_key_bytes = BSON::MinKey.new.to_bson
+    bench.report("MinKey#from_bson ------>") do
+      count.times { BSON::MinKey.from_bson(StringIO.new(min_key_bytes)) }
+    end
+
+    object_id_bytes = BSON::ObjectId.new.to_bson
+    bench.report("ObjectId#from_bson ---->") do
+      count.times { BSON::ObjectId.from_bson(StringIO.new(object_id_bytes)) }
+    end
+
+    regex_bytes = %r{\d+}.to_bson
+    bench.report("Regexp#from_bson ------>") do
+      count.times { Regexp.from_bson(StringIO.new(regex_bytes)) }
+    end
+
+    string_bytes = "testing".to_bson
+    bench.report("String#from_bson ------>") do
+      count.times { String.from_bson(StringIO.new(string_bytes)) }
+    end
+
+    symbol_bytes = "testing".to_bson
+    bench.report("Symbol#from_bson ------>") do
+      count.times { Symbol.from_bson(StringIO.new(symbol_bytes)) }
+    end
+
+    time_bytes = Time.new.to_bson
+    bench.report("Time#from_bson -------->") do
+      count.times { Time.from_bson(StringIO.new(time_bytes)) }
+    end
   end
 end
