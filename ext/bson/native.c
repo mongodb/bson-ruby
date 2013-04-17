@@ -17,10 +17,20 @@
 #define INT642NUM(v) LL2NUM(v)
 #endif
 
+/**
+ * Ruby 1.8.7 does not define DBL2NUM, so we define it if it's not there.
+ *
+ * @since 2.0.0
+ */
 #ifndef DBL2NUM
 #define DBL2NUM(dbl) rb_float_new(dbl)
 #endif
 
+/**
+ * Define the max hostname length constant if nonexistant.
+ *
+ * @since 2.0.0
+ */
 #ifndef HOST_NAME_MAX
 #define HOST_NAME_MAX 256
 #endif
