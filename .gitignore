@@ -15,3 +15,7 @@ tmp/*
 Makefile
 .idea/
 *.gem
+perf/profile.rb
+perf/*.pdf
+perf/*.profile
+perf/*.symbols
