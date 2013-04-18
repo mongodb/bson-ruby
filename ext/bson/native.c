@@ -275,6 +275,34 @@ static VALUE rb_integer_from_bson_int64(VALUE self, VALUE bson)
 }
 
 /**
+ * Append the 64-bit integer to encoded BSON Ruby binary string.
+ *
+ * @example Append the 64-bit integer to encoded BSON.
+ *    int64_t_to_bson(128, encoded);
+ *
+ * @param [ int64_t ] self The 64-bit integer.
+ * @param [ String ] encoded The BSON Ruby binary string to append to.
+ *
+ * @return [ String ] encoded Ruby binary string with BSON raw bytes appended.
+ *
+ * @since 2.0.0
+ */
+static VALUE int64_t_to_bson(int64_t v, VALUE encoded)
+{
+  const char bytes[8] = {
+    v & 255,
+    (v >> 8) & 255,
+    (v >> 16) & 255,
+    (v >> 24) & 255,
+    (v >> 32) & 255,
+    (v >> 40) & 255,
+    (v >> 48) & 255,
+    (v >> 56) & 255
+  };
+  return rb_str_cat(encoded, bytes, 8);
+}
+
+/**
  * Convert the Ruby integer into a BSON as per the 64 bit specification,
  * which is 8 bytes.
  *
@@ -290,18 +318,7 @@ static VALUE rb_integer_from_bson_int64(VALUE self, VALUE bson)
  */
 static VALUE rb_integer_to_bson_int64(VALUE self, VALUE encoded)
 {
-  const int64_t v = NUM2INT64(self);
-  const char bytes[8] = {
-    v & 255,
-    (v >> 8) & 255,
-    (v >> 16) & 255,
-    (v >> 24) & 255,
-    (v >> 32) & 255,
-    (v >> 40) & 255,
-    (v >> 48) & 255,
-    (v >> 56) & 255
-  };
-  return rb_str_cat(encoded, bytes, 8);
+  return int64_t_to_bson(NUM2INT64(self), encoded);
 }
 
 /**
@@ -364,7 +381,6 @@ void Init_native()
 {
   // Get all the constants to be used in the extensions.
   VALUE bson = rb_const_get(rb_cObject, rb_intern("BSON"));
-  bson_binary = rb_const_get(bson, rb_intern("BINARY"));
   VALUE integer = rb_const_get(bson, rb_intern("Integer"));
   VALUE floats = rb_const_get(bson, rb_intern("Float"));
   VALUE float_class = rb_const_get(floats, rb_intern("ClassMethods"));
@@ -376,6 +392,7 @@ void Init_native()
   VALUE object_id = rb_const_get(bson, rb_intern("ObjectId"));
   VALUE generator = rb_const_get(object_id, rb_intern("Generator"));
   VALUE string = rb_const_get(bson, rb_intern("String"));
+  bson_binary = rb_const_get(bson, rb_intern("BINARY"));
 
   // Get the object id machine id.
   gethostname(rb_bson_machine_id, sizeof rb_bson_machine_id);
