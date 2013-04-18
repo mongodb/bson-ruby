@@ -107,30 +107,10 @@ static VALUE rb_str_new_encoded_binary(void)
  */
 static VALUE rb_float_to_bson(int argc, VALUE *argv, VALUE self)
 {
+  const double v = NUM2DBL(self);
   VALUE encoded;
-  double v = NUM2DBL(self);
   rb_scan_args(argc, argv, "01", &encoded);
   if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
-  rb_str_cat(encoded, (char*) &v, 8);
-  return encoded;
-}
-
-/**
- * Convert the ruby float to an 8-byte double value.
- *
- * @example Convert and append the float.
- *    rb_float_to_bson_double(1.2311);
- *
- * @param [ Float ] self The ruby float value.
- * @param [ String ] encoded The raw bytes.
- *
- * @return [ String ] The encoded bytes.
- *
- * @since 2.0.0
- */
-static VALUE rb_float_to_bson_double(VALUE self, VALUE encoded)
-{
-  const double v = NUM2DBL(self);
   rb_str_cat(encoded, (char*) &v, 8);
   return encoded;
 }
@@ -412,8 +392,6 @@ void Init_native()
   // Redefine float's to_bson, from_bson.
   rb_undef_method(floats, "to_bson");
   rb_define_method(floats, "to_bson", rb_float_to_bson, -1);
-  rb_undef_method(floats, "to_bson_double");
-  rb_define_private_method(floats, "to_bson_double", rb_float_to_bson_double, 1);
   rb_undef_method(float_class, "from_bson_double");
   rb_define_private_method(float_class, "from_bson_double", rb_float_from_bson_double, 1);
 
