@@ -26,13 +26,13 @@ def hash_f(hash, precision)
 end
 
 def print_gain(measurement)
-  tmsa = measurement.collect do |m|
-    tms, allocated, count = m
-    h = Hash[*[:label, :utime, :stime, :cutime, :cstime, :real].zip(tms).flatten]
-    h.merge!({allocated: allocated/count}).select{|k,v| [:label, :utime, :real, :allocated].include?(k)}
+  measurement = measurement.collect do |h|
+    h[:allocated] = h[:allocated] / h[:count]
+    h[:label] = "\"#{h[:label]}\""
+    h.select{|k,v| [:label, :utime, :real, :allocated].include?(k)}
   end
-  gain = 1.0 - tmsa[1][:utime]/tmsa[0][:utime]
-  tmsa.each do |t|
+  gain = 1.0 - measurement[1][:utime]/measurement[0][:utime]
+  measurement.each do |t|
     puts hash_f(t, 1).each_pair.collect{|key, value| "#{key}: #{value}" }.join(', ')
   end
   puts "gain: #{'%.2f' % gain}"

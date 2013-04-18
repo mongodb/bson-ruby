@@ -30,16 +30,16 @@ class BenchTest < Test::Unit::TestCase
     [ result, gc_stat[1][:total_allocated_object] - gc_stat[0][:total_allocated_object] ]
   end
 
-  def print_gain_and_freed_objects(measurement, gc_stat, i)
-    h = Hash[*[:label, :utime, :stime, :cutime, :cstime, :real].zip(measurement[i].to_a).flatten]
-    h[:allocated] = gc_stat[i+1][:total_allocated_object] - gc_stat[i][:total_allocated_object]
-    h[:freed] = gc_stat[i+1][:total_freed_object] - gc_stat[i][:total_freed_object]
-    h[:base] = measurement[0].utime if i > 0
-    h[:gain] = 1.0 - h[:utime]/(h[:base] + NON_ZERO_TIME) if i > 0
+  def print_measurement_and_gain(measurement, j)
+    h = measurement[j]
+    h[:allocated] /= h[:count]
+    if j > 0
+      h[:base] = measurement[0][:utime]
+      h[:gain] = 1.0 - h[:utime] / (h[:base] + NON_ZERO_TIME)
+    end
     [
         [ "label: \"%s\"", :label ],
         [ ", allocated: %d", :allocated ],
-        [ ", freed: %d", :freed ],
         [ ", user: %.1f", :utime ],
         [ ", base: %.1f", :base ],
         [ ", gain: %.2f", :gain ]
@@ -51,18 +51,18 @@ class BenchTest < Test::Unit::TestCase
 
   def benchmark_methods_with_gc(count, method_label_pairs)
     measurement = []
-    gc_stat = []
-    GC.start
-    gc_stat << GC.stat
-    method_label_pairs.each_with_index do |method_label_pair, i|
+    method_label_pairs.each_with_index do |method_label_pair, j|
       meth, label = method_label_pair
       meth.call
-      measurement << Benchmark.measure(label) do
-        count.times.each_with_index {|j| yield j }
+      htms, allocated = gc_allocated do
+        tms = Benchmark.measure(label) do
+          count.times.each_with_index {|i| yield i }
+        end
+        Hash[*[:label, :utime, :stime, :cutime, :cstime, :real].zip(tms.to_a).flatten]
       end
-      GC.start
-      gc_stat << GC.stat
-      print_gain_and_freed_objects(measurement, gc_stat, i)
+      htms.merge!({allocated: allocated, count: count})
+      measurement << htms
+      print_measurement_and_gain(measurement, j)
     end
     reset_method = method_label_pairs.find(method_label_pairs.first){|ml| ml[2] && ml[2] == RESET}.first
     reset_method.call
@@ -255,21 +255,20 @@ class BenchTest < Test::Unit::TestCase
   # C extension in progress -------------------------------------------------------------------------------------------
 
   def benchmark_for_ext(count, label)
-    result = gc_allocated do
-      measurement = Benchmark.measure(label) do
-        count.times.each_with_index {|j| yield j }
+    htms, allocated = gc_allocated do
+      tms = Benchmark.measure(label) do
+        count.times.each_with_index {|i| yield i }
       end
-      measurement.to_a
+      Hash[*[:label, :utime, :stime, :cutime, :cstime, :real].zip(tms.to_a).flatten]
     end
-    result << count
+    htms.merge!({allocated: allocated, count: count})
   end
 
   #label: test_ext_rb_float_to_bson, utime: 15.4, real: 16.1, allocated: 3
   #label: test_ext_rb_float_to_bson, utime: 6.1, real: 6.3, allocated: 1
   #gain: 0.61
   def test_ext_rb_float_to_bson
-    result_allocation = benchmark_for_ext(10000000, __method__) { 3.14159.to_bson }
-    puts result_allocation.inspect
+    p (benchmark_for_ext(10000000, __method__) { 3.14159.to_bson })
   end
 
   # Optimization NOT committed ----------------------------------------------------------------------------------------

@@ -76,28 +76,24 @@ static unsigned long rb_current_time_milliseconds()
 }
 
 /**
- * Provide default new string with binary encoding if encoded string is nil.
+ * Provide default new string with binary encoding.
  *
  * @example Check encoded and provide default new binary encoded string.
- *    encoded = rb_str_encoded_binary(encoded);
+ *    if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
  *
- * @param [ String ] encoded The encoded string buffer, or nil for a new string.
- *
- * @return [ String ] The encoded string.
+ * @return [ String ] The new string with binary encoding.
  *
  * @since 2.0.0
  */
-static VALUE rb_str_encoded_binary(VALUE encoded)
+static VALUE rb_str_new_encoded_binary(void)
 {
-  if (NIL_P(encoded)) {
-    encoded = rb_str_new2("");
-    rb_funcall(encoded, rb_intern("force_encoding"), 1, bson_binary, 0);
-  }
+  VALUE encoded = rb_str_new2("");
+  rb_funcall(encoded, rb_intern("force_encoding"), 1, bson_binary, 0);
   return encoded;
 }
 
 /**
- * Append the ruby float as 8 bit double byte value to buffer.
+ * Append the ruby float as 8-byte double value to buffer.
  *
  * @example Convert float to double and append.
  *    rb_float_to_bson(..., 1.2311);
@@ -114,13 +110,13 @@ static VALUE rb_float_to_bson(int argc, VALUE *argv, VALUE self)
   VALUE encoded;
   double v = NUM2DBL(self);
   rb_scan_args(argc, argv, "01", &encoded);
-  encoded = rb_str_encoded_binary(encoded);
+  if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
   rb_str_cat(encoded, (char*) &v, 8);
   return encoded;
 }
 
 /**
- * Convert the ruby float to an 8 bit double byte value.
+ * Convert the ruby float to an 8-byte double value.
  *
  * @example Convert and append the float.
  *    rb_float_to_bson_double(1.2311);
