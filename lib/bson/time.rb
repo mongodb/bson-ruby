@@ -25,11 +25,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
-      to_bson_time((to_f * 1000).to_i, encoded)
-    end
-
-    def to_bson_time(milliseconds, encoded)
-      encoded << [ milliseconds ].pack(Int64::PACK)
+      encoded << [ (to_f * 1000).to_i ].pack(Int64::PACK)
     end
 
     module ClassMethods

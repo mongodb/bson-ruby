@@ -336,9 +336,14 @@ static VALUE rb_integer_to_bson_int64(VALUE self, VALUE encoded)
  *
  * @since 2.0.0
  */
-static VALUE rb_time_to_bson(VALUE self, VALUE milliseconds, VALUE encoded)
+static VALUE rb_time_to_bson(int argc, VALUE *argv, VALUE self)
 {
-  return rb_integer_to_bson_int64(milliseconds, encoded);
+  double t = NUM2DBL(rb_funcall(self, rb_intern("to_f"), 0));
+  int64_t milliseconds = (int64_t)round(t * 1000);
+  VALUE encoded;
+  rb_scan_args(argc, argv, "01", &encoded);
+  if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
+  return int64_t_to_bson(milliseconds, encoded);
 }
 
 /**
@@ -421,8 +426,8 @@ void Init_native()
   rb_define_private_method(int64_class, "from_bson_int64", rb_integer_from_bson_int64, 1);
 
   // Redefine the serialization methods on the time class.
-  rb_undef_method(time, "to_bson_time");
-  rb_define_method(time, "to_bson_time", rb_time_to_bson, 2);
+  rb_undef_method(time, "to_bson");
+  rb_define_method(time, "to_bson", rb_time_to_bson, -1);
 
   // Redefine the set_int32 method on the String class.
   rb_undef_method(string, "set_int32");

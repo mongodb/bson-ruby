@@ -271,6 +271,14 @@ class BenchTest < Test::Unit::TestCase
     p (benchmark_for_ext(10000000, __method__) { 3.14159.to_bson })
   end
 
+  #label: "test_ext_rb_time_to_bson", utime: 26.5, real: 26.6, allocated: 6
+  #label: "test_ext_rb_time_to_bson", utime: 13.3, real: 13.4, allocated: 4
+  #gain: 0.50
+  def test_ext_rb_time_to_bson
+    t = Time.now
+    p (benchmark_for_ext(10000000, __method__) { t.to_bson })
+  end
+
   # Optimization NOT committed ----------------------------------------------------------------------------------------
 
   def old_hash_to_bson

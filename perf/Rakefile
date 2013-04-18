@@ -41,7 +41,7 @@ end
 $measurement = []
 
 task :default do
-  TARGET ||= DEFAULT_TARGET
+  TARGET = ENV['TARGET'] || DEFAULT_TARGET
   $measurement = []
   [:clean, :compile].each do |t|
     Rake::Task[t].execute
