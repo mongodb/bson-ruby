@@ -8,6 +8,7 @@ require 'ruby-prof' unless RUBY_PLATFORM =~ /java/
 
 class BenchTest < Test::Unit::TestCase
   RESET = 'reset'
+  NON_ZERO_TIME = 0.0000000001 # 10^-10
 
   def setup
     puts
@@ -34,7 +35,7 @@ class BenchTest < Test::Unit::TestCase
     h[:allocated] = gc_stat[i+1][:total_allocated_object] - gc_stat[i][:total_allocated_object]
     h[:freed] = gc_stat[i+1][:total_freed_object] - gc_stat[i][:total_freed_object]
     h[:base] = measurement[0].utime if i > 0
-    h[:gain] = 1.0 - h[:utime]/h[:base] if i > 0
+    h[:gain] = 1.0 - h[:utime]/(h[:base] + NON_ZERO_TIME) if i > 0
     [
         [ "label: \"%s\"", :label ],
         [ ", allocated: %d", :allocated ],
@@ -254,18 +255,20 @@ class BenchTest < Test::Unit::TestCase
   # C extension in progress -------------------------------------------------------------------------------------------
 
   def benchmark_for_ext(count, label)
-    gc_allocated do
+    result = gc_allocated do
       measurement = Benchmark.measure(label) do
         count.times.each_with_index {|j| yield j }
       end
       measurement.to_a
     end
+    result << count
   end
 
-  def test_ext
-    size = 1024
-    hash = Hash[*(0..size).to_a.collect{|i| [ ('a' + i.to_s).to_sym, i]}.flatten]
-    result_allocation = benchmark_for_ext(1000, __method__) { hash.to_bson }
+  #label: test_ext_rb_float_to_bson, utime: 15.4, real: 16.1, allocated: 3
+  #label: test_ext_rb_float_to_bson, utime: 6.1, real: 6.3, allocated: 1
+  #gain: 0.61
+  def test_ext_rb_float_to_bson
+    result_allocation = benchmark_for_ext(10000000, __method__) { 3.14159.to_bson }
     puts result_allocation.inspect
   end
 

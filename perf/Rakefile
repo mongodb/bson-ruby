@@ -2,11 +2,21 @@ require 'json'
 
 # test framework for C extension versus pure Ruby
 # (consider ENV for C versus C)
+DEFAULT_TARGET = 'test_ext_rb_float_to_bson'
 
 def sh_eval(command)
   puts command
   text = `#{command}`
-  eval text.split("\n").grep(/^[^.#\w]/).first
+  lines = text.split("\n")
+  ruby_on = lines.grep(/^[^.#\w]/).first
+  if lines.grep(/Error/).first
+    print text
+    raise "sh_eval error"
+  elsif ruby_on
+    eval lines.grep(/^[^.#\w]/).first
+  else
+    raise "no Ruby data - check the TARGET"
+  end
 end
 
 def hash_f(hash, precision)
@@ -17,9 +27,9 @@ end
 
 def print_gain(measurement)
   tmsa = measurement.collect do |m|
-    tms, allocated = m
+    tms, allocated, count = m
     h = Hash[*[:label, :utime, :stime, :cutime, :cstime, :real].zip(tms).flatten]
-    h.merge!({allocated: allocated}).select{|k,v| [:label, :utime, :real, :allocated].include?(k)}
+    h.merge!({allocated: allocated/count}).select{|k,v| [:label, :utime, :real, :allocated].include?(k)}
   end
   gain = 1.0 - tmsa[1][:utime]/tmsa[0][:utime]
   tmsa.each do |t|
@@ -31,7 +41,7 @@ end
 $measurement = []
 
 task :default do
-  TARGET ||= 'test_ext'
+  TARGET ||= DEFAULT_TARGET
   $measurement = []
   [:clean, :compile].each do |t|
     Rake::Task[t].execute

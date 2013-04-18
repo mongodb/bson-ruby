@@ -23,6 +23,7 @@ TODO: Review
 - with safety limit, mutex overhead eats up the benefit on Xeon
 - symbol ~ gain: 0.15 (41 --> 35) Core 2
 - string ~ gain: 0.05 (39 --> 37) Core 2
+- rb_float_to_bson ~ gain: 0.61 (15 --> 6, allocated: 3 --> 1) Core 2
 
 License
 -------

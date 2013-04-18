@@ -36,6 +36,13 @@
 #endif
 
 /**
+ * BSON::BINARY
+ *
+ * @since 2.0.0
+ */
+static VALUE bson_binary;
+
+/**
  * Holds the machine id for object id generation.
  *
  * @since 2.0.0
@@ -66,6 +73,50 @@ static unsigned long rb_current_time_milliseconds()
   struct timeval time;
   gettimeofday(&time, NULL);
   return (time.tv_sec) * 1000 + (time.tv_usec) / 1000;
+}
+
+/**
+ * Provide default new string with binary encoding if encoded string is nil.
+ *
+ * @example Check encoded and provide default new binary encoded string.
+ *    encoded = rb_str_encoded_binary(encoded);
+ *
+ * @param [ String ] encoded The encoded string buffer, or nil for a new string.
+ *
+ * @return [ String ] The encoded string.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_str_encoded_binary(VALUE encoded)
+{
+  if (NIL_P(encoded)) {
+    encoded = rb_str_new2("");
+    rb_funcall(encoded, rb_intern("force_encoding"), 1, bson_binary, 0);
+  }
+  return encoded;
+}
+
+/**
+ * Append the ruby float as 8 bit double byte value to buffer.
+ *
+ * @example Convert float to double and append.
+ *    rb_float_to_bson(..., 1.2311);
+ *
+ * @param [ String] encoded Optional string buffer, default provided by rb_str_encoded_binary
+ * @param [ Float ] self The ruby float value.
+ *
+ * @return [ String ] The encoded bytes with double value appended.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_float_to_bson(int argc, VALUE *argv, VALUE self)
+{
+  VALUE encoded;
+  double v = NUM2DBL(self);
+  rb_scan_args(argc, argv, "01", &encoded);
+  encoded = rb_str_encoded_binary(encoded);
+  rb_str_cat(encoded, (char*) &v, 8);
+  return encoded;
 }
 
 /**
@@ -337,6 +388,7 @@ void Init_native()
 {
   // Get all the constants to be used in the extensions.
   VALUE bson = rb_const_get(rb_cObject, rb_intern("BSON"));
+  bson_binary = rb_const_get(bson, rb_intern("BINARY"));
   VALUE integer = rb_const_get(bson, rb_intern("Integer"));
   VALUE floats = rb_const_get(bson, rb_intern("Float"));
   VALUE float_class = rb_const_get(floats, rb_intern("ClassMethods"));
@@ -362,6 +414,8 @@ void Init_native()
   rb_define_method(integer, "bson_int32?", rb_integer_is_bson_int32, 0);
 
   // Redefine float's to_bson, from_bson.
+  rb_undef_method(floats, "to_bson");
+  rb_define_method(floats, "to_bson", rb_float_to_bson, -1);
   rb_undef_method(floats, "to_bson_double");
   rb_define_private_method(floats, "to_bson_double", rb_float_to_bson_double, 1);
   rb_undef_method(float_class, "from_bson_double");
