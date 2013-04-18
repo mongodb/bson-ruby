@@ -10,18 +10,6 @@ module BSON
   module Array
     include Encodable
 
-    # The BSON index size.
-    #
-    # @since 2.0.0
-    BSON_INDEX_SIZE = 1024.freeze
-
-    # A hash of index values for array optimization.
-    #
-    # @since 2.0.0
-    BSON_ARRAY_INDEXES = ::Array.new(BSON_INDEX_SIZE) do |i|
-      (i.to_s.force_encoding(BINARY) << NULL_BYTE).freeze
-    end.freeze
-
     # An array is type 0x04 in the BSON spec.
     #
     # @since 2.0.0
@@ -44,11 +32,7 @@ module BSON
       encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
         each_with_index do |value, index|
           encoded << value.bson_type
-          if index < BSON_INDEX_SIZE
-            encoded << BSON_ARRAY_INDEXES[index]
-          else
-            index.to_s.to_bson_cstring(encoded)
-          end
+          index.to_bson_cstring(encoded)
           value.to_bson(encoded)
         end
       end

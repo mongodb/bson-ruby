@@ -39,6 +39,18 @@ module BSON
     # @since 2.0.0
     MIN_64BIT = -(1 << 63)
 
+    # The BSON index size.
+    #
+    # @since 2.0.0
+    BSON_INDEX_SIZE = 1024.freeze
+
+    # A hash of index values for array optimization.
+    #
+    # @since 2.0.0
+    BSON_ARRAY_INDEXES = ::Array.new(BSON_INDEX_SIZE) do |i|
+      (i.to_s.force_encoding(BINARY) << NULL_BYTE).freeze
+    end.freeze
+
     # Is this integer a valid BSON 32 bit value?
     #
     # @example Is the integer a valid 32 bit value?
@@ -128,6 +140,14 @@ module BSON
       encoded << ((self >> 40) & 255)
       encoded << ((self >> 48) & 255)
       encoded << ((self >> 56) & 255)
+    end
+
+    def to_bson_cstring(encoded)
+      if self < BSON_INDEX_SIZE
+        encoded << BSON_ARRAY_INDEXES[self]
+      else
+        self.to_s.to_bson_cstring(encoded)
+      end
     end
 
     private

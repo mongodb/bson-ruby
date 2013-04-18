@@ -467,9 +467,9 @@ class BenchTest < Test::Unit::TestCase
     end
     tally = Hash.new(0)
     doc_stats(tally, twitter)
-    tally = tally.to_a.sort{|a,b| b[1] <=> a[1]}
-    pp tally
     obj_count = tally.inject(0){|sum, elem| sum + elem[1]}
+    tally = tally.to_a.sort{|a,b| b[1] <=> a[1]}
+    tally.each {|a| puts "#{'%.2f' % (a[1].to_f / obj_count.to_f)} #{a[0]} #{a[1]}" }
     puts "objects: #{obj_count}"
     puts "objects/doc: #{obj_count/line_limit}"
   end
