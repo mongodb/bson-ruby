@@ -31,20 +31,6 @@ module BSON
       to_s.to_bson(encoded)
     end
 
-    # Get the symbol as an encoded C symbol.
-    #
-    # @example Get the symbol as an encoded C symbol.
-    #   :test.to_bson
-    #
-    # @return [ String ] The encoded symbol.
-    #
-    # @see http://bsonspec.org/#/specification
-    #
-    # @since 2.0.0
-    def to_bson_cstring(encoded = ''.force_encoding(BINARY))
-      to_s.to_bson_cstring(encoded)
-    end
-
     # Get the symbol as a BSON key name encoded C symbol.
     #
     # @example Get the symbol as a key name.

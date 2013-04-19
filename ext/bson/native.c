@@ -259,6 +259,16 @@ static VALUE rb_integer_to_bson_int32(VALUE self, VALUE encoded)
 #define BSON_INDEX_CHAR_SIZE 5
 static char bson_array_indexes[BSON_INDEX_SIZE][BSON_INDEX_CHAR_SIZE];
 
+static void init_integer_bson_array_indexes(void)
+{
+  int i;
+  for (i = 0; i < BSON_INDEX_SIZE; i++) {
+    snprintf(bson_array_indexes[i], BSON_INDEX_CHAR_SIZE, "%d", i);
+  }
+}
+
+#define INTEGER_CHAR_SIZE 22
+
 /**
  * Convert the Ruby integer into a character string and append with nullchar to encoded BSON.
  *
@@ -272,20 +282,11 @@ static char bson_array_indexes[BSON_INDEX_SIZE][BSON_INDEX_CHAR_SIZE];
  *
  * @since 2.0.0
  */
-static void init_integer_bson_array_indexes(void)
-{
-  int i;
-  for (i = 0; i < BSON_INDEX_SIZE; i++) {
-    snprintf(bson_array_indexes[i], BSON_INDEX_CHAR_SIZE, "%d", i);
-  }
-}
-
-#define INTEGER_CHAR_SIZE 22
-
-static VALUE rb_integer_to_bson_key(VALUE self, VALUE encoded)
+static VALUE rb_integer_to_bson_key(int argc, VALUE *argv, VALUE self)
 {
   char bytes[INTEGER_CHAR_SIZE];
   const int64_t v = NUM2INT64(self);
+  VALUE encoded = rb_get_default_encoded(argc, argv);
   int length;
   if (v < BSON_INDEX_SIZE)
     return rb_str_cat(encoded, bson_array_indexes[v], strlen(bson_array_indexes[v]) + 1);
@@ -546,7 +547,7 @@ void Init_native()
   rb_define_method(integer, "bson_int32?", rb_integer_is_bson_int32, 0);
   init_integer_bson_array_indexes();
   rb_undef_method(integer, "to_bson_key");
-  rb_define_method(integer, "to_bson_key", rb_integer_to_bson_key, 1);
+  rb_define_method(integer, "to_bson_key", rb_integer_to_bson_key, -1);
 
   // Redefine float's to_bson, from_bson.
   rb_undef_method(floats, "to_bson");

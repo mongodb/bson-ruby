@@ -227,4 +227,20 @@ describe String do
       expect(registered).to eq(String)
     end
   end
+
+  describe "#to_bson_key" do
+
+    let(:string) { "test" }
+    let(:encoded) { string.to_s + BSON::NULL_BYTE }
+    let(:previous_content) { 'previous_content'.force_encoding(BSON::BINARY) }
+
+    it "returns the encoded string" do
+      expect(string.to_bson_key).to eq(encoded)
+    end
+
+    it "appends to optional previous content" do
+      expect(string.to_bson_key(previous_content)).to eq(previous_content << encoded)
+    end
+  end
+
 end
