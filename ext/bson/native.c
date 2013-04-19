@@ -244,7 +244,7 @@ static char bson_array_indexes[BSON_INDEX_SIZE][BSON_INDEX_CHAR_SIZE];
  * Convert the Ruby integer into a character string and append with nullchar to encoded BSON.
  *
  * @example Convert the integer to string and append with nullchar.
- *    rb_integer_to_bson_cstring(128, encoded);
+ *    rb_integer_to_bson_key(128, encoded);
  *
  * @param [ Integer ] self The Ruby integer.
  * @param [ String ] encoded The Ruby binary string to append to.
@@ -263,7 +263,7 @@ static void init_integer_bson_array_indexes(void)
 
 #define INTEGER_CHAR_SIZE 22
 
-static VALUE rb_integer_to_bson_cstring(VALUE self, VALUE encoded)
+static VALUE rb_integer_to_bson_key(VALUE self, VALUE encoded)
 {
   char bytes[INTEGER_CHAR_SIZE];
   const int64_t v = NUM2INT64(self);
@@ -512,8 +512,8 @@ void Init_native()
   rb_undef_method(integer, "bson_int32?");
   rb_define_method(integer, "bson_int32?", rb_integer_is_bson_int32, 0);
   init_integer_bson_array_indexes();
-  rb_undef_method(integer, "to_bson_cstring");
-  rb_define_method(integer, "to_bson_cstring", rb_integer_to_bson_cstring, 1);
+  rb_undef_method(integer, "to_bson_key");
+  rb_define_method(integer, "to_bson_key", rb_integer_to_bson_key, 1);
 
   // Redefine float's to_bson, from_bson.
   rb_undef_method(floats, "to_bson");

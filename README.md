@@ -13,19 +13,6 @@ Documentation
 
 Please see the [BSON specification](http://bsonspec.org) and the [API Documentation](http://rdoc.info/github/mongodb/bson-ruby/master/frames).
 
-TODO: Review
-------------
-
-- key optimization
-  - note threading concerns
-  - no safety limit needed for non-pathological use (review this)
-  - symbol ~ gain: 0.25 (36 --> 27) Xeon, gain: 0.34 (41 --> 27) Core 2
-  - string ~ gain: 0.15 (33 --> 28) Xeon, gain: 0.24 (39 --> 29) Core 2
-  - with safety limit, mutex overhead eats up the benefit on Xeon
-  - symbol ~ gain: 0.15 (41 --> 35) Core 2
-  - string ~ gain: 0.05 (39 --> 37) Core 2
-- rb_float_to_bson ~ gain: 0.61 (15 --> 6, allocated: 3 --> 1) Core 2
-
 License
 -------
 

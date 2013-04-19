@@ -32,7 +32,7 @@ module BSON
       encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
         each_with_index do |value, index|
           encoded << value.bson_type
-          index.to_bson_cstring(encoded)
+          index.to_bson_key(encoded)
           value.to_bson(encoded)
         end
       end

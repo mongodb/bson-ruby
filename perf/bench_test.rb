@@ -76,7 +76,7 @@ class BenchTest < Test::Unit::TestCase
         encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
           each_with_index do |value, index|
             encoded << value.bson_type
-            index.to_s.to_bson_cstring(encoded)
+            index.to_s.to_bson_key(encoded)
             value.to_bson(encoded)
           end
         end
@@ -279,22 +279,28 @@ class BenchTest < Test::Unit::TestCase
     p (benchmark_for_ext(10000000, __method__) { t.to_bson })
   end
 
-  #label: "test_ext_rb_integer_to_bson_cstring_large", utime: 18.9, real: 19.1, allocated: 1
-  #label: "test_ext_rb_integer_to_bson_cstring_large", utime: 3.7, real: 3.8, allocated: 0
+  #label: "test_ext_rb_integer_to_bson_key_large", utime: 18.9, real: 19.1, allocated: 1
+  #label: "test_ext_rb_integer_to_bson_key_large", utime: 3.7, real: 3.8, allocated: 0
   #gain: 0.80
-  def test_ext_rb_integer_to_bson_cstring_large
-    t = Time.now
-    bson = String.new
-    p (benchmark_for_ext(10000000, __method__) {|i| i.to_bson_cstring(bson); bson.clear })
+  def test_ext_rb_integer_to_bson_key_large
+    bson = String.new.force_encoding(BSON::BINARY)
+    p (benchmark_for_ext(10000000, __method__) {|i| i.to_bson_key(bson); bson.clear })
   end
 
-  #label: "test_ext_rb_integer_to_bson_cstring_small", utime: 33.5, real: 34.2, allocated: 0
-  #label: "test_ext_rb_integer_to_bson_cstring_small", utime: 25.4, real: 25.8, allocated: 0
+  #label: "test_ext_rb_integer_to_bson_key_small", utime: 33.5, real: 34.2, allocated: 0
+  #label: "test_ext_rb_integer_to_bson_key_small", utime: 25.4, real: 25.8, allocated: 0
   #gain: 0.24
-  def test_ext_rb_integer_to_bson_cstring_small
-    t = Time.now
-    bson = String.new
-    p (benchmark_for_ext(100000000, __method__) {|i| 1023.to_bson_cstring(bson); bson.clear })
+  def test_ext_rb_integer_to_bson_key_small
+    bson = String.new.force_encoding(BSON::BINARY)
+    p (benchmark_for_ext(100000000, __method__) {|i| 1023.to_bson_key(bson); bson.clear })
+  end
+
+  #label: "test_ext_rb_symbol_to_bson", utime: 36.5, real: 37.0, allocated: 5
+  #label: "test_ext_rb_symbol_to_bson", utime: 24.2, real: 24.3, allocated: 3
+  #gain: 0.34
+  def test_ext_rb_symbol_to_bson
+    bson = String.new.force_encoding(BSON::BINARY)
+    p (benchmark_for_ext(10000000, __method__) { :my_symbol.to_bson })
   end
 
   # Optimization NOT committed ----------------------------------------------------------------------------------------
@@ -305,7 +311,7 @@ class BenchTest < Test::Unit::TestCase
         encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
           each do |field, value|
             encoded << value.bson_type
-            field.to_bson_cstring(encoded)
+            field.to_bson_key(encoded)
             value.to_bson(encoded)
           end
         end
@@ -335,7 +341,7 @@ class BenchTest < Test::Unit::TestCase
           encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
             each do |field, value|
               encoded << value.bson_type
-              encoded << _memo_set(field) { field.to_bson_cstring }
+              encoded << _memo_set(field) { field.to_bson_key }
               value.to_bson(encoded)
             end
           end
@@ -343,7 +349,7 @@ class BenchTest < Test::Unit::TestCase
           encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
             each do |field, value|
               encoded << value.bson_type
-              encoded << _memo_fetch(field) { field.to_bson_cstring }
+              encoded << _memo_fetch(field) { field.to_bson_key }
               value.to_bson(encoded)
             end
           end
@@ -362,12 +368,45 @@ class BenchTest < Test::Unit::TestCase
           encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
             each do |field, value|
               encoded << value.bson_type
-              encoded << _memo(field) { field.to_bson_cstring }
+              encoded << _memo(field) { field.to_bson_key }
               value.to_bson(encoded)
             end
           end
         end
     EVAL
+  end
+
+  def new_hash_to_bson_integer
+    Integer.class_eval <<-EVAL
+      def bson_type
+        BSON::Integer::INT32_TYPE
+      end
+    EVAL
+    Hash.class_eval <<-EVAL
+      def to_bson(encoded = ''.force_encoding(BSON::BINARY))
+        encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
+          each do |field, value|
+            pos = encoded.bytesize
+            encoded << (bson_type = value.bson_type)
+            field.to_bson_key(encoded)
+            mark = encoded.bytesize
+            value.to_bson(encoded)
+            encoded[pos] = BSON::Integer::INT64_TYPE if bson_type == BSON::Integer::INT32_TYPE && encoded.bytesize - mark == 8
+          end
+        end
+      end
+    EVAL
+  end
+
+  # without extension 0.23 gain, with extension -0.11 gain
+  def test_integer_optimization
+    size = 1024
+    hash = Hash[*(0..size).to_a.collect{|i| [ ('a' + i.to_s).to_sym, i]}.flatten]
+    method_label_pairs = [
+      [ method(:old_hash_to_bson),         'Integer optimize none', RESET ],
+      [ method(:new_hash_to_bson_integer), 'Integer optimize int32' ], # Core2 user: 68.2, base: 88.1, gain: 0.23
+    ]
+    benchmark_methods_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
 
   def test_symbol_key_optimization

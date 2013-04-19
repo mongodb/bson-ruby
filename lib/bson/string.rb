@@ -33,6 +33,23 @@ module BSON
       end
     end
 
+    # Get the string as a BSON key name encoded C string with checking for special characters.
+    #
+    # @example Get the string as key name.
+    #   "test".to_bson_key
+    #
+    # @raise [ EncodingError ] If the string is not UTF-8.
+    #
+    # @return [ String ] The encoded string.
+    #
+    # @see http://bsonspec.org/#/specification
+    #
+    # @since 2.0.0
+    def to_bson_key(encoded = ''.force_encoding(BINARY))
+      #check_for_illegal_key_characters!
+      to_bson_cstring(encoded)
+    end
+
     # Get the string as an encoded C string.
     #
     # @example Get the string as an encoded C string.

@@ -142,7 +142,7 @@ module BSON
       encoded << ((self >> 56) & 255)
     end
 
-    def to_bson_cstring(encoded)
+    def to_bson_key(encoded = ''.force_encoding(BINARY))
       if self < BSON_INDEX_SIZE
         encoded << BSON_ARRAY_INDEXES[self]
       else

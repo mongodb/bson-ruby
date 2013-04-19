@@ -29,7 +29,7 @@ module BSON
     #   hash.encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
     #     each do |field, value|
     #       encoded << value.bson_type
-    #       field.to_bson_cstring(encoded)
+    #       field.to_bson_key(encoded)
     #       value.to_bson(encoded)
     #     end
     #   end
