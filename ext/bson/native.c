@@ -107,6 +107,27 @@ static VALUE rb_str_new_encoded_binary(void)
 }
 
 /**
+ * Take the provided params and return the encoded bytes or a default one.
+ *
+ * @example Get the default encoded bytes.
+ *    rb_get_default_encoded(1, bytes);
+ *
+ * @param [ int ] argc The number of arguments.
+ * @param [ Object ] argv The arguments.
+ *
+ * @return [ String ] The encoded string.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_get_default_encoded(int argc, VALUE *argv)
+{
+  VALUE encoded;
+  rb_scan_args(argc, argv, "01", &encoded);
+  if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
+  return encoded;
+}
+
+/**
  * Append the ruby float as 8-byte double value to buffer.
  *
  * @example Convert float to double and append.
@@ -122,9 +143,7 @@ static VALUE rb_str_new_encoded_binary(void)
 static VALUE rb_float_to_bson(int argc, VALUE *argv, VALUE self)
 {
   const double v = NUM2DBL(self);
-  VALUE encoded;
-  rb_scan_args(argc, argv, "01", &encoded);
-  if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
+  VALUE encoded = rb_get_default_encoded(argc, argv);
   rb_str_cat(encoded, (char*) &v, 8);
   return encoded;
 }
@@ -393,9 +412,7 @@ static VALUE rb_time_to_bson(int argc, VALUE *argv, VALUE self)
 {
   double t = NUM2DBL(rb_funcall(self, rb_intern("to_f"), 0));
   int64_t milliseconds = (int64_t)round(t * 1000);
-  VALUE encoded;
-  rb_scan_args(argc, argv, "01", &encoded);
-  if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
+  VALUE encoded = rb_get_default_encoded(argc, argv);
   return int64_t_to_bson(milliseconds, encoded);
 }
 
@@ -446,9 +463,7 @@ static VALUE rb_string_set_int32(VALUE str, VALUE pos, VALUE an_int32)
  */
 static VALUE rb_false_class_to_bson(int argc, VALUE *argv, VALUE self)
 {
-  VALUE encoded;
-  rb_scan_args(argc, argv, "01", &encoded);
-  if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
+  VALUE encoded = rb_get_default_encoded(argc, argv);
   rb_str_cat(encoded, &rb_bson_null_byte, 1);
   return encoded;
 }
@@ -469,9 +484,7 @@ static VALUE rb_false_class_to_bson(int argc, VALUE *argv, VALUE self)
  */
 static VALUE rb_true_class_to_bson(int argc, VALUE *argv, VALUE self)
 {
-  VALUE encoded;
-  rb_scan_args(argc, argv, "01", &encoded);
-  if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
+  VALUE encoded = rb_get_default_encoded(argc, argv);
   rb_str_cat(encoded, &rb_bson_true_byte, 1);
   return encoded;
 }
