@@ -255,10 +255,10 @@ static char bson_array_indexes[BSON_INDEX_SIZE][BSON_INDEX_CHAR_SIZE];
  */
 static void init_integer_bson_array_indexes(void)
 {
-    int i;
-    for (i = 0; i < BSON_INDEX_SIZE; i++) {
-        snprintf(bson_array_indexes[i], BSON_INDEX_CHAR_SIZE, "%d", i);
-    }
+  int i;
+  for (i = 0; i < BSON_INDEX_SIZE; i++) {
+    snprintf(bson_array_indexes[i], BSON_INDEX_CHAR_SIZE, "%d", i);
+  }
 }
 
 #define INTEGER_CHAR_SIZE 22
