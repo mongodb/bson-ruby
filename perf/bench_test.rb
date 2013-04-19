@@ -279,6 +279,24 @@ class BenchTest < Test::Unit::TestCase
     p (benchmark_for_ext(10000000, __method__) { t.to_bson })
   end
 
+  #label: "test_ext_rb_integer_to_bson_cstring_large", utime: 18.9, real: 19.1, allocated: 1
+  #label: "test_ext_rb_integer_to_bson_cstring_large", utime: 3.7, real: 3.8, allocated: 0
+  #gain: 0.80
+  def test_ext_rb_integer_to_bson_cstring_large
+    t = Time.now
+    bson = String.new
+    p (benchmark_for_ext(10000000, __method__) {|i| i.to_bson_cstring(bson); bson.clear })
+  end
+
+  #label: "test_ext_rb_integer_to_bson_cstring_small", utime: 33.5, real: 34.2, allocated: 0
+  #label: "test_ext_rb_integer_to_bson_cstring_small", utime: 25.4, real: 25.8, allocated: 0
+  #gain: 0.24
+  def test_ext_rb_integer_to_bson_cstring_small
+    t = Time.now
+    bson = String.new
+    p (benchmark_for_ext(100000000, __method__) {|i| 1023.to_bson_cstring(bson); bson.clear })
+  end
+
   # Optimization NOT committed ----------------------------------------------------------------------------------------
 
   def old_hash_to_bson

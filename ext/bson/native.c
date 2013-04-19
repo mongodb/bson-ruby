@@ -223,6 +223,45 @@ static VALUE rb_integer_to_bson_int32(VALUE self, VALUE encoded)
 }
 
 /**
+ * Convert the Ruby integer into a character string and append with nullchar to encoded BSON.
+ *
+ * @example Convert the integer to string and append with nullchar.
+ *    rb_integer_to_bson_cstring(128, encoded);
+ *
+ * @param [ Integer ] self The Ruby integer.
+ * @param [ String ] encoded The Ruby binary string to append to.
+ *
+ * @return [ String ] encoded Ruby binary string with BSON raw bytes appended.
+ *
+ * @since 2.0.0
+ */
+// Math.log10(2**63).ceil + 2 == 21
+#define BSON_INDEX_SIZE 1024
+#define BSON_INDEX_CHAR_SIZE 5
+static char bson_array_indexes[BSON_INDEX_SIZE][BSON_INDEX_CHAR_SIZE];
+
+static void init_integer_bson_array_indexes(void)
+{
+    int i;
+    for (i = 0; i < BSON_INDEX_SIZE; i++) {
+        snprintf(bson_array_indexes[i], BSON_INDEX_CHAR_SIZE, "%d", i);
+    }
+}
+
+#define INTEGER_CHAR_SIZE 22
+
+static VALUE rb_integer_to_bson_cstring(VALUE self, VALUE encoded)
+{
+  char bytes[INTEGER_CHAR_SIZE];
+  const int64_t v = NUM2INT64(self);
+  int length;
+  if (v < BSON_INDEX_SIZE)
+    return rb_str_cat(encoded, bson_array_indexes[v], strlen(bson_array_indexes[v]) + 1);
+  length = snprintf(bytes, INTEGER_CHAR_SIZE, "%ld", (long)v);
+  return rb_str_cat(encoded, bytes, length + 1);
+}
+
+/**
  * Convert the provided raw bytes into a 32bit Ruby integer.
  *
  * @example Convert the bytes to an Integer.
@@ -257,10 +296,11 @@ static VALUE rb_integer_from_bson_int32(VALUE self, VALUE bson)
  */
 static VALUE rb_integer_from_bson_int64(VALUE self, VALUE bson)
 {
-  StringValue(bson);
-  const uint8_t *v = (const uint8_t*) RSTRING_PTR(bson);
+  uint8_t *v;
   uint32_t byte_0, byte_1, byte_2, byte_3;
   int64_t lower, upper;
+  StringValue(bson);
+  v = (uint8_t*) RSTRING_PTR(bson);
   byte_0 = v[0];
   byte_1 = v[1];
   byte_2 = v[2];
@@ -410,6 +450,9 @@ void Init_native()
   rb_define_method(integer, "to_bson_int64", rb_integer_to_bson_int64, 1);
   rb_undef_method(integer, "bson_int32?");
   rb_define_method(integer, "bson_int32?", rb_integer_is_bson_int32, 0);
+  init_integer_bson_array_indexes();
+  rb_undef_method(integer, "to_bson_cstring");
+  rb_define_method(integer, "to_bson_cstring", rb_integer_to_bson_cstring, 1);
 
   // Redefine float's to_bson, from_bson.
   rb_undef_method(floats, "to_bson");

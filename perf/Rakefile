@@ -3,6 +3,7 @@ require 'json'
 # test framework for C extension versus pure Ruby
 # (consider ENV for C versus C)
 DEFAULT_TARGET = 'test_ext_rb_float_to_bson'
+NON_ZERO_TIME = 0.0000000001 # 10^-10
 
 def sh_eval(command)
   puts command
@@ -31,7 +32,7 @@ def print_gain(measurement)
     h[:label] = "\"#{h[:label]}\""
     h.select{|k,v| [:label, :utime, :real, :allocated].include?(k)}
   end
-  gain = 1.0 - measurement[1][:utime]/measurement[0][:utime]
+  gain = 1.0 - measurement[1][:utime]/(measurement[0][:utime] + NON_ZERO_TIME)
   measurement.each do |t|
     puts hash_f(t, 1).each_pair.collect{|key, value| "#{key}: #{value}" }.join(', ')
   end
