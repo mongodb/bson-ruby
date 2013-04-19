@@ -2,7 +2,7 @@ $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 require "benchmark"
 
 def benchmark!
-  count = 2_000_000
+  count = 1_000_000
   Benchmark.bm do |bench|
 
     bench.report("Binary#to_bson -------->") do

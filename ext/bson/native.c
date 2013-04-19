@@ -36,6 +36,20 @@
 #endif
 
 /**
+ * Constant for a null byte.
+ *
+ * @since 2.0.0
+ */
+static const char rb_bson_null_byte = 0;
+
+/**
+ * Constant for a true byte.
+ *
+ * @since 2.0.0
+ */
+static const char rb_bson_true_byte = 1;
+
+/**
  * BSON::BINARY
  *
  * @since 2.0.0
@@ -222,6 +236,10 @@ static VALUE rb_integer_to_bson_int32(VALUE self, VALUE encoded)
   return rb_str_cat(encoded, bytes, 4);
 }
 
+#define BSON_INDEX_SIZE 1024
+#define BSON_INDEX_CHAR_SIZE 5
+static char bson_array_indexes[BSON_INDEX_SIZE][BSON_INDEX_CHAR_SIZE];
+
 /**
  * Convert the Ruby integer into a character string and append with nullchar to encoded BSON.
  *
@@ -235,11 +253,6 @@ static VALUE rb_integer_to_bson_int32(VALUE self, VALUE encoded)
  *
  * @since 2.0.0
  */
-// Math.log10(2**63).ceil + 2 == 21
-#define BSON_INDEX_SIZE 1024
-#define BSON_INDEX_CHAR_SIZE 5
-static char bson_array_indexes[BSON_INDEX_SIZE][BSON_INDEX_CHAR_SIZE];
-
 static void init_integer_bson_array_indexes(void)
 {
     int i;
@@ -418,6 +431,52 @@ static VALUE rb_string_set_int32(VALUE str, VALUE pos, VALUE an_int32)
 }
 
 /**
+ * Encode a false value to bson.
+ *
+ * @example Encode the false value.
+ *    rb_false_class_to_bson(0, false);
+ *
+ * @param [ int ] argc The number or arguments.
+ * @param [ Array<Object> ] argv The arguments.
+ * @param [ TrueClass ] self The true value.
+ *
+ * @return [ String ] The encoded string.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_false_class_to_bson(int argc, VALUE *argv, VALUE self)
+{
+  VALUE encoded;
+  rb_scan_args(argc, argv, "01", &encoded);
+  if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
+  rb_str_cat(encoded, &rb_bson_null_byte, 1);
+  return encoded;
+}
+
+/**
+ * Encode a true value to bson.
+ *
+ * @example Encode the true value.
+ *    rb_true_class_to_bson(0, true);
+ *
+ * @param [ int ] argc The number or arguments.
+ * @param [ Array<Object> ] argv The arguments.
+ * @param [ TrueClass ] self The true value.
+ *
+ * @return [ String ] The encoded string.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_true_class_to_bson(int argc, VALUE *argv, VALUE self)
+{
+  VALUE encoded;
+  rb_scan_args(argc, argv, "01", &encoded);
+  if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
+  rb_str_cat(encoded, &rb_bson_true_byte, 1);
+  return encoded;
+}
+
+/**
  * Initialize the bson c extension.
  *
  * @since 2.0.0
@@ -437,6 +496,8 @@ void Init_native()
   VALUE object_id = rb_const_get(bson, rb_intern("ObjectId"));
   VALUE generator = rb_const_get(object_id, rb_intern("Generator"));
   VALUE string = rb_const_get(bson, rb_intern("String"));
+  VALUE true_class = rb_const_get(bson, rb_intern("TrueClass"));
+  VALUE false_class = rb_const_get(bson, rb_intern("FalseClass"));
   bson_binary = rb_const_get(bson, rb_intern("BINARY"));
 
   // Get the object id machine id.
@@ -479,4 +540,12 @@ void Init_native()
   // Redefine the next method on the object id generator.
   rb_undef_method(generator, "next");
   rb_define_method(generator, "next", rb_object_id_generator_next, -1);
+
+  // Redefine the to_bson method on TrueClass.
+  rb_undef_method(true_class, "to_bson");
+  rb_define_method(true_class, "to_bson", rb_true_class_to_bson, -1);
+
+  // Redefine the to_bson method on FalseClass.
+  rb_undef_method(false_class, "to_bson");
+  rb_define_method(false_class, "to_bson", rb_false_class_to_bson, -1);
 }
