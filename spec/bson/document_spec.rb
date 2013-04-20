@@ -717,7 +717,7 @@ describe BSON::Document do
       end
     end
 
-    context "when binary strings with utf-8 values exist" do
+    pending "when binary strings with utf-8 values exist" do
 
       let(:string) { "europäischen" }
       let(:document) do

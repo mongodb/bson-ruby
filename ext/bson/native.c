@@ -42,22 +42,42 @@
  */
 #ifdef HAVE_RUBY_ENCODING_H
 #include <ruby/encoding.h>
-#define RB_FORCE_ENCODING(string, encoding) \
-  ({ \
-    int enc = rb_enc_find_index(encoding); \
-    rb_enc_associate_index(string, enc); \
-    string; \
-  })
-#define RB_ENCODE(string, encoding) \
-  ({ \
-    rb_encoding *enc = rb_enc_find(encoding); \
-    VALUE rb_enc = rb_enc_from_encoding(enc); \
-    StringValue(string); \
-    rb_enc_str_new(RSTRING_PTR(string), RSTRING_LEN(string), enc); \
-  })
+
+/**
+ * convert a ruby string into a utf-8 compatible binary string.
+ *
+ * @example convert the string to utf-8 binary.
+ *    rb_bson_to_utf8_binary("test");
+ *
+ * @param [ string ] string the ruby string.
+ *
+ * @return [ string ] the encoded string.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_bson_to_utf8_binary(VALUE string)
+{
+  VALUE utf8 = rb_str_encode(string, rb_str_new("UTF-8", 5), 0, Qnil);
+  return rb_enc_associate(utf8, rb_usascii_encoding());
+}
 #else
-#define RB_FORCE_ENCODING(str, encoding) str
-#define RB_ENCODE(str, encoding) str
+
+/**
+ * convert a ruby string into a utf-8 compatible binary string.
+ *
+ * @example convert the string to utf-8 binary.
+ *    rb_bson_to_utf8_binary("test");
+ *
+ * @param [ string ] string the ruby string.
+ *
+ * @return [ string ] the encoded string.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_bson_to_utf8_binary(VALUE string)
+{
+  return string;
+}
 #endif
 
 /**
@@ -473,11 +493,24 @@ static VALUE rb_string_set_int32(VALUE str, VALUE pos, VALUE an_int32)
   return str;
 }
 
+/**
+ * Convert the ruby string to a BSON string.
+ *
+ * @example Convert the Ruby string to a BSON string.
+ *    rb_string_to_bson_string(0, Qnil, "test");
+ *
+ * @param [ int ] argc The number or arguments.
+ * @param [ Array<Object> ] argv The arguments.
+ * @param [ String ] self The string value.
+ *
+ * @return [ String ] The encoded string.
+ *
+ * @since 2.0.0
+ */
 static VALUE rb_string_to_bson_string(int argc, VALUE *argv, VALUE self)
 {
   VALUE encoded = rb_get_default_encoded(argc, argv);
-  VALUE utf8 = RB_ENCODE(self, "UTF-8");
-  VALUE binary = RB_FORCE_ENCODING(utf8, "BINARY");
+  VALUE binary = rb_bson_to_utf8_binary(self);
   StringValue(binary);
   rb_str_cat(encoded, RSTRING_PTR(binary), RSTRING_LEN(binary));
   return encoded;
@@ -587,8 +620,8 @@ void Init_native()
   rb_define_method(string, "set_int32", rb_string_set_int32, 2);
 
   /* @todo: Gary have a look at this. */
-  /* rb_undef_method(string, "to_bson_string"); */
-  /* rb_define_method(string, "to_bson_string", rb_string_to_bson_string, -1); */
+  rb_undef_method(string, "to_bson_string");
+  rb_define_method(string, "to_bson_string", rb_string_to_bson_string, -1);
 
   // Redefine the next method on the object id generator.
   rb_undef_method(generator, "next");
