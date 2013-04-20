@@ -25,7 +25,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
-      encoded #<< NO_VALUE # appending NO_VALUE costs 14%
+      encoded
     end
 
     module ClassMethods
