@@ -112,11 +112,7 @@ module BSON
     def self.from_bson(bson)
       length = Int32.from_bson(bson)
       type = TYPES[bson.read(1)]
-
-      if type == :old
-        length = Int32.from_bson(bson)
-      end
-
+      length = Int32.from_bson(bson) if type == :old
       data = bson.read(length)
       new(data, type)
     end
