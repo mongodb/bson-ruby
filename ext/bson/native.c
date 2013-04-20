@@ -499,17 +499,15 @@ static VALUE rb_string_set_int32(VALUE str, VALUE pos, VALUE an_int32)
  * @example Convert the Ruby string to a BSON string.
  *    rb_string_to_bson_string(0, Qnil, "test");
  *
- * @param [ int ] argc The number or arguments.
- * @param [ Array<Object> ] argv The arguments.
  * @param [ String ] self The string value.
+ * @param [ String ] encoded The encoded string to append to.
  *
  * @return [ String ] The encoded string.
  *
  * @since 2.0.0
  */
-static VALUE rb_string_to_bson_string(int argc, VALUE *argv, VALUE self)
+static VALUE rb_string_to_bson_string(VALUE self, VALUE encoded)
 {
-  VALUE encoded = rb_get_default_encoded(argc, argv);
   VALUE binary = rb_bson_to_utf8_binary(self);
   StringValue(binary);
   rb_str_cat(encoded, RSTRING_PTR(binary), RSTRING_LEN(binary));
@@ -618,8 +616,8 @@ void Init_native()
   // Redefine methods on the String class.
   rb_undef_method(string, "set_int32");
   rb_define_method(string, "set_int32", rb_string_set_int32, 2);
-  rb_undef_method(string, "to_bson_string");
-  rb_define_method(string, "to_bson_string", rb_string_to_bson_string, -1);
+  rb_undef_method(string, "to_utf8_binary");
+  rb_define_private_method(string, "to_utf8_binary", rb_string_to_bson_string, 1);
 
   // Redefine the next method on the object id generator.
   rb_undef_method(generator, "next");

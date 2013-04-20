@@ -80,7 +80,7 @@ module BSON
     # @since 2.0.0
     def to_bson_string(encoded = ''.force_encoding(BINARY))
       begin
-        encoded << encode(UTF8).force_encoding(BINARY)
+        to_utf8_binary(encoded)
       rescue EncodingError
         data = dup.force_encoding(UTF8)
         raise unless data.valid_encoding?
@@ -127,6 +127,12 @@ module BSON
     # @since 2.0.0
     def set_int32(pos, int32)
       self[pos, 4] = [ int32 ].pack(Int32::PACK)
+    end
+
+    private
+
+    def to_utf8_binary(encoded)
+      encoded << encode(UTF8).force_encoding(BINARY)
     end
 
     module ClassMethods
