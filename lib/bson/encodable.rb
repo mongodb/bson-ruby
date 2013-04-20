@@ -28,11 +28,12 @@ module BSON
     # @example Encode the BSON with placeholder bytes.
     #   hash.encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
     #     each do |field, value|
-    #       encoded << value.bson_type
-    #       field.to_bson_key(encoded)
     #       value.to_bson(encoded)
     #     end
     #   end
+    #
+    # @param [ Integer ] adjust The number of bytes to adjust with.
+    # @param [ String ] encoded The string to encode.
     #
     # @return [ String ] The encoded string.
     #
@@ -46,6 +47,21 @@ module BSON
       encoded
     end
 
+    # Encodes binary data with a generic placeholder value to be written later
+    # once all bytes have been written.
+    #
+    # @example Encode the BSON with placeholder bytes.
+    #   string.encode_binary_data_with_placeholder(encoded) do |encoded|
+    #     each do |field, value|
+    #       value.to_bson(encoded)
+    #     end
+    #   end
+    #
+    # @param [ String ] encoded The string to encode.
+    #
+    # @return [ String ] The encoded string.
+    #
+    # @since 2.0.0
     def encode_binary_data_with_placeholder(encoded = ''.force_encoding(BINARY))
       pos = encoded.bytesize
       encoded << PLACEHOLDER
