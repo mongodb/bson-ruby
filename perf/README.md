@@ -4,7 +4,6 @@ Performance Notes
 Pending
 -------
 
-- review to_bson_key and to_bson_cstring - rspec for Integer String Symbol - also in C extension
 - object allocation summary
 
 Top concerns
@@ -15,6 +14,13 @@ Top concerns
   - to_bson_cstring
   - check_for_illegal_characters
   - encode
+  - rb_string_to_bson_key
+- Symbol
+  - to_bson
+  - to_bson_key
+  - rb_symbol_to_bson_key
+- Binary
+  - rb_binary_to_bson
 - Integer - sizing done twice for serialization - bson_type and to_bson
   - Hash to_bson - for Integer, strategy is:
     # pos bytesize
@@ -23,10 +29,9 @@ Top concerns
     # mark bytesize
     # value
     # patch bson_type at pos if necessary (bytesize - mark == size of int64)
-  - Array to_bson - repeat, consider optimization of to_cstring with to_key
-- Symbol
+  - Array to_bson - repeat above
+- NilClass
   - to_bson
-  - to_bson_cstring / to_bson_key
 
 TODO: Review
 ------------

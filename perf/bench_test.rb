@@ -252,6 +252,30 @@ class BenchTest < Test::Unit::TestCase
     benchmark_methods_with_gc(@count, method_label_pairs) { hash.to_bson }
   end
 
+  def old_nilclass_to_bson
+    BSON::NilClass.class_eval <<-EVAL
+      def to_bson(encoded = ''.force_encoding(BSON::BINARY))
+        encoded << BSON::NO_VALUE
+      end
+    EVAL
+  end
+
+  def new_nilclass_to_bson
+    BSON::NilClass.class_eval <<-EVAL
+      def to_bson(encoded = ''.force_encoding(BSON::BINARY))
+        encoded
+      end
+    EVAL
+  end
+
+  def test_nilclass_to_bson_optimization
+    method_label_pairs = [
+      [ method(:old_nilclass_to_bson), 'Nil to_bson optimize none' ],
+      [ method(:new_nilclass_to_bson), 'Nil to_bson optimize noop', RESET ] # Core2 user: 4.9, base: 5.7, gain: 0.14
+    ]
+    benchmark_methods_with_gc(10_000_000, method_label_pairs) { nil.to_bson }
+  end
+
   # C extension in progress -------------------------------------------------------------------------------------------
 
   def benchmark_for_ext(count, label)
@@ -298,6 +322,7 @@ class BenchTest < Test::Unit::TestCase
   #label: "test_ext_rb_symbol_to_bson", utime: 36.5, real: 37.0, allocated: 5
   #label: "test_ext_rb_symbol_to_bson", utime: 24.2, real: 24.3, allocated: 3
   #gain: 0.34
+  # rb_symbol_to_bson - no C ext, just benefit from other C ext functions
   def test_ext_rb_symbol_to_bson
     bson = String.new.force_encoding(BSON::BINARY)
     p (benchmark_for_ext(10000000, __method__) { :my_symbol.to_bson })
@@ -433,6 +458,31 @@ class BenchTest < Test::Unit::TestCase
 
   # Discarded as not worthy -------------------------------------------------------------------------------------------
 
+  def old_float_to_bson
+    Float.class_eval <<-EVAL
+      def to_bson(encoded = ''.force_encoding(BINARY))
+        encoded << [ (to_f * 1000.0).to_i ].pack(Int64::PACK)
+      end
+    EVAL
+  end
+
+  def new_float_to_bson
+    Float.class_eval <<-EVAL
+      def to_bson(encoded = ''.force_encoding(BINARY))
+        encoded << [ (sec * 1000 + usec / 1000) ].pack(Int64::PACK)
+      end
+    EVAL
+  end
+
+  def test_float_to_bson_optimization
+    t = Time.now
+    method_label_pairs = [
+      [ method(:old_float_to_bson), 'float to_bson optimize none' ],
+      [ method(:new_float_to_bson), 'float to_bson optimize sec usec', RESET ] # Core2 user: 29.5, base: 29.0, gain: -0.02
+    ]
+    benchmark_methods_with_gc(10_000_000, method_label_pairs) { t.to_bson }
+  end
+
   def old_hash_from_bson
     BSON::Hash.class_eval <<-EVAL
       def from_bson(bson)
@@ -498,7 +548,93 @@ class BenchTest < Test::Unit::TestCase
     benchmark_methods_with_gc(count, method_label_pairs) {|i| i.bson_int32? }
   end
 
-  # Ruby-prof profiling -----------------------------------------------------------------------------------------------
+  # Statistics and Ruby-prof profiling --------------------------------------------------------------------------------
+
+  # pure Ruby
+  #utime: 12.64, allocated: 10, label: "BSON::CodeWithScope"
+  #utime: 5.74, allocated:  4, label: "Hash"
+  #utime: 5.71, allocated:  4, label: "BSON::Document"
+  #utime: 3.87, allocated:  5, label: "Regexp"
+  #utime: 3.84, allocated:  4, label: "Array"
+  #utime: 3.27, allocated:  4, label: "Symbol"
+  #utime: 2.91, allocated: 10, label: "Bignum"
+  #utime: 2.84, allocated:  3, label: "String"
+  #utime: 2.83, allocated:  3, label: "BSON::Code"
+  #utime: 2.13, allocated:  5, label: "Time"
+  #utime: 1.97, allocated:  2, label: "BSON::Binary"
+  #utime: 1.47, allocated:  0, label: "BSON::Timestamp"
+  #utime: 0.91, allocated:  0, label: "Fixnum"
+  #utime: 0.91, allocated:  2, label: "Float"
+  #utime: 0.37, allocated:  0, label: "BSON::ObjectId"
+  #utime: 0.30, allocated:  0, label: "TrueClass"
+  #utime: 0.29, allocated:  0, label: "FalseClass"
+  #utime: 0.28, allocated:  0, label: "BSON::MaxKey"
+  #utime: 0.27, allocated:  0, label: "BSON::Undefined"
+  #utime: 0.27, allocated:  0, label: "BSON::MinKey"
+  #utime: 0.19, allocated:  0, label: "NilClass"
+  # with C extension
+  #utime: 6.27, allocated:  4, label: "BSON::CodeWithScope"
+  #utime: 3.79, allocated:  5, label: "Regexp"
+  #utime: 3.24, allocated:  2, label: "BSON::Document"
+  #utime: 3.23, allocated:  2, label: "Hash"
+  #utime: 1.95, allocated:  2, label: "Symbol"
+  #utime: 1.74, allocated:  2, label: "Array"
+  #utime: 1.60, allocated:  1, label: "BSON::Code"
+  #utime: 1.55, allocated:  1, label: "String"
+  #utime: 1.03, allocated:  3, label: "Time"
+  #utime: 0.97, allocated:  0, label: "BSON::Binary"
+  #utime: 0.51, allocated:  0, label: "Bignum"
+  #utime: 0.38, allocated:  0, label: "BSON::ObjectId"
+  #utime: 0.38, allocated:  0, label: "BSON::Timestamp"
+  #utime: 0.29, allocated:  0, label: "Fixnum"
+  #utime: 0.27, allocated:  0, label: "BSON::Undefined"
+  #utime: 0.22, allocated:  0, label: "FalseClass"
+  #utime: 0.22, allocated:  0, label: "Float"
+  #utime: 0.21, allocated:  0, label: "TrueClass"
+  #utime: 0.20, allocated:  0, label: "NilClass"
+  #utime: 0.18, allocated:  0, label: "BSON::MinKey"
+  #utime: 0.18, allocated:  0, label: "BSON::MaxKey"
+  def test_to_bson_object_allocation
+    count = 1_000_000
+    t = Time.now
+    expression = [
+      Array[1],
+      BSON::Binary.new("xyzzy"),
+      BSON::Code.new("new Object;"),
+      BSON::CodeWithScope.new("new Object;", {x: 1}),
+      BSON::Document['x', 1],
+      false,
+      3.14159,
+      Hash['x', 1],
+      2**31 - 1,
+      2**63 - 1,
+      BSON::MaxKey.new,
+      BSON::MinKey.new,
+      nil,
+      BSON::ObjectId.new,
+      /xyzzy/,
+      'xyzzy',
+      :xyzzy,
+      Time.now,
+      BSON::Timestamp.new(t.sec, t.usec),
+      true,
+      BSON::Undefined.new
+    ]
+    result = expression.collect do |x|
+      htms, allocated = gc_allocated do
+        tms = Benchmark.measure(x.class.name) do
+          encoded = ''.force_encoding(BSON::BINARY)
+          count.times { x.to_bson(encoded); encoded.clear }
+        end
+        Hash[*[:label, :utime, :stime, :cutime, :cstime, :real].zip(tms.to_a).flatten]
+      end
+      htms.merge!({allocated: allocated, count: count})
+    end
+    result.sort!{|a,b| b[:utime] <=> a[:utime]}
+    result.each do |h|
+      puts "utime: #{'%.2f' % h[:utime]}, allocated: #{'%2d' % (h[:allocated]/h[:count])}, label: #{h[:label].inspect}"
+    end
+  end
 
   def doc_stats(tally, obj)
     tally[obj.class.name] += 1
