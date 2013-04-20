@@ -615,11 +615,9 @@ void Init_native()
   rb_undef_method(time, "to_bson");
   rb_define_method(time, "to_bson", rb_time_to_bson, -1);
 
-  // Redefine the set_int32 method on the String class.
+  // Redefine methods on the String class.
   rb_undef_method(string, "set_int32");
   rb_define_method(string, "set_int32", rb_string_set_int32, 2);
-
-  /* @todo: Gary have a look at this. */
   rb_undef_method(string, "to_bson_string");
   rb_define_method(string, "to_bson_string", rb_string_to_bson_string, -1);
 
