@@ -491,25 +491,6 @@ static VALUE rb_true_class_to_bson(int argc, VALUE *argv, VALUE self)
 }
 
 /**
- * Convert a min key or max key to its bson representation.
- *
- * @example Convert the min or max key.
- *    rb_bson_specialized_to_bson(0, max_key);
- *
- * @param [ int ] argc The number or arguments.
- * @param [ Array<Object> ] argv The arguments.
- * @param [ Specialized ] self The min key or max key.
- *
- * @return [ String ] The encoded string.
- *
- * @since 2.0.0
- */
-static VALUE rb_bson_specialized_to_bson(int argc, VALUE *argv, VALUE self)
-{
-  return rb_get_default_encoded(argc, argv);
-}
-
-/**
  * Initialize the bson c extension.
  *
  * @since 2.0.0
@@ -531,7 +512,6 @@ void Init_native()
   VALUE string = rb_const_get(bson, rb_intern("String"));
   VALUE true_class = rb_const_get(bson, rb_intern("TrueClass"));
   VALUE false_class = rb_const_get(bson, rb_intern("FalseClass"));
-  VALUE specialized = rb_const_get(bson, rb_intern("Specialized"));
   bson_binary = rb_const_get(bson, rb_intern("BINARY"));
 
   // Get the object id machine id.
@@ -582,7 +562,4 @@ void Init_native()
   // Redefine the to_bson method on FalseClass.
   rb_undef_method(false_class, "to_bson");
   rb_define_method(false_class, "to_bson", rb_false_class_to_bson, -1);
-
-  rb_undef_method(specialized, "to_bson");
-  rb_define_method(specialized, "to_bson", rb_bson_specialized_to_bson, -1);
 }

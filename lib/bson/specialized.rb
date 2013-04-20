@@ -33,7 +33,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
-      encoded << NO_VALUE
+      encoded
     end
 
     private
