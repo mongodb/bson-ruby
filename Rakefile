@@ -4,7 +4,14 @@ Bundler.setup
 $LOAD_PATH.unshift(File.expand_path("../lib", __FILE__))
 
 require "rake"
+require "rake/extensiontask"
 require "rspec/core/rake_task"
+
+Rake::ExtensionTask.new do |ext|
+  ext.name = "native"
+  ext.ext_dir = "ext/bson"
+  ext.lib_dir = "lib/bson"
+end
 
 require "bson/version"
 
@@ -17,37 +24,8 @@ end
 RSpec::Core::RakeTask.new(:spec)
 RSpec::Core::RakeTask.new(:rspec)
 
-def extension
-  RUBY_PLATFORM =~ /darwin/ ? "bundle" : "so"
-end
-
-def compile!
-  puts "Compiling native extensions..."
-  Dir.chdir(Pathname(__FILE__).dirname + "ext/bson") do
-    `bundle exec ruby extconf.rb`
-    `make`
-    `cp native.#{extension} ../../lib/bson`
-  end
-end
-
 task :build do
   system "gem build bson.gemspec"
-end
-
-task :compile do
-  compile!
-end
-
-task :clean do
-  puts "Cleaning out native extensions..."
-  begin
-    Dir.chdir(Pathname(__FILE__).dirname + "lib/bson") do
-      `rm native.#{extension}`
-      `rm native.o`
-    end
-  rescue Exception => e
-    puts e.message
-  end
 end
 
 task :release => :build do

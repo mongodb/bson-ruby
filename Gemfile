@@ -5,6 +5,7 @@ gem "rake"
 
 group :development, :test do
   gem "rspec"
+  gem "rake-compiler"
 
   unless ENV["CI"]
     gem "pry"
