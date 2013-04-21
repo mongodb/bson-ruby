@@ -44,14 +44,14 @@
 #include <ruby/encoding.h>
 
 /**
- * convert a ruby string into a utf-8 compatible binary string.
+ * Convert a ruby string into a utf-8 compatible binary string.
  *
- * @example convert the string to utf-8 binary.
+ * @example Convert the string to utf-8 binary.
  *    rb_bson_to_utf8_binary("test");
  *
- * @param [ string ] string the ruby string.
+ * @param [ String ] string The ruby string.
  *
- * @return [ string ] the encoded string.
+ * @return [ String ] The encoded string.
  *
  * @since 2.0.0
  */
@@ -59,6 +59,23 @@ static VALUE rb_bson_to_utf8_binary(VALUE string)
 {
   VALUE utf8 = rb_str_encode(string, rb_str_new("UTF-8", 5), 0, Qnil);
   return rb_enc_associate(utf8, rb_usascii_encoding());
+}
+
+/**
+ * Convert the binary string to a ruby utf8 string.
+ *
+ * @example Convert the string to binary.
+ *    rb_bson_from_bson_string("test");
+ *
+ * @param [ String ] string The ruby string.
+ *
+ * @return [ String ] The encoded string.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_bson_from_bson_string(VALUE string)
+{
+  return rb_enc_associate(string, rb_utf8_encoding());
 }
 #else
 
@@ -75,6 +92,23 @@ static VALUE rb_bson_to_utf8_binary(VALUE string)
  * @since 2.0.0
  */
 static VALUE rb_bson_to_utf8_binary(VALUE string)
+{
+  return string;
+}
+
+/**
+ * Convert the binary string to a ruby utf8 string.
+ *
+ * @example Convert the string to binary.
+ *    rb_bson_from_bson_string("test");
+ *
+ * @param [ String ] string The ruby string.
+ *
+ * @return [ String ] The encoded string.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_bson_from_bson_string(VALUE string)
 {
   return string;
 }
@@ -618,6 +652,8 @@ void Init_native()
   rb_define_method(string, "set_int32", rb_string_set_int32, 2);
   rb_undef_method(string, "to_utf8_binary");
   rb_define_private_method(string, "to_utf8_binary", rb_string_to_bson_string, 1);
+  rb_undef_method(string, "from_bson_string");
+  rb_define_method(string, "from_bson_string", rb_bson_from_bson_string, 0);
 
   // Redefine the next method on the object id generator.
   rb_undef_method(generator, "next");

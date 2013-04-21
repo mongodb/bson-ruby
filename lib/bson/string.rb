@@ -111,7 +111,7 @@ module BSON
     #
     # @since 2.0.0
     def from_bson_string
-      force_encoding(UTF8).encode!
+      force_encoding(UTF8)
     end
 
     # Set four bytes for int32 in a binary string and return it.
