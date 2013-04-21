@@ -50,4 +50,8 @@ namespace :benchmark do
   end
 end
 
-task :default => [ :clean, :spec, :compile, :rspec ]
+if defined?(JRUBY_VERSION)
+  task :default => [ :clean, :spec ]
+else
+  task :default => [ :clean, :spec, :compile, :rspec ]
+end
