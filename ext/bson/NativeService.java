@@ -21,13 +21,6 @@ public class NativeService implements BasicLibraryService {
   private final String BSON = "BSON".intern();
 
   /**
-   * Constant for the Integer module name.
-   *
-   * @since 2.0.0
-   */
-  private final String INTEGER = "Integer".intern();
-
-  /**
    * The Ruby runtime as the root to all extensions.
    *
    * @since 2.0.0
@@ -48,7 +41,51 @@ public class NativeService implements BasicLibraryService {
   public boolean basicLoad(Ruby runtime) throws IOException {
     this.runtime = runtime;
     RubyModule bson = runtime.fastGetModule(BSON);
-    RubyModule integer = bson.defineOrGetModuleUnder(INTEGER);
+    new IntegerExtender(bson).define();
     return true;
+  }
+
+  /**
+   * Provides native extensions around integer operations.
+   *
+   * @since 2.0.0
+   */
+  private class IntegerExtender {
+
+    /**
+     * Constant for the Integer module name.
+     *
+     * @since 2.0.0
+     */
+    private final String INTEGER = "Integer".intern();
+
+    /**
+     * The service's integer module to operate on.
+     *
+     * @since 2.0.0
+     */
+    private RubyModule integer;
+
+    /**
+     * Instantiate a new integer extender.
+     *
+     * @param bson The parent BSON module.
+     *
+     * @since 2.0.0.
+     */
+    private IntegerExtender(final RubyModule bson) {
+      this.integer = bson.defineOrGetModuleUnder(INTEGER);
+    }
+
+    /**
+     * Load the method definitions into the integer module.
+     *
+     * @return True if the loading was successful.
+     *
+     * @since 2.0.0.
+     */
+    public boolean define() {
+      return true;
+    }
   }
 }
