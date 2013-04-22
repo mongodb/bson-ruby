@@ -4,17 +4,23 @@ Performance Notes
 Pending
 -------
 
-- object allocation summary
+- codepoints and getbyte, setbyte, << for BSON_TYPE
+- string.force_encoding("UTF-8").valid_encoding?
 
 Top concerns
 ------------
 
-- String - Tyler has experience, says UTF8 (with LATIN1 subset) is sufficient, note keys need special char check
-  - to_bson_string
-  - to_bson_cstring
+- String - pure - cext@ - Tyler has experience, says UTF8 (with LATIN1 subset) is sufficient, note keys need special char check
+  - to_utf8_binary@
+  - to_bson_string@
+  - to_bson_cstring@
+  - append_bson_int32
+  - to_bson_key - rb_string_to_bson_key
   - check_for_illegal_characters
   - encode
-  - rb_string_to_bson_key
+  - set_int32
+  - force_encoding
+  - to_bson
 - Symbol
   - to_bson
   - to_bson_key
@@ -22,16 +28,10 @@ Top concerns
 - Binary
   - rb_binary_to_bson
 - Integer - sizing done twice for serialization - bson_type and to_bson
-  - Hash to_bson - for Integer, strategy is:
-    # pos bytesize
-    # bson_type default to INT32_TYPE
-    # field
-    # mark bytesize
-    # value
-    # patch bson_type at pos if necessary (bytesize - mark == size of int64)
+  - discarded as not worthy
+    - new_hash_to_bson_hint
+    - new_hash_to_bson_integer
   - Array to_bson - repeat above
-- NilClass
-  - to_bson
 
 TODO: Review
 ------------
@@ -50,5 +50,12 @@ Performance gains
 -----------------
 
 - catalog, extract techniques, tech talk
+
+Driver notes
+------------
+
+Check for initial '$' or inclusion of '.' is purposely left to the driver.
+See bench.rb: test_string_to_bson_key_mongodb
+
 
 

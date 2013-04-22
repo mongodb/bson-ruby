@@ -549,6 +549,23 @@ static VALUE rb_string_to_bson_string(VALUE self, VALUE encoded)
 }
 
 /**
+ * Check for illegal characters in string.
+ *
+ * @example Check for illegal characters.
+ *    rb_string_check_for_illegal_characters("test");
+ *
+ * @param [ String ] self The string value.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_string_check_for_illegal_characters(VALUE self)
+{
+  if (strlen(RSTRING_PTR(self)) != RSTRING_LEN(self))
+    rb_raise(rb_eEncodingError, "Illegal C-String contains a null byte.");
+  return self;
+}
+
+/**
  * Encode a false value to bson.
  *
  * @example Encode the false value.
@@ -654,6 +671,8 @@ void Init_native()
   rb_define_private_method(string, "to_utf8_binary", rb_string_to_bson_string, 1);
   rb_undef_method(string, "from_bson_string");
   rb_define_method(string, "from_bson_string", rb_bson_from_bson_string, 0);
+  rb_undef_method(string, "check_for_illegal_characters!");
+  rb_define_private_method(string, "check_for_illegal_characters!", rb_string_check_for_illegal_characters, 0);
 
   // Redefine the next method on the object id generator.
   rb_undef_method(generator, "next");
