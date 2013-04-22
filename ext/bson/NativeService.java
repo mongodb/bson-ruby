@@ -3,6 +3,7 @@ package org.bson;
 import java.io.IOException;
 
 import org.jruby.Ruby;
+import org.jruby.RubyModule;
 import org.jruby.runtime.load.BasicLibraryService;
 
 /**
@@ -12,6 +13,25 @@ import org.jruby.runtime.load.BasicLibraryService;
  */
 public class NativeService implements BasicLibraryService {
 
+  /**
+   * Constant for the BSON module name.
+   *
+   * @since 2.0.0
+   */
+  private final String BSON = "BSON".intern();
+
+  /**
+   * Constant for the Integer module name.
+   *
+   * @since 2.0.0
+   */
+  private final String INTEGER = "Integer".intern();
+
+  /**
+   * The Ruby runtime as the root to all extensions.
+   *
+   * @since 2.0.0
+   */
   private Ruby runtime;
 
   /**
@@ -27,6 +47,8 @@ public class NativeService implements BasicLibraryService {
    */
   public boolean basicLoad(Ruby runtime) throws IOException {
     this.runtime = runtime;
+    RubyModule bson = runtime.fastGetModule(BSON);
+    RubyModule integer = bson.defineOrGetModuleUnder(INTEGER);
     return true;
   }
 }
