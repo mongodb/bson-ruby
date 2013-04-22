@@ -118,7 +118,7 @@ begin
   if jruby?
     # Java extenstions would be packaged in a native.jar with a Java Buffer
     # implementation.
-    require "bson/native.jar"
+    require "bson/NativeService.jar"
   else
     # C extensions would be packed in a bundle called native with a C buffer
     # implementation.

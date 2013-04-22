@@ -7,10 +7,24 @@ require "rake"
 require "rake/extensiontask"
 require "rspec/core/rake_task"
 
-Rake::ExtensionTask.new do |ext|
-  ext.name = "native"
-  ext.ext_dir = "ext/bson"
-  ext.lib_dir = "lib/bson"
+def jruby?
+  defined?(JRUBY_VERSION)
+end
+
+if jruby?
+  require "rake/javaextensiontask"
+  Rake::JavaExtensionTask.new do |ext|
+    ext.name = "NativeService"
+    ext.ext_dir = "ext/bson"
+    ext.lib_dir = "lib/bson"
+  end
+else
+  require "rake/extensiontask"
+  Rake::ExtensionTask.new do |ext|
+    ext.name = "native"
+    ext.ext_dir = "ext/bson"
+    ext.lib_dir = "lib/bson"
+  end
 end
 
 require "bson/version"
@@ -43,15 +57,11 @@ namespace :benchmark do
     benchmark!
   end
 
-  task :c => :compile do
-    puts "Benchmarking with C extensions..."
+  task :native => :compile do
+    puts "Benchmarking with native extensions..."
     require "bson"
     benchmark!
   end
 end
 
-if defined?(JRUBY_VERSION)
-  task :default => [ :clean, :spec ]
-else
-  task :default => [ :clean, :spec, :compile, :rspec ]
-end
+task :default => [ :clean, :spec, :compile, :rspec ]
