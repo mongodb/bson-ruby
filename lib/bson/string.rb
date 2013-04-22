@@ -46,7 +46,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson_key(encoded = ''.force_encoding(BINARY))
-      #check_for_illegal_key_characters!
+      check_for_illegal_characters!
       to_bson_cstring(encoded)
     end
 
@@ -155,7 +155,7 @@ module BSON
 
     def check_for_illegal_characters!
       if include?(NULL_BYTE)
-        raise EncodingError.new("Illegal C-String '#{self}' contains a null byte.")
+        raise RuntimeError.new("Illegal C-String '#{self}' contains a null byte.")
       end
     end
 

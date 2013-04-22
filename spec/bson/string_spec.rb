@@ -50,7 +50,7 @@ describe String do
       it "raises an error" do
         expect {
           string.to_bson_cstring
-        }.to raise_error(EncodingError)
+        }.to raise_error(RuntimeError)
       end
     end
 
