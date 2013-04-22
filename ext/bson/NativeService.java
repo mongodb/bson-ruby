@@ -4,6 +4,10 @@ import java.io.IOException;
 
 import org.jruby.Ruby;
 import org.jruby.RubyModule;
+import org.jruby.RubyString;
+import org.jruby.anno.JRubyMethod;
+import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.runtime.load.BasicLibraryService;
 
 /**
@@ -33,7 +37,7 @@ public class NativeService implements BasicLibraryService {
    */
   public boolean basicLoad(Ruby runtime) throws IOException {
     RubyModule bson = runtime.fastGetModule(BSON);
-    new IntegerExtension(bson).redefine();
+    new IntegerExtension(runtime, bson).redefine();
     return true;
   }
 
@@ -42,7 +46,7 @@ public class NativeService implements BasicLibraryService {
    *
    * @since 2.0.0
    */
-  private class IntegerExtension {
+  public class IntegerExtension {
 
     /**
      * Constant for the Integer module name.
@@ -52,20 +56,29 @@ public class NativeService implements BasicLibraryService {
     private final String INTEGER = "Integer".intern();
 
     /**
+     * The Ruby runtime for the service.
+     *
+     * @since 2.0.0.
+     */
+    private final Ruby runtime;
+
+    /**
      * The service's integer module to operate on.
      *
      * @since 2.0.0
      */
-    private RubyModule integer;
+    private final RubyModule integer;
 
     /**
      * Instantiate a new integer extender.
      *
+     * @param runtime The Ruby runtime.
      * @param bson The parent BSON module.
      *
      * @since 2.0.0.
      */
-    private IntegerExtension(final RubyModule bson) {
+    private IntegerExtension(final Ruby runtime, final RubyModule bson) {
+      this.runtime = runtime;
       this.integer = bson.defineOrGetModuleUnder(INTEGER);
     }
 
@@ -76,6 +89,30 @@ public class NativeService implements BasicLibraryService {
      */
     public void redefine() {
       integer.defineAnnotatedMethods(IntegerExtension.class);
+    }
+
+    /**
+     * Encodes the integer to the raw BSON bytes.
+     *
+     * @param bytes The encoded bytes to append to.
+     *
+     * @return The encoded bytes.
+     *
+     * @since 2.0.0.
+     */
+    @JRubyMethod(name = "to_bson") public IRubyObject toBson(IRubyObject bytes) {
+      return bytes;
+    }
+
+    /**
+     * Encodes the integer to the raw BSON bytes.
+     *
+     * @return The encoded bytes.
+     *
+     * @since 2.0.0.
+     */
+    @JRubyMethod(name = "to_bson") public IRubyObject toBson() {
+      return RubyString.newEmptyString(runtime);
     }
   }
 }
