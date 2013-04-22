@@ -33,7 +33,7 @@ public class NativeService implements BasicLibraryService {
    */
   public boolean basicLoad(Ruby runtime) throws IOException {
     RubyModule bson = runtime.fastGetModule(BSON);
-    new IntegerExtender(bson).define();
+    new IntegerExtension(bson).redefine();
     return true;
   }
 
@@ -42,7 +42,7 @@ public class NativeService implements BasicLibraryService {
    *
    * @since 2.0.0
    */
-  private class IntegerExtender {
+  private class IntegerExtension {
 
     /**
      * Constant for the Integer module name.
@@ -65,19 +65,17 @@ public class NativeService implements BasicLibraryService {
      *
      * @since 2.0.0.
      */
-    private IntegerExtender(final RubyModule bson) {
+    private IntegerExtension(final RubyModule bson) {
       this.integer = bson.defineOrGetModuleUnder(INTEGER);
     }
 
     /**
      * Load the method definitions into the integer module.
      *
-     * @return True if the loading was successful.
-     *
      * @since 2.0.0.
      */
-    public boolean define() {
-      return true;
+    public void redefine() {
+      integer.defineAnnotatedMethods(IntegerExtension.class);
     }
   }
 }
