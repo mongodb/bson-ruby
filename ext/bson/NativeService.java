@@ -21,13 +21,6 @@ public class NativeService implements BasicLibraryService {
   private final String BSON = "BSON".intern();
 
   /**
-   * The Ruby runtime as the root to all extensions.
-   *
-   * @since 2.0.0
-   */
-  private Ruby runtime;
-
-  /**
    * Loads the native extension into the JRuby runtime.
    *
    * Example: service.basicLoad(ruby);
@@ -39,7 +32,6 @@ public class NativeService implements BasicLibraryService {
    * @since 2.0.0
    */
   public boolean basicLoad(Ruby runtime) throws IOException {
-    this.runtime = runtime;
     RubyModule bson = runtime.fastGetModule(BSON);
     new IntegerExtender(bson).define();
     return true;

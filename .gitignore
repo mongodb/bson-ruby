@@ -19,3 +19,4 @@ perf/profile.rb
 perf/*.pdf
 perf/*.profile
 perf/*.symbols
+*.jar
