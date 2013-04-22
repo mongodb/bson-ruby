@@ -491,7 +491,7 @@ static VALUE rb_integer_to_bson_int64(VALUE self, VALUE encoded)
 static VALUE rb_time_to_bson(int argc, VALUE *argv, VALUE self)
 {
   double t = NUM2DBL(rb_funcall(self, rb_intern("to_f"), 0));
-  int64_t milliseconds = (int64_t)round(t * 1000);
+  int64_t milliseconds = (int64_t)(t * 1000);
   VALUE encoded = rb_get_default_encoded(argc, argv);
   return int64_t_to_bson(milliseconds, encoded);
 }
