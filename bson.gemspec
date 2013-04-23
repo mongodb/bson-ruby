@@ -22,12 +22,12 @@ Gem::Specification.new do |s|
     warn "[#{s.name}] Warning: No private key present, creating unsigned gem."
   end
 
-  s.files = %w(CONTRIBUTING.md CHANGELOG.md LICENSE.md README.md Rakefile)
-  s.files += Dir.glob('lib/**/*')
-  s.extensions                = 'ext/bson/extconf.rb'
+  s.files      = %w(CONTRIBUTING.md CHANGELOG.md LICENSE.md README.md Rakefile)
+  s.files      += Dir.glob('lib/**/*')
+  s.extensions = 'ext/bson/extconf.rb' unless RUBY_PLATFORM =~ /java/
 
-  s.require_path = 'lib'
+  s.require_path              = 'lib'
   s.required_ruby_version     = '>= 1.8.7'
   s.required_rubygems_version = '>= 1.3.6'
-  s.has_rdoc     = 'yard'
+  s.has_rdoc                  = 'yard'
 end
