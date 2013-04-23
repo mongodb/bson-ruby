@@ -96,7 +96,7 @@ describe String do
       it_behaves_like "a binary encoded string"
     end
 
-    if ordered_hash_support?
+    unless ruby_18?
 
       context "when the string contains non utf-8 characters" do
 
@@ -200,7 +200,7 @@ describe String do
       it_behaves_like "a binary encoded string"
     end
 
-    if ordered_hash_support?
+    unless ruby_18?
 
       context "when the string contains non utf-8 characters" do
 

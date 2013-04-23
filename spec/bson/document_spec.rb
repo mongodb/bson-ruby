@@ -10,7 +10,7 @@ describe BSON::Document do
     {}
   end
   let(:enum_class) do
-    ordered_hash_support? ? Enumerator : Enumerable::Enumerator
+    ruby_18? ? Enumerable::Enumerator : Enumerator
   end
 
   before do
