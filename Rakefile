@@ -29,6 +29,10 @@ end
 
 require "bson/version"
 
+def extension
+  RUBY_PLATFORM =~ /darwin/ ? "bundle" : "so"
+end
+
 if RUBY_VERSION < "1.9"
   require "perf/bench"
 else
@@ -42,6 +46,18 @@ task :build do
   system "gem build bson.gemspec"
 end
 
+task :clean_all => :clean do
+  begin
+    Dir.chdir(Pathname(__FILE__).dirname + "lib/bson") do
+      `rm native.#{extension}`
+      `rm native.o`
+      `rm NativeService.jar`
+    end
+  rescue Exception => e
+    puts e.message
+  end
+end
+
 task :release => :build do
   system "git tag -a v#{BSON::VERSION} -m 'Tagging release: #{BSON::VERSION}'"
   system "git push --tags"
@@ -51,7 +67,7 @@ end
 
 namespace :benchmark do
 
-  task :ruby => :clean do
+  task :ruby => :clean_all do
     puts "Benchmarking pure Ruby..."
     require "bson"
     benchmark!
@@ -64,4 +80,4 @@ namespace :benchmark do
   end
 end
 
-task :default => [ :clean, :spec, :compile, :rspec ]
+task :default => [ :clean_all, :spec, :compile, :rspec ]
