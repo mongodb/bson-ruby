@@ -79,7 +79,7 @@ public class NativeService implements BasicLibraryService {
     @JRubyMethod(name = "to_bson")
     public static IRubyObject toBson(final IRubyObject integer) {
       final long value = ((RubyInteger) integer).getLongValue();
-      return RubyString.newString(integer.getRuntime(), toBsonInt32(value));
+      return toBsonInt32(integer.getRuntime(), value);
     }
 
     /**
@@ -95,39 +95,39 @@ public class NativeService implements BasicLibraryService {
     @JRubyMethod(name = "to_bson")
     public static IRubyObject toBson(final IRubyObject integer, final IRubyObject bytes) {
       final long value = ((RubyInteger) integer).getLongValue();
-      final RubyString encoded =
-        RubyString.newString(integer.getRuntime(), toBsonInt32(value));
-      return ((RubyString) bytes).append(encoded);
+      return ((RubyString) bytes).append(toBsonInt32(integer.getRuntime(), value));
     }
 
     /**
      * Take the 32bit value and convert it to it's little endian bytes.
      *
+     * @param runtime The JRuby runtime.
      * @param value The value to encode.
      *
      * @return The byte array.
      *
      * @since 2.0.0.
      */
-    private static byte[] toBsonInt32(final long value) {
+    private static RubyString toBsonInt32(final Ruby runtime, final long value) {
       final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN);
       buffer.putInt((int) value);
-      return buffer.array();
+      return RubyString.newString(runtime, buffer.array());
     }
 
     /**
      * Take the 64bit value and convert it to it's little endian bytes.
      *
+     * @param runtime The JRuby runtime.
      * @param value The value to encode.
      *
      * @return The byte array.
      *
      * @since 2.0.0.
      */
-    private static byte[] toBsonInt64(final long value) {
+    private static RubyString toBsonInt64(final Ruby runtime, final long value) {
       final ByteBuffer buffer = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
       buffer.putLong(value);
-      return buffer.array();
+      return RubyString.newString(runtime, buffer.array());
     }
   }
 }
