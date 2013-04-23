@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.jruby.Ruby;
 import org.jruby.RubyModule;
+import org.jruby.RubyInteger;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
@@ -27,8 +28,6 @@ public class NativeService implements BasicLibraryService {
   /**
    * Loads the native extension into the JRuby runtime.
    *
-   * Example: service.basicLoad(ruby);
-   *
    * @param runtime The Ruby runtime.
    *
    * @return Always returns true if no exception.
@@ -37,7 +36,7 @@ public class NativeService implements BasicLibraryService {
    */
   public boolean basicLoad(Ruby runtime) throws IOException {
     RubyModule bson = runtime.fastGetModule(BSON);
-    new IntegerExtension(runtime, bson).redefine();
+    IntegerExtension.extend(bson);
     return true;
   }
 
@@ -46,73 +45,56 @@ public class NativeService implements BasicLibraryService {
    *
    * @since 2.0.0
    */
-  public class IntegerExtension {
+  public static class IntegerExtension {
 
     /**
      * Constant for the Integer module name.
      *
      * @since 2.0.0
      */
-    private final String INTEGER = "Integer".intern();
-
-    /**
-     * The Ruby runtime for the service.
-     *
-     * @since 2.0.0.
-     */
-    private final Ruby runtime;
-
-    /**
-     * The service's integer module to operate on.
-     *
-     * @since 2.0.0
-     */
-    private final RubyModule integer;
-
-    /**
-     * Instantiate a new integer extender.
-     *
-     * @param runtime The Ruby runtime.
-     * @param bson The parent BSON module.
-     *
-     * @since 2.0.0.
-     */
-    private IntegerExtension(final Ruby runtime, final RubyModule bson) {
-      this.runtime = runtime;
-      this.integer = bson.defineOrGetModuleUnder(INTEGER);
-    }
+    private static final String INTEGER = "Integer".intern();
 
     /**
      * Load the method definitions into the integer module.
      *
+     * @param bson The bson module to define the methods under.
+     *
      * @since 2.0.0.
      */
-    public void redefine() {
+    public static void extend(final RubyModule bson) {
+      RubyModule integer = bson.defineOrGetModuleUnder(INTEGER);
       integer.defineAnnotatedMethods(IntegerExtension.class);
     }
 
     /**
      * Encodes the integer to the raw BSON bytes.
      *
-     * @param bytes The encoded bytes to append to.
+     * @param integer The instance of the integer object.
      *
      * @return The encoded bytes.
      *
      * @since 2.0.0.
      */
-    @JRubyMethod(name = "to_bson") public IRubyObject toBson(IRubyObject bytes) {
-      return bytes;
+    @JRubyMethod(name = "to_bson")
+    public static IRubyObject toBson(IRubyObject integer) {
+      // @todo: Durran: Implement.
+      return RubyString.newEmptyString(integer.getRuntime());
     }
 
     /**
      * Encodes the integer to the raw BSON bytes.
      *
+     * @param integer The instance of the integer object.
+     * @param bytes The bytes to encode to.
+     *
      * @return The encoded bytes.
      *
      * @since 2.0.0.
      */
-    @JRubyMethod(name = "to_bson") public IRubyObject toBson() {
-      return RubyString.newEmptyString(runtime);
+    @JRubyMethod(name = "to_bson")
+    public static IRubyObject toBson(IRubyObject integer, IRubyObject bytes) {
+      // @todo: Durran: Implement.
+      return RubyString.newEmptyString(integer.getRuntime());
     }
   }
 }
