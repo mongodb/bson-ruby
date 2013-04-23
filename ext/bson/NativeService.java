@@ -79,7 +79,7 @@ public class NativeService implements BasicLibraryService {
     @JRubyMethod(name = "to_bson")
     public static IRubyObject toBson(final IRubyObject integer) {
       final long value = ((RubyInteger) integer).getLongValue();
-      return toBsonInt32(integer.getRuntime(), value);
+      return toBsonInt(integer.getRuntime(), value);
     }
 
     /**
@@ -95,7 +95,34 @@ public class NativeService implements BasicLibraryService {
     @JRubyMethod(name = "to_bson")
     public static IRubyObject toBson(final IRubyObject integer, final IRubyObject bytes) {
       final long value = ((RubyInteger) integer).getLongValue();
-      return ((RubyString) bytes).append(toBsonInt32(integer.getRuntime(), value));
+      return ((RubyString) bytes).append(toBsonInt(integer.getRuntime(), value));
+    }
+
+    /**
+     * Convert the integer to the raw bson.
+     *
+     * @param runtime The JRuby runtime.
+     * @param value The integer value.
+     *
+     * @return The encoded bytes.
+     *
+     * @since 2.0.0.
+     */
+    private static RubyString toBsonInt(final Ruby runtime, final long value) {
+      return isInt32(value) ? toBsonInt32(runtime, value) : toBsonInt64(runtime, value);
+    }
+
+    /**
+     * Determine if the integer is 32bit.
+     *
+     * @param value The integer value.
+     *
+     * @return If the integer is in 32bit range.
+     *
+     * @since 2.0.0
+     */
+    private static boolean isInt32(final long value) {
+      return (Integer.MIN_VALUE <= value && value <= Integer.MAX_VALUE);
     }
 
     /**
