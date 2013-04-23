@@ -1,13 +1,14 @@
 package org.bson;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import org.jruby.Ruby;
 import org.jruby.RubyModule;
 import org.jruby.RubyInteger;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.runtime.load.BasicLibraryService;
 
@@ -34,7 +35,7 @@ public class NativeService implements BasicLibraryService {
    *
    * @since 2.0.0
    */
-  public boolean basicLoad(Ruby runtime) throws IOException {
+  public boolean basicLoad(final Ruby runtime) throws IOException {
     RubyModule bson = runtime.fastGetModule(BSON);
     IntegerExtension.extend(bson);
     return true;
@@ -76,9 +77,9 @@ public class NativeService implements BasicLibraryService {
      * @since 2.0.0.
      */
     @JRubyMethod(name = "to_bson")
-    public static IRubyObject toBson(IRubyObject integer) {
-      // @todo: Durran: Implement.
-      return RubyString.newEmptyString(integer.getRuntime());
+    public static IRubyObject toBson(final IRubyObject integer) {
+      final long value = ((RubyInteger) integer).getLongValue();
+      return RubyString.newString(integer.getRuntime(), toBsonInt32(value));
     }
 
     /**
@@ -92,9 +93,38 @@ public class NativeService implements BasicLibraryService {
      * @since 2.0.0.
      */
     @JRubyMethod(name = "to_bson")
-    public static IRubyObject toBson(IRubyObject integer, IRubyObject bytes) {
-      // @todo: Durran: Implement.
+    public static IRubyObject toBson(final IRubyObject integer, final IRubyObject bytes) {
       return RubyString.newEmptyString(integer.getRuntime());
+    }
+
+    /**
+     * Take the 32bit value and convert it to it's little endian bytes.
+     *
+     * @param value The value to encode.
+     *
+     * @return The byte array.
+     *
+     * @since 2.0.0.
+     */
+    private static byte[] toBsonInt32(final long value) {
+      final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN);
+      buffer.putInt((int) value);
+      return buffer.array();
+    }
+
+    /**
+     * Take the 64bit value and convert it to it's little endian bytes.
+     *
+     * @param value The value to encode.
+     *
+     * @return The byte array.
+     *
+     * @since 2.0.0.
+     */
+    private static byte[] toBsonInt64(final long value) {
+      final ByteBuffer buffer = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
+      buffer.putLong(value);
+      return buffer.array();
     }
   }
 }
