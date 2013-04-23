@@ -94,7 +94,10 @@ public class NativeService implements BasicLibraryService {
      */
     @JRubyMethod(name = "to_bson")
     public static IRubyObject toBson(final IRubyObject integer, final IRubyObject bytes) {
-      return RubyString.newEmptyString(integer.getRuntime());
+      final long value = ((RubyInteger) integer).getLongValue();
+      final RubyString encoded =
+        RubyString.newString(integer.getRuntime(), toBsonInt32(value));
+      return ((RubyString) bytes).append(encoded);
     }
 
     /**

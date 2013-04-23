@@ -125,7 +125,7 @@ begin
   if jruby?
     # require "bson/NativeService.jar"
     # @todo: Durran: include when exceptions fixed.
-    # org.bson.NativeService.new.basicLoad(JRuy.runtime)
+    # org.bson.NativeService.new.basicLoad(JRuby.runtime)
   else
     require "bson/native"
   end
