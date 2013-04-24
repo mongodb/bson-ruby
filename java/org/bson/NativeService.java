@@ -31,6 +31,7 @@ public class NativeService implements BasicLibraryService {
    */
   public boolean basicLoad(final Ruby runtime) throws IOException {
     RubyModule bson = runtime.fastGetModule(BSON);
+    FloatExtension.extend(bson);
     IntegerExtension.extend(bson);
     return true;
   }
