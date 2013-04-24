@@ -29,7 +29,7 @@ public class IntegerExtension {
    *
    * @param bson The bson module to define the methods under.
    *
-   * @since 2.0.0.
+   * @since 2.0.0
    */
   public static void extend(final RubyModule bson) {
     RubyModule integer = bson.defineOrGetModuleUnder(INTEGER);
@@ -43,7 +43,7 @@ public class IntegerExtension {
    *
    * @return The encoded bytes.
    *
-   * @since 2.0.0.
+   * @since 2.0.0
    */
   @JRubyMethod(name = "to_bson")
   public static IRubyObject toBson(final IRubyObject integer) {
@@ -59,7 +59,7 @@ public class IntegerExtension {
    *
    * @return The encoded bytes.
    *
-   * @since 2.0.0.
+   * @since 2.0.0
    */
   @JRubyMethod(name = "to_bson")
   public static IRubyObject toBson(final IRubyObject integer, final IRubyObject bytes) {
@@ -75,7 +75,7 @@ public class IntegerExtension {
    *
    * @return The encoded bytes.
    *
-   * @since 2.0.0.
+   * @since 2.0.0
    */
   private static RubyString toBsonInt(final Ruby runtime, final long value) {
     return isInt32(value) ? toBsonInt32(runtime, value) : toBsonInt64(runtime, value);
@@ -102,7 +102,7 @@ public class IntegerExtension {
    *
    * @return The byte array.
    *
-   * @since 2.0.0.
+   * @since 2.0.0
    */
   private static RubyString toBsonInt32(final Ruby runtime, final long value) {
     final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN);
@@ -118,7 +118,7 @@ public class IntegerExtension {
    *
    * @return The byte array.
    *
-   * @since 2.0.0.
+   * @since 2.0.0
    */
   private static RubyString toBsonInt64(final Ruby runtime, final long value) {
     final ByteBuffer buffer = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);

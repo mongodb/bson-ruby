@@ -29,7 +29,7 @@ public class FloatExtension {
    *
    * @param bson The bson module to define the methods under.
    *
-   * @since 2.0.0.
+   * @since 2.0.0
    */
   public static void extend(final RubyModule bson) {
     RubyModule floatMod = bson.defineOrGetModuleUnder(FLOAT);
@@ -43,7 +43,7 @@ public class FloatExtension {
    *
    * @return The encoded bytes.
    *
-   * @since 2.0.0.
+   * @since 2.0.0
    */
   @JRubyMethod(name = "to_bson")
   public static IRubyObject toBson(final IRubyObject number) {
@@ -59,7 +59,7 @@ public class FloatExtension {
    *
    * @return The encoded bytes.
    *
-   * @since 2.0.0.
+   * @since 2.0.0
    */
   @JRubyMethod(name = "to_bson")
   public static IRubyObject toBson(final IRubyObject number, final IRubyObject bytes) {
@@ -75,7 +75,7 @@ public class FloatExtension {
    *
    * @return The byte array.
    *
-   * @since 2.0.0.
+   * @since 2.0.0
    */
   private static RubyString toBsonDouble(final Ruby runtime, final double value) {
     final ByteBuffer buffer = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
