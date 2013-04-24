@@ -15,7 +15,7 @@ if jruby?
   require "rake/javaextensiontask"
   Rake::JavaExtensionTask.new do |ext|
     ext.name = "NativeService"
-    ext.ext_dir = "ext/bson"
+    ext.ext_dir = "java"
     ext.lib_dir = "lib/bson"
   end
 else
