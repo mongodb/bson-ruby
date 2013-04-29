@@ -33,6 +33,7 @@ public class NativeService implements BasicLibraryService {
     RubyModule bson = runtime.fastGetModule(BSON);
     BooleanExtension.extend(bson);
     FloatExtension.extend(bson);
+    GeneratorExtension.extend(bson);
     IntegerExtension.extend(bson);
     return true;
   }
