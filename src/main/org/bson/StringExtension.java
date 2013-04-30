@@ -1,7 +1,5 @@
 package org.bson;
 
-import java.math.BigInteger;
-
 import org.jruby.Ruby;
 import org.jruby.RubyModule;
 import org.jruby.RubyString;
