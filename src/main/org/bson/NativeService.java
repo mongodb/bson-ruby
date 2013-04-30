@@ -35,6 +35,7 @@ public class NativeService implements BasicLibraryService {
     FloatExtension.extend(bson);
     GeneratorExtension.extend(bson);
     IntegerExtension.extend(bson);
+    StringExtension.extend(bson);
     return true;
   }
 }

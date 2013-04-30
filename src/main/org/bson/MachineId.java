@@ -64,10 +64,11 @@ public class MachineId {
    * @since 2.0.0
    */
   private int generateProcessId() {
-    final String processId = new String();
+    String processId = new String();
     int pid = ManagementFactory.getRuntimeMXBean().getName().hashCode();
     int loader = System.identityHashCode(MachineId.class.getClassLoader());
-    processId.concat(Integer.toHexString(pid)).concat(Integer.toHexString(loader));
+    processId += Integer.toHexString(pid);
+    processId += Integer.toHexString(loader);
     return processId.hashCode() & 0xFFFF;
   }
 
@@ -79,10 +80,10 @@ public class MachineId {
    * @since 2.0.0
    */
   private int networkInterfaces() throws SocketException {
-    final String machineId = new String();
+    String machineId = new String();
     Enumeration interfaces = NetworkInterface.getNetworkInterfaces();
     while (interfaces.hasMoreElements()) {
-      machineId.concat(interfaces.nextElement().toString());
+      machineId += interfaces.nextElement().toString();
     }
     return machineId.hashCode() & 0xFFFF;
   }
