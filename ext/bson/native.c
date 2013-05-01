@@ -1,3 +1,4 @@
+#include <arpa/inet.h>
 #include <ruby.h>
 #include <stdint.h>
 #include <time.h>
