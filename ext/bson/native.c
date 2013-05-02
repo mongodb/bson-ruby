@@ -73,7 +73,7 @@ static VALUE bson_utf8;
 static VALUE rb_bson_to_utf8_binary(VALUE string)
 {
   VALUE utf8 = rb_str_encode(string, bson_utf8, 0, Qnil);
-  return rb_enc_associate(utf8, rb_usascii_encoding());
+  return rb_enc_associate(utf8, rb_ascii8bit_encoding());
 }
 
 /**
@@ -188,9 +188,7 @@ static unsigned long rb_current_time_milliseconds()
  */
 static VALUE rb_str_new_encoded_binary(void)
 {
-  VALUE encoded = rb_str_new2("");
-  rb_funcall(encoded, rb_intern("force_encoding"), 1, bson_binary, 0);
-  return encoded;
+  return rb_enc_str_new("", 0, rb_ascii8bit_encoding());
 }
 
 /**
