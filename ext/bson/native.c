@@ -37,6 +37,20 @@
 #endif
 
 /**
+ * BSON::BINARY
+ *
+ * @since 2.0.0
+ */
+static VALUE bson_binary;
+
+/**
+ * BSON::UTF8
+ *
+ * @since 2.0.0
+ */
+static VALUE bson_utf8;
+
+/**
  * Define encoding macros to be able to support 1.8.
  *
  * @since 2.0.0
@@ -58,7 +72,7 @@
  */
 static VALUE rb_bson_to_utf8_binary(VALUE string)
 {
-  VALUE utf8 = rb_str_encode(string, rb_str_new("UTF-8", 5), 0, Qnil);
+  VALUE utf8 = rb_str_encode(string, bson_utf8, 0, Qnil);
   return rb_enc_associate(utf8, rb_usascii_encoding());
 }
 
@@ -128,13 +142,6 @@ static const char rb_bson_null_byte = 0;
  * @since 2.0.0
  */
 static const char rb_bson_true_byte = 1;
-
-/**
- * BSON::BINARY
- *
- * @since 2.0.0
- */
-static VALUE bson_binary;
 
 /**
  * Holds the machine id for object id generation.
@@ -631,6 +638,7 @@ void Init_native()
   VALUE true_class = rb_const_get(bson, rb_intern("TrueClass"));
   VALUE false_class = rb_const_get(bson, rb_intern("FalseClass"));
   bson_binary = rb_const_get(bson, rb_intern("BINARY"));
+  bson_utf8 = rb_const_get(bson, rb_intern("UTF8"));
 
   // Get the object id machine id.
   gethostname(rb_bson_machine_id, sizeof rb_bson_machine_id);
