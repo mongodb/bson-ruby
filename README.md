@@ -8,6 +8,137 @@ Compatibility
 
 BSON is tested against MRI (1.8.7+), JRuby (1.5.0+), Rubinius (2.0.0+), and REE.
 
+Installation
+------------
+
+With bundler, add the `bson` gem to your `Gemfile`. As of 2.0.0 native extensions
+are bundled with the `bson` gem and `bson_ext` is no longer needed.
+
+```ruby
+gem "bson", "~> 2.0"
+```
+
+Require the `bson` gem in your application.
+
+```ruby
+require "bson"
+```
+
+Usage
+-----
+
+Getting a Ruby object's raw BSON representation is done by calling `to_bson`
+on the Ruby object. For example:
+
+```ruby
+"Shall I compare thee to a summer's day".to_bson
+1024.to_bson
+```
+
+Generating an object from BSON is done via calling `from_bson` on the class
+you wish to instantiate and passing it the `StringIO` bytes.
+
+```ruby
+String.from_bson(string_io)
+Int32.from_bson(string_io)
+```
+
+Core Ruby object's that have representations in the BSON specification and
+will have a `to_bson` method defined for them are:
+
+- `Array`
+- `FalseClass`
+- `Float`
+- `Hash`
+- `Integer`
+- `NilClass`
+- `Regexp`
+- `String`
+- `Symbol` (deprecated)
+- `Time`
+- `TrueClass`
+
+In addition to the core Ruby objects, BSON also provides some special types
+specific to the specification:
+
+# `BSON::Binary`
+
+This is a representation of binary data, and must provide the raw data and
+a subtype when constructing.
+
+```ruby
+BSON::Binary.new(binary_data, :md5)
+```
+
+Valid subtypes are: `:generic`, `:function`, `:old`, `:uuid_old`, `:uuid`,
+`:md5`, `:user`.
+
+# `BSON::Code`
+
+Represents a string of Javascript code.
+
+```ruby
+BSON::Code.new("this.value = 5;")
+```
+
+# `BSON::CodeWithScope`
+
+Represents a string of Javascript code with a hash of values.
+
+```ruby
+BSON::CodeWithScope.new("this.value = age;", age: 5)
+```
+
+# `BSON::Document`
+
+This is a special ordered hash for use with Ruby below 1.9, and is simply
+a subclass of a Ruby hash in 1.9 and higher.
+
+```ruby
+BSON::Document[:key, "value"]
+BSON::Document.new
+```
+
+# `BSON::MaxKey`
+
+Represents a value in BSON that will always compare higher to another value.
+
+```ruby
+BSON::MaxKey.new
+```
+
+# `BSON::MinKey`
+
+Represents a value in BSON that will always compare lower to another value.
+
+```ruby
+BSON::MinKey.new
+```
+
+# `BSON::ObjectId`
+
+Represents a 12 byte unique identifier for an object on a given machine.
+
+```ruby
+BSON::ObjectId.new
+```
+
+# `BSON::Timestamp`
+
+Represents a special time with a start and increment value.
+
+```ruby
+BSON::Timestamp.new(5, 30)
+```
+
+# `BSON::Undefined`
+
+Represents a placeholder for a value that was not provided.
+
+```ruby
+BSON::Undefined.new
+```
+
 Documentation
 -------------
 

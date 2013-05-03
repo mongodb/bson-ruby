@@ -676,7 +676,8 @@ void Init_native()
   rb_undef_method(float_class, "from_bson_double");
   rb_define_private_method(float_class, "from_bson_double", rb_float_from_bson_double, 1);
 
-  // Boolean optimizations.
+  // Boolean optimizations - deserialization has no benefit so we provide
+  // no extensions there.
   rb_undef_method(true_class, "to_bson");
   rb_define_method(true_class, "to_bson", rb_true_class_to_bson, -1);
   rb_undef_method(false_class, "to_bson");
