@@ -27,6 +27,8 @@ require "bson"
 Usage
 -----
 
+# BSON Serialization
+
 Getting a Ruby object's raw BSON representation is done by calling `to_bson`
 on the Ruby object. For example:
 
@@ -61,7 +63,7 @@ will have a `to_bson` method defined for them are:
 In addition to the core Ruby objects, BSON also provides some special types
 specific to the specification:
 
-# `BSON::Binary`
+## `BSON::Binary`
 
 This is a representation of binary data, and must provide the raw data and
 a subtype when constructing.
@@ -73,7 +75,7 @@ BSON::Binary.new(binary_data, :md5)
 Valid subtypes are: `:generic`, `:function`, `:old`, `:uuid_old`, `:uuid`,
 `:md5`, `:user`.
 
-# `BSON::Code`
+## `BSON::Code`
 
 Represents a string of Javascript code.
 
@@ -81,7 +83,7 @@ Represents a string of Javascript code.
 BSON::Code.new("this.value = 5;")
 ```
 
-# `BSON::CodeWithScope`
+## `BSON::CodeWithScope`
 
 Represents a string of Javascript code with a hash of values.
 
@@ -89,7 +91,7 @@ Represents a string of Javascript code with a hash of values.
 BSON::CodeWithScope.new("this.value = age;", age: 5)
 ```
 
-# `BSON::Document`
+## `BSON::Document`
 
 This is a special ordered hash for use with Ruby below 1.9, and is simply
 a subclass of a Ruby hash in 1.9 and higher.
@@ -99,7 +101,7 @@ BSON::Document[:key, "value"]
 BSON::Document.new
 ```
 
-# `BSON::MaxKey`
+## `BSON::MaxKey`
 
 Represents a value in BSON that will always compare higher to another value.
 
@@ -107,7 +109,7 @@ Represents a value in BSON that will always compare higher to another value.
 BSON::MaxKey.new
 ```
 
-# `BSON::MinKey`
+## `BSON::MinKey`
 
 Represents a value in BSON that will always compare lower to another value.
 
@@ -115,7 +117,7 @@ Represents a value in BSON that will always compare lower to another value.
 BSON::MinKey.new
 ```
 
-# `BSON::ObjectId`
+## `BSON::ObjectId`
 
 Represents a 12 byte unique identifier for an object on a given machine.
 
@@ -123,7 +125,7 @@ Represents a 12 byte unique identifier for an object on a given machine.
 BSON::ObjectId.new
 ```
 
-# `BSON::Timestamp`
+## `BSON::Timestamp`
 
 Represents a special time with a start and increment value.
 
@@ -131,13 +133,28 @@ Represents a special time with a start and increment value.
 BSON::Timestamp.new(5, 30)
 ```
 
-# `BSON::Undefined`
+## `BSON::Undefined`
 
 Represents a placeholder for a value that was not provided.
 
 ```ruby
 BSON::Undefined.new
 ```
+
+# JSON Serialization
+
+Some BSON types have special representations in JSON. These are as follows
+and will be automatically serialized in the form when calling `to_json` on
+them.
+
+- `BSON::Binary`: `{ "$binary" : "\x01", "$type" : "md5" }`
+- `BSON::Code`: `{ "$code" : "this.v = 5 }`
+- `BSON::CodeWithScope`: `{ "$code" : "this.v = value", "$scope" : { v => 5 }}`
+- `BSON::MaxKey`: `{ "$maxKey" : 1 }`
+- `BSON::MinKey`: `{ "$minKey" : 1 }`
+- `BSON::ObjectId`: `{ "$oid" : "4e4d66343b39b68407000001" }`
+- `BSON::Timestamp`: `{ "t" : 5, "i" : 30 }`
+- `Regexp`: `{ "$regex" : "[abc]", "$options" : "i" }`
 
 Documentation
 -------------
