@@ -36,6 +36,17 @@
 #define HOST_NAME_MAX 256
 #endif
 
+#define BSON_INDEX_SIZE 1024
+#define BSON_INDEX_CHAR_SIZE 5
+#define INTEGER_CHAR_SIZE 22
+
+/**
+ * Constant for the intetger array indexes.
+ *
+ * @since 2.0.0
+ */
+static char rb_bson_array_indexes[BSON_INDEX_SIZE][BSON_INDEX_CHAR_SIZE];
+
 /**
  * BSON::BINARY
  *
@@ -340,10 +351,6 @@ static VALUE rb_integer_to_bson_int32(VALUE self, VALUE encoded)
   return rb_str_cat(encoded, bytes, 4);
 }
 
-#define BSON_INDEX_SIZE 1024
-#define BSON_INDEX_CHAR_SIZE 5
-static char rb_bson_array_indexes[BSON_INDEX_SIZE][BSON_INDEX_CHAR_SIZE];
-
 /**
  * Initialize the bson array index for integers.
  *
@@ -359,8 +366,6 @@ static void rb_bson_init_integer_bson_array_indexes(void)
     snprintf(rb_bson_array_indexes[i], BSON_INDEX_CHAR_SIZE, "%d", i);
   }
 }
-
-#define INTEGER_CHAR_SIZE 22
 
 /**
  * Convert the Ruby integer into a character string and append with nullchar to encoded BSON.
