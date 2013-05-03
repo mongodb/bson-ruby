@@ -655,7 +655,7 @@ void Init_native()
   gethostname(rb_bson_machine_id, sizeof rb_bson_machine_id);
   rb_bson_machine_id[HOST_NAME_MAX - 1] = '\0';
 
-  // Redefine the serialization methods on the Integer class.
+  // Integer optimizations.
   rb_undef_method(integer, "to_bson_int32");
   rb_define_method(integer, "to_bson_int32", rb_integer_to_bson_int32, 1);
   rb_undef_method(integer, "to_bson_int64");
@@ -665,26 +665,28 @@ void Init_native()
   rb_bson_init_integer_bson_array_indexes();
   rb_undef_method(integer, "to_bson_key");
   rb_define_method(integer, "to_bson_key", rb_integer_to_bson_key, -1);
+  rb_undef_method(int32_class, "from_bson_int32");
+  rb_define_private_method(int32_class, "from_bson_int32", rb_integer_from_bson_int32, 1);
+  rb_undef_method(int64_class, "from_bson_int64");
+  rb_define_private_method(int64_class, "from_bson_int64", rb_integer_from_bson_int64, 1);
 
-  // Redefine float's to_bson, from_bson.
+  // Float optimizations.
   rb_undef_method(floats, "to_bson");
   rb_define_method(floats, "to_bson", rb_float_to_bson, -1);
   rb_undef_method(float_class, "from_bson_double");
   rb_define_private_method(float_class, "from_bson_double", rb_float_from_bson_double, 1);
 
-  // Redefine deserialization methods on Int32 class.
-  rb_undef_method(int32_class, "from_bson_int32");
-  rb_define_private_method(int32_class, "from_bson_int32", rb_integer_from_bson_int32, 1);
-
-  // Redefine deserialization methods on Int64 class.
-  rb_undef_method(int64_class, "from_bson_int64");
-  rb_define_private_method(int64_class, "from_bson_int64", rb_integer_from_bson_int64, 1);
+  // Boolean optimizations.
+  rb_undef_method(true_class, "to_bson");
+  rb_define_method(true_class, "to_bson", rb_true_class_to_bson, -1);
+  rb_undef_method(false_class, "to_bson");
+  rb_define_method(false_class, "to_bson", rb_false_class_to_bson, -1);
 
   // Redefine the serialization methods on the time class.
   rb_undef_method(time, "to_bson");
   rb_define_method(time, "to_bson", rb_time_to_bson, -1);
 
-  // Redefine methods on the String class.
+  // String optimizations.
   rb_undef_method(string, "set_int32");
   rb_define_method(string, "set_int32", rb_string_set_int32, 2);
   rb_undef_method(string, "to_utf8_binary");
@@ -697,12 +699,4 @@ void Init_native()
   // Redefine the next method on the object id generator.
   rb_undef_method(generator, "next");
   rb_define_method(generator, "next", rb_object_id_generator_next, -1);
-
-  // Redefine the to_bson method on TrueClass.
-  rb_undef_method(true_class, "to_bson");
-  rb_define_method(true_class, "to_bson", rb_true_class_to_bson, -1);
-
-  // Redefine the to_bson method on FalseClass.
-  rb_undef_method(false_class, "to_bson");
-  rb_define_method(false_class, "to_bson", rb_false_class_to_bson, -1);
 }
