@@ -156,10 +156,16 @@ them.
 - `BSON::Timestamp`: `{ "t" : 5, "i" : 30 }`
 - `Regexp`: `{ "$regex" : "[abc]", "$options" : "i" }`
 
-Documentation
--------------
+API Documentation
+-----------------
 
-Please see the [BSON specification](http://bsonspec.org) and the [API Documentation](http://rdoc.info/github/mongodb/bson-ruby/master/frames).
+The [API Documentation](http://rdoc.info/github/mongodb/bson-ruby/master/frames) is
+located at rdoc.info.
+
+BSON Specification
+------------------
+
+The [BSON specification](http://bsonspec.org) is at bsonspec.org.
 
 License
 -------
