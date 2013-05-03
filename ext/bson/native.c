@@ -342,13 +342,21 @@ static VALUE rb_integer_to_bson_int32(VALUE self, VALUE encoded)
 
 #define BSON_INDEX_SIZE 1024
 #define BSON_INDEX_CHAR_SIZE 5
-static char bson_array_indexes[BSON_INDEX_SIZE][BSON_INDEX_CHAR_SIZE];
+static char rb_bson_array_indexes[BSON_INDEX_SIZE][BSON_INDEX_CHAR_SIZE];
 
-static void init_integer_bson_array_indexes(void)
+/**
+ * Initialize the bson array index for integers.
+ *
+ * @example Initialize the array.
+ *    rb_bson_init_integer_bson_array_indexes();
+ *
+ * @since 2.0.0
+ */
+static void rb_bson_init_integer_bson_array_indexes(void)
 {
   int i;
   for (i = 0; i < BSON_INDEX_SIZE; i++) {
-    snprintf(bson_array_indexes[i], BSON_INDEX_CHAR_SIZE, "%d", i);
+    snprintf(rb_bson_array_indexes[i], BSON_INDEX_CHAR_SIZE, "%d", i);
   }
 }
 
@@ -374,7 +382,7 @@ static VALUE rb_integer_to_bson_key(int argc, VALUE *argv, VALUE self)
   VALUE encoded = rb_get_default_encoded(argc, argv);
   int length;
   if (v < BSON_INDEX_SIZE)
-    return rb_str_cat(encoded, bson_array_indexes[v], strlen(bson_array_indexes[v]) + 1);
+    return rb_str_cat(encoded, rb_bson_array_indexes[v], strlen(rb_bson_array_indexes[v]) + 1);
   length = snprintf(bytes, INTEGER_CHAR_SIZE, "%ld", (long)v);
   return rb_str_cat(encoded, bytes, length + 1);
 }
@@ -649,7 +657,7 @@ void Init_native()
   rb_define_method(integer, "to_bson_int64", rb_integer_to_bson_int64, 1);
   rb_undef_method(integer, "bson_int32?");
   rb_define_method(integer, "bson_int32?", rb_integer_is_bson_int32, 0);
-  init_integer_bson_array_indexes();
+  rb_bson_init_integer_bson_array_indexes();
   rb_undef_method(integer, "to_bson_key");
   rb_define_method(integer, "to_bson_key", rb_integer_to_bson_key, -1);
 
