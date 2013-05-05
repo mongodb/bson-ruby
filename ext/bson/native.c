@@ -36,6 +36,11 @@
 #define HOST_NAME_MAX 256
 #endif
 
+/**
+ * Define index sizes for array serialization.
+ *
+ * @since 2.0.0
+ */
 #define BSON_INDEX_SIZE 1024
 #define BSON_INDEX_CHAR_SIZE 5
 #define INTEGER_CHAR_SIZE 22
@@ -52,14 +57,14 @@ static char rb_bson_array_indexes[BSON_INDEX_SIZE][BSON_INDEX_CHAR_SIZE];
  *
  * @since 2.0.0
  */
-static VALUE bson_binary;
+static VALUE rb_bson_binary;
 
 /**
  * BSON::UTF8
  *
  * @since 2.0.0
  */
-static VALUE bson_utf8;
+static VALUE rb_bson_utf8_string;
 
 /**
  * Define encoding macros to be able to support 1.8.
@@ -83,7 +88,7 @@ static VALUE bson_utf8;
  */
 static VALUE rb_bson_to_utf8_binary(VALUE string)
 {
-  VALUE utf8 = rb_str_encode(string, bson_utf8, 0, Qnil);
+  VALUE utf8 = rb_str_encode(string, rb_bson_utf8_string, 0, Qnil);
   return rb_enc_associate(utf8, rb_ascii8bit_encoding());
 }
 
@@ -660,8 +665,9 @@ void Init_native()
   VALUE string = rb_const_get(bson, rb_intern("String"));
   VALUE true_class = rb_const_get(bson, rb_intern("TrueClass"));
   VALUE false_class = rb_const_get(bson, rb_intern("FalseClass"));
-  bson_binary = rb_const_get(bson, rb_intern("BINARY"));
-  bson_utf8 = rb_const_get(bson, rb_intern("UTF8"));
+  rb_bson_binary = rb_const_get(bson, rb_intern("BINARY"));
+  rb_bson_utf8_string = rb_const_get(bson, rb_intern("UTF8"));
+  rb_binary_encoding = rb_ascii8bit_encoding();
 
   // Get the object id machine id.
   gethostname(rb_bson_machine_id, sizeof rb_bson_machine_id);
