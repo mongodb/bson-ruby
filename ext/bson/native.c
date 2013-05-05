@@ -261,7 +261,6 @@ static VALUE rb_float_from_bson_double(VALUE self, VALUE value)
 {
   const char * bytes;
   double v;
-  StringValue(value);
   bytes = RSTRING_PTR(value);
   memcpy(&v, bytes, RSTRING_LEN(value));
   return DBL2NUM(v);
@@ -430,7 +429,6 @@ static VALUE rb_integer_from_bson_int64(VALUE self, VALUE bson)
   uint8_t *v;
   uint32_t byte_0, byte_1, byte_2, byte_3;
   int64_t lower, upper;
-  StringValue(bson);
   v = (uint8_t*) RSTRING_PTR(bson);
   byte_0 = v[0];
   byte_1 = v[1];
@@ -561,8 +559,7 @@ static VALUE rb_string_set_int32(VALUE str, VALUE pos, VALUE an_int32)
  */
 static VALUE rb_string_to_bson_string(VALUE self, VALUE encoded)
 {
-  VALUE binary = rb_bson_to_utf8_binary(self);
-  StringValue(binary);
+  const VALUE binary = rb_bson_to_utf8_binary(self);
   rb_str_cat(encoded, RSTRING_PTR(binary), RSTRING_LEN(binary));
   return encoded;
 }
@@ -579,7 +576,7 @@ static VALUE rb_string_to_bson_string(VALUE self, VALUE encoded)
  */
 static VALUE rb_string_check_for_illegal_characters(VALUE self)
 {
-  if (strlen(RSTRING_PTR(self)) != (size_t)RSTRING_LEN(self))
+  if (strlen(RSTRING_PTR(self)) != (size_t) RSTRING_LEN(self))
     rb_raise(rb_eRuntimeError, "Illegal C-String contains a null byte.");
   return self;
 }
