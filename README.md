@@ -27,7 +27,7 @@ require "bson"
 Usage
 -----
 
-# BSON Serialization
+## BSON Serialization
 
 Getting a Ruby object's raw BSON representation is done by calling `to_bson`
 on the Ruby object. For example:
@@ -141,7 +141,7 @@ Represents a placeholder for a value that was not provided.
 BSON::Undefined.new
 ```
 
-# JSON Serialization
+## JSON Serialization
 
 Some BSON types have special representations in JSON. These are as follows
 and will be automatically serialized in the form when calling `to_json` on

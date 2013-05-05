@@ -103,6 +103,21 @@ static VALUE rb_bson_from_bson_string(VALUE string)
 {
   return rb_enc_associate(string, rb_utf8_encoding());
 }
+
+/**
+ * Provide default new string with binary encoding.
+ *
+ * @example Check encoded and provide default new binary encoded string.
+ *    if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
+ *
+ * @return [ String ] The new string with binary encoding.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_str_new_encoded_binary(void)
+{
+  return rb_enc_str_new("", 0, rb_ascii8bit_encoding());
+}
 #else
 
 /**
@@ -137,6 +152,21 @@ static VALUE rb_bson_to_utf8_binary(VALUE string)
 static VALUE rb_bson_from_bson_string(VALUE string)
 {
   return string;
+}
+
+/**
+ * Provide default new string with binary encoding.
+ *
+ * @example Check encoded and provide default new binary encoded string.
+ *    if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
+ *
+ * @return [ String ] The new string with binary encoding.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_str_new_encoded_binary(void)
+{
+  return rb_str_new("", 0);
 }
 #endif
 
@@ -185,21 +215,6 @@ static unsigned long rb_current_time_milliseconds()
   struct timeval time;
   gettimeofday(&time, NULL);
   return (time.tv_sec) * 1000 + (time.tv_usec) / 1000;
-}
-
-/**
- * Provide default new string with binary encoding.
- *
- * @example Check encoded and provide default new binary encoded string.
- *    if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
- *
- * @return [ String ] The new string with binary encoding.
- *
- * @since 2.0.0
- */
-static VALUE rb_str_new_encoded_binary(void)
-{
-  return rb_enc_str_new("", 0, rb_ascii8bit_encoding());
 }
 
 /**
