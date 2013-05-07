@@ -667,7 +667,6 @@ void Init_native()
   VALUE false_class = rb_const_get(bson, rb_intern("FalseClass"));
   rb_bson_binary = rb_const_get(bson, rb_intern("BINARY"));
   rb_bson_utf8_string = rb_const_get(bson, rb_intern("UTF8"));
-  rb_binary_encoding = rb_ascii8bit_encoding();
 
   // Get the object id machine id.
   gethostname(rb_bson_machine_id, sizeof rb_bson_machine_id);
