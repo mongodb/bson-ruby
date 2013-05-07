@@ -34,6 +34,27 @@ describe BSON::Document do
     end
   end
 
+  describe "#[]" do
+
+    let(:document) do
+      described_class["key", "value", "key2", "value"]
+    end
+
+    context "when provided string keys" do
+
+      it "returns the value" do
+        expect(document["key"]).to eq("value")
+      end
+    end
+
+    context "when provided symbol keys" do
+
+      it "returns the value" do
+        expect(document[:key]).to eq("value")
+      end
+    end
+  end
+
   describe "#[]=" do
 
     let(:key) { "purple" }

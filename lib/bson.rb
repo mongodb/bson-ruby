@@ -90,6 +90,7 @@ require "bson/binary"
 require "bson/boolean"
 require "bson/code"
 require "bson/code_with_scope"
+require "bson/document"
 require "bson/false_class"
 require "bson/float"
 require "bson/hash"
@@ -105,16 +106,6 @@ require "bson/timestamp"
 require "bson/true_class"
 require "bson/undefined"
 require "bson/version"
-
-# If we have ordered hashes, the a BSON::Document is simply a hash. If we do
-# not, then we need to import our custom BSON::Document implementation.
-#
-# @since 2.0.0
-if ordered_hash_support?
-  class BSON::Document < Hash; end
-else
-  require "bson/document"
-end
 
 # If we are using JRuby, attempt to load the Java extensions, if we are using
 # MRI or Rubinius, attempt to load the C extenstions. If either of these fail,
