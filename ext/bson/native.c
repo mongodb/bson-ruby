@@ -66,6 +66,8 @@ static VALUE rb_bson_binary;
  */
 static VALUE rb_bson_utf8_string;
 
+static VALUE rb_utc_method;
+
 /**
  * Define encoding macros to be able to support 1.8.
  *
@@ -432,19 +434,18 @@ static VALUE rb_integer_from_bson_int32(VALUE self, VALUE bson)
 }
 
 /**
- * Convert the provided raw bytes into a 64bit Ruby integer.
+ * Convert the raw BSON bytes into an int64_t type.
  *
- * @example Convert the bytes to an Integer.
- *    rb_integer_from_bson_int64(Int64, bytes);
+ * @example Convert the bytes into an int64_t.
+ *    rb_bson_to_int64_t(bson);
  *
- * @param [ BSON::Int64 ] self The Int64 eigenclass.
- * @param [ String ] bytes The raw bytes.
+ * @param [ String ] bson The raw bytes.
  *
- * @return [ Integer ] The Ruby integer.
+ * @return [ int64_t ] The int64_t.
  *
  * @since 2.0.0
  */
-static VALUE rb_integer_from_bson_int64(VALUE self, VALUE bson)
+static int64_t rb_bson_to_int64_t(VALUE bson)
 {
   uint8_t *v;
   uint32_t byte_0, byte_1, byte_2, byte_3;
@@ -460,7 +461,25 @@ static VALUE rb_integer_from_bson_int64(VALUE self, VALUE bson)
   byte_2 = v[6];
   byte_3 = v[7];
   upper = byte_0 + (byte_1 << 8) + (byte_2 << 16) + (byte_3 << 24);
-  return INT642NUM(lower + (upper << 32));
+  return lower + (upper << 32);
+}
+
+/**
+ * Convert the provided raw bytes into a 64bit Ruby integer.
+ *
+ * @example Convert the bytes to an Integer.
+ *    rb_integer_from_bson_int64(Int64, bytes);
+ *
+ * @param [ BSON::Int64 ] self The Int64 eigenclass.
+ * @param [ String ] bytes The raw bytes.
+ *
+ * @return [ Integer ] The Ruby integer.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_integer_from_bson_int64(VALUE self, VALUE bson)
+{
+  return INT642NUM(rb_bson_to_int64_t(bson));
 }
 
 /**
@@ -531,6 +550,26 @@ static VALUE rb_time_to_bson(int argc, VALUE *argv, VALUE self)
   int64_t milliseconds = (int64_t)(t * 1000);
   VALUE encoded = rb_get_default_encoded(argc, argv);
   return int64_t_to_bson(milliseconds, encoded);
+}
+
+/**
+ * Converts the raw BSON bytes into a UTC Ruby time.
+ *
+ * @example Convert the bytes to a Ruby time.
+ *    rb_time_from_bson(time, bytes);
+ *
+ * @param [ Class ] self The Ruby Time class.
+ * @param [ String ] bytes The raw BSON bytes.
+ *
+ * @return [ Time ] The UTC time.
+ *
+ * @since 2.0.0
+ */
+static VALUE rb_time_from_bson(VALUE self, VALUE bytes)
+{
+  const int64_t millis = rb_bson_to_int64_t(bytes);
+  const VALUE time = rb_time_new(millis / 1000, (millis % 1000) * 1000);
+  return rb_funcall(time, rb_utc_method, 0);
 }
 
 /**
@@ -656,6 +695,7 @@ void Init_native()
   VALUE floats = rb_const_get(bson, rb_intern("Float"));
   VALUE float_class = rb_const_get(floats, rb_intern("ClassMethods"));
   VALUE time = rb_const_get(bson, rb_intern("Time"));
+  VALUE time_class = rb_singleton_class(time);
   VALUE int32 = rb_const_get(bson, rb_intern("Int32"));
   VALUE int32_class = rb_singleton_class(int32);
   VALUE int64 = rb_const_get(bson, rb_intern("Int64"));
@@ -667,6 +707,7 @@ void Init_native()
   VALUE false_class = rb_const_get(bson, rb_intern("FalseClass"));
   rb_bson_binary = rb_const_get(bson, rb_intern("BINARY"));
   rb_bson_utf8_string = rb_const_get(bson, rb_intern("UTF8"));
+  rb_utc_method = rb_intern("utc");
 
   // Get the object id machine id.
   gethostname(rb_bson_machine_id, sizeof rb_bson_machine_id);
@@ -700,9 +741,11 @@ void Init_native()
   rb_undef_method(false_class, "to_bson");
   rb_define_method(false_class, "to_bson", rb_false_class_to_bson, -1);
 
-  // Redefine the serialization methods on the time class.
+  // Optimizations around time serialization and deserialization.
   rb_undef_method(time, "to_bson");
   rb_define_method(time, "to_bson", rb_time_to_bson, -1);
+  rb_undef_method(time_class, "from_bson");
+  rb_define_method(time_class, "from_bson", rb_time_from_bson, 1);
 
   // String optimizations.
   rb_undef_method(string, "set_int32");
