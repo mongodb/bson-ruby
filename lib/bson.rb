@@ -114,7 +114,7 @@ require "bson/version"
 # @since 2.0.0
 begin
   if jruby?
-    require "native.jar"
+    require "bson-ruby.jar"
     org.bson.NativeService.new.basicLoad(JRuby.runtime)
   else
     require "native"

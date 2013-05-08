@@ -14,7 +14,7 @@ end
 if jruby?
   require "rake/javaextensiontask"
   Rake::JavaExtensionTask.new do |ext|
-    ext.name = "native"
+    ext.name = "bson-ruby"
     ext.ext_dir = "src"
     ext.lib_dir = "lib"
   end
