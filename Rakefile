@@ -14,7 +14,7 @@ end
 if jruby?
   require "rake/javaextensiontask"
   Rake::JavaExtensionTask.new do |ext|
-    ext.name = "NativeService"
+    ext.name = "native"
     ext.ext_dir = "src"
     ext.lib_dir = "lib"
   end
@@ -42,7 +42,7 @@ end
 RSpec::Core::RakeTask.new(:spec)
 RSpec::Core::RakeTask.new(:rspec)
 
-task :build do
+task :build => :clean_all do
   system "gem build bson.gemspec"
 end
 
@@ -51,7 +51,7 @@ task :clean_all => :clean do
     Dir.chdir(Pathname(__FILE__).dirname + "lib/bson") do
       `rm native.#{extension}`
       `rm native.o`
-      `rm NativeService.jar`
+      `rm native.jar`
     end
   rescue Exception => e
     puts e.message
