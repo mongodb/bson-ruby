@@ -114,10 +114,10 @@ require "bson/version"
 # @since 2.0.0
 begin
   if jruby?
-    require "bson/NativeService.jar"
+    require "NativeService.jar"
     org.bson.NativeService.new.basicLoad(JRuby.runtime)
   else
-    require "bson/native"
+    require "native"
   end
 rescue LoadError
   $stderr.puts("BSON is using the pure Ruby implementation.")
