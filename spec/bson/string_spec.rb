@@ -243,4 +243,14 @@ describe String do
     end
   end
 
+  describe "#to_hex_string" do
+
+    let(:string) do
+      "testing123"
+    end
+
+    it "converts the string to hex" do
+      expect(string.to_hex_string).to eq("74657374696e67313233")
+    end
+  end
 end
