@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
 
   s.files      = %w(CONTRIBUTING.md CHANGELOG.md LICENSE.md README.md Rakefile)
   s.files      += Dir.glob('lib/**/*')
+  s.files      += Dir.glob('ext/**/*')
   s.extensions = ['ext/bson/extconf.rb'] unless RUBY_PLATFORM =~ /java/
 
   s.require_path              = 'lib'
