@@ -8,7 +8,7 @@ group :development, :test do
   gem "rake-compiler"
 
   if ENV["CI"]
-    gem "coveralls", :require => false, :platforms => :ruby_19
+    gem "coveralls", :require => false
   else
     gem "pry"
     gem "guard-rspec"
