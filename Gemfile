@@ -7,7 +7,9 @@ group :development, :test do
   gem "rspec"
   gem "rake-compiler"
 
-  unless ENV["CI"]
+  if ENV["CI"]
+    gem "coveralls", :require => false, :platforms => :ruby_19
+  else
     gem "pry"
     gem "guard-rspec"
     gem "rb-inotify", :require => false # Linux
