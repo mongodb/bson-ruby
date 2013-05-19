@@ -10,7 +10,7 @@ describe BSON::Document do
     {}
   end
   let(:enum_class) do
-    ruby_18? ? Enumerable::Enumerator : Enumerator
+    BSON::Environment.ruby_18? ? Enumerable::Enumerator : Enumerator
   end
 
   before do
@@ -544,7 +544,7 @@ describe BSON::Document do
       end
     end
 
-    if ordered_hash_support?
+    if BSON::Environment.retaining_hash_order?
 
       context "when provided hashes" do
 

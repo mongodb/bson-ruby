@@ -44,7 +44,7 @@ module BSON
     # not, then we need to import our custom BSON::Document implementation.
     #
     # @since 2.0.0
-    unless ordered_hash_support?
+    unless Environment.retaining_hash_order?
 
       # Message for argument error when providing bad arguments to [].
       #

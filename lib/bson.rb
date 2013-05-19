@@ -1,41 +1,11 @@
 # encoding: utf-8
-
-# Determine if we are using JRuby or not.
-#
-# @example Are we running with JRuby?
-#   jruby?
-#
-# @return [ true, false ] If JRuby is our vm.
-#
-# @since 2.0.0
-def jruby?
-  defined?(JRUBY_VERSION)
-end
-
-# Does the Ruby runtime we are using support ordered hashes?
-#
-# @example Does the runtime support ordered hashes?
-#   ordered_hash_support?
-#
-# @return [ true, false ] If the runtime has ordered hashes.
-#
-# @since 2.0.0
-def ordered_hash_support?
-  jruby? || RUBY_VERSION > "1.9.1"
-end
-
-# Are we running in a ruby runtime that is version 1.8.x?
-#
-# @since 2.0.0
-def ruby_18?
-  RUBY_VERSION < "1.9"
-end
+require "bson/environment"
 
 # In the case where we don't have encoding, we need to monkey
 # patch string to ignore the encoding directives.
 #
 # @since 2.0.0
-if ruby_18?
+if BSON::Environment.ruby_18?
 
   class String
 
@@ -113,7 +83,7 @@ require "bson/version"
 #
 # @since 2.0.0
 begin
-  if jruby?
+  if BSON::Environment.jruby?
     require "bson-ruby.jar"
     org.bson.NativeService.new.basicLoad(JRuby.runtime)
   else

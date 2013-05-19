@@ -380,7 +380,7 @@ describe BSON::ObjectId do
       expect(object_id.to_s).to eq(expected)
     end
 
-    unless ruby_18?
+    unless BSON::Environment.ruby_18?
 
       it "returns the string in UTF-8" do
         expect(object_id.to_s.encoding).to eq(Encoding.find(BSON::UTF8))

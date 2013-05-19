@@ -17,7 +17,7 @@ module BSON
     # Constant for the int 64 pack directive.
     #
     # @since 2.0.0
-    PACK = ruby_18? ? "q".freeze : "q<".freeze
+    PACK = Environment.ruby_18? ? "q".freeze : "q<".freeze
 
     # Deserialize an Integer from BSON.
     #

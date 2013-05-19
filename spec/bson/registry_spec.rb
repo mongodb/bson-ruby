@@ -22,7 +22,7 @@ describe BSON::Registry do
 
     context "when the type has no corresponding class" do
 
-      unless ruby_18?
+      unless BSON::Environment.ruby_18?
 
         it "raises an error" do
           expect {

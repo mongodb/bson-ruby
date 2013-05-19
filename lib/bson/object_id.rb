@@ -285,7 +285,7 @@ module BSON
 
       private
 
-      if jruby?
+      if Environment.jruby?
         def process_id
           "#{Process.pid}#{Thread.current.object_id}".hash % 0xFFFF
         end
