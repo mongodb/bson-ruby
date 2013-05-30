@@ -647,6 +647,14 @@ describe BSON::Document do
 
       it_behaves_like "a serializable bson element"
       it_behaves_like "a deserializable bson element"
+
+      let(:raw) do
+        StringIO.new(bson)
+      end
+
+      it "returns an instance of a BSON::Document" do
+        expect(described_class.from_bson(raw)).to be_a(BSON::Document)
+      end
     end
   end
 
