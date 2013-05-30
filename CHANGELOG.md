@@ -54,3 +54,15 @@ BSON Changelog
     - `Symbol` (deprecated)
     - `Time`
     - `TrueClass`
+
+* Custom types specific to the BSON specification that have Ruby objects defined for them
+  may also have `to_bson` called on them to get the raw bytes. These types are:
+
+    - `BSON::Binary`
+    - `BSON::Code`
+    - `BSON::CodeWithScope`
+    - `BSON::MaxKey`
+    - `BSON::MinKey`
+    - `BSON::ObjectId`
+    - `BSON::Timestamp`
+    - `BSON::Undefined`
