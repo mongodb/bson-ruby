@@ -38,6 +38,18 @@ BSON Changelog
 
         BSON::Document.from_bson(stringio)
 
+* Calling `to_json` on custom BSON objects now outputs different results from before, and
+  conforms the BSON specification:
+
+    - `BSON::Binary`: `{ "$binary" : "\x01", "$type" : "md5" }`
+    - `BSON::Code`: `{ "$code" : "this.v = 5 }`
+    - `BSON::CodeWithScope`: `{ "$code" : "this.v = value", "$scope" : { v => 5 }}`
+    - `BSON::MaxKey`: `{ "$maxKey" : 1 }`
+    - `BSON::MinKey`: `{ "$minKey" : 1 }`
+    - `BSON::ObjectId`: `{ "$oid" : "4e4d66343b39b68407000001" }`
+    - `BSON::Timestamp`: `{ "t" : 5, "i" : 30 }`
+    - `Regexp`: `{ "$regex" : "[abc]", "$options" : "i" }`
+
 ### New Features
 
 * All Ruby objects that have a corresponding object defined in the BSON specification
