@@ -38,4 +38,19 @@ BSON Changelog
 
         BSON::Document.from_bson(stringio)
 
-### Features
+### New Features
+
+* All Ruby objects that have a corresponding object defined in the BSON specification
+  can now have `to_bson` called on them to get the raw BSON bytes. These objects include:
+
+    - `Array`
+    - `FalseClass`
+    - `Float`
+    - `Hash`
+    - `Integer`
+    - `NilClass`
+    - `Regexp`
+    - `String`
+    - `Symbol` (deprecated)
+    - `Time`
+    - `TrueClass`
