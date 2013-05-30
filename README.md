@@ -167,6 +167,11 @@ BSON Specification
 
 The [BSON specification](http://bsonspec.org) is at bsonspec.org.
 
+Versioning
+----------
+
+As of 2.0.0, this project adheres to the [Semantic Versioning Specification](http://semver.org/).
+
 License
 -------
 
