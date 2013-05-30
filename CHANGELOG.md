@@ -23,4 +23,19 @@ BSON Changelog
 
         BSON::Document[:key, "value"].to_bson
 
+* `BSON.deserialize` is no longer the entry point for raw byte deserialization into
+  a document.
+
+      For Ruby runtimes that support ordered hashes, you may simply call `from_bson` on
+      the `Hash` class if you want a `Hash` instance, or on `BSON::Document` if you
+      want an instance of that. The input must be a `StringIO` object:
+
+        Hash.from_bson(stringio)
+        BSON::Document.from_bson(stringio)
+
+      For Ruby runtimes that do not support ordered hashes, then `from_bson` must be
+      called on `BSON::Document` in order to guarantee order:
+
+        BSON::Document.from_bson(stringio)
+
 ### Features
