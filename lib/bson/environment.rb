@@ -45,3 +45,41 @@ module BSON
     end
   end
 end
+
+# In the case where we don't have encoding, we need to monkey
+# patch string to ignore the encoding directives.
+#
+# @since 2.0.0
+if BSON::Environment.ruby_18?
+
+  # Making string in 1.8 respond like a 1.9 string, without any modifications.
+  #
+  # @since 2.0.0
+  class String
+
+    # Simply return the string when asking for it's character.
+    #
+    # @since 2.0.0
+    def chr; self; end
+
+    # Force the string to the provided encoding. NOOP.
+    #
+    # @since 2.0.0
+    def force_encoding(*); self; end
+
+    # Encode the string as the provided type. NOOP.
+    #
+    # @since 2.0.0
+    def encode(*); self; end
+
+    # Encode the string in place. NOOP.
+    #
+    # @since 2.0.0
+    def encode!(*); self; end
+  end
+
+  # No encoding error is defined in 1.8.
+  #
+  # @since 2.0.0
+  class EncodingError < RuntimeError; end
+end
