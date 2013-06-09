@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
     warn "[#{s.name}] Warning: No private key present, creating unsigned gem."
   end
 
-  s.files      = %w(CONTRIBUTING.md CHANGELOG.md LICENSE.md README.md Rakefile)
+  s.files      = %w(CONTRIBUTING.md CHANGELOG.md LICENSE NOTICE README.md Rakefile)
   s.files      += Dir.glob('lib/**/*')
   s.files      += Dir.glob('ext/**/*.{c,h,rb}')
   s.extensions = ['ext/bson/extconf.rb'] unless RUBY_PLATFORM =~ /java/
