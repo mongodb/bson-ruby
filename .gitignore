@@ -22,3 +22,4 @@ perf/*.symbols
 *.jar
 TODO
 .rbx/
+gem-private_key.pem
