@@ -24,11 +24,11 @@ Gem::Specification.new do |s|
   s.files      += Dir.glob('lib/**/*')
 
   unless RUBY_PLATFORM =~ /java/
-    s.platform   = 'java'
+    s.platform   = Gem::Platform::RUBY
     s.files      += Dir.glob('ext/**/*.{c,h,rb}')
     s.extensions = ['ext/bson/extconf.rb']
   else
-    s.platform   = Gem::Platform::RUBY
+    s.platform   = 'java'
   end
 
   s.test_files = Dir.glob('spec/**/*')
