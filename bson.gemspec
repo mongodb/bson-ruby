@@ -6,8 +6,6 @@ Gem::Specification.new do |s|
   s.name              = 'bson'
   s.rubyforge_project = 'bson'
   s.version           = BSON::VERSION
-  s.platform          = Gem::Platform::RUBY
-
   s.authors           = ['Tyler Brock', 'Durran Jordan', 'Brandon Black', 'Emily Stolfo', 'Gary Murakami']
   s.email             = ['mongodb-dev@googlegroups.com']
   s.homepage          = 'http://bsonspec.org'
@@ -26,8 +24,11 @@ Gem::Specification.new do |s|
   s.files      += Dir.glob('lib/**/*')
 
   unless RUBY_PLATFORM =~ /java/
+    s.platform   = 'java'
     s.files      += Dir.glob('ext/**/*.{c,h,rb}')
     s.extensions = ['ext/bson/extconf.rb']
+  else
+    s.platform   = Gem::Platform::RUBY
   end
 
   s.test_files = Dir.glob('spec/**/*')
