@@ -82,6 +82,11 @@ static VALUE rb_bson_binary;
  */
 static VALUE rb_bson_utf8_string;
 
+/**
+ * Set the UTC string method for reference at load.
+ *
+ * @since 2.0.0
+ */
 static VALUE rb_utc_method;
 
 /**
