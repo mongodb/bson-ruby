@@ -56,16 +56,18 @@ end
 RSpec::Core::RakeTask.new(:spec)
 RSpec::Core::RakeTask.new(:rspec)
 
+# Ensure when releasing to build the native and the java versions separately
+# with rvm.
 task :build => :clean_all do
   system "gem build bson.gemspec"
 end
 
 task :clean_all => :clean do
   begin
-    Dir.chdir(Pathname(__FILE__).dirname + "lib/bson") do
+    Dir.chdir(Pathname(__FILE__).dirname + "lib") do
       `rm native.#{extension}`
       `rm native.o`
-      `rm native.jar`
+      `rm bson-ruby.jar`
     end
   rescue Exception => e
     puts e.message
