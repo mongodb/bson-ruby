@@ -25,6 +25,7 @@ if ENV["CI"]
 end
 
 require "bson"
+require "json"
 require "rspec"
 require "yaml"
 
