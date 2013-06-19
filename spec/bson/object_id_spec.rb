@@ -245,6 +245,50 @@ describe BSON::ObjectId do
     end
   end
 
+  describe "#eql" do
+
+    context "when data is identical" do
+
+      let(:time) do
+        Time.now
+      end
+
+      let(:object_id) do
+        described_class.from_time(time)
+      end
+
+      let(:other_id) do
+        described_class.from_time(time)
+      end
+
+      it "returns true" do
+        expect(object_id).to eql(other_id)
+      end
+    end
+
+    context "when the data is different" do
+
+      let(:time) do
+        Time.now
+      end
+
+      let(:object_id) do
+        described_class.from_time(time)
+      end
+
+      it "returns false" do
+        expect(object_id).to_not eql(described_class.new)
+      end
+    end
+
+    context "when other is not an object id" do
+
+      it "returns false" do
+        expect(described_class.new).to_not eql(nil)
+      end
+    end
+  end
+
   describe ".from_string" do
 
     context "when the string is valid" do

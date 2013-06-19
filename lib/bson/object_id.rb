@@ -46,6 +46,7 @@ module BSON
       return false unless other.is_a?(ObjectId)
       to_bson == other.to_bson
     end
+    alias :eql? :==
 
     # Check case equality on the object id.
     #
