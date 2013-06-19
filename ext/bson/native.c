@@ -17,6 +17,7 @@
 #include <arpa/inet.h>
 #include <ruby.h>
 #include <stdint.h>
+#include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
 
