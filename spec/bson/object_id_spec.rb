@@ -372,6 +372,17 @@ describe BSON::ObjectId do
     end
   end
 
+  describe "#hash" do
+
+    let(:object_id) do
+      described_class.new
+    end
+
+    it "returns a hash of the raw bytes" do
+      expect(object_id.hash).to eq(object_id.to_bson.hash)
+    end
+  end
+
   describe ".legal?" do
 
     context "when the string is too short to be an object id" do

@@ -103,6 +103,18 @@ module BSON
       ::Time.at(to_bson.unpack("N")[0]).utc
     end
 
+    # Get the hash value for the object id.
+    #
+    # @example Get the hash value.
+    #   object_id.hash
+    #
+    # @return [ Integer ] The hash value.
+    #
+    # @since 2.0.0
+    def hash
+      to_bson.hash
+    end
+
     # Get the object id as it's raw BSON data.
     #
     # @example Get the raw bson bytes.
