@@ -56,10 +56,14 @@ end
 RSpec::Core::RakeTask.new(:spec)
 RSpec::Core::RakeTask.new(:rspec)
 
-# Ensure when releasing to build the native and the java versions separately
-# with rvm.
-task :build => :clean_all do
-  system "gem build bson.gemspec"
+if jruby?
+  task :build => [ :clean_all, :compile ] do
+    system "gem build bson.gemspec"
+  end
+else
+  task :build => :clean_all do
+    system "gem build bson.gemspec"
+  end
 end
 
 task :clean_all => :clean do
