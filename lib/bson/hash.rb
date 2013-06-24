@@ -52,7 +52,7 @@ module BSON
 
       # Deserialize the hash from BSON.
       #
-      # @param [ String ] bson The bson representing a hash.
+      # @param [ IO ] bson The bson representing a hash.
       #
       # @return [ Array ] The decoded hash.
       #
