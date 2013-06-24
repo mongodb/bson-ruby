@@ -40,7 +40,7 @@ describe BSON::CodeWithScope do
     end
     let(:obj) { described_class.new(code, scope) }
     let(:bson) do
-      "#{48.to_bson}#{(code.length + 1).to_bson}#{code}#{BSON::NULL_BYTE}" +
+      "#{47.to_bson}#{(code.length + 1).to_bson}#{code}#{BSON::NULL_BYTE}" +
       "#{scope.to_bson}#{BSON::NULL_BYTE}"
     end
 
