@@ -40,8 +40,8 @@ describe BSON::CodeWithScope do
     end
     let(:obj) { described_class.new(code, scope) }
     let(:bson) do
-      "#{48.to_bson}#{(code.length + 1).to_bson}#{code}#{BSON::NULL_BYTE}" +
-      "#{scope.to_bson}#{BSON::NULL_BYTE}"
+      "#{47.to_bson}#{(code.length + 1).to_bson}#{code}#{BSON::NULL_BYTE}" +
+      "#{scope.to_bson}"
     end
 
     it_behaves_like "a bson element"
@@ -53,7 +53,7 @@ describe BSON::CodeWithScope do
     let(:type) { 15.chr }
     let(:code) { "this.value == name" }
     let(:scope) do
-      { :name => "test" }
+      { "name" => "test" }
     end
     let(:obj) { described_class.new(code, scope) }
     let(:bson) { StringIO.new(obj.to_bson) }
@@ -63,8 +63,8 @@ describe BSON::CodeWithScope do
       expect(deserialized.javascript).to eq(code)
     end
 
-    it "does not deserialize a scope" do
-      expect(deserialized.scope).to be_empty
+    it "deserializes the scope" do
+      expect(deserialized.scope).to eq(scope)
     end
   end
 end

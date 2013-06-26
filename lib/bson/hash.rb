@@ -31,7 +31,7 @@ module BSON
     # Get the hash as encoded BSON.
     #
     # @example Get the hash as encoded BSON.
-    #   { field: "value" }.to_bson
+    #   { "field" => "value" }.to_bson
     #
     # @return [ String ] The encoded string.
     #
@@ -52,7 +52,7 @@ module BSON
 
       # Deserialize the hash from BSON.
       #
-      # @param [ String ] bson The bson representing a hash.
+      # @param [ IO ] bson The bson representing a hash.
       #
       # @return [ Array ] The decoded hash.
       #
