@@ -89,10 +89,13 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
-      encode_with_placeholder_and_not_null(BSON_ADJUST, encoded) do |encoded|
+      # -1 because we are removing an extra byte
+      out = encode_with_placeholder_and_null(BSON_ADJUST - 1, encoded) do |encoded|
         javascript.to_bson(encoded)
         scope.to_bson(encoded)
       end
+      # an extra null byte has been added; we must remove it
+      out.chop!
     end
 
     # Deserialize a code with scope from BSON.
@@ -109,9 +112,11 @@ module BSON
       code_with_scope = StringIO.new(bson.read(cws_total_length))
       code_length = code_with_scope.read(4).unpack(Int32::PACK).first
       bson_code = code_with_scope.read(code_length).from_bson_string.chop!
+
       scope_length_str = code_with_scope.read(4) 
       scope_length = scope_length_str.unpack(Int32::PACK).first
       bson_scope_str = code_with_scope.read(scope_length)
+
       # reconstruct the whole thing, since Hash throws away first 4 bytes
       bson_scope = ::Hash.from_bson(StringIO.new(scope_length_str + bson_scope_str))
       new(bson_code, bson_scope)

@@ -31,7 +31,7 @@ module BSON
     # Get the hash as encoded BSON.
     #
     # @example Get the hash as encoded BSON.
-    #   { field: "value" }.to_bson
+    #   { "field" => "value" }.to_bson
     #
     # @return [ String ] The encoded string.
     #

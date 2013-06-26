@@ -60,14 +60,6 @@ module BSON
       encoded
     end
 
-    def encode_with_placeholder_and_not_null(adjust, encoded = ''.force_encoding(BINARY))
-      pos = encoded.bytesize
-      encoded << PLACEHOLDER
-      yield(encoded)
-      encoded.set_int32(pos, encoded.bytesize - pos + adjust)
-      encoded
-    end
-
     # Encodes binary data with a generic placeholder value to be written later
     # once all bytes have been written.
     #
