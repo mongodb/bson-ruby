@@ -108,18 +108,8 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(bson)
-      cws_total_length = Int32.from_bson(bson) - 4 #deduct the size of the int we just read
-      code_with_scope = StringIO.new(bson.read(cws_total_length))
-      code_length = code_with_scope.read(4).unpack(Int32::PACK).first
-      bson_code = code_with_scope.read(code_length).from_bson_string.chop!
-
-      scope_length_str = code_with_scope.read(4) 
-      scope_length = scope_length_str.unpack(Int32::PACK).first
-      bson_scope_str = code_with_scope.read(scope_length)
-
-      # reconstruct the whole thing, since Hash throws away first 4 bytes
-      bson_scope = ::Hash.from_bson(StringIO.new(scope_length_str + bson_scope_str))
-      new(bson_code, bson_scope)
+      bson.read(4) # Throw away the total length.
+      new(bson.read(Int32.from_bson(bson)).from_bson_string.chop!, ::Hash.from_bson(bson))
     end
 
     # Register this type when the module is loaded.
