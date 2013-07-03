@@ -464,7 +464,8 @@ static VALUE rb_integer_from_bson_int32(VALUE self, VALUE bson)
 static int64_t rb_bson_to_int64_t(VALUE bson)
 {
   uint8_t *v;
-  uint32_t byte_0, byte_1, byte_2, byte_3;
+  uint32_t byte_0, byte_1;
+  int64_t byte_2, byte_3;
   int64_t lower, upper;
   v = (uint8_t*) RSTRING_PTR(bson);
   byte_0 = v[0];
