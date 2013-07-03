@@ -71,13 +71,6 @@
 static char rb_bson_array_indexes[BSON_INDEX_SIZE][BSON_INDEX_CHAR_SIZE];
 
 /**
- * BSON::BINARY
- *
- * @since 2.0.0
- */
-static VALUE rb_bson_binary;
-
-/**
  * BSON::UTF8
  *
  * @since 2.0.0
@@ -728,7 +721,6 @@ void Init_native()
   VALUE string = rb_const_get(bson, rb_intern("String"));
   VALUE true_class = rb_const_get(bson, rb_intern("TrueClass"));
   VALUE false_class = rb_const_get(bson, rb_intern("FalseClass"));
-  rb_bson_binary = rb_const_get(bson, rb_intern("BINARY"));
   rb_bson_utf8_string = rb_const_get(bson, rb_intern("UTF8"));
   rb_utc_method = rb_intern("utc");
 
