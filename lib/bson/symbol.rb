@@ -55,7 +55,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson_key(encoded = ''.force_encoding(BINARY))
-      to_s.to_bson_cstring(encoded)
+      to_s.to_bson_key(encoded)
     end
 
     module ClassMethods
