@@ -65,7 +65,7 @@ describe String do
       it "raises an error" do
         expect {
           string.to_bson_cstring
-        }.to raise_error(RuntimeError)
+        }.to raise_error(ArgumentError)
       end
     end
 
