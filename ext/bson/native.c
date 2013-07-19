@@ -653,7 +653,7 @@ static VALUE rb_string_to_bson_string(VALUE self, VALUE encoded)
 static VALUE rb_string_check_for_illegal_characters(VALUE self)
 {
   if (strlen(RSTRING_PTR(self)) != (size_t) RSTRING_LEN(self))
-    rb_raise(rb_eRuntimeError, "Illegal C-String contains a null byte.");
+    rb_raise(rb_eArgError, "Illegal C-String contains a null byte.");
   return self;
 }
 

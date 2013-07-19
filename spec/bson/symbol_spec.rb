@@ -48,7 +48,7 @@ describe Symbol do
       it 'raises an error' do
         expect {
           symbol.to_bson_key
-        }.to raise_error(RuntimeError)
+        }.to raise_error(ArgumentError)
       end
     end
   end

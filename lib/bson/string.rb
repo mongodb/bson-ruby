@@ -168,7 +168,7 @@ module BSON
 
     def check_for_illegal_characters!
       if include?(NULL_BYTE)
-        raise RuntimeError.new("Illegal C-String '#{self}' contains a null byte.")
+        raise(ArgumentError, "Illegal C-String '#{self}' contains a null byte.")
       end
     end
 
