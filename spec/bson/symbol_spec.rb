@@ -41,5 +41,15 @@ describe Symbol do
     it "appends to optional previous content" do
       expect(symbol.to_bson_key(previous_content)).to eq(previous_content << encoded)
     end
+
+    context 'when the symbol contains a null byte' do
+      let(:symbol) { :"test#{BSON::NULL_BYTE}ing" }
+
+      it 'raises an error' do
+        expect {
+          symbol.to_bson_key
+        }.to raise_error(RuntimeError)
+      end
+    end
   end
 end
