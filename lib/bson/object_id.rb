@@ -127,6 +127,32 @@ module BSON
       "BSON::ObjectId('#{to_s}')"
     end
 
+    # Dump the raw bson when calling Marshal.dump.
+    #
+    # @example Dump the raw bson.
+    #   Marshal.dump(object_id)
+    #
+    # @return [ String ] The raw bson bytes.
+    #
+    # @since 2.0.0
+    def marshal_dump
+      to_bson
+    end
+
+    # Unmarshal the data into an object id.
+    #
+    # @example Unmarshal the data.
+    #   Marshal.load(data)
+    #
+    # @param [ String ] data The raw bson bytes.
+    #
+    # @return [ String ] The raw bson bytes.
+    #
+    # @since 2.0.0
+    def marshal_load(data)
+      @raw_data = data
+    end
+
     # Get the object id as it's raw BSON data.
     #
     # @example Get the raw bson bytes.

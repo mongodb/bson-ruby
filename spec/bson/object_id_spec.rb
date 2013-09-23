@@ -429,6 +429,21 @@ describe BSON::ObjectId do
     end
   end
 
+  describe "#marshal_dump" do
+
+    let(:object_id) do
+      described_class.new
+    end
+
+    let(:dumped) do
+      Marshal.dump(object_id)
+    end
+
+    it "dumps the raw bytes data" do
+      expect(Marshal.load(dumped)).to eq(object_id)
+    end
+  end
+
   describe "#to_bson/#from_bson" do
 
     let(:time) { Time.utc(2013, 1, 1) }
