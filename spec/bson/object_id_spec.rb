@@ -383,6 +383,17 @@ describe BSON::ObjectId do
     end
   end
 
+  describe "#inspect" do
+
+    let(:object_id) do
+      described_class.new
+    end
+
+    it "returns the inspection with the object id to_s" do
+      expect(object_id.inspect).to eq("BSON::ObjectId('#{object_id.to_s}')")
+    end
+  end
+
   describe ".legal?" do
 
     context "when the string is too short to be an object id" do

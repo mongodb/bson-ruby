@@ -115,6 +115,18 @@ module BSON
       to_bson.hash
     end
 
+    # Get a nice string for use with object inspection.
+    #
+    # @example Inspect the object id.
+    #   obhect_id.inspect
+    #
+    # @return [ String ] The object id in form BSON::ObjectId('id')
+    #
+    # @since 2.0.0
+    def inspect
+      "BSON::ObjectId('#{to_s}')"
+    end
+
     # Get the object id as it's raw BSON data.
     #
     # @example Get the raw bson bytes.
