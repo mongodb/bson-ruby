@@ -78,11 +78,17 @@ task :clean_all => :clean do
   end
 end
 
+# Run bundle exec rake release with mri and jruby.
 task :release => :build do
   system "git tag -a v#{BSON::VERSION} -m 'Tagging release: #{BSON::VERSION}'"
   system "git push --tags"
-  system "gem push bson-#{BSON::VERSION}.gem"
-  system "rm bson-#{BSON::VERSION}.gem"
+  if jruby?
+    system "gem push bson-#{BSON::VERSION}-java.gem"
+    system "rm bson-#{BSON::VERSION}-java.gem"
+  else
+    system "gem push bson-#{BSON::VERSION}.gem"
+    system "rm bson-#{BSON::VERSION}.gem"
+  end
 end
 
 namespace :benchmark do
