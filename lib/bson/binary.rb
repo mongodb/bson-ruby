@@ -91,6 +91,7 @@ module BSON
     #
     # @since 2.0.0
     def initialize(data = "", type = :generic)
+      validate_type!(type)
       @data = data
       @type = type
     end
@@ -128,6 +129,60 @@ module BSON
       length = Int32.from_bson(bson) if type == :old
       data = bson.read(length)
       new(data, type)
+    end
+
+    # Raised when providing an invalid type to the Binary.
+    #
+    # @since 2.0.0
+    class InvalidType < RuntimeError
+
+      # @!attribute type
+      #   @return [ Object ] The invalid type.
+      #   @since 2.0.0
+      attr_reader :type
+
+      # Instantiate the new error.
+      #
+      # @example Instantiate the error.
+      #   InvalidType.new(:error)
+      #
+      # @param [ Object ] type The invalid type.
+      #
+      # @since 2.0.0
+      def initialize(type)
+        @type = type
+      end
+
+      # Get the custom error message for the exception.
+      #
+      # @example Get the message.
+      #   error.message
+      #
+      # @return [ String ] The error message.
+      #
+      # @since 2.0.0
+      def message
+        "#{type.inspect} is not a valid binary type. " +
+          "Please use one of #{SUBTYPES.keys.map(&:inspect).join(", ")}."
+      end
+    end
+
+    private
+
+    # Validate the provided type is a valid type.
+    #
+    # @api private
+    #
+    # @example Validate the type.
+    #   binary.validate_type!(:user)
+    #
+    # @param [ Object ] type The provided type.
+    #
+    # @raise [ InvalidType ] The the type is invalid.
+    #
+    # @since 2.0.0
+    def validate_type!(type)
+      raise InvalidType.new(type) unless SUBTYPES.has_key?(type)
     end
 
     # Register this type when the module is loaded.

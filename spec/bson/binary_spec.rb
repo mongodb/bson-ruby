@@ -31,6 +31,18 @@ describe BSON::Binary do
     it_behaves_like "a JSON serializable object"
   end
 
+  describe "#initialize" do
+
+    context "when he type is invalid" do
+
+      it "raises an error" do
+        expect {
+          described_class.new("testing", :error)
+        }.to raise_error(BSON::Binary::InvalidType)
+      end
+    end
+  end
+
   describe "#to_bson/#from_bson" do
 
     let(:type) { 5.chr }
