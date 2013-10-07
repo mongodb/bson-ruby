@@ -325,7 +325,7 @@ static VALUE rb_object_id_generator_next(int argc, VALUE* time, VALUE self)
   unsigned short pid = htons(getpid());
 
   if (argc == 0 || (argc == 1 && *time == Qnil)) {
-    t = rb_current_time_milliseconds();
+    t = htonl(rb_current_time_milliseconds());
   }
   else {
     t = htonl(NUM2UINT(rb_funcall(*time, rb_intern("to_i"), 0)));
