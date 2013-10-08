@@ -28,4 +28,31 @@ describe Array do
     it_behaves_like "a serializable bson element"
     it_behaves_like "a deserializable bson element"
   end
+
+  describe "#to_bson_object_id" do
+
+    context "when the array has 12 elements" do
+
+      let(:array) do
+        [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
+      end
+
+      let(:converted) do
+        array.to_bson_object_id
+      end
+
+      it "returns the array as a string" do
+        expect(converted).to eq(array.pack("C*"))
+      end
+    end
+
+    context "when the array does not have 12 elements" do
+
+      it "raises an exception" do
+        expect {
+          [ 1 ].to_bson_object_id
+        }.to raise_error(BSON::ObjectId::Invalid)
+      end
+    end
+  end
 end

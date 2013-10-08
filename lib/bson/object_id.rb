@@ -169,7 +169,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
-      repair!(@data) if defined?(@data)
+      repair if defined?(@data)
       @raw_data ||= @@generator.next
       encoded << @raw_data
     end
@@ -194,8 +194,8 @@ module BSON
 
     private
 
-    def data=(data)
-      @raw_data = data
+    def repair
+      @raw_data = @data.to_bson_object_id
     end
 
     class << self
@@ -226,7 +226,7 @@ module BSON
       # @since 2.0.0
       def from_data(data)
         object_id = allocate
-        object_id.send(:data=, data)
+        object_id.instance_variable_set(:@raw_data, data)
         object_id
       end
 
@@ -282,6 +282,27 @@ module BSON
       # @since 2.0.0
       def legal?(string)
         string.to_s =~ /^[0-9a-f]{24}$/i ? true : false
+      end
+
+      # Executes the provided block only if the size of the provided object is
+      # 12. Used in legacy id repairs.
+      #
+      # @example Execute in a repairing block.
+      #   BSON::ObjectId.repair("test") { obj }
+      #
+      # @param [ String, Array ] object The object to repair.
+      #
+      # @raise [ Invalid ] If the array is not 12 elements.
+      #
+      # @return [ String ] The result of the block.
+      #
+      # @since 2.0.0
+      def repair(object)
+        if object.size == 12
+          block_given? ? yield(object) : object
+        else
+          raise Invalid.new("#{object.inspect} is not a valid object id.")
+        end
       end
     end
 

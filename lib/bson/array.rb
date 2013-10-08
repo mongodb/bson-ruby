@@ -51,6 +51,23 @@ module BSON
       end
     end
 
+    # Convert the array to an object id. This will only work for arrays of size
+    # 12 where the elements are all strings.
+    #
+    # @example Convert the array to an object id.
+    #   array.to_bson_object_id
+    #
+    # @note This is used for repairing legacy bson data.
+    #
+    # @raise [ InvalidObjectId ] If the array is not 12 elements.
+    #
+    # @return [ String ] The raw object id bytes.
+    #
+    # @since 2.0.0
+    def to_bson_object_id
+      ObjectId.repair(self) { pack("C*") }
+    end
+
     module ClassMethods
 
       # Deserialize the array from BSON.

@@ -80,6 +80,23 @@ module BSON
       to_bson_string(encoded) << NULL_BYTE
     end
 
+    # Convert the string to an object id. This will only work for strings of size
+    # 12.
+    #
+    # @example Convert the string to an object id.
+    #   string.to_bson_object_id
+    #
+    # @note This is used for repairing legacy bson data.
+    #
+    # @raise [ InvalidObjectId ] If the string is not 12 elements.
+    #
+    # @return [ String ] The raw object id bytes.
+    #
+    # @since 2.0.0
+    def to_bson_object_id
+      ObjectId.repair(self)
+    end
+
     # Convert the string to a UTF-8 string then force to binary. This is so
     # we get errors for strings that are not UTF-8 encoded.
     #

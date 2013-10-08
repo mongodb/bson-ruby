@@ -444,6 +444,29 @@ describe BSON::ObjectId do
     end
   end
 
+  describe "#marshal_load" do
+
+    context "when the object id was dumped in the old format" do
+
+      let(:legacy) do
+        "\x04\bo:\x13BSON::ObjectId\x06:\n" +
+          "@data[\x11iUi\x01\xE2i,i\x00i\x00i\x00i\x00i\x00i\x00i\x00i\x00i\x00"
+      end
+
+      let(:object_id) do
+        Marshal.load(legacy)
+      end
+
+      let(:expected) do
+        described_class.from_time(Time.utc(2013, 1, 1))
+      end
+
+      it "properly loads the object id" do
+        expect(object_id).to eq(expected)
+      end
+    end
+  end
+
   describe "#to_bson/#from_bson" do
 
     let(:time) { Time.utc(2013, 1, 1) }

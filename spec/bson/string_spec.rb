@@ -128,6 +128,33 @@ describe String do
     end
   end
 
+  describe "#to_bson_object_id" do
+
+    context "when the string has 12 characters" do
+
+      let(:string) do
+        "123456789012"
+      end
+
+      let(:converted) do
+        string.to_bson_object_id
+      end
+
+      it "returns the array as a string" do
+        expect(converted).to eq(string)
+      end
+    end
+
+    context "when the array does not have 12 elements" do
+
+      it "raises an exception" do
+        expect {
+          "test".to_bson_object_id
+        }.to raise_error(BSON::ObjectId::Invalid)
+      end
+    end
+  end
+
   describe "#to_bson_string" do
 
     context "when the string is valid" do
