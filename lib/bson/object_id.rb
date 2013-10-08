@@ -196,6 +196,7 @@ module BSON
 
     def repair
       @raw_data = @data.to_bson_object_id
+      remove_instance_variable(:@data)
     end
 
     class << self

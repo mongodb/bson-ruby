@@ -464,6 +464,11 @@ describe BSON::ObjectId do
       it "properly loads the object id" do
         expect(object_id).to eq(expected)
       end
+
+      it "removes the bad legacy data" do
+        object_id.to_bson
+        expect(object_id.instance_variable_get(:@data)).to be_nil
+      end
     end
   end
 
