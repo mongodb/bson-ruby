@@ -1,4 +1,4 @@
-# Copyright (C) 2013 10gen Inc.
+# Copyright (C) 2013 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -158,7 +158,7 @@ module BSON
     # @example Get the raw bson bytes.
     #   object_id.to_bson
     #
-    # @note Since Moped's BSON and 10gen BSON before 2.0.0 have different
+    # @note Since Moped's BSON and MongoDB BSON before 2.0.0 have different
     #   internal representations, we will attempt to repair the data for cases
     #   where the object was instantiated in a non-standard way. (Like a
     #   Marshal.load)

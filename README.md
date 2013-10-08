@@ -175,7 +175,7 @@ As of 2.0.0, this project adheres to the [Semantic Versioning Specification](htt
 License
 -------
 
-Copyright (C) 2013 10gen Inc.
+Copyright (C) 2013 MongoDB Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
