@@ -224,23 +224,6 @@ static char rb_bson_machine_id[HOST_NAME_MAX];
 static unsigned int rb_bson_object_id_counter = 0;
 
 /**
- * Get the current time in milliseconds, used in object id generation.
- *
- * @example Get the current time in milliseconds.
- *    rb_current_time_milliseconds();
- *
- * @return [ int ] The current time in millis.
- *
- * @since 2.0.0
- */
-static unsigned long rb_current_time_milliseconds()
-{
-  struct timeval time;
-  gettimeofday(&time, NULL);
-  return (time.tv_sec) * 1000 + (time.tv_usec) / 1000;
-}
-
-/**
  * Take the provided params and return the encoded bytes or a default one.
  *
  * @example Get the default encoded bytes.
@@ -318,17 +301,17 @@ static VALUE rb_float_from_bson_double(VALUE self, VALUE value)
  *
  * @since 2.0.0
  */
-static VALUE rb_object_id_generator_next(int argc, VALUE* time, VALUE self)
+static VALUE rb_object_id_generator_next(int argc, VALUE* args, VALUE self)
 {
   char bytes[12];
   unsigned long t;
   unsigned short pid = htons(getpid());
 
-  if (argc == 0 || (argc == 1 && *time == Qnil)) {
-    t = rb_current_time_milliseconds();
+  if (argc == 0 || (argc == 1 && *args == Qnil)) {
+    t = htonl((int) time(NULL));
   }
   else {
-    t = htonl(NUM2UINT(rb_funcall(*time, rb_intern("to_i"), 0)));
+    t = htonl(NUM2UINT(rb_funcall(*args, rb_intern("to_i"), 0)));
   }
 
   memcpy(&bytes, &t, 4);
