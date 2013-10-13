@@ -13,10 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifdef MINGW32
+
+#include <winsock2.h>
+#include <windows.h>
+
+#else
 
 #include <arpa/inet.h>
-#include <stdint.h>
 #include <sys/time.h>
+
+#endif
+
+
+#include <stdint.h>
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
