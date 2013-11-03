@@ -11,7 +11,7 @@ rvm:
   - jruby-head
   - ree
   - rbx-18mode
-  - rbx-19mode
+  - rbx-2.1.1
 
 jdk:
   - oraclejdk7
