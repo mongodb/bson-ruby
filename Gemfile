@@ -9,6 +9,7 @@ group :development, :test do
 
   if ENV['CI']
     gem 'coveralls', :require => false
+    gem 'mime-types', '1.25' # v2.0+ does not supporty ruby 1.8
   else
     gem 'ruby-prof', :platforms => :mri
 
