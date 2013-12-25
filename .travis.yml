@@ -49,7 +49,7 @@ matrix:
     - rvm: 2.0.0
       jdk: openjdk7
       env: CI="travis"
-    - rvm: 2.0.0
+    - rvm: 2.1.0
       jdk: openjdk7
       env: CI="travis"
     - rvm: ruby-head
