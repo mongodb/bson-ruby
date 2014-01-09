@@ -1,6 +1,15 @@
 BSON Changelog
 ==============
 
+## 2.1.0
+
+### New Features
+
+* `Date` and `DateTime` objects in Ruby can now be serialized into BSON. `Date` is
+  converted to a UTC `Time` at midnight and serialized, while `DateTime` is simply
+  converted to the identical `Time` before serialization. Note that these objects
+  will be deserialized into `Time` objects.
+
 ## 2.0.0
 
 ### Backwards Incompatible Changes
