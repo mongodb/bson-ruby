@@ -14,7 +14,7 @@ group :development, :test do
     gem 'ruby-prof', :platforms => :mri
 
     gem 'pry'
-    gem 'guard-rspec', :platform => [ :ruby_19, :ruby_20 ]
+    gem 'guard-rspec', :platform => [ :ruby_19, :ruby_20, :ruby_21 ]
     gem 'rb-inotify', :require => false # Linux
     gem 'rb-fsevent', :require => false # OS X
     gem 'rb-fchange', :require => false # Windows
