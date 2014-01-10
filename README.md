@@ -156,6 +156,12 @@ them.
 - `BSON::Timestamp`: `{ "t" : 5, "i" : 30 }`
 - `Regexp`: `{ "$regex" : "[abc]", "$options" : "i" }`
 
+### Notes on Special Ruby Date Classes
+
+As of 2.1.0, Ruby's `Date` and `DateTime` are able to be serialized, but when
+they are deserialized they will always be returned as a `Time` since the BSON
+specification only has a `Time` type and knows nothing about Ruby.
+
 API Documentation
 -----------------
 
