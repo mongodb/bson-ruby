@@ -33,6 +33,18 @@ module BSON
       defined?(JRUBY_VERSION)
     end
 
+    # Determine if we are using REE or not.
+    #
+    # @example Are we running with REE?
+    #   Environment.ree?
+    #
+    # @return [ true, false ] If our vm is REE.
+    #
+    # @since 2.1.0
+    def ree?
+      RUBY_ENGINE == "ruby" && RUBY_DESCRIPTION =~ /Enterprise/
+    end
+
     # Does the Ruby runtime we are using support ordered hashes?
     #
     # @example Does the runtime support ordered hashes?
