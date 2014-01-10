@@ -16,6 +16,29 @@ require "spec_helper"
 
 describe BSON::CodeWithScope do
 
+  describe "#==" do
+
+    let(:object) do
+      BSON::CodeWithScope.new("this.value = val", "test")
+    end
+
+    context "when the objects are equal" do
+      let(:other) { described_class.new("this.value = val", "test") }
+
+      it "returns true" do
+        expect(object).to eq(other)
+      end
+    end
+
+    context "when the other object is not equal" do
+      let(:other) { described_class.new("this.value = otherVal", "test") }
+
+      it "returns false" do
+        expect(object).to_not eq(other)
+      end
+    end
+  end
+
   describe "#as_json" do
 
     let(:object) do
