@@ -78,6 +78,11 @@ task :clean_all => :clean do
   end
 end
 
+task :ext_spec => :compile do
+  ENV["WITH_EXT"] = "C"
+  Rake::Task["rspec"].invoke
+end
+
 # Run bundle exec rake release with mri and jruby.
 task :release => :build do
   system "git tag -a v#{BSON::VERSION} -m 'Tagging release: #{BSON::VERSION}'"
@@ -106,4 +111,4 @@ namespace :benchmark do
   end
 end
 
-task :default => [ :clean_all, :spec, :compile, :rspec ]
+task :default => [ :clean_all, :spec, :ext_spec ]
