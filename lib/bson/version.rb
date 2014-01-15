@@ -13,5 +13,5 @@
 # limitations under the License.
 
 module BSON
-  VERSION = "2.1.0"
+  VERSION = "2.1.1"
 end

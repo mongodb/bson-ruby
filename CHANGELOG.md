@@ -1,6 +1,13 @@
 BSON Changelog
 ==============
 
+## 2.1.1
+
+### Bug Fixes
+
+* \#13 / RUBY-714: Require time in `DateTime` modules when using outside of
+  environments that don't already have time included.
+
 ## 2.1.0
 
 ### New Features
