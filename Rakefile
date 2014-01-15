@@ -83,7 +83,12 @@ task :ext_spec => :compile do
   Rake::Task["rspec"].invoke
 end
 
-# Run bundle exec rake release with mri and jruby.
+# Run bundle exec rake release with mri and jruby. Ex:
+#
+# rvm use 2.1.0@bson
+# bundle exec rake release
+# rvm use jruby@bson
+# bundle exec rake release
 task :release => :build do
   system "git tag -a v#{BSON::VERSION} -m 'Tagging release: #{BSON::VERSION}'"
   system "git push --tags"
