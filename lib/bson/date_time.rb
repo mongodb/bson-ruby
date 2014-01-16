@@ -38,7 +38,7 @@ module BSON
       to_time.to_bson(encoded)
     end
 
-    if Environment.ree?
+    if Environment.ruby_18?
 
       # Constant to multiple the seconds fraction my for millis in REE.
       #

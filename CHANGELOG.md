@@ -1,6 +1,12 @@
 BSON Changelog
 ==============
 
+## 2.1.2
+
+### Bug Fixes
+
+* \#14: Fixed all 1.8 errors related to `DateTime` serialization.
+
 ## 2.1.1
 
 ### Bug Fixes
