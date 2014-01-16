@@ -42,6 +42,7 @@ module BSON
     #
     # @since 2.1.0
     def ree?
+      return false unless defined?(RUBY_ENGINE)
       RUBY_ENGINE == "ruby" && RUBY_DESCRIPTION =~ /Enterprise/
     end
 
