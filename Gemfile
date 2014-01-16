@@ -10,7 +10,7 @@ group :development, :test do
   if ENV['CI']
     gem 'coveralls', :require => false
     gem 'mime-types', '1.25' # v2.0+ does not supporty ruby 1.8
-    gem "rubysl", "~> 2.0", :platforms => :rbx
+    gem "rubysl-singleton", "~> 2.0", :platforms => :rbx
   else
     gem 'ruby-prof', :platforms => :mri
     gem 'pry'
