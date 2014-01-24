@@ -87,12 +87,6 @@ static VALUE rb_bson_utf8_string;
  */
 static VALUE rb_utc_method;
 
-/**
- * Define encoding macros to be able to support 1.8.
- *
- * @since 2.0.0
- */
-#ifdef HAVE_RUBY_ENCODING_H
 #include <ruby/encoding.h>
 
 /**
@@ -144,57 +138,6 @@ static VALUE rb_str_new_encoded_binary(void)
 {
   return rb_enc_str_new("", 0, rb_ascii8bit_encoding());
 }
-#else
-
-/**
- * convert a ruby string into a utf-8 compatible binary string.
- *
- * @example convert the string to utf-8 binary.
- *    rb_bson_to_utf8_binary("test");
- *
- * @param [ string ] string the ruby string.
- *
- * @return [ string ] the encoded string.
- *
- * @since 2.0.0
- */
-static VALUE rb_bson_to_utf8_binary(VALUE string)
-{
-  return string;
-}
-
-/**
- * Convert the binary string to a ruby utf8 string.
- *
- * @example Convert the string to binary.
- *    rb_bson_from_bson_string("test");
- *
- * @param [ String ] string The ruby string.
- *
- * @return [ String ] The encoded string.
- *
- * @since 2.0.0
- */
-static VALUE rb_bson_from_bson_string(VALUE string)
-{
-  return string;
-}
-
-/**
- * Provide default new string with binary encoding.
- *
- * @example Check encoded and provide default new binary encoded string.
- *    if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
- *
- * @return [ String ] The new string with binary encoding.
- *
- * @since 2.0.0
- */
-static VALUE rb_str_new_encoded_binary(void)
-{
-  return rb_str_new("", 0);
-}
-#endif
 
 /**
  * Constant for a null byte.
