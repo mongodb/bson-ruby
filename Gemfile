@@ -22,7 +22,7 @@ group :development, :test do
 
   platforms :rbx do
     gem 'racc'
-    gem 'rubysl-singleton', '~> 2.0'
+    gem 'rubysl', '~> 2.0'
     gem 'psych'
   end
 end
