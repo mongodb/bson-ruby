@@ -15,7 +15,7 @@ With bundler, add the `bson` gem to your `Gemfile`. As of 2.0.0 native extension
 are bundled with the `bson` gem and `bson_ext` is no longer needed.
 
 ```ruby
-gem "bson", "~> 2.0"
+gem "bson", "~> 2.2"
 ```
 
 Require the `bson` gem in your application.
