@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'json', :platforms => [ :ruby_18, :jruby ]
+gem 'json', :platforms => [ :jruby ]
 gem 'rake'
 
 group :development, :test do
