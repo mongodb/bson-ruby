@@ -1,6 +1,12 @@
 BSON Changelog
 ==============
 
+## 2.2.0
+
+### Dependency Changes
+
+* Ruby 1.8 interpreters are no longer supported.
+
 ## 2.1.2
 
 ### Bug Fixes
