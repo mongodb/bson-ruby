@@ -10,7 +10,6 @@ group :development, :test do
   if ENV['CI']
     gem 'coveralls', :require => false
     gem 'mime-types', '1.25' # v2.0+ does not supporty ruby 1.8
-    gem "rubysl-singleton", "~> 2.0", :platforms => :rbx
   else
     gem 'ruby-prof', :platforms => :mri
     gem 'pry'
@@ -19,5 +18,11 @@ group :development, :test do
     gem 'rb-fsevent', :require => false # OS X
     gem 'rb-fchange', :require => false # Windows
     gem 'terminal-notifier-guard'
+  end
+
+  platforms :rbx do
+    gem 'racc'
+    gem 'rubysl-singleton', '~> 2.0'
+    gem 'psych'
   end
 end
