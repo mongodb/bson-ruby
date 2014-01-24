@@ -1,18 +1,15 @@
 language: ruby
 
 rvm:
-  - 1.8.7
   - 1.9.2
   - 1.9.3
   - 2.0.0
   - 2.1.0
   - ruby-head
-  - jruby-18mode
   - jruby-19mode
   - jruby-head
   - rbx-2.0.0
   - rbx-2.1.1
-  - ree
 
 jdk:
   - oraclejdk7
@@ -36,9 +33,6 @@ matrix:
     - rvm: rbx-2.0.0
     - rvm: rbx-2.1.1
   exclude:
-    - rvm: 1.8.7
-      jdk: openjdk7
-      env: CI="travis"
     - rvm: 1.9.2
       jdk: openjdk7
       env: CI="travis"
@@ -52,9 +46,6 @@ matrix:
       jdk: openjdk7
       env: CI="travis"
     - rvm: ruby-head
-      jdk: openjdk7
-      env: CI="travis"
-    - rvm: ree
       jdk: openjdk7
       env: CI="travis"
     - rvm: rbx-2.0.0
