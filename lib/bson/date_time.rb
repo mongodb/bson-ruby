@@ -37,27 +37,6 @@ module BSON
     def to_bson(encoded = ''.force_encoding(BINARY))
       to_time.to_bson(encoded)
     end
-
-    if Environment.ruby_18?
-
-      # Constant to multiple the seconds fraction my for millis in REE.
-      #
-      # @since 2.1.0
-      FACTOR = 86400000000
-
-      # REE does not define a to_time on DateTime, so if we are using REE we
-      # define it ourselves.
-      #
-      # @example Conver the DateTime to a time.
-      #   date_time.to_time
-      #
-      # @return [ Time ] The converted time.
-      #
-      # @since 2.1.0
-      def to_time
-        ::Time.utc(year, mon, mday, hour, min, sec, (sec_fraction * FACTOR).to_i).getlocal
-      end
-    end
   end
 
   # Enrich the core DateTime class with this module.

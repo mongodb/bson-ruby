@@ -111,19 +111,16 @@ describe String do
       it_behaves_like "a binary encoded string"
     end
 
-    unless BSON::Environment.ruby_18?
+    context "when the string contains non utf-8 characters" do
 
-      context "when the string contains non utf-8 characters" do
+      let(:string) do
+        255.chr
+      end
 
-        let(:string) do
-          255.chr
-        end
-
-        it "raises an error" do
-          expect {
-            string.to_bson_cstring
-          }.to raise_error(EncodingError)
-        end
+      it "raises an error" do
+        expect {
+          string.to_bson_cstring
+        }.to raise_error(EncodingError)
       end
     end
   end
@@ -242,19 +239,16 @@ describe String do
       it_behaves_like "a binary encoded string"
     end
 
-    unless BSON::Environment.ruby_18?
+    context "when the string contains non utf-8 characters" do
 
-      context "when the string contains non utf-8 characters" do
+      let(:string) do
+        255.chr
+      end
 
-        let(:string) do
-          255.chr
-        end
-
-        it "raises an error" do
-          expect {
-            string.to_bson_string
-          }.to raise_error(EncodingError)
-        end
+      it "raises an error" do
+        expect {
+          string.to_bson_string
+        }.to raise_error(EncodingError)
       end
     end
   end

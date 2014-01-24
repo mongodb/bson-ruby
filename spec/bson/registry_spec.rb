@@ -35,20 +35,10 @@ describe BSON::Registry do
 
     context "when the type has no corresponding class" do
 
-      unless BSON::Environment.ruby_18?
-
-        it "raises an error" do
-          expect {
-            described_class.get("test")
-          }.to raise_error(KeyError)
-        end
-      else
-
-        it "raises an error" do
-          expect {
-            described_class.get("test")
-          }.to raise_error(IndexError)
-        end
+      it "raises an error" do
+        expect {
+          described_class.get("test")
+        }.to raise_error(KeyError)
       end
     end
   end

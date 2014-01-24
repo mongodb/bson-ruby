@@ -25,7 +25,7 @@ describe BSON::Document do
     {}
   end
   let(:enum_class) do
-    BSON::Environment.ruby_18? ? Enumerable::Enumerator : Enumerator
+    Enumerator
   end
 
   before do

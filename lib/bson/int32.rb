@@ -30,7 +30,7 @@ module BSON
     # Constant for the int 32 pack directive.
     #
     # @since 2.0.0
-    PACK = Environment.ruby_18? ? "l".freeze : "l<".freeze
+    PACK = "l<".freeze
 
     # Deserialize an Integer from BSON.
     #

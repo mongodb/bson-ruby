@@ -33,19 +33,6 @@ module BSON
       defined?(JRUBY_VERSION)
     end
 
-    # Determine if we are using REE or not.
-    #
-    # @example Are we running with REE?
-    #   Environment.ree?
-    #
-    # @return [ true, false ] If our vm is REE.
-    #
-    # @since 2.1.0
-    def ree?
-      return false unless defined?(RUBY_ENGINE)
-      RUBY_ENGINE == "ruby" && RUBY_DESCRIPTION =~ /Enterprise/
-    end
-
     # Does the Ruby runtime we are using support ordered hashes?
     #
     # @example Does the runtime support ordered hashes?
@@ -57,55 +44,5 @@ module BSON
     def retaining_hash_order?
       jruby? || RUBY_VERSION > "1.9.1"
     end
-
-    # Are we running in a ruby runtime that is version 1.8.x?
-    #
-    # @example Is the ruby runtime in 1.8 mode?
-    #   Environment.ruby_18?
-    #
-    # @return [ true, false ] If we are running in 1.8.
-    #
-    # @since 2.0.0
-    def ruby_18?
-      RUBY_VERSION < "1.9"
-    end
   end
-end
-
-# In the case where we don't have encoding, we need to monkey
-# patch string to ignore the encoding directives.
-#
-# @since 2.0.0
-if BSON::Environment.ruby_18?
-
-  # Making string in 1.8 respond like a 1.9 string, without any modifications.
-  #
-  # @since 2.0.0
-  class String
-
-    # Simply return the string when asking for it's character.
-    #
-    # @since 2.0.0
-    def chr; self; end
-
-    # Force the string to the provided encoding. NOOP.
-    #
-    # @since 2.0.0
-    def force_encoding(*); self; end
-
-    # Encode the string as the provided type. NOOP.
-    #
-    # @since 2.0.0
-    def encode(*); self; end
-
-    # Encode the string in place. NOOP.
-    #
-    # @since 2.0.0
-    def encode!(*); self; end
-  end
-
-  # No encoding error is defined in 1.8.
-  #
-  # @since 2.0.0
-  class EncodingError < RuntimeError; end
 end
