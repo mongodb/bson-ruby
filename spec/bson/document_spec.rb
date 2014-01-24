@@ -559,21 +559,18 @@ describe BSON::Document do
       end
     end
 
-    if BSON::Environment.retaining_hash_order?
+    context "when provided hashes" do
 
-      context "when provided hashes" do
+      let(:alternate) do
+        described_class[1 => 2, 3 => 4]
+      end
 
-        let(:alternate) do
-          described_class[1 => 2, 3 => 4]
-        end
+      it "sets the keys" do
+        expect(alternate.keys).to eq([ 1, 3 ])
+      end
 
-        it "sets the keys" do
-          expect(alternate.keys).to eq([ 1, 3 ])
-        end
-
-        it "sets the values" do
-          expect(alternate.values).to eq([ 2, 4 ])
-        end
+      it "sets the values" do
+        expect(alternate.values).to eq([ 2, 4 ])
       end
     end
   end
@@ -738,7 +735,7 @@ describe BSON::Document do
       it_behaves_like "a document able to handle utf-8"
     end
 
-    pending "when utf-8 code with scope values are present" do
+    context "when utf-8 code with scope values are present" do
 
       let(:document) do
         described_class["code", BSON::CodeWithScope.new("// gültig", {})]

@@ -32,17 +32,5 @@ module BSON
     def jruby?
       defined?(JRUBY_VERSION)
     end
-
-    # Does the Ruby runtime we are using support ordered hashes?
-    #
-    # @example Does the runtime support ordered hashes?
-    #   Environment.retaining_hash_order?
-    #
-    # @return [ true, false ] If the runtime has ordered hashes.
-    #
-    # @since 2.0.0
-    def retaining_hash_order?
-      jruby? || RUBY_VERSION > "1.9.1"
-    end
   end
 end
