@@ -20,6 +20,8 @@
 #include <sys/types.h>
 #endif
 
+#define _BSD_SOURCE
+
 #include <stdint.h>
 #include <time.h>
 #include <unistd.h>
