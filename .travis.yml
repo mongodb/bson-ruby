@@ -8,8 +8,7 @@ rvm:
   - ruby-head
   - jruby-19mode
   - jruby-head
-  - rbx-2.0.0
-  - rbx-2.1.1
+  - rbx-2.2.5
 
 jdk:
   - oraclejdk7
@@ -48,9 +47,6 @@ matrix:
     - rvm: ruby-head
       jdk: openjdk7
       env: CI="travis"
-    - rvm: rbx-2.0.0
-      jdk: openjdk7
-      env: CI="travis"
-    - rvm: rbx-2.1.1
+    - rvm: rbx-2.2.5
       jdk: openjdk7
       env: CI="travis"
