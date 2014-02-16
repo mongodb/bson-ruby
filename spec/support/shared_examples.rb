@@ -93,3 +93,10 @@ shared_examples_for "a document able to handle utf-8" do
     ).to eq(document)
   end
 end
+
+shared_examples_for "a type which converts to BSON::Time" do
+
+  it "shares BSON type with BSON::Time" do
+    expect(described_class.new.bson_type).to eq(Time.new.bson_type)
+  end
+end

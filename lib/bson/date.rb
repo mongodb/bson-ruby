@@ -35,6 +35,10 @@ module BSON
     def to_bson(encoded = ''.force_encoding(BINARY))
       ::Time.utc(year, month, day).to_bson(encoded)
     end
+
+    def bson_type
+      ::Time::BSON_TYPE
+    end
   end
 
   # Enrich the core Date class with this module.

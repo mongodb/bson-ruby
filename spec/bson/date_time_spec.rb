@@ -16,6 +16,8 @@ require "spec_helper"
 
 describe DateTime do
 
+  it_behaves_like "a type which converts to BSON::Time"
+
   describe "#to_bson" do
 
     context "when the date time is post epoch" do
