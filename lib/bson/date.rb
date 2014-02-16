@@ -36,6 +36,9 @@ module BSON
       ::Time.utc(year, month, day).to_bson(encoded)
     end
 
+    # Get the BSON type for the date.
+    #
+    # As the date is converted to a time, this returns the BSON type for time.
     def bson_type
       ::Time::BSON_TYPE
     end
