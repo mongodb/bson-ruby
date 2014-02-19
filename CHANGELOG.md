@@ -5,7 +5,8 @@ BSON Changelog
 
 ### Bug Fixes
 
-* #15: `Date` and `DateTime` instances now return the `Time` value for the BSON
+* [#15](http://github.com/mongodb/bson-ruby/pull/15):
+  `Date` and `DateTime` instances now return the `Time` value for the BSON
   type, so that they can be serialized inside hashes and arrays. (Michael Sell)
 
 ## 2.2.0
@@ -18,13 +19,16 @@ BSON Changelog
 
 ### Bug Fixes
 
-* #14: Fixed all 1.8 errors related to `DateTime` serialization.
+* [#14](http://github.com/mongodb/bson-ruby/pull/14):
+  Fixed all 1.8 errors related to `DateTime` serialization.
 
 ## 2.1.1
 
 ### Bug Fixes
 
-* #13 / RUBY-714: Require time in `DateTime` modules when using outside of
+* [#13](http://github.com/mongodb/bson-ruby/pull/13) /
+  [RUBY-714](http://jira.mongodb.org/browse/RUBY-714):
+  Require time in `DateTime` modules when using outside of
   environments that don't already have time included.
 
 ## 2.1.0
