@@ -1,6 +1,13 @@
 BSON Changelog
 ==============
 
+## 2.2.1
+
+### Bug Fixes
+
+* \#15: `Date` and `DateTime` instances now return the `Time` value for the BSON
+  type, so that they can be serialized inside hashes and arrays. (Michael Sell)
+
 ## 2.2.0
 
 ### Dependency Changes
