@@ -1,7 +1,6 @@
 language: ruby
 
 rvm:
-  - 1.9.2
   - 1.9.3
   - 2.0.0
   - 2.1.0
@@ -13,6 +12,7 @@ rvm:
 jdk:
   - oraclejdk7
   - openjdk7
+  - oraclejdk8
 
 env: CI="travis"
 
@@ -29,24 +29,34 @@ matrix:
   allow_failures:
     - rvm: ruby-head
     - rvm: jruby-head
-    - rvm: rbx-2.0.0
-    - rvm: rbx-2.1.1
   exclude:
-    - rvm: 1.9.2
+    - rvm: 1.9.3
       jdk: openjdk7
       env: CI="travis"
     - rvm: 1.9.3
-      jdk: openjdk7
+      jdk: oraclejdk8
       env: CI="travis"
     - rvm: 2.0.0
       jdk: openjdk7
       env: CI="travis"
+    - rvm: 2.0.0
+      jdk: oraclejdk8
+      env: CI="travis"
     - rvm: 2.1.0
       jdk: openjdk7
+      env: CI="travis"
+    - rvm: 2.1.0
+      jdk: oraclejdk8
       env: CI="travis"
     - rvm: ruby-head
       jdk: openjdk7
       env: CI="travis"
+    - rvm: ruby-head
+      jdk: oraclejdk8
+      env: CI="travis"
     - rvm: rbx-2.2.5
       jdk: openjdk7
+      env: CI="travis"
+    - rvm: rbx-2.2.5
+      jdk: oraclejdk8
       env: CI="travis"
