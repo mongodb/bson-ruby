@@ -170,7 +170,7 @@ module BSON
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
       repair if defined?(@data)
-      @raw_data ||= @@generator.next
+      @raw_data ||= @@generator.next_object_id
       encoded << @raw_data
     end
 
@@ -268,7 +268,7 @@ module BSON
       #
       # @since 2.0.0
       def from_time(time, options = {})
-        from_data(options[:unique] ? @@generator.next(time.to_i) : [ time.to_i ].pack("Nx8"))
+        from_data(options[:unique] ? @@generator.next_object_id(time.to_i) : [ time.to_i ].pack("Nx8"))
       end
 
       # Determine if the provided string is a legal object id.
@@ -337,14 +337,14 @@ module BSON
       # object id counter. Will use the provided time if not nil.
       #
       # @example Get the next object id data.
-      #   generator.next
+      #   generator.next_object_id
       #
       # @param [ Time ] time The optional time to generate with.
       #
       # @return [ String ] The raw object id bytes.
       #
       # @since 2.0.0
-      def next(time = nil)
+      def next_object_id(time = nil)
         @mutex.lock
         begin
           count = @counter = (@counter + 1) % 0xFFFFFF

@@ -703,6 +703,6 @@ void Init_native()
   rb_define_private_method(string, "check_for_illegal_characters!", rb_string_check_for_illegal_characters, 0);
 
   // Redefine the next method on the object id generator.
-  rb_undef_method(generator, "next");
-  rb_define_method(generator, "next", rb_object_id_generator_next, -1);
+  rb_undef_method(generator, "next_object_id");
+  rb_define_method(generator, "next_object_id", rb_object_id_generator_next, -1);
 }
