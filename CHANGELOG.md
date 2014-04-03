@@ -1,6 +1,18 @@
 BSON Changelog
 ==============
 
+## 2.2.2
+
+### Bug Fixes
+
+* [#17](http://github.com/mongodb/bson-ruby/pull/17):
+  Fixed `BSON::ObjectId` counter increment on Ruby 2.1.0 since method names
+  can no longer override Ruby keywords.
+
+* [#16](http://github.com/mongodb/bson-ruby/pull/16):
+  Fixed serialization of times when microseconds are causing `to_f` on time to
+  be 1 microsecond inaccurate. (Francois Bernier)
+
 ## 2.2.1
 
 ### Bug Fixes
