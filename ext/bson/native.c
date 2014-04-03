@@ -492,10 +492,12 @@ static VALUE rb_integer_to_bson_int64(VALUE self, VALUE encoded)
  */
 static VALUE rb_time_to_bson(int argc, VALUE *argv, VALUE self)
 {
-  double t = NUM2DBL(rb_funcall(self, rb_intern("to_f"), 0));
+  int64_t t = NUM2INT64(rb_funcall(self, rb_intern("to_i"), 0));
   int64_t milliseconds = (int64_t)(t * 1000);
+  int32_t micro = NUM2INT(rb_funcall(self, rb_intern("usec"), 0));
+  int64_t time = milliseconds + (micro / 1000);
   VALUE encoded = rb_get_default_encoded(argc, argv);
-  return int64_t_to_bson(milliseconds, encoded);
+  return int64_t_to_bson(time, encoded);
 }
 
 /**

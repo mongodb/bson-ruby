@@ -24,11 +24,23 @@ describe Time do
 
     context "when the time is post epoch" do
 
-      let(:obj)  { Time.utc(2012, 1, 1, 0, 0, 0) }
-      let(:bson) { [ (obj.to_f * 1000).to_i ].pack(BSON::Int64::PACK) }
+      context "when the time has no microseconds" do
 
-      it_behaves_like "a serializable bson element"
-      it_behaves_like "a deserializable bson element"
+        let(:obj)  { Time.utc(2012, 1, 1, 0, 0, 0) }
+        let(:bson) { [ (obj.to_i * 1000) + (obj.usec / 1000) ].pack(BSON::Int64::PACK) }
+
+        it_behaves_like "a serializable bson element"
+        it_behaves_like "a deserializable bson element"
+      end
+
+      context "when the time has microseconds" do
+
+        let(:obj)  { Time.at(Time.utc(2014, 03, 22, 18, 05, 05).to_i, 505000).utc }
+        let(:bson) { [ (obj.to_i * 1000) + (obj.usec / 1000) ].pack(BSON::Int64::PACK) }
+
+        it_behaves_like "a serializable bson element"
+        it_behaves_like "a deserializable bson element"
+      end
     end
 
     context "when the time is pre epoch" do
