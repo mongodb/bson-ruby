@@ -38,7 +38,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(encoded = ''.force_encoding(BINARY))
-      encoded << [ (to_f * 1000.0).to_i ].pack(Int64::PACK)
+      encoded << [ (to_i * 1000) + (usec / 1000) ].pack(Int64::PACK)
     end
 
     module ClassMethods
