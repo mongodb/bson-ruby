@@ -3,7 +3,7 @@ language: ruby
 rvm:
   - 1.9.3
   - 2.0.0
-  - 2.1.0
+  - 2.1
   - ruby-head
   - jruby-19mode
   - jruby-head
@@ -42,10 +42,10 @@ matrix:
     - rvm: 2.0.0
       jdk: oraclejdk8
       env: CI="travis"
-    - rvm: 2.1.0
+    - rvm: 2.1
       jdk: openjdk7
       env: CI="travis"
-    - rvm: 2.1.0
+    - rvm: 2.1
       jdk: oraclejdk8
       env: CI="travis"
     - rvm: ruby-head
