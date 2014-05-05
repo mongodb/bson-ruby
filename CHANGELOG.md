@@ -1,6 +1,12 @@
 BSON Changelog
 ==============
 
+## 2.2.3
+
+### Bug Fixes
+
+* Fixed native C encoding of strings and performace on Rubinius.
+
 ## 2.2.2
 
 ### Bug Fixes
