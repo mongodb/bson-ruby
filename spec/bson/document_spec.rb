@@ -630,6 +630,22 @@ describe BSON::Document do
 
     it_behaves_like "a bson element"
 
+    context "when the hash has symbol keys" do
+
+      let(:obj) do
+        described_class[:ismaster, 1].freeze
+      end
+
+      let(:bson) do
+        "#{19.to_bson}#{BSON::Int32::BSON_TYPE}ismaster#{BSON::NULL_BYTE}" +
+        "#{1.to_bson}#{BSON::NULL_BYTE}"
+      end
+
+      it "properly serializes the symbol" do
+        expect(obj.to_bson).to eq(bson)
+      end
+    end
+
     context "when the hash is a single level" do
 
       let(:obj) do

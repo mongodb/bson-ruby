@@ -90,24 +90,6 @@ static VALUE rb_utc_method;
 #include <ruby/encoding.h>
 
 /**
- * Convert a ruby string into a utf-8 compatible binary string.
- *
- * @example Convert the string to utf-8 binary.
- *    rb_bson_to_utf8_binary("test");
- *
- * @param [ String ] string The ruby string.
- *
- * @return [ String ] The encoded string.
- *
- * @since 2.0.0
- */
-static VALUE rb_bson_to_utf8_binary(VALUE string)
-{
-  VALUE utf8 = rb_str_encode(string, rb_bson_utf8_string, 0, Qnil);
-  return rb_enc_associate(utf8, rb_ascii8bit_encoding());
-}
-
-/**
  * Convert the binary string to a ruby utf8 string.
  *
  * @example Convert the string to binary.
@@ -552,26 +534,6 @@ static VALUE rb_string_set_int32(VALUE str, VALUE pos, VALUE an_int32)
 }
 
 /**
- * Convert the ruby string to a BSON string.
- *
- * @example Convert the Ruby string to a BSON string.
- *    rb_string_to_bson_string(0, Qnil, "test");
- *
- * @param [ String ] self The string value.
- * @param [ String ] encoded The encoded string to append to.
- *
- * @return [ String ] The encoded string.
- *
- * @since 2.0.0
- */
-static VALUE rb_string_to_bson_string(VALUE self, VALUE encoded)
-{
-  const VALUE binary = rb_bson_to_utf8_binary(self);
-  rb_str_cat(encoded, RSTRING_PTR(binary), RSTRING_LEN(binary));
-  return encoded;
-}
-
-/**
  * Check for illegal characters in string.
  *
  * @example Check for illegal characters.
@@ -697,8 +659,6 @@ void Init_native()
   // String optimizations.
   rb_undef_method(string, "set_int32");
   rb_define_method(string, "set_int32", rb_string_set_int32, 2);
-  rb_undef_method(string, "to_utf8_binary");
-  rb_define_private_method(string, "to_utf8_binary", rb_string_to_bson_string, 1);
   rb_undef_method(string, "from_bson_string");
   rb_define_method(string, "from_bson_string", rb_bson_from_bson_string, 0);
   rb_undef_method(string, "check_for_illegal_characters!");
