@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
   s.test_files = Dir.glob('spec/**/*')
 
   s.require_path              = 'lib'
-  s.required_ruby_version     = '>= 1.8.7'
+  s.required_ruby_version     = '>= 1.9.3'
   s.required_rubygems_version = '>= 1.3.6'
   s.has_rdoc                  = 'yard'
 end
