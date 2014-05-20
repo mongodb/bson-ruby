@@ -12,6 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module BSON
-  VERSION = "2.2.4"
+require "spec_helper"
+
+describe BSON::Object do
+
+  describe "#to_bson_key" do
+
+    let(:object) do
+      1..3
+    end
+
+    it "raises an exception" do
+      expect {
+        object.to_bson_key
+      }.to raise_error(BSON::InvalidKey)
+    end
+  end
 end

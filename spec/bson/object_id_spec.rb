@@ -521,4 +521,21 @@ describe BSON::ObjectId do
       expect(registered).to eq(described_class)
     end
   end
+
+  context "when the ids are used as keys" do
+
+    let(:object_id) do
+      described_class.new
+    end
+
+    let(:hash) do
+      { object_id => 1 }
+    end
+
+    it "raises an exception on serialization" do
+      expect {
+        hash.to_bson
+      }.to raise_error(BSON::InvalidKey)
+    end
+  end
 end
