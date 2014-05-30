@@ -538,6 +538,39 @@ describe BSON::Document do
         expect(document[:test]).to eq(4)
       end
     end
+
+    context "when providing a nested hash with symbol keys" do
+
+      let(:document) do
+        described_class.new(:test => { :test => 4 })
+      end
+
+      it "converts the nested keys to strings" do
+        expect(document).to eq({ "test" => { "test" => 4 }})
+      end
+    end
+
+    context "when providing a nested hash multiple levels deep with symbol keys" do
+
+      let(:document) do
+        described_class.new(:test => { :test => { :test => 4 }})
+      end
+
+      it "converts the nested keys to strings" do
+        expect(document).to eq({ "test" => { "test" => { "test" => 4 }}})
+      end
+    end
+
+    context "when providing an array of nested hashes" do
+
+      let(:document) do
+        described_class.new(:test => [{ :test => 4 }])
+      end
+
+      it "converts the nested keys to strings" do
+        expect(document).to eq({ "test" => [{ "test" => 4 }]})
+      end
+    end
   end
 
   describe "#replace" do

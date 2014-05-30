@@ -34,6 +34,30 @@ module BSON
     def to_bson_key(encoded = ''.force_encoding(BINARY))
       raise InvalidKey.new(self)
     end
+
+    # Converts the object to a normalized key in a BSON document.
+    #
+    # @example Convert the object to a normalized key.
+    #   object.to_bson_normalized_key
+    #
+    # @return [ Object ] self.
+    #
+    # @since 3.0.0
+    def to_bson_normalized_key
+      self
+    end
+
+    # Converts the object to a normalized value in a BSON document.
+    #
+    # @example Convert the object to a normalized value.
+    #   object.to_bson_normalized_value
+    #
+    # @return [ Object ] self.
+    #
+    # @since 3.0.0
+    def to_bson_normalized_value
+      self
+    end
   end
 
   # Raised when trying to serialize an object into a key.

@@ -58,6 +58,18 @@ module BSON
       to_s.to_bson_key(encoded)
     end
 
+    # Converts the symbol to a normalized key in a BSON document.
+    #
+    # @example Convert the symbol to a normalized key.
+    #   :test.to_bson_normalized_key
+    #
+    # @return [ String ] The symbol as a non interned string.
+    #
+    # @since 3.0.0
+    def to_bson_normalized_key
+      to_s
+    end
+
     module ClassMethods
       # Deserialize a symbol from BSON.
       #

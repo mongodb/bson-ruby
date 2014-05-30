@@ -68,6 +68,18 @@ module BSON
       ObjectId.repair(self) { pack("C*") }
     end
 
+    # Converts the array to a normalized value in a BSON document.
+    #
+    # @example Convert the array to a normalized value.
+    #   array.to_bson_normalized_value
+    #
+    # @return [ Array ] The normazlied array.
+    #
+    # @since 3.0.0
+    def to_bson_normalized_value
+      map!{ |value| value.to_bson_normalized_value }
+    end
+
     module ClassMethods
 
       # Deserialize the array from BSON.
