@@ -50,7 +50,78 @@ module BSON
     #
     # @since 2.0.0
     def [](key)
-      super(key) || super(key.to_s)
+      super(normalize_key(key))
+    end
+
+    # Set a value on the document. Will normalize_key symbol keys into strings.
+    #
+    # @example Set a value on the document.
+    #   document[:test] = "value"
+    #
+    # @param [ String, Symbol ] key The key to update.
+    # @param [ Object ] value The value to update.
+    #
+    # @return [ Object ] The updated value.
+    #
+    # @since 3.0.0
+    def []=(key, value)
+      super(normalize_key(key), value)
+    end
+
+    # Instantiate a new Document. Valid parameters for instantiation is a hash
+    # only or nothing.
+    #
+    # @example Create the new Document.
+    #   BSON::Document.new(name: "Joe", age: 33)
+    #
+    # @param [ Hash ] elements The elements of the document.
+    #
+    # @since 3.0.0
+    def initialize(elements = nil)
+      super()
+      (elements || {}).each_pair{ |key, value| self[key] = value }
+    end
+
+    # Merge this document with another document, returning a new document in
+    # the process.
+    #
+    # @example Merge with another document.
+    #   document.merge(name: "Bob")
+    #
+    # @param [ BSON::Document, Hash ] other The document/hash to merge with.
+    #
+    # @eturn [ BSON::Document ] The result of the merge.
+    #
+    # @since 3.0.0
+    def merge(other, &block)
+      dup.merge!(other, &block)
+    end
+
+    # Merge this document with another document, returning the same document in
+    # the process.
+    #
+    # @example Merge with another document.
+    #   document.merge(name: "Bob")
+    #
+    # @param [ BSON::Document, Hash ] other The document/hash to merge with.
+    #
+    # @eturn [ BSON::Document ] The result of the merge.
+    #
+    # @since 3.0.0
+    def merge!(other)
+      other.each_pair do |key, value|
+        value = yield(normalize_key(key), self[key], value) if block_given?
+        self[key] = value
+      end
+      self
+    end
+
+    alias :update :merge!
+
+    private
+
+    def normalize_key(key)
+      key.is_a?(::Symbol) ? key.to_s : key
     end
   end
 end
