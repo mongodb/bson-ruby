@@ -14,7 +14,7 @@
 
 module BSON
 
-  # Represents a $maxKey type, which compares less than any other value in the
+  # Represents a boolean type, which compares less than any other value in the
   # specification.
   #
   # @see http://bsonspec.org/#/specification
