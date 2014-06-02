@@ -48,6 +48,18 @@ module BSON
       end
     end
 
+    # Converts the hash to a normalized value in a BSON document.
+    #
+    # @example Convert the hash to a normalized value.
+    #   hash.to_bson_normalized_value
+    #
+    # @return [ BSON::Document ] The normazlied hash.
+    #
+    # @since 3.0.0
+    def to_bson_normalized_value
+      Document.new(self)
+    end
+
     module ClassMethods
 
       # Deserialize the hash from BSON.

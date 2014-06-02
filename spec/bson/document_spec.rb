@@ -439,7 +439,7 @@ describe BSON::Document do
       it "executes the block on each merged element" do
         expect(merged[:a]).to eq(0)
         expect(merged[:b]).to eq(3)
-        expect(merged[:c]).to eq(7)
+        expect(merged[:c]).to eq(8)
       end
     end
   end
@@ -488,7 +488,7 @@ describe BSON::Document do
       it "executes the block on each merged element" do
         expect(other[:a]).to eq(0)
         expect(other[:b]).to eq(3)
-        expect(other[:c]).to eq(7)
+        expect(other[:c]).to eq(8)
       end
     end
   end
@@ -517,60 +517,58 @@ describe BSON::Document do
 
   describe "#initialize" do
 
-    context "when provided for splat args" do
+    context "when providing symbol keys" do
 
-      context "when an even number of args" do
-
-        let(:alternate) do
-          described_class[1, 2, 3, 4]
-        end
-
-        it "treats the arguments are an array" do
-          expect(alternate.keys).to eq([ 1, 3 ])
-        end
-
-        it "instantiates a document" do
-          expect(alternate).to be_a(BSON::Document)
-        end
+      let(:document) do
+        described_class.new(:test => 2, :testing => 4)
       end
 
-      context "when an odd number of arguments" do
-
-        it "raises an argument error" do
-          expect {
-            described_class[1, 2, 3]
-          }.to raise_error(ArgumentError)
-        end
+      it "converts the symbols to strings" do
+        expect(document).to eq({ "test" => 2, "testing" => 4 })
       end
     end
 
-    context "when provided an array" do
+    context "when providing duplicate symbol and string keys" do
 
-      let(:alternate) do
-        described_class[[[ 1, 2 ], [ 3, 4 ], [ "missing" ]]]
+      let(:document) do
+        described_class.new(:test => 2, "test" => 4)
       end
 
-      it "sets the keys" do
-        expect(alternate.keys).to eq([ 1, 3, "missing" ])
-      end
-
-      it "sets the values" do
-        expect(alternate.values).to eq([ 2, 4, nil ])
+      it "uses the last provided string key value" do
+        expect(document[:test]).to eq(4)
       end
     end
 
-    context "when provided hashes" do
+    context "when providing a nested hash with symbol keys" do
 
-      let(:alternate) do
-        described_class[1 => 2, 3 => 4]
+      let(:document) do
+        described_class.new(:test => { :test => 4 })
       end
 
-      it "sets the keys" do
-        expect(alternate.keys).to eq([ 1, 3 ])
+      it "converts the nested keys to strings" do
+        expect(document).to eq({ "test" => { "test" => 4 }})
+      end
+    end
+
+    context "when providing a nested hash multiple levels deep with symbol keys" do
+
+      let(:document) do
+        described_class.new(:test => { :test => { :test => 4 }})
       end
 
-      it "sets the values" do
-        expect(alternate.values).to eq([ 2, 4 ])
+      it "converts the nested keys to strings" do
+        expect(document).to eq({ "test" => { "test" => { "test" => 4 }}})
+      end
+    end
+
+    context "when providing an array of nested hashes" do
+
+      let(:document) do
+        described_class.new(:test => [{ :test => 4 }])
+      end
+
+      it "converts the nested keys to strings" do
+        expect(document).to eq({ "test" => [{ "test" => 4 }]})
       end
     end
   end
@@ -601,11 +599,15 @@ describe BSON::Document do
     end
 
     it "updates the keys" do
-      expect(updated.keys).to eq([ :name ])
+      expect(updated.keys).to eq([ "name" ])
     end
 
     it "updates the values" do
       expect(updated.values).to eq([ "Bob" ])
+    end
+
+    it "returns the same document" do
+      expect(updated.update(:name => "Bob")).to equal(updated)
     end
   end
 
