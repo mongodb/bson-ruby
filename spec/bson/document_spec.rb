@@ -149,14 +149,14 @@ describe BSON::Document do
       context "when the key exists" do
 
         it "returns true" do
-          expect(doc.send(method, "blue")).to be_true
+          expect(doc.send(method, "blue")).to be true
         end
       end
 
       context "when the key does not exist" do
 
         it "returns false" do
-          expect(doc.send(method, "indigo")).to be_false
+          expect(doc.send(method, "indigo")).to be false
         end
       end
     end
@@ -169,14 +169,14 @@ describe BSON::Document do
       context "when the value exists" do
 
         it "returns true" do
-          expect(doc.send(method, "000099")).to be_true
+          expect(doc.send(method, "000099")).to be true
         end
       end
 
       context "when the value does not exist" do
 
         it "returns false" do
-          expect(doc.send(method, "ABCABC")).to be_false
+          expect(doc.send(method, "ABCABC")).to be false
         end
       end
     end

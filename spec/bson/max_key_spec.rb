@@ -38,14 +38,14 @@ describe BSON::MaxKey do
   describe "#>" do
 
     it "always returns true" do
-      expect(subject > Integer::MAX_64BIT).to be_true
+      expect(subject > Integer::MAX_64BIT).to be true
     end
   end
 
   describe "#<" do
 
     it "always returns false" do
-      expect(subject < Integer::MAX_64BIT).to be_false
+      expect(subject < Integer::MAX_64BIT).to be false
     end
   end
 

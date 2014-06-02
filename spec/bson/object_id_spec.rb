@@ -76,7 +76,7 @@ describe BSON::ObjectId do
         end
 
         it "returns true" do
-          expect(object_id === other).to be_true
+          expect(object_id === other).to be true
         end
       end
 
@@ -87,7 +87,7 @@ describe BSON::ObjectId do
         end
 
         it "returns false" do
-          expect(object_id === other).to be_false
+          expect(object_id === other).to be false
         end
       end
     end
@@ -95,7 +95,7 @@ describe BSON::ObjectId do
     context "when comparing to an object id class" do
 
       it "returns false" do
-        expect(object_id === BSON::ObjectId).to be_false
+        expect(object_id === BSON::ObjectId).to be false
       end
     end
 
@@ -108,7 +108,7 @@ describe BSON::ObjectId do
         end
 
         it "returns true" do
-          expect(object_id === other).to be_true
+          expect(object_id === other).to be true
         end
       end
 
@@ -119,7 +119,7 @@ describe BSON::ObjectId do
         end
 
         it "returns false" do
-          expect(object_id === other).to be_false
+          expect(object_id === other).to be false
         end
       end
     end
@@ -127,14 +127,14 @@ describe BSON::ObjectId do
     context "when comparing with a non string or object id" do
 
       it "returns false" do
-        expect(object_id === "test").to be_false
+        expect(object_id === "test").to be false
       end
     end
 
     context "when comparing with a non object id class" do
 
       it "returns false" do
-        expect(object_id === String).to be_false
+        expect(object_id === String).to be false
       end
     end
   end
@@ -152,14 +152,14 @@ describe BSON::ObjectId do
     context "when the generation time before the other" do
 
       it "returns true" do
-        expect(object_id < other_id).to be_true
+        expect(object_id < other_id).to be true
       end
     end
 
     context "when the generation time is after the other" do
 
       it "returns false" do
-        expect(other_id < object_id).to be_false
+        expect(other_id < object_id).to be false
       end
     end
   end
@@ -177,14 +177,14 @@ describe BSON::ObjectId do
     context "when the generation time before the other" do
 
       it "returns false" do
-        expect(object_id > other_id).to be_false
+        expect(object_id > other_id).to be false
       end
     end
 
     context "when the generation time is after the other" do
 
       it "returns true" do
-        expect(other_id > object_id).to be_true
+        expect(other_id > object_id).to be true
       end
     end
   end
@@ -333,7 +333,7 @@ describe BSON::ObjectId do
       end
 
       it "does not include process or sequence information" do
-        expect(object_id.to_s =~ /\A[0-9a-f]{8}[0]{16}\Z/).to be_true
+        expect(object_id.to_s =~ /\A[0-9a-f]{8}[0]{16}\Z/).to be_truthy
       end
     end
 
