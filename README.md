@@ -15,7 +15,7 @@ With bundler, add the `bson` gem to your `Gemfile`. As of 2.0.0 native extension
 are bundled with the `bson` gem and `bson_ext` is no longer needed.
 
 ```ruby
-gem "bson", "~> 2.2"
+gem "bson", "~> 2.3"
 ```
 
 Require the `bson` gem in your application.
@@ -181,7 +181,7 @@ As of 2.0.0, this project adheres to the [Semantic Versioning Specification](htt
 License
 -------
 
-Copyright (C) 2009-2013 MongoDB Inc.
+Copyright (C) 2009-2014 MongoDB Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
