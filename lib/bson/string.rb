@@ -109,12 +109,18 @@ module BSON
     #
     # @since 2.0.0
     def to_bson_string(encoded = ''.force_encoding(BINARY))
-      begin
-        to_utf8_binary(encoded)
-      rescue EncodingError
+      if RUBY_PLATFORM =~ /java/
         data = dup.force_encoding(UTF8)
-        raise unless data.valid_encoding?
+        raise EncodingError unless data.valid_encoding?
         encoded << data.force_encoding(BINARY)
+      else
+        begin
+          data = dup.force_encoding(UTF8)
+          encoded << data.encode!(BINARY, UTF8)
+        rescue EncodingError
+          raise unless data.valid_encoding?
+          encoded << data.force_encoding(BINARY)
+        end
       end
     end
 
@@ -157,12 +163,6 @@ module BSON
     # @since 2.0.0
     def set_int32(pos, int32)
       self[pos, 4] = [ int32 ].pack(Int32::PACK)
-    end
-
-    private
-
-    def to_utf8_binary(encoded)
-      encoded << encode(UTF8).force_encoding(BINARY)
     end
 
     module ClassMethods

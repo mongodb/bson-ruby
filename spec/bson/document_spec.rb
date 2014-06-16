@@ -762,20 +762,6 @@ describe BSON::Document do
       it_behaves_like "a document able to handle utf-8"
     end
 
-    context "when non utf-8 values exist" do
-
-      let(:string) { "gültig" }
-      let(:document) do
-        described_class["type", string.encode("iso-8859-1")]
-      end
-
-      it "encodes and decodes the document properly" do
-        expect(
-          BSON::Document.from_bson(StringIO.new(document.to_bson))
-        ).to eq({ "type" => string })
-      end
-    end
-
     context "when binary strings with utf-8 values exist" do
 
       let(:string) { "europäischen" }
