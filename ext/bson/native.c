@@ -356,7 +356,7 @@ static VALUE rb_integer_to_bson_key(int argc, VALUE *argv, VALUE self)
 static VALUE rb_integer_from_bson_int32(VALUE self, VALUE bson)
 {
   const uint8_t *v = (const uint8_t*) RSTRING_PTR(bson);
-  const uint32_t integer = v[0] + (v[1] << 8) + (v[2] << 16) + (v[3] << 24);
+  const int32_t integer = v[0] + (v[1] << 8) + (v[2] << 16) + (v[3] << 24);
   return INT2NUM(integer);
 }
 
