@@ -25,4 +25,18 @@ describe BSON::Int32 do
     it_behaves_like "a bson element"
     it_behaves_like "a deserializable bson element"
   end
+
+  describe "when the integer is negative" do
+    let(:decoded) { -1 }
+    let(:encoded) {StringIO.new([ -1 ].pack(BSON::Int32::PACK))}
+    let(:decoded_2) { -1 }
+    let(:encoded_2) {StringIO.new([ -1 ].pack(BSON::Int32::PACK))}
+    it "decodes a -1 correctly" do
+      expect(BSON::Int32.from_bson(encoded)).to eq(decoded)
+    end  
+    it "decodes a -50 correctly" do
+      expect(BSON::Int32.from_bson(encoded_2)).to eq(decoded_2)
+    end  
+  end
+  
 end
