@@ -242,10 +242,13 @@ static VALUE rb_object_id_generator_next(int argc, VALUE* args, VALUE self)
     t = htonl(NUM2UINT(rb_funcall(*args, rb_intern("to_i"), 0)));
   }
 
+  unsigned long c;
+  c = htonl(rb_bson_object_id_counter << 8);
+
   memcpy(&bytes, &t, 4);
   memcpy(&bytes[4], rb_bson_machine_id, 3);
   memcpy(&bytes[7], &pid, 2);
-  memcpy(&bytes[9], (unsigned char*) &rb_bson_object_id_counter, 3);
+  memcpy(&bytes[9], (unsigned char*) &c, 3);
   rb_bson_object_id_counter++;
   return rb_str_new(bytes, 12);
 }
