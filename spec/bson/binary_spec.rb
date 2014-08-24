@@ -15,6 +15,44 @@
 require "spec_helper"
 
 describe BSON::Binary do
+  let(:testing1)  { described_class.new("testing") }
+  let(:testing2)  { described_class.new("testing") }
+  let(:not_testing) { described_class.new("not testing") }
+
+  describe "#eql?" do
+    context "for two equal objects" do
+      it "returns true" do
+        expect(testing1).to eql(testing2)
+      end
+    end
+
+    context "for two different objects" do
+      it "returns false" do
+        expect(testing1).not_to eql(not_testing)
+      end
+    end
+  end
+
+  describe "#hash" do
+    context "for two equal objects" do
+      it "is the same" do
+        expect(testing1.hash).to eq(testing2.hash)
+      end
+    end
+
+    context "for two different objects" do
+      it "is different" do
+        expect(testing1.hash).not_to eq(not_testing.hash)
+      end
+    end
+  end
+
+  let(:hash) do { testing1 => "my value" } end
+
+  it "can be used as Hash key" do
+    expect(hash[testing2]).to eq("my value")
+    expect(hash[not_testing]).to be_nil
+  end
 
   describe "#as_json" do
 
