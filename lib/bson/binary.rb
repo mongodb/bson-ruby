@@ -108,6 +108,18 @@ module BSON
       @type = type
     end
 
+    # Get a nice string for use with object inspection.
+    #
+    # @example Inspect the binary.
+    #   object_id.inspect
+    #
+    # @return [ String ] The binary in form BSON::Binary:object_id
+    #
+    # @since 2.3.0
+    def inspect
+      "BSON::Binary:#{object_id}"
+    end
+
     # Encode the binary type
     #
     # @example Encode the binary.
