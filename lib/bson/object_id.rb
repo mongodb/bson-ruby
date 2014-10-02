@@ -118,7 +118,7 @@ module BSON
     # Get a nice string for use with object inspection.
     #
     # @example Inspect the object id.
-    #   obhect_id.inspect
+    #   object_id.inspect
     #
     # @return [ String ] The object id in form BSON::ObjectId('id')
     #
