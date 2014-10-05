@@ -1,4 +1,4 @@
-BSON [![Build Status](https://secure.travis-ci.org/mongodb/bson-ruby.png?branch=master&.png)](http://travis-ci.org/mongodb/bson-ruby) [![Code Climate](https://codeclimate.com/github/mongodb/bson-ruby.png)](https://codeclimate.com/github/mongodb/bson-ruby) [![Coverage Status](https://coveralls.io/repos/mongodb/bson-ruby/badge.png?branch=master)](https://coveralls.io/r/mongodb/bson-ruby?branch=master)
+BSON [![Build Status](https://secure.travis-ci.org/mongodb/bson-ruby.png?branch=master&.png)](http://travis-ci.org/mongodb/bson-ruby)  [![Code Climate](https://codeclimate.com/github/mongodb/bson-ruby.png)](https://codeclimate.com/github/mongodb/bson-ruby) [![Coverage Status](https://coveralls.io/repos/mongodb/bson-ruby/badge.png?branch=master)](https://coveralls.io/r/mongodb/bson-ruby?branch=master) [![Inline docs](http://inch-ci.org/github/mongodb/bson-ruby.svg?branch=master)](http://inch-ci.org/github/mongodb/bson-ruby)
 ====
 
 An implementation of the BSON specification in Ruby.
