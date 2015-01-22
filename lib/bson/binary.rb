@@ -68,6 +68,18 @@ module BSON
       return false unless other.is_a?(Binary)
       type == other.type && data == other.data
     end
+    alias eql? ==
+
+    # Generates a Fixnum hash value for this object.
+    #
+    # Allows using Binary as hash keys.
+    #
+    # @return [ Fixnum ]
+    #
+    # @since 2.3.1
+    def hash
+      data.hash + type.hash
+    end
 
     # Get the binary as JSON hash data.
     #
