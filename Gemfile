@@ -4,7 +4,7 @@ gem 'json', :platforms => [ :jruby ]
 gem 'rake'
 
 group :development, :test do
-  gem 'rspec', '3.0.0'
+  gem 'rspec', '~> 3.2'
   gem 'rake-compiler'
 
   if ENV['CI']
