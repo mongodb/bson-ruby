@@ -84,6 +84,17 @@ describe BSON::Binary do
     end
   end
 
+  describe '#inspect' do
+
+    let(:object) do
+      described_class.new('testing123', :user)
+    end
+
+    it 'returns the truncated data and type' do
+      expect(object.inspect).to eq("<BSON::Binary:0x#{object.object_id} type=user data=testing1...>")
+    end
+  end
+
   describe "#to_bson/#from_bson" do
 
     let(:type) { 5.chr }

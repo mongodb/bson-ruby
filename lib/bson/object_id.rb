@@ -124,7 +124,7 @@ module BSON
     #
     # @since 2.0.0
     def inspect
-      "BSON::ObjectId('#{to_s}')"
+      "<BSON::ObjectId:0x#{object_id} data=#{to_s}>"
     end
 
     # Dump the raw bson when calling Marshal.dump.

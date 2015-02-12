@@ -390,7 +390,7 @@ describe BSON::ObjectId do
     end
 
     it "returns the inspection with the object id to_s" do
-      expect(object_id.inspect).to eq("BSON::ObjectId('#{object_id.to_s}')")
+      expect(object_id.inspect).to eq("<BSON::ObjectId:0x#{object_id.object_id} data=#{object_id.to_s}>")
     end
   end
 
