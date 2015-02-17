@@ -1,6 +1,28 @@
 BSON Changelog
 ==============
 
+## 3.0.0
+
+### Backwards Incompatible Changes
+
+* [RUBY-852](https://jira.mongodb.org/browse/RUBY-852) Regular expressions that
+  are deserialized now return a `BSON::Regexp::Raw` instead of a `Regexp` object.
+  In order to get the regular expression compiled, call `#compile` on the returned object.
+
+    raw.compile
+
+### New Features
+
+* `BSON::Binary` now implements `#inspect` with a truncated view of the data for
+  better readability.
+
+### Bug Fixes
+
+* The native object id generation was fixed to match the raw Ruby. (Conrad Irwin)
+
+* [#23](http://github.com/mongodb/bson-ruby/pull/23):
+  `BSON::Binary` types can be now used as hash keys. (Adam Wróbel)
+
 ## 2.2.3
 
 ### Bug Fixes
