@@ -23,7 +23,6 @@ group :development, :test do
   platforms :rbx do
     gem 'racc'
     gem 'rubysl', '~> 2.0'
-    gem 'psych'
     gem 'rubinius-coverage', github: 'rubinius/rubinius-coverage'
   end
 end
