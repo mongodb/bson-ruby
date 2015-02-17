@@ -723,7 +723,13 @@ describe BSON::Document do
         described_class["type", /^gültig/]
       end
 
-      it_behaves_like "a document able to handle utf-8"
+      let(:deserialized) do
+        described_class.from_bson(StringIO.new(document.to_bson))
+      end
+
+      it "serializes and deserializes properly" do
+        expect(deserialized['type'].compile).to eq(/^gültig/)
+      end
     end
 
     context "when the symbols are utf-8" do

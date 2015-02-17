@@ -82,7 +82,48 @@ module BSON
       (options & ::Regexp::MULTILINE != 0) ? "ms" : NO_VALUE
     end
 
+    # Represents the raw values for the regular expression.
+    #
+    # @see https://jira.mongodb.org/browse/RUBY-698
+    #
+    # @since 3.0.0
+    class Raw
+
+      # @return [ String ] pattern The regex pattern.
+      attr_reader :pattern
+
+      # @return [ Integer ] options The options.
+      attr_reader :options
+
+      # Compile the Regular expression into the native type.
+      #
+      # @example Compile the regular expression.
+      #   raw.compile
+      #
+      # @return [ ::Regexp ] The compiled regular expression.
+      #
+      # @since 3.0.0
+      def compile
+        @compiled ||= ::Regexp.new(pattern, options)
+      end
+
+      # Initialize the new raw regular expression.
+      #
+      # @example Initialize the raw regexp.
+      #   Raw.new(pattern, options)
+      #
+      # @param [ String ] pattern The regular expression pattern.
+      # @param [ Integer ] options The options.
+      #
+      # @since 3.0.0
+      def initialize(pattern, options)
+        @pattern = pattern
+        @options = options
+      end
+    end
+
     module ClassMethods
+
       # Deserialize the regular expression from BSON.
       #
       # @param [ BSON ] bson The bson representing a regular expression.
@@ -105,8 +146,7 @@ module BSON
             options |= ::Regexp::EXTENDED
           end
         end
-
-        new(pattern, options)
+        Raw.new(pattern, options)
       end
     end
 

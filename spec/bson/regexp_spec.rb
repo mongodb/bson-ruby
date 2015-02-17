@@ -36,6 +36,14 @@ describe Regexp do
     let(:type) { 11.chr }
     let(:obj)  { /test/ }
 
+    let(:io) do
+      StringIO.new(bson)
+    end
+
+    let(:result) do
+      described_class.from_bson(io).compile
+    end
+
     it_behaves_like "a bson element"
 
     context "when the regexp has no options" do
@@ -44,7 +52,10 @@ describe Regexp do
       let(:bson) { "#{obj.source}#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}" }
 
       it_behaves_like "a serializable bson element"
-      it_behaves_like "a deserializable bson element"
+
+      it "deserializes from bson" do
+        expect(result).to eq(obj)
+      end
     end
 
     context "when the regexp has options" do
@@ -55,7 +66,10 @@ describe Regexp do
         let(:bson) { "#{obj.source}#{BSON::NULL_BYTE}i#{BSON::NULL_BYTE}" }
 
         it_behaves_like "a serializable bson element"
-        it_behaves_like "a deserializable bson element"
+
+        it "deserializes from bson" do
+          expect(result).to eq(obj)
+        end
       end
 
       context "when matching multiline" do
@@ -64,7 +78,10 @@ describe Regexp do
         let(:bson) { "#{obj.source}#{BSON::NULL_BYTE}ms#{BSON::NULL_BYTE}" }
 
         it_behaves_like "a serializable bson element"
-        it_behaves_like "a deserializable bson element"
+
+        it "deserializes from bson" do
+          expect(result).to eq(obj)
+        end
       end
 
       context "when matching extended" do
@@ -73,7 +90,10 @@ describe Regexp do
         let(:bson) { "#{obj.source}#{BSON::NULL_BYTE}x#{BSON::NULL_BYTE}" }
 
         it_behaves_like "a serializable bson element"
-        it_behaves_like "a deserializable bson element"
+
+        it "deserializes from bson" do
+          expect(result).to eq(obj)
+        end
       end
 
       context "when all options are present" do
@@ -82,7 +102,10 @@ describe Regexp do
         let(:bson) { "#{obj.source}#{BSON::NULL_BYTE}imsx#{BSON::NULL_BYTE}" }
 
         it_behaves_like "a serializable bson element"
-        it_behaves_like "a deserializable bson element"
+
+        it "deserializes from bson" do
+          expect(result).to eq(obj)
+        end
       end
     end
   end

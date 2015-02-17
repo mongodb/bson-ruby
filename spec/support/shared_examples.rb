@@ -57,8 +57,12 @@ shared_examples_for "a deserializable bson element" do
     StringIO.new(bson)
   end
 
+  let(:result) do
+    described_class.from_bson(io)
+  end
+
   it "deserializes from bson" do
-    expect(described_class.from_bson(io)).to eq(obj)
+    expect(result).to eq(obj)
   end
 end
 
