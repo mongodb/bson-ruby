@@ -23,3 +23,5 @@ perf/*.symbols
 TODO
 .rbx/
 gem-private_key.pem
+.ruby-version
+.ruby-gemset
