@@ -1,6 +1,12 @@
 BSON Changelog
 ==============
 
+## 3.0.1
+
+### Bug Fixes
+
+* Fixed installation on latest Rubygems which requires `'date'` to be required.
+
 ## 3.0.0
 
 ### Backwards Incompatible Changes
