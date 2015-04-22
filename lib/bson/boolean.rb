@@ -37,7 +37,7 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(bson)
-      bson.readbyte == 1
+      bson.readbyte.chr == TrueClass::TRUE_BYTE
     end
 
     # Register this type when the module is loaded.

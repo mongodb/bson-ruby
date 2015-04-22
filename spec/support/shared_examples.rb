@@ -64,6 +64,21 @@ shared_examples_for "a deserializable bson element" do
   it "deserializes from bson" do
     expect(result).to eq(obj)
   end
+
+  context 'when io#readbyte returns a String' do
+
+    let(:io) do
+      AlternateIO.new(bson)
+    end
+
+    let(:result) do
+      described_class.from_bson(io)
+    end
+
+    it "deserializes from bson" do
+      expect(result).to eq(obj)
+    end
+  end
 end
 
 shared_examples_for "a JSON serializable object" do
