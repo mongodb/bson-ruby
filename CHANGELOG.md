@@ -1,6 +1,13 @@
 BSON Changelog
 ==============
 
+## 3.0.2
+
+### Bug Fixes
+
+* [RUBY-898](https://jira.mongodb.org/browse/RUBY-898) Compensated for different
+  return values of Socket#readbyte and OpenSSL::SSL::SSLSocket#readbyte.
+
 ## 3.0.1
 
 ### Bug Fixes

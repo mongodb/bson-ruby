@@ -33,7 +33,7 @@ Dir["./spec/support/**/*.rb"].each { |file| require file }
 
 # Alternate IO class that returns a String from #readbyte.
 # See RUBY-898 for more information on why we need to test this.
-# Ruby core documentation says #readbyte returns a Fixnum, but
+# Ruby core documentation says IO#readbyte returns a Fixnum, but
 # OpenSSL::SSL::SSLSocket#readbyte returns a String.
 class AlternateIO < StringIO
 
