@@ -210,7 +210,7 @@ static VALUE rb_float_from_bson_double(VALUE self, VALUE value)
 {
   const char * bytes;
   double v;
-  bytes = RSTRING_PTR(value);
+  bytes = StringValuePtr(value);
   memcpy(&v, bytes, RSTRING_LEN(value));
   return DBL2NUM(v);
 }
@@ -358,7 +358,7 @@ static VALUE rb_integer_to_bson_key(int argc, VALUE *argv, VALUE self)
  */
 static VALUE rb_integer_from_bson_int32(VALUE self, VALUE bson)
 {
-  const uint8_t *v = (const uint8_t*) RSTRING_PTR(bson);
+  const uint8_t *v = (const uint8_t*) StringValuePtr(bson);
   const int32_t integer = v[0] + (v[1] << 8) + (v[2] << 16) + (v[3] << 24);
   return INT2NUM(integer);
 }
@@ -381,7 +381,7 @@ static int64_t rb_bson_to_int64_t(VALUE bson)
   uint32_t byte_0, byte_1;
   int64_t byte_2, byte_3;
   int64_t lower, upper;
-  v = (uint8_t*) RSTRING_PTR(bson);
+  v = (uint8_t*) StringValuePtr(bson);
   byte_0 = v[0];
   byte_1 = v[1];
   byte_2 = v[2];
@@ -457,7 +457,7 @@ static VALUE int64_t_to_bson(int64_t v, VALUE encoded)
  */
 static VALUE rb_integer_to_bson_int64(VALUE self, VALUE encoded)
 {
-  return int64_t_to_bson(NUM2INT64(self), encoded);
+  return int64_t_to_bson(NUM2INT64(self), StringValue(encoded));
 }
 
 /**
@@ -529,6 +529,7 @@ static VALUE rb_string_set_int32(VALUE str, VALUE pos, VALUE an_int32)
     (v >> 16) & 255,
     (v >> 24) & 255
   };
+  rb_str_modify(str);
   if (offset < 0 || offset + 4 > RSTRING_LEN(str)) {
     rb_raise(rb_eArgError, "invalid position");
   }
