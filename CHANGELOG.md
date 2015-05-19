@@ -1,6 +1,13 @@
 BSON Changelog
 ==============
 
+## 3.0.3
+
+### Bug Fixes
+
+* [#31](https://github.com/mongodb/bson-ruby/pull/31) Fix Int64 decode from strings.
+  (Nobuyoshi Nakada)
+
 ## 3.0.2
 
 ### Bug Fixes
