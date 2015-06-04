@@ -117,7 +117,7 @@ module BSON
     #
     # @since 2.3.0
     def inspect
-      "<BSON::Binary:0x#{object_id} type=#{type} data=#{data[0, 8]}...>"
+      "<BSON::Binary:0x#{object_id} type=#{type} data=#{data[0, 8].unpack('H*')}...>"
     end
 
     # Encode the binary type
