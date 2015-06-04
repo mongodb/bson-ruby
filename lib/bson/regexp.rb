@@ -120,6 +120,21 @@ module BSON
         @pattern = pattern
         @options = options
       end
+
+      # Allow automatic delegation of methods to the Regexp object
+      # returned by +compile+.
+      #
+      # @param [ String] method The name of a method.
+      def respond_to?(method)
+        compile.respond_to?(method) || super
+      end
+
+      # Delegates all method calls that are not handled by this object
+      # to the Regexp returned by +compile+.
+      def method_missing(method, *arguments)
+        return super unless respond_to?(method)
+        compile.send(method)
+      end
     end
 
     module ClassMethods

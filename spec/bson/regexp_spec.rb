@@ -46,6 +46,22 @@ describe Regexp do
 
     it_behaves_like "a bson element"
 
+    context "when calling normal regexp methods on a Regexp::Raw" do
+      let :obj do
+        /\d+/
+      end
+
+      let :bson do
+        [obj.source, BSON::NULL_BYTE, BSON::NULL_BYTE].join ''
+      end
+
+      it_behaves_like "a serializable bson element"
+
+      it "runs the method on the Regexp object" do
+        expect(result.match('6')).not_to be_nil
+      end
+    end
+
     context "when the regexp has no options" do
 
       let(:obj)  { /\d+/ }
