@@ -1,6 +1,14 @@
 BSON Changelog
 ==============
 
+## 3.1.0
+
+### New Features
+
+* `BSON::Regexp::Raw` now behaves like a regular `Regexp` by delegating to the compiled and
+  wrapped regex. (Tom Scott)
+
+
 ## 3.0.4
 
 ### Bug Fixes
