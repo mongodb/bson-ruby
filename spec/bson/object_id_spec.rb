@@ -417,6 +417,13 @@ describe BSON::ObjectId do
       end
     end
 
+    context "when the string contains newlines" do
+
+      it "returns false" do
+        expect(described_class).to_not be_legal("\n\n" + "a" * 24 + "\n\n")
+      end
+    end
+
     context "when checking against another object id" do
 
       let(:object_id) do
