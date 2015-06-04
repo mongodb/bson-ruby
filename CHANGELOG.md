@@ -5,6 +5,12 @@ BSON Changelog
 
 ### Bug Fixes
 
+* Fixed `BSON::ObjectId.legal?` regular expression to properly check beginning and end of strings.
+
+## 3.0.3
+
+### Bug Fixes
+
 * [#31](https://github.com/mongodb/bson-ruby/pull/31) Fix Int64 decode from strings.
   (Nobuyoshi Nakada)
 
