@@ -91,8 +91,25 @@ describe BSON::Binary do
     end
 
     it 'returns the truncated data and type' do
-      expect(object.inspect).to eq("<BSON::Binary:0x#{object.object_id} type=user data=testing1...>")
+      expect(object.inspect).to eq("<BSON::Binary:0x#{object.object_id} type=user data=0x74657374696e6731...>")
     end
+
+    context 'with other encoding' do
+
+      let(:object) do
+        described_class.new("\x1F\x8B\b\x00\fxpU\x00\x03\xED\x1C\xDBv\xDB6\xF2\xBD_\x81UN\x9A\xE6T\x96H\xDD-\xDBjR7\xDD\xA6mR\x9F:m\xB7".force_encoding(Encoding::BINARY), :user)
+      end
+
+      it 'returns the truncated data and type' do
+        expect(object.inspect).to eq("<BSON::Binary:0x#{object.object_id} type=user data=0x1f8b08000c787055...>")
+      end
+
+      it 'is not different from default encoding' do
+        expect(object.inspect.encoding).not_to eq(Encoding::BINARY)
+      end
+
+    end
+
   end
 
   describe "#to_bson/#from_bson" do
