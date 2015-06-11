@@ -8,6 +8,9 @@ BSON Changelog
 * `BSON::Regexp::Raw` now behaves like a regular `Regexp` by delegating to the compiled and
   wrapped regex. (Tom Scott)
 
+### Bug Fixes
+
+* Fixed `inspect` on `BSON::Binary` to handle ASCII characters. (Jérémy Carlier)
 
 ## 3.0.4
 
