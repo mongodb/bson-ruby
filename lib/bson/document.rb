@@ -50,7 +50,7 @@ module BSON
     #
     # @since 2.0.0
     def [](key)
-      super(key.to_bson_normalized_key)
+      super(convert_key(key))
     end
 
     # Set a value on the document. Will normalize symbol keys into strings.
@@ -65,7 +65,7 @@ module BSON
     #
     # @since 3.0.0
     def []=(key, value)
-      super(key.to_bson_normalized_key, value.to_bson_normalized_value)
+      super(convert_key(key), convert_value(value))
     end
 
     # Instantiate a new Document. Valid parameters for instantiation is a hash
@@ -110,12 +110,22 @@ module BSON
     # @since 3.0.0
     def merge!(other)
       other.each_pair do |key, value|
-        value = yield(key.to_bson_normalized_key, self[key], value.to_bson_normalized_value) if block_given?
+        value = yield(convert_key(key), self[key], convert_value(value)) if block_given?
         self[key] = value
       end
       self
     end
 
     alias :update :merge!
+
+    private
+
+    def convert_key(key)
+      key.to_bson_normalized_key
+    end
+
+    def convert_value(value)
+      value.to_bson_normalized_value
+    end
   end
 end
