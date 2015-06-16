@@ -40,8 +40,12 @@ describe Regexp do
       StringIO.new(bson)
     end
 
+    let(:regex) do
+      described_class.from_bson(io)
+    end
+
     let(:result) do
-      described_class.from_bson(io).compile
+      regex.compile
     end
 
     it_behaves_like "a bson element"
@@ -58,7 +62,7 @@ describe Regexp do
       it_behaves_like "a serializable bson element"
 
       it "runs the method on the Regexp object" do
-        expect(result.match('6')).not_to be_nil
+        expect(regex.match('6')).not_to be_nil
       end
     end
 
