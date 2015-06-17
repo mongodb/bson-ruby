@@ -135,7 +135,7 @@ module BSON
 
       def method_missing(method, *arguments)
         return super unless respond_to?(method)
-        compile.send(method)
+        compile.send(method, *arguments)
       end
     end
 
