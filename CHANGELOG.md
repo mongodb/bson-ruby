@@ -1,6 +1,12 @@
 BSON Changelog
 ==============
 
+## 3.1.1
+
+### Bug Fixes
+
+* Fixed argument errors when delegating to regex objects. (Tom Scott)
+
 ## 3.1.0
 
 ### New Features
