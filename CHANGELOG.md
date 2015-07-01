@@ -1,6 +1,13 @@
 BSON Changelog
 ==============
 
+## 3.1.2
+
+### Bug Fixes
+
+* [RUBY-950](https://jira.mongodb.org/browse/RUBY-950) Encode to UTF-8 then force
+  BINARY encoding in Binary#to_bson.
+
 ## 3.1.1
 
 ### Bug Fixes
