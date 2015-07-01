@@ -134,7 +134,7 @@ module BSON
       encode_binary_data_with_placeholder(encoded) do |encoded|
         encoded << SUBTYPES.fetch(type)
         encoded << data.bytesize.to_bson if type == :old
-        encoded << data
+        encoded << data.encode(UTF8).force_encoding(BINARY)
       end
     end
 
