@@ -19,6 +19,22 @@ require "bson/environment"
 # @since 0.0.0
 module BSON
 
+  # Create a new object id from a string using ObjectId.from_string
+  #
+  # @example Create an object id from the string.
+  #   BSON::ObjectId(id)
+  #
+  # @param [ String ] string The string to create the id from.
+  #
+  # @raise [ BSON::ObjectId::Invalid ] If the provided string is invalid.
+  #
+  # @return [ BSON::ObjectId ] The new object id.
+  #
+  # @see ObjectId.from_string
+  def self.ObjectId(string)
+    self::ObjectId.from_string(string)
+  end
+
   # Constant for binary string encoding.
   #
   # @since 2.0.0
