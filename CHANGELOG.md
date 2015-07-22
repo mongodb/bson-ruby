@@ -1,6 +1,16 @@
 BSON Changelog
 ==============
 
+## 3.1.3
+
+### Bug Fixes
+
+* [RUBY-950](https://jira.mongodb.org/browse/RUBY-950) Don't encode to UTF-8 in Binary#to_bson, only force BINARY encoding.
+
+### New features
+
+* Add `BSON.ObjectId` constructor for instantiating an ObjectId from a String. Update ObjectId#inspect to print out a string that can be evaluated into the corresponding ObjectId. (Tony Ta)
+
 ## 3.1.2
 
 ### Bug Fixes
