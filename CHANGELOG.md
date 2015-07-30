@@ -1,6 +1,13 @@
 BSON Changelog
 ==============
 
+## 3.2.1
+
+### Bug Fixes
+
+[#39](https://github.com/mongodb/bson-ruby/pull/39) Fixed MD5 hashing of hostname in c extension.
+  (James Hudon)
+
 ## 3.2.0
 
 ### Bug Fixes
