@@ -49,12 +49,12 @@
 #endif
 
 /**
- * Define the max hostname length constant if nonexistant.
+ * Define the max hostname hash length constant if nonexistant.
  *
- * @since 2.0.0
+ * @since 3.2.0
  */
-#ifndef HOST_NAME_MAX
-#define HOST_NAME_MAX 256
+#ifndef HOST_NAME_HASH_MAX
+#define HOST_NAME_HASH_MAX 256
 #endif
 
 /**
@@ -136,13 +136,12 @@ static const char rb_bson_null_byte = 0;
 static const char rb_bson_true_byte = 1;
 
 /**
- * Holds the machine id for object id generation.
+ * Holds the machine id hash for object id generation.
  *
- * @since 2.0.0
+ * @since 3.2.0
  *
- * @todo: Need to set this value properly.
  */
-static char rb_bson_machine_id[HOST_NAME_MAX];
+static char rb_bson_machine_id_hash[HOST_NAME_HASH_MAX];
 
 /**
  * The counter for incrementing object ids.
@@ -246,7 +245,7 @@ static VALUE rb_object_id_generator_next(int argc, VALUE* args, VALUE self)
   c = htonl(rb_bson_object_id_counter << 8);
 
   memcpy(&bytes, &t, 4);
-  memcpy(&bytes[4], rb_bson_machine_id, 3);
+  memcpy(&bytes[4], rb_bson_machine_id_hash, 3);
   memcpy(&bytes[7], &pid, 2);
   memcpy(&bytes[9], (unsigned char*) &c, 3);
   rb_bson_object_id_counter++;
@@ -619,12 +618,19 @@ void Init_native()
   VALUE string = rb_const_get(bson, rb_intern("String"));
   VALUE true_class = rb_const_get(bson, rb_intern("TrueClass"));
   VALUE false_class = rb_const_get(bson, rb_intern("FalseClass"));
+  // needed to hash the machine id
+  rb_require("digest/md5");
+  VALUE digest_class = rb_const_get(rb_cObject, rb_intern("Digest"));
+  VALUE md5_class = rb_const_get(digest_class, rb_intern("MD5"));
   rb_bson_utf8_string = rb_const_get(bson, rb_intern("UTF8"));
   rb_utc_method = rb_intern("utc");
 
-  // Get the object id machine id.
+  // Get the object id machine id and hash it.
+  char rb_bson_machine_id[256];
   gethostname(rb_bson_machine_id, sizeof rb_bson_machine_id);
-  rb_bson_machine_id[HOST_NAME_MAX - 1] = '\0';
+  rb_bson_machine_id[255] = '\0';
+  VALUE digest = rb_funcall(md5_class, rb_intern("digest"), 1, rb_str_new2(rb_bson_machine_id));
+  memcpy(rb_bson_machine_id_hash, RSTRING_PTR(digest), RSTRING_LEN(digest));
 
   // Integer optimizations.
   rb_undef_method(integer, "to_bson_int32");
