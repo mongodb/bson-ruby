@@ -24,7 +24,6 @@
 #include <time.h>
 #include <unistd.h>
 #include <ruby.h>
-#include <endian.h>
 
 /**
  * For 64 byte systems we convert to longs, for 32 byte systems we convert
