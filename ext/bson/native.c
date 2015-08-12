@@ -24,6 +24,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <ruby.h>
+#include <endian.h>
 
 /**
  * For 64 byte systems we convert to longs, for 32 byte systems we convert
@@ -88,6 +89,14 @@ static VALUE rb_bson_utf8_string;
 static VALUE rb_utc_method;
 
 #include <ruby/encoding.h>
+
+#if __BYTE_ORDER == __BIG_ENDIAN
+ typedef union doublebyte
+{
+  double d;
+  unsigned char b[sizeof(double)];
+} doublebytet;
+#endif
 
 /**
  * Convert the binary string to a ruby utf8 string.
@@ -188,7 +197,19 @@ static VALUE rb_float_to_bson(int argc, VALUE *argv, VALUE self)
 {
   const double v = NUM2DBL(self);
   VALUE encoded = rb_get_default_encoded(argc, argv);
+  # if __BYTE_ORDER == __LITTLE_ENDIAN 
   rb_str_cat(encoded, (char*) &v, 8);
+  #elif __BYTE_ORDER == __BIG_ENDIAN
+  doublebytet swap;
+  unsigned char b;
+  swap.d = v;
+  for (int i=0; i < sizeof(double)/2; i++) {
+       b=swap.b[i];
+       swap.b[i] = swap.b[((sizeof(double)-1)-i)];
+       swap.b[((sizeof(double)-1)-i)]=b;
+  }
+  rb_str_cat(encoded, (char*)&swap.d, 8);
+  #endif 
   return encoded;
 }
 
@@ -210,7 +231,20 @@ static VALUE rb_float_from_bson_double(VALUE self, VALUE value)
   const char * bytes;
   double v;
   bytes = StringValuePtr(value);
+#if __BYTE_ORDER == __LITTLE_ENDIAN
   memcpy(&v, bytes, RSTRING_LEN(value));
+#else
+  doublebytet swap;
+  unsigned char b;
+  memcpy(&swap.d, bytes, RSTRING_LEN(value));
+  for (int i=0; i < sizeof(double)/2; i++) {
+       b=swap.b[i];
+       swap.b[i] = swap.b[((sizeof(double)-1)-i)];
+       swap.b[((sizeof(double)-1)-i)]=b;
+  }
+   memcpy(&v, swap.b, RSTRING_LEN(value));
+#endif
+
   return DBL2NUM(v);
 }
 
@@ -244,10 +278,17 @@ static VALUE rb_object_id_generator_next(int argc, VALUE* args, VALUE self)
   unsigned long c;
   c = htonl(rb_bson_object_id_counter << 8);
 
+# if __BYTE_ORDER == __LITTLE_ENDIAN
   memcpy(&bytes, &t, 4);
   memcpy(&bytes[4], rb_bson_machine_id_hash, 3);
   memcpy(&bytes[7], &pid, 2);
   memcpy(&bytes[9], (unsigned char*) &c, 3);
+#elif  __BYTE_ORDER == __BIG_ENDIAN
+  memcpy(&bytes, ((unsigned char*) &t) + 4, 4);
+  memcpy(&bytes[4], rb_bson_machine_id_hash, 3);
+  memcpy(&bytes[7], &pid, 2);
+  memcpy(&bytes[9], ((unsigned char*) &c) + 4, 3);
+#endif
   rb_bson_object_id_counter++;
   return rb_str_new(bytes, 12);
 }

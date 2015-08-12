@@ -65,7 +65,7 @@ describe BSON::Timestamp do
 
     let(:type) { 17.chr }
     let(:obj)  { described_class.new(1, 10) }
-    let(:bson) { [ 10, 1 ].pack("l2") }
+    let(:bson) { [ 10, 1 ].pack(BSON::Int32::PACK * 2) }
 
     it_behaves_like "a bson element"
     it_behaves_like "a serializable bson element"
