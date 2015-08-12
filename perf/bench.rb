@@ -107,8 +107,8 @@ def benchmark!
     end
 
     false_bytes = false.to_bson
-    bench.report("Binary#from_bson ------>") do
-      count.times { BSON::Binary.from_bson(StringIO.new(false_bytes)) }
+    bench.report("Boolean#from_bson ----->") do
+      count.times { BSON::Boolean.from_bson(StringIO.new(false_bytes)) }
     end
 
     max_key_bytes = BSON::MaxKey.new.to_bson
