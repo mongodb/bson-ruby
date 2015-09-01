@@ -145,5 +145,15 @@ def benchmark!
     bench.report("Time#from_bson -------->") do
       count.times { Time.from_bson(StringIO.new(time_bytes)) }
     end
+
+    doc = BSON::Document.new(
+      _id: 1, name: "embedded-485", uat: Time.now, tp: "embedded", ct: 485
+    )
+    refs = 100.times.map { |i| { _id: i, n: "embed-#{i}", v: i }}
+    doc[:refs] = refs
+    doc_bytes = doc.to_bson
+    bench.report("Document#from_bson ---->") do
+      10_000.times { BSON::Document.from_bson(StringIO.new(doc_bytes)) }
+    end
   end
 end
