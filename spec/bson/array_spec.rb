@@ -29,6 +29,19 @@ describe Array do
     it_behaves_like "a deserializable bson element"
   end
 
+  describe "#to_bson_normalized_value" do
+
+    let(:klass) { Class.new(Hash) }
+    let(:obj)  {[ Foo.new ]}
+
+    before(:each) { stub_const "Foo", klass }
+
+    it "does not mutate the receiver" do
+      obj.to_bson_normalized_value
+      expect(obj.first.class).to eq(Foo)
+    end
+  end
+
   describe "#to_bson_object_id" do
 
     context "when the array has 12 elements" do

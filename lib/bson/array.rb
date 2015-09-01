@@ -73,11 +73,11 @@ module BSON
     # @example Convert the array to a normalized value.
     #   array.to_bson_normalized_value
     #
-    # @return [ Array ] The normazlied array.
+    # @return [ Array ] The normalized array.
     #
     # @since 3.0.0
     def to_bson_normalized_value
-      map!{ |value| value.to_bson_normalized_value }
+      map { |value| value.to_bson_normalized_value }
     end
 
     module ClassMethods
