@@ -79,7 +79,7 @@ module BSON
     # @since 3.0.0
     def initialize(elements = nil)
       super()
-      elements.each{ |key, value| self[key] = value } if elements
+      (elements || {}).each_pair{ |key, value| self[key] = value }
     end
 
     # Merge this document with another document, returning a new document in
