@@ -1,6 +1,16 @@
 BSON Changelog
 ==============
 
+## 3.2.2
+
+### Bug Fixes
+
+* [#41](https://github.com/mongodb/bson-ruby/pull/41) Normalizing arrays does not mutate. (Agis Anastasopoulos)
+
+* [#40](https://github.com/mongodb/bson-ruby/pull/40) Added big endian support. (Jeff Blight)
+
+* [RUBY-1019](https://jira.mongodb.org/browse/RUBY-1019) Performace improvements on deserialization.
+
 ## 3.2.1
 
 ### Bug Fixes
