@@ -626,6 +626,40 @@ describe BSON::Document do
     end
   end
 
+  describe "#from_bson" do
+
+    context "when the document has embedded documents in an array" do
+
+      let(:embedded_document) do
+        BSON::Document.new(n: 1)
+      end
+
+      let(:embedded_documents) do
+        [ embedded_document ]
+      end
+
+      let(:document) do
+        BSON::Document.new(field: 'value', embedded: embedded_documents)
+      end
+
+      let(:serialized) do
+        document.to_bson
+      end
+
+      let(:deserialized) do
+        described_class.from_bson(StringIO.new(serialized))
+      end
+
+      it 'deserializes the documents' do
+        expect(deserialized).to eq(document)
+      end
+
+      it 'deserializes embedded documents as document type' do
+        expect(deserialized[:embedded].first).to be_a(BSON::Document)
+      end
+    end
+  end
+
   describe "#to_bson/#from_bson" do
 
     let(:type) { 3.chr }

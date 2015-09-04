@@ -72,11 +72,11 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(bson)
-        hash = new
+        hash = Document.allocate
         bson.read(4) # Swallow the first four bytes.
         while (type = bson.readbyte.chr) != NULL_BYTE
           field = bson.gets(NULL_BYTE).from_bson_string.chop!
-          hash[field] = BSON::Registry.get(type).from_bson(bson)
+          hash.store(field, BSON::Registry.get(type).from_bson(bson))
         end
         hash
       end
