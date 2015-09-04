@@ -636,6 +636,28 @@ static VALUE rb_true_class_to_bson(int argc, VALUE *argv, VALUE self)
 }
 
 /**
+ * Decode a string from bson.
+ *
+ * @example Decode a string.
+ *  rb_bson_string_from_bson(string, io);
+ *
+ * @param [ String ] self The string class.
+ * @param [ IO ] bson The io stream of BSON.
+ *
+ * @return [ String ] The decoded string.
+ *
+ * @since 3.2.5
+ */
+static VALUE rb_bson_string_from_bson(VALUE self, VALUE bson)
+{
+  ID read_method = rb_intern("read");
+  VALUE int_bytes = rb_funcall(bson, read_method, 1, 4);
+  VALUE size = rb_integer_from_bson_int32(self, int_bytes);
+  VALUE string_bytes = rb_funcall(bson, read_method, 1, size - 1);
+  return rb_bson_from_bson_string(string_bytes);
+}
+
+/**
  * Initialize the bson c extension.
  *
  * @since 2.0.0
@@ -656,6 +678,7 @@ void Init_native()
   VALUE object_id = rb_const_get(bson, rb_intern("ObjectId"));
   VALUE generator = rb_const_get(object_id, rb_intern("Generator"));
   VALUE string = rb_const_get(bson, rb_intern("String"));
+  VALUE string_class = rb_singleton_class(string);
   VALUE true_class = rb_const_get(bson, rb_intern("TrueClass"));
   VALUE false_class = rb_const_get(bson, rb_intern("FalseClass"));
   // needed to hash the machine id
@@ -711,6 +734,8 @@ void Init_native()
   rb_define_method(string, "set_int32", rb_string_set_int32, 2);
   rb_undef_method(string, "from_bson_string");
   rb_define_method(string, "from_bson_string", rb_bson_from_bson_string, 0);
+  rb_undef_method(string_class, "from_bson");
+  rb_define_method(string_class, "from_bson", rb_bson_string_from_bson, 1);
   rb_undef_method(string, "check_for_illegal_characters!");
   rb_define_private_method(string, "check_for_illegal_characters!", rb_string_check_for_illegal_characters, 0);
 
