@@ -14,10 +14,21 @@
 
 $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 require "benchmark"
+require "ruby-prof"
 
 def benchmark!
   count = 1_000_000
   Benchmark.bm do |bench|
+
+    document = BSON::Document.new(field1: 'testing', field2: 'testing')
+    embedded = 5.times.map do |i|
+      BSON::Document.new(field1: 10, field2: 'test')
+    end
+    document[:embedded] = embedded
+
+    bench.report("Document#to_bson ------>") do
+      count.times { document.to_bson }
+    end
 
     bench.report("Binary#to_bson -------->") do
       count.times { BSON::Binary.new("test", :generic).to_bson }
@@ -145,5 +156,32 @@ def benchmark!
     bench.report("Time#from_bson -------->") do
       count.times { Time.from_bson(StringIO.new(time_bytes)) }
     end
+
+    doc_bytes = document.to_bson
+    bench.report("Document#from_bson ---->") do
+      count.times { BSON::Document.from_bson(StringIO.new(doc_bytes)) }
+    end
   end
+end
+
+def profile!
+  count = 1_000
+
+  document = BSON::Document.new(field1: 'testing', field2: 'testing')
+  embedded = 5.times.map do |i|
+    BSON::Document.new(field1: 10, field2: 'test')
+  end
+  document[:embedded] = embedded
+
+  document_serialization = RubyProf.profile do
+    count.times { document.to_bson }
+  end
+
+  doc_bytes = document.to_bson
+  document_deserialization = RubyProf.profile do
+    count.times { BSON::Document.from_bson(StringIO.new(doc_bytes)) }
+  end
+
+  RubyProf::GraphPrinter.new(document_serialization).print($stdout)
+  RubyProf::GraphPrinter.new(document_deserialization).print($stdout)
 end
