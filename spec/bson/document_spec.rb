@@ -439,7 +439,7 @@ describe BSON::Document do
       it "executes the block on each merged element" do
         expect(merged[:a]).to eq(0)
         expect(merged[:b]).to eq(3)
-        expect(merged[:c]).to eq(8)
+        expect(merged[:c]).to eq(7)
       end
     end
   end
@@ -488,7 +488,17 @@ describe BSON::Document do
       it "executes the block on each merged element" do
         expect(other[:a]).to eq(0)
         expect(other[:b]).to eq(3)
-        expect(other[:c]).to eq(8)
+        expect(other[:c]).to eq(7)
+      end
+    end
+
+    context "and the documents have no common keys" do
+      before { other[:a] = 1 }
+
+      it "does not execute the block" do
+        expect(other.merge(b: 1) { |key, old, new| old + new }).to eq(
+          BSON::Document.new(a: 1, b: 1)
+        )
       end
     end
   end

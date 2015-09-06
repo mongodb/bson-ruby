@@ -110,7 +110,7 @@ module BSON
     # @since 3.0.0
     def merge!(other)
       other.each_pair do |key, value|
-        value = yield(convert_key(key), self[key], convert_value(value)) if block_given?
+        value = yield(convert_key(key), self[key], convert_value(value)) if block_given? && self[key]
         self[key] = value
       end
       self
