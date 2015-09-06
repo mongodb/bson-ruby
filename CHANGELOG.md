@@ -1,6 +1,13 @@
 BSON Changelog
 ==============
 
+## 3.2.5
+
+### Bug Fixes
+
+* [RUBY-1024](https://jira.mongodb.org/browse/RUBY-1024) Fixed Hash#merge only to yield when keys
+  exist in both hashes. (Agis Anastasopoulos)
+
 ## 3.2.4
 
 ### Bug Fixes
