@@ -59,6 +59,7 @@ end
 require "bson/registry"
 require "bson/specialized"
 require "bson/json"
+require "bson/byte_buffer"
 require "bson/int32"
 require "bson/int64"
 require "bson/integer"
