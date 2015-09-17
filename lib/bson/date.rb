@@ -34,8 +34,8 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.1.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      ::Time.utc(year, month, day).to_bson(encoded)
+    def to_bson(buffer = ByteBuffer.new)
+      ::Time.utc(year, month, day).to_bson(buffer)
     end
 
     # Get the BSON type for the date.

@@ -37,8 +37,8 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      encoded << [ (to_i * 1000) + (usec / 1000) ].pack(Int64::PACK)
+    def to_bson(buffer = ByteBuffer.new)
+      buffer.put_int64((to_i * 1000) + (usec / 1000))
     end
 
     module ClassMethods
