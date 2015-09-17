@@ -63,8 +63,8 @@ describe BSON::CodeWithScope do
     end
     let(:obj) { described_class.new(code, scope) }
     let(:bson) do
-      "#{47.to_bson}#{(code.length + 1).to_bson}#{code}#{BSON::NULL_BYTE}" +
-      "#{scope.to_bson}"
+      "#{47.to_bson.to_s}#{(code.length + 1).to_bson.to_s}#{code}#{BSON::NULL_BYTE}" +
+      "#{scope.to_bson.to_s}"
     end
 
     it_behaves_like "a bson element"
@@ -79,7 +79,7 @@ describe BSON::CodeWithScope do
       { "name" => "test" }
     end
     let(:obj) { described_class.new(code, scope) }
-    let(:bson) { StringIO.new(obj.to_bson) }
+    let(:bson) { StringIO.new(obj.to_bson.to_s) }
     let!(:deserialized) { described_class.from_bson(bson) }
 
     it "deserializes the javascript" do

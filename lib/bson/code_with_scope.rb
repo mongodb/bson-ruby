@@ -21,7 +21,6 @@ module BSON
   #
   # @since 2.0.0
   class CodeWithScope
-    include Encodable
     include JSON
 
     # A code with scope is type 0x0F in the BSON spec.
@@ -88,14 +87,12 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      # -1 because we are removing an extra byte
-      out = encode_with_placeholder_and_null(BSON_ADJUST - 1, encoded) do |encoded|
-        javascript.to_bson(encoded)
-        scope.to_bson(encoded)
-      end
-      # an extra null byte has been added; we must remove it
-      out.chop!
+    def to_bson(buffer = ByteBuffer.new)
+      position = buffer.length
+      buffer.put_int32(0)
+      buffer.put_string(javascript)
+      scope.to_bson(buffer)
+      buffer.replace_int32(position, buffer.length - position)
     end
 
     # Deserialize a code with scope from BSON.
