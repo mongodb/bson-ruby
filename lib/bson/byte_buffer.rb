@@ -64,6 +64,7 @@ module BSON
     #
     # @since 4.0.0
     def put_cstring(value)
+      # @todo: check_for_illegal_characters!
       @buffer << value << NULL_BYTE
       self
     end

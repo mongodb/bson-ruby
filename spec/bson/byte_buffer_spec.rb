@@ -35,27 +35,99 @@ describe BSON::ByteBuffer do
     end
 
     let(:modified) do
-      buffer.put_byte(BSON::Integer::INT32_TYPE)
+      buffer.put_byte(BSON::Int32::BSON_TYPE)
     end
 
     it 'appends the int32 to the byte buffer' do
-      expect(modified.to_s).to eq(BSON::Integer::INT32_TYPE.chr)
+      expect(modified.to_s).to eq(BSON::Int32::BSON_TYPE.chr)
     end
   end
 
   describe '#put_cstring' do
 
-    let(:buffer) do
-      described_class.new
+    context 'when the string is valid' do
+
+      let(:buffer) do
+        described_class.new
+      end
+
+      let(:modified) do
+        buffer.put_cstring('testing')
+      end
+
+      it 'appends the string plus null byte to the byte buffer' do
+        expect(modified.to_s).to eq("testing#{BSON::NULL_BYTE}")
+      end
+
     end
 
-    let(:modified) do
-      buffer.put_cstring('testing')
-    end
+    # context "when the string contains a null byte" do
 
-    it 'appends the string plus null byte to the byte buffer' do
-      expect(modified.to_s).to eq("testing#{BSON::NULL_BYTE}")
-    end
+      # let(:string) do
+        # "test#{BSON::NULL_BYTE}ing"
+      # end
+
+      # it "raises an error" do
+        # expect {
+          # string.to_bson_cstring
+        # }.to raise_error(ArgumentError)
+      # end
+    # end
+
+    # context "when the string contains utf-8 characters" do
+
+      # let(:string) do
+        # "Straße"
+      # end
+
+      # let(:encoded) do
+        # string.to_bson_cstring
+      # end
+
+      # let(:char) do
+        # "ß".chr.force_encoding(BSON::BINARY)
+      # end
+
+      # it "returns the encoded string" do
+        # expect(encoded).to eq("Stra#{char}e#{BSON::NULL_BYTE}")
+      # end
+
+      # it_behaves_like "a binary encoded string"
+    # end
+
+    # context "when the string is encoded in non utf-8" do
+
+      # let(:string) do
+        # "Straße".encode("iso-8859-1")
+      # end
+
+      # let(:encoded) do
+        # string.to_bson_cstring
+      # end
+
+      # let(:char) do
+        # "ß".chr.force_encoding(BSON::BINARY)
+      # end
+
+      # it "returns the encoded string" do
+        # expect(encoded).to eq("Stra#{char}e#{BSON::NULL_BYTE}")
+      # end
+
+      # it_behaves_like "a binary encoded string"
+    # end
+
+    # context "when the string contains non utf-8 characters" do
+
+      # let(:string) do
+        # 255.chr
+      # end
+
+      # it "raises an error" do
+        # expect {
+          # string.to_bson_cstring
+        # }.to raise_error(EncodingError)
+      # end
+    # end
   end
 
   describe '#put_double' do

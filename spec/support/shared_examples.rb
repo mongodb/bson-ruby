@@ -104,7 +104,7 @@ shared_examples_for "a document able to handle utf-8" do
 
   it "serializes and deserializes properly" do
     expect(
-      BSON::Document.from_bson(StringIO.new(document.to_bson))
+      BSON::Document.from_bson(StringIO.new(document.to_bson.to_s))
     ).to eq(document)
   end
 end

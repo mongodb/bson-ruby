@@ -84,9 +84,9 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      source.to_bson_cstring(encoded)
-      bson_options.to_bson_cstring(encoded)
+    def to_bson(buffer = ByteBuffer.new)
+      buffer.put_cstring(source)
+      buffer.put_cstring(bson_options)
     end
 
     private

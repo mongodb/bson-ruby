@@ -20,7 +20,7 @@ describe Symbol do
 
     let(:type) { 14.chr }
     let(:obj)  { :test }
-    let(:bson) { "#{5.to_bson}test#{BSON::NULL_BYTE}" }
+    let(:bson) { "#{5.to_bson.to_s}test#{BSON::NULL_BYTE}" }
 
     it_behaves_like "a bson element"
     it_behaves_like "a serializable bson element"
@@ -31,18 +31,14 @@ describe Symbol do
   describe "#to_bson_key" do
 
     let(:symbol) { :test }
-    let(:encoded) { symbol.to_s + BSON::NULL_BYTE }
-    let(:previous_content) { 'previous_content'.force_encoding(BSON::BINARY) }
+    let(:encoded) { symbol.to_s }
 
     it "returns the encoded string" do
       expect(symbol.to_bson_key).to eq(encoded)
     end
 
-    it "appends to optional previous content" do
-      expect(symbol.to_bson_key(previous_content)).to eq(previous_content << encoded)
-    end
+    pending 'when the symbol contains a null byte' do
 
-    context 'when the symbol contains a null byte' do
       let(:symbol) { :"test#{BSON::NULL_BYTE}ing" }
 
       it 'raises an error' do

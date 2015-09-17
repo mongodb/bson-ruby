@@ -22,7 +22,6 @@ module BSON
   #
   # @since 2.0.0
   module String
-    include Encodable
 
     # A string is type 0x02 in the BSON spec.
     #
@@ -57,26 +56,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson_key(encoded = ''.force_encoding(BINARY))
-      to_bson_cstring(encoded)
-    end
-
-    # Get the string as an encoded C string.
-    #
-    # @example Get the string as an encoded C string.
-    #   "test".to_bson_cstring
-    #
-    # @raise [ EncodingError ] If the string is not UTF-8.
-    #
-    # @return [ String ] The encoded string.
-    #
-    # @see http://bsonspec.org/#/specification
-    #
-    # @since 2.0.0
-    def to_bson_cstring(encoded = ''.force_encoding(BINARY))
-      check_for_illegal_characters!
-      to_bson_string(encoded) << NULL_BYTE
-    end
+    def to_bson_key; self; end
 
     # Convert the string to an object id. This will only work for strings of size
     # 12.
@@ -106,13 +86,13 @@ module BSON
     # @return [ String ] The binary string.
     #
     # @since 2.0.0
-    def to_bson_string(buffer = ByteBuffer.new)
+    def to_bson_string
       begin
-        to_utf8_binary(buffer)
+        to_utf8_binary
       rescue EncodingError
         data = dup.force_encoding(UTF8)
         raise unless data.valid_encoding?
-        buffer.put_bytes(data.force_encoding(BINARY))
+        data.force_encoding(BINARY)
       end
     end
 
@@ -159,8 +139,8 @@ module BSON
 
     private
 
-    def to_utf8_binary(encoded)
-      encoded << encode(UTF8).force_encoding(BINARY)
+    def to_utf8_binary
+      encode(UTF8).force_encoding(BINARY)
     end
 
     module ClassMethods
