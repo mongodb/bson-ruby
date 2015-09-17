@@ -51,6 +51,7 @@ module BSON
       @buffer << value
       self
     end
+    alias :put_bytes :put_byte
 
     # Put a null termintated c string on the end of the buffer.
     #

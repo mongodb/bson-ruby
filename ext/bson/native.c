@@ -41,6 +41,7 @@ typedef struct {
 static VALUE rb_bson_byte_buffer_allocate(VALUE klass);
 static VALUE rb_bson_byte_buffer_length(VALUE self);
 static VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte);
+static VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes);
 static VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string);
 static VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f);
 static VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i);
@@ -69,6 +70,7 @@ void Init_native()
   rb_define_alloc_func(rb_byte_buffer_class, rb_bson_byte_buffer_allocate);
   rb_define_method(rb_byte_buffer_class, "length", rb_bson_byte_buffer_length, 0);
   rb_define_method(rb_byte_buffer_class, "put_byte", rb_bson_byte_buffer_put_byte, 1);
+  rb_define_method(rb_byte_buffer_class, "put_bytes", rb_bson_byte_buffer_put_bytes, 1);
   rb_define_method(rb_byte_buffer_class, "put_cstring", rb_bson_byte_buffer_put_cstring, 1);
   rb_define_method(rb_byte_buffer_class, "put_double", rb_bson_byte_buffer_put_double, 1);
   rb_define_method(rb_byte_buffer_class, "put_int32", rb_bson_byte_buffer_put_int32, 1);
@@ -112,6 +114,23 @@ VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte)
   ENSURE_BSON_WRITE(b, 1);
   memcpy(WRITE_PTR(b), str, 1);
   b->write_position += 1;
+
+  return self;
+}
+
+/**
+ * Writes bytes to the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes)
+{
+  byte_buffer_t *b;
+  const char *str = RSTRING_PTR(bytes);
+  const size_t length = RSTRING_LEN(bytes);
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_WRITE(b, length);
+  memcpy(WRITE_PTR(b), str, length);
+  b->write_position += length;
 
   return self;
 }

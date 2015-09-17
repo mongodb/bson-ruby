@@ -130,12 +130,13 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      encode_binary_data_with_placeholder(encoded) do |encoded|
-        encoded << SUBTYPES.fetch(type)
-        encoded << data.bytesize.to_bson if type == :old
-        encoded << data.force_encoding(BINARY)
-      end
+    def to_bson(buffer = ByteBuffer.new)
+      position = buffer.length
+      buffer.put_int32(0)
+      buffer.put_byte(SUBTYPES.fetch(type))
+      buffer.put_int32(data.bytesize) if type == :old
+      buffer.put_bytes(data.force_encoding(BINARY))
+      buffer.replace_int32(position, buffer.length - position - 5)
     end
 
     # Deserialize the binary data from BSON.
