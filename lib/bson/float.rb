@@ -42,8 +42,8 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      encoded << [ self ].pack(PACK)
+    def to_bson(buffer = ByteBuffer.new)
+      buffer.put_double(self)
     end
 
     module ClassMethods

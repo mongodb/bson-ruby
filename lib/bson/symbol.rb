@@ -40,8 +40,8 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      to_s.to_bson(encoded)
+    def to_bson(buffer = ByteBuffer.new)
+      to_s.to_bson(buffer)
     end
 
     # Get the symbol as a BSON key name encoded C symbol.

@@ -22,16 +22,6 @@ module BSON
   # @since 2.0.0
   module Integer
 
-    # A 32bit integer is type 0x10 in the BSON spec.
-    #
-    # @since 2.0.0
-    INT32_TYPE = 16.chr.force_encoding(BINARY).freeze
-
-    # A 64bit integer is type 0x12 in the BSON spec.
-    #
-    # @since 2.0.0
-    INT64_TYPE = 18.chr.force_encoding(BINARY).freeze
-
     # The maximum 32 bit integer value.
     #
     # @since 2.0.0
@@ -100,7 +90,7 @@ module BSON
     #
     # @since 2.0.0
     def bson_type
-      bson_int32? ? INT32_TYPE : (bson_int64? ? INT64_TYPE : out_of_range!)
+      bson_int32? ? Int32::BSON_TYPE : (bson_int64? ? Int64::BSON_TYPE : out_of_range!)
     end
 
     # Get the integer as encoded BSON.
@@ -113,11 +103,11 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
+    def to_bson(buffer = ByteBuffer.new)
       if bson_int32?
-        to_bson_int32(encoded)
+        buffer.put_int32(self)
       elsif bson_int64?
-        to_bson_int64(encoded)
+        buffer.put_int64(self)
       else
         out_of_range!
       end
@@ -155,12 +145,8 @@ module BSON
       encoded << ((self >> 56) & 255)
     end
 
-    def to_bson_key(encoded = ''.force_encoding(BINARY))
-      if self < BSON_INDEX_SIZE
-        encoded << BSON_ARRAY_INDEXES[self]
-      else
-        self.to_s.to_bson_cstring(encoded)
-      end
+    def to_bson_key(buffer = ByteBuffer.new)
+      buffer.put_cstring(to_s)
     end
 
     private

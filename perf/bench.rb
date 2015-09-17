@@ -30,137 +30,137 @@ def benchmark!
       count.times { document.to_bson }
     end
 
-    bench.report("Binary#to_bson -------->") do
-      count.times { BSON::Binary.new("test", :generic).to_bson }
-    end
+    # bench.report("Binary#to_bson -------->") do
+      # count.times { BSON::Binary.new("test", :generic).to_bson }
+    # end
 
-    bench.report("Code#to_bson ---------->") do
-      count.times { BSON::Code.new("this.value = 1").to_bson }
-    end
+    # bench.report("Code#to_bson ---------->") do
+      # count.times { BSON::Code.new("this.value = 1").to_bson }
+    # end
 
-    bench.report("FalseClass#to_bson ---->") do
-      count.times { false.to_bson }
-    end
+    # bench.report("FalseClass#to_bson ---->") do
+      # count.times { false.to_bson }
+    # end
 
-    bench.report("Float#to_bson --------->") do
-      count.times { 1.131312.to_bson }
-    end
+    # bench.report("Float#to_bson --------->") do
+      # count.times { 1.131312.to_bson }
+    # end
 
-    bench.report("Integer#to_bson ------->") do
-      count.times { 1024.to_bson }
-    end
+    # bench.report("Integer#to_bson ------->") do
+      # count.times { 1024.to_bson }
+    # end
 
-    bench.report("MaxKey#to_bson -------->") do
-      count.times { BSON::MaxKey.new.to_bson }
-    end
+    # bench.report("MaxKey#to_bson -------->") do
+      # count.times { BSON::MaxKey.new.to_bson }
+    # end
 
-    bench.report("MinKey#to_bson -------->") do
-      count.times { BSON::MinKey.new.to_bson }
-    end
+    # bench.report("MinKey#to_bson -------->") do
+      # count.times { BSON::MinKey.new.to_bson }
+    # end
 
-    bench.report("ObjectId#to_bson ------>") do
-      count.times { BSON::ObjectId.new.to_bson }
-    end
+    # bench.report("ObjectId#to_bson ------>") do
+      # count.times { BSON::ObjectId.new.to_bson }
+    # end
 
-    bench.report("ObjectId#to_s --------->") do
-      object_id = BSON::ObjectId.new
-      count.times { object_id.to_s }
-    end
+    # bench.report("ObjectId#to_s --------->") do
+      # object_id = BSON::ObjectId.new
+      # count.times { object_id.to_s }
+    # end
 
-    bench.report("Regexp#to_bson -------->") do
-      count.times { %r{\d+}.to_bson }
-    end
+    # bench.report("Regexp#to_bson -------->") do
+      # count.times { %r{\d+}.to_bson }
+    # end
 
-    bench.report("String#to_bson -------->") do
-      count.times { "testing".to_bson }
-    end
+    # bench.report("String#to_bson -------->") do
+      # count.times { "testing".to_bson }
+    # end
 
-    bench.report("Symbol#to_bson -------->") do
-      count.times { "testing".to_bson }
-    end
+    # bench.report("Symbol#to_bson -------->") do
+      # count.times { "testing".to_bson }
+    # end
 
-    bench.report("Time#to_bson ---------->") do
-      count.times { Time.new.to_bson }
-    end
+    # bench.report("Time#to_bson ---------->") do
+      # count.times { Time.new.to_bson }
+    # end
 
-    bench.report("TrueClass#to_bson ----->") do
-      count.times { true.to_bson }
-    end
+    # bench.report("TrueClass#to_bson ----->") do
+      # count.times { true.to_bson }
+    # end
 
-    boolean_bytes = true.to_bson
-    bench.report("Boolean#from_bson ----->") do
-      count.times { BSON::Boolean.from_bson(StringIO.new(boolean_bytes)) }
-    end
+    # boolean_bytes = true.to_bson
+    # bench.report("Boolean#from_bson ----->") do
+      # count.times { BSON::Boolean.from_bson(StringIO.new(boolean_bytes)) }
+    # end
 
-    int32_bytes = 1024.to_bson
-    bench.report("Int32#from_bson ------->") do
-      count.times { BSON::Int32.from_bson(StringIO.new(int32_bytes)) }
-    end
+    # int32_bytes = 1024.to_bson
+    # bench.report("Int32#from_bson ------->") do
+      # count.times { BSON::Int32.from_bson(StringIO.new(int32_bytes)) }
+    # end
 
-    int64_bytes = (BSON::Integer::MAX_32BIT + 1).to_bson
-    bench.report("Int64#from_bson ------->") do
-      count.times { BSON::Int64.from_bson(StringIO.new(int64_bytes)) }
-    end
+    # int64_bytes = (BSON::Integer::MAX_32BIT + 1).to_bson
+    # bench.report("Int64#from_bson ------->") do
+      # count.times { BSON::Int64.from_bson(StringIO.new(int64_bytes)) }
+    # end
 
-    float_bytes = 1.23131.to_bson
-    bench.report("Float#from_bson ------->") do
-      count.times { Float.from_bson(StringIO.new(float_bytes)) }
-    end
+    # float_bytes = 1.23131.to_bson
+    # bench.report("Float#from_bson ------->") do
+      # count.times { Float.from_bson(StringIO.new(float_bytes)) }
+    # end
 
-    binary_bytes = BSON::Binary.new("test", :generic).to_bson
-    bench.report("Binary#from_bson ------>") do
-      count.times { BSON::Binary.from_bson(StringIO.new(binary_bytes)) }
-    end
+    # binary_bytes = BSON::Binary.new("test", :generic).to_bson
+    # bench.report("Binary#from_bson ------>") do
+      # count.times { BSON::Binary.from_bson(StringIO.new(binary_bytes)) }
+    # end
 
-    code_bytes = BSON::Code.new("this.value = 1").to_bson
-    bench.report("Code#from_bson -------->") do
-      count.times { BSON::Code.from_bson(StringIO.new(code_bytes)) }
-    end
+    # code_bytes = BSON::Code.new("this.value = 1").to_bson
+    # bench.report("Code#from_bson -------->") do
+      # count.times { BSON::Code.from_bson(StringIO.new(code_bytes)) }
+    # end
 
-    false_bytes = false.to_bson
-    bench.report("Boolean#from_bson ----->") do
-      count.times { BSON::Boolean.from_bson(StringIO.new(false_bytes)) }
-    end
+    # false_bytes = false.to_bson
+    # bench.report("Boolean#from_bson ----->") do
+      # count.times { BSON::Boolean.from_bson(StringIO.new(false_bytes)) }
+    # end
 
-    max_key_bytes = BSON::MaxKey.new.to_bson
-    bench.report("MaxKey#from_bson ------>") do
-      count.times { BSON::MaxKey.from_bson(StringIO.new(max_key_bytes)) }
-    end
+    # max_key_bytes = BSON::MaxKey.new.to_bson
+    # bench.report("MaxKey#from_bson ------>") do
+      # count.times { BSON::MaxKey.from_bson(StringIO.new(max_key_bytes)) }
+    # end
 
-    min_key_bytes = BSON::MinKey.new.to_bson
-    bench.report("MinKey#from_bson ------>") do
-      count.times { BSON::MinKey.from_bson(StringIO.new(min_key_bytes)) }
-    end
+    # min_key_bytes = BSON::MinKey.new.to_bson
+    # bench.report("MinKey#from_bson ------>") do
+      # count.times { BSON::MinKey.from_bson(StringIO.new(min_key_bytes)) }
+    # end
 
-    object_id_bytes = BSON::ObjectId.new.to_bson
-    bench.report("ObjectId#from_bson ---->") do
-      count.times { BSON::ObjectId.from_bson(StringIO.new(object_id_bytes)) }
-    end
+    # object_id_bytes = BSON::ObjectId.new.to_bson
+    # bench.report("ObjectId#from_bson ---->") do
+      # count.times { BSON::ObjectId.from_bson(StringIO.new(object_id_bytes)) }
+    # end
 
-    regex_bytes = %r{\d+}.to_bson
-    bench.report("Regexp#from_bson ------>") do
-      count.times { Regexp.from_bson(StringIO.new(regex_bytes)) }
-    end
+    # regex_bytes = %r{\d+}.to_bson
+    # bench.report("Regexp#from_bson ------>") do
+      # count.times { Regexp.from_bson(StringIO.new(regex_bytes)) }
+    # end
 
-    string_bytes = "testing".to_bson
-    bench.report("String#from_bson ------>") do
-      count.times { String.from_bson(StringIO.new(string_bytes)) }
-    end
+    # string_bytes = "testing".to_bson
+    # bench.report("String#from_bson ------>") do
+      # count.times { String.from_bson(StringIO.new(string_bytes)) }
+    # end
 
-    symbol_bytes = "testing".to_bson
-    bench.report("Symbol#from_bson ------>") do
-      count.times { Symbol.from_bson(StringIO.new(symbol_bytes)) }
-    end
+    # symbol_bytes = "testing".to_bson
+    # bench.report("Symbol#from_bson ------>") do
+      # count.times { Symbol.from_bson(StringIO.new(symbol_bytes)) }
+    # end
 
-    time_bytes = Time.new.to_bson
-    bench.report("Time#from_bson -------->") do
-      count.times { Time.from_bson(StringIO.new(time_bytes)) }
-    end
+    # time_bytes = Time.new.to_bson
+    # bench.report("Time#from_bson -------->") do
+      # count.times { Time.from_bson(StringIO.new(time_bytes)) }
+    # end
 
-    doc_bytes = document.to_bson
-    bench.report("Document#from_bson ---->") do
-      count.times { BSON::Document.from_bson(StringIO.new(doc_bytes)) }
-    end
+    # doc_bytes = document.to_bson
+    # bench.report("Document#from_bson ---->") do
+      # count.times { BSON::Document.from_bson(StringIO.new(doc_bytes)) }
+    # end
   end
 end
 

@@ -27,6 +27,11 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 16.chr.force_encoding(BINARY).freeze
 
+    # The number of bytes constant.
+    #
+    # @since 4.0.0
+    BYTES_LENGTH = 4
+
     # Constant for the int 32 pack directive.
     #
     # @since 2.0.0

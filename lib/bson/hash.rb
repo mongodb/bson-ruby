@@ -21,7 +21,6 @@ module BSON
   #
   # @since 2.0.0
   module Hash
-    include Encodable
 
     # An hash (embedded document) is type 0x03 in the BSON spec.
     #
@@ -38,14 +37,16 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
-        each do |field, value|
-          encoded << value.bson_type
-          field.to_bson_key(encoded)
-          value.to_bson(encoded)
-        end
+    def to_bson(buffer = ByteBuffer.new)
+      position = buffer.length
+      buffer.put_int32(0)
+      each do |field, value|
+        buffer.put_byte(value.bson_type)
+        buffer.put_cstring(field)
+        value.to_bson(buffer)
       end
+      buffer.put_byte(NULL_BYTE)
+      buffer.replace_int32(position, buffer.length - position)
     end
 
     # Converts the hash to a normalized value in a BSON document.

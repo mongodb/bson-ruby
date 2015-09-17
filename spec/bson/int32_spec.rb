@@ -31,12 +31,13 @@ describe BSON::Int32 do
     let(:encoded) {StringIO.new([ -1 ].pack(BSON::Int32::PACK))}
     let(:decoded_2) { -50 }
     let(:encoded_2) {StringIO.new([ -50 ].pack(BSON::Int32::PACK))}
+
     it "decodes a -1 correctly" do
       expect(BSON::Int32.from_bson(encoded)).to eq(decoded)
-    end  
+    end
+
     it "decodes a -50 correctly" do
       expect(BSON::Int32.from_bson(encoded_2)).to eq(decoded_2)
-    end  
+    end
   end
-  
 end

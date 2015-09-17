@@ -21,7 +21,7 @@ describe Array do
     let(:type) { 4.chr }
     let(:obj)  {[ "one", "two" ]}
     let(:bson) do
-      BSON::Document["0", "one", "1", "two"].to_bson
+      BSON::Document["0", "one", "1", "two"].to_bson.to_s
     end
 
     it_behaves_like "a bson element"

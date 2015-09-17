@@ -41,10 +41,8 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      encode_with_placeholder_and_null(STRING_ADJUST, encoded) do |encoded|
-        to_bson_string(encoded)
-      end
+    def to_bson(buffer = ByteBuffer.new)
+      buffer.put_string(self)
     end
 
     # Get the string as a BSON key name encoded C string with checking for special characters.
