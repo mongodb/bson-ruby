@@ -110,12 +110,6 @@ namespace :benchmark do
     require "bson"
     benchmark!
   end
-
-  task :profile => :compile do
-    puts "Profiling with native extensions..."
-    require "bson"
-    profile!
-  end
 end
 
 task :default => [ :clean_all, :spec, :ext_spec ]
