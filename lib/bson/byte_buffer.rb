@@ -64,7 +64,7 @@ module BSON
     #
     # @since 4.0.0
     def put_cstring(value)
-      # @todo: check_for_illegal_characters!
+      check_for_illegal_characters!(value)
       @buffer << value << NULL_BYTE
       self
     end
@@ -149,6 +149,14 @@ module BSON
 
     def to_s
       @buffer
+    end
+
+    private
+
+    def check_for_illegal_characters!(value)
+      if value.include?(NULL_BYTE)
+        raise(ArgumentError, "Illegal C-String '#{value}' contains a null byte.")
+      end
     end
   end
 end

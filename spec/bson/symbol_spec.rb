@@ -36,16 +36,5 @@ describe Symbol do
     it "returns the encoded string" do
       expect(symbol.to_bson_key).to eq(encoded)
     end
-
-    pending 'when the symbol contains a null byte' do
-
-      let(:symbol) { :"test#{BSON::NULL_BYTE}ing" }
-
-      it 'raises an error' do
-        expect {
-          symbol.to_bson_key
-        }.to raise_error(ArgumentError)
-      end
-    end
   end
 end

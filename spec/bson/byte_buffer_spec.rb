@@ -45,11 +45,11 @@ describe BSON::ByteBuffer do
 
   describe '#put_cstring' do
 
-    context 'when the string is valid' do
+    let(:buffer) do
+      described_class.new
+    end
 
-      let(:buffer) do
-        described_class.new
-      end
+    context 'when the string is valid' do
 
       let(:modified) do
         buffer.put_cstring('testing')
@@ -61,73 +61,18 @@ describe BSON::ByteBuffer do
 
     end
 
-    # context "when the string contains a null byte" do
+    context "when the string contains a null byte" do
 
-      # let(:string) do
-        # "test#{BSON::NULL_BYTE}ing"
-      # end
+      let(:string) do
+        "test#{BSON::NULL_BYTE}ing"
+      end
 
-      # it "raises an error" do
-        # expect {
-          # string.to_bson_cstring
-        # }.to raise_error(ArgumentError)
-      # end
-    # end
-
-    # context "when the string contains utf-8 characters" do
-
-      # let(:string) do
-        # "Straße"
-      # end
-
-      # let(:encoded) do
-        # string.to_bson_cstring
-      # end
-
-      # let(:char) do
-        # "ß".chr.force_encoding(BSON::BINARY)
-      # end
-
-      # it "returns the encoded string" do
-        # expect(encoded).to eq("Stra#{char}e#{BSON::NULL_BYTE}")
-      # end
-
-      # it_behaves_like "a binary encoded string"
-    # end
-
-    # context "when the string is encoded in non utf-8" do
-
-      # let(:string) do
-        # "Straße".encode("iso-8859-1")
-      # end
-
-      # let(:encoded) do
-        # string.to_bson_cstring
-      # end
-
-      # let(:char) do
-        # "ß".chr.force_encoding(BSON::BINARY)
-      # end
-
-      # it "returns the encoded string" do
-        # expect(encoded).to eq("Stra#{char}e#{BSON::NULL_BYTE}")
-      # end
-
-      # it_behaves_like "a binary encoded string"
-    # end
-
-    # context "when the string contains non utf-8 characters" do
-
-      # let(:string) do
-        # 255.chr
-      # end
-
-      # it "raises an error" do
-        # expect {
-          # string.to_bson_cstring
-        # }.to raise_error(EncodingError)
-      # end
-    # end
+      it "raises an error" do
+        expect {
+          buffer.put_cstring(string)
+        }.to raise_error(ArgumentError)
+      end
+    end
   end
 
   describe '#put_double' do

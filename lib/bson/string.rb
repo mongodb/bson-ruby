@@ -41,7 +41,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(buffer = ByteBuffer.new)
-      buffer.put_string(self)
+      buffer.put_string(to_bson_string)
     end
 
     # Get the string as a BSON key name encoded C string with checking for special characters.
@@ -56,7 +56,9 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson_key; self; end
+    def to_bson_key
+      to_bson_string
+    end
 
     # Convert the string to an object id. This will only work for strings of size
     # 12.
@@ -122,21 +124,6 @@ module BSON
       force_encoding(UTF8)
     end
 
-    # Set four bytes for int32 in a binary string and return it.
-    #
-    # @example Set int32 in a BSON string.
-    #   "".set_int32(pos, int32)
-    #
-    # @param [ Fixnum ] The position to set.
-    # @param [ Fixnum ] The int32 value.
-    #
-    # @return [ String ] The binary string.
-    #
-    # @since 2.0.0
-    def set_int32(pos, int32)
-      self[pos, 4] = [ int32 ].pack(Int32::PACK)
-    end
-
     private
 
     def to_utf8_binary
@@ -156,14 +143,6 @@ module BSON
       # @since 2.0.0
       def from_bson(bson)
         bson.read(Int32.from_bson(bson)).from_bson_string.chop!
-      end
-    end
-
-    private
-
-    def check_for_illegal_characters!
-      if include?(NULL_BYTE)
-        raise(ArgumentError, "Illegal C-String '#{self}' contains a null byte.")
       end
     end
 

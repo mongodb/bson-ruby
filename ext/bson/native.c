@@ -143,6 +143,8 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string)
   byte_buffer_t *b;
   const char *c_str = RSTRING_PTR(string);
   const size_t length = RSTRING_LEN(string) + 1;
+  if (strlen(c_str) < length - 1)
+    rb_raise(rb_eArgError, "Illegal C-String %s contains a null byte.", c_str);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, length);

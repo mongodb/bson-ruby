@@ -819,7 +819,7 @@ describe BSON::Document do
         described_class["type", string.encode("iso-8859-1")]
       end
 
-      pending "encodes and decodes the document properly" do
+      it "encodes and decodes the document properly" do
         expect(
           BSON::Document.from_bson(StringIO.new(document.to_bson.to_s))
         ).to eq({ "type" => string })

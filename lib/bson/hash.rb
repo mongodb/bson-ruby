@@ -42,7 +42,7 @@ module BSON
       buffer.put_int32(0)
       each do |field, value|
         buffer.put_byte(value.bson_type)
-        buffer.put_cstring(field.to_s) # @todo: to_bson_key?
+        buffer.put_cstring(field.to_bson_key)
         value.to_bson(buffer)
       end
       buffer.put_byte(NULL_BYTE)

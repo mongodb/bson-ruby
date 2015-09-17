@@ -543,7 +543,7 @@ describe BSON::ObjectId do
       { object_id => 1 }
     end
 
-    pending "raises an exception on serialization" do
+    it "raises an exception on serialization" do
       expect {
         hash.to_bson
       }.to raise_error(BSON::InvalidKey)
