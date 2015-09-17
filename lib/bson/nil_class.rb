@@ -21,27 +21,15 @@ module BSON
   #
   # @since 2.0.0
   module NilClass
+    include Specialized
 
     # A nil is type 0x0A in the BSON spec.
     #
     # @since 2.0.0
     BSON_TYPE = 10.chr.force_encoding(BINARY).freeze
 
-    # Get the nil as encoded BSON.
-    #
-    # @example Get the nil as encoded BSON.
-    #   nil.to_bson
-    #
-    # @return [ String ] An empty string.
-    #
-    # @see http://bsonspec.org/#/specification
-    #
-    # @since 2.0.0
-    def to_bson(buffer = ByteBuffer.new)
-      buffer
-    end
-
     module ClassMethods
+
       # Deserialize NilClass from BSON.
       #
       # @param [ BSON ] bson The encoded Null value.

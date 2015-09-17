@@ -379,7 +379,7 @@ describe BSON::ObjectId do
     end
 
     it "returns a hash of the raw bytes" do
-      expect(object_id.hash).to eq(object_id.to_bson.hash)
+      expect(object_id.hash).to eq(object_id.to_bson.to_s.hash)
     end
   end
 
@@ -488,7 +488,7 @@ describe BSON::ObjectId do
     let(:time) { Time.utc(2013, 1, 1) }
     let(:type) { 7.chr }
     let(:obj)  { described_class.from_time(time) }
-    let(:bson) { obj.to_bson }
+    let(:bson) { obj.to_bson.to_s }
 
     it_behaves_like "a bson element"
     it_behaves_like "a serializable bson element"
@@ -543,7 +543,7 @@ describe BSON::ObjectId do
       { object_id => 1 }
     end
 
-    it "raises an exception on serialization" do
+    pending "raises an exception on serialization" do
       expect {
         hash.to_bson
       }.to raise_error(BSON::InvalidKey)
