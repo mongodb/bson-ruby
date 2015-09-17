@@ -106,13 +106,13 @@ module BSON
     # @return [ String ] The binary string.
     #
     # @since 2.0.0
-    def to_bson_string(encoded = ''.force_encoding(BINARY))
+    def to_bson_string(buffer = ByteBuffer.new)
       begin
-        to_utf8_binary(encoded)
+        to_utf8_binary(buffer)
       rescue EncodingError
         data = dup.force_encoding(UTF8)
         raise unless data.valid_encoding?
-        encoded << data.force_encoding(BINARY)
+        buffer.put_bytes(data.force_encoding(BINARY))
       end
     end
 

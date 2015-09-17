@@ -21,7 +21,6 @@ module BSON
   # @since 2.0.0
   class Binary
     include JSON
-    include Encodable
 
     # A binary is type 0x05 in the BSON spec.
     #
