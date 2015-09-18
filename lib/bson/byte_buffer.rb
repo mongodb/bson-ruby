@@ -64,7 +64,8 @@ module BSON
     #
     # @since 4.0.0
     def put_cstring(value)
-      check_for_illegal_characters!(value)
+      validate_cstring(value)
+      validate_utf8(value)
       @buffer << value << NULL_BYTE
       self
     end
@@ -125,6 +126,7 @@ module BSON
     #
     # @since 4.0.0
     def put_string(value)
+      validate_utf8(value)
       put_int32(value.bytesize + 1)
       @buffer << value
       @buffer << NULL_BYTE
@@ -153,9 +155,17 @@ module BSON
 
     private
 
-    def check_for_illegal_characters!(value)
+    def validate_cstring(value)
       if value.include?(NULL_BYTE)
-        raise(ArgumentError, "Illegal C-String '#{value}' contains a null byte.")
+        raise ArgumentError, "Illegal CString #{value.inspect} contains a null byte."
+      end
+    end
+
+    def validate_utf8(value)
+      begin
+        value.unpack("U*")
+      rescue
+        raise ArgumentError, "String #{value.inspect} is not valid UTF-8."
       end
     end
   end

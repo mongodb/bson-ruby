@@ -41,7 +41,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(buffer = ByteBuffer.new)
-      buffer.put_string(to_bson_string)
+      buffer.put_string(self)
     end
 
     # Get the string as a BSON key name encoded C string with checking for special characters.
@@ -57,7 +57,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson_key
-      to_bson_string
+      self
     end
 
     # Convert the string to an object id. This will only work for strings of size
@@ -75,27 +75,6 @@ module BSON
     # @since 2.0.0
     def to_bson_object_id
       ObjectId.repair(self)
-    end
-
-    # Convert the string to a UTF-8 string then force to binary. This is so
-    # we get errors for strings that are not UTF-8 encoded.
-    #
-    # @example Convert to valid BSON string.
-    #   "Straße".to_bson_string
-    #
-    # @raise [ EncodingError ] If the string is not UTF-8.
-    #
-    # @return [ String ] The binary string.
-    #
-    # @since 2.0.0
-    def to_bson_string
-      begin
-        to_utf8_binary
-      rescue EncodingError
-        data = dup.force_encoding(UTF8)
-        raise unless data.valid_encoding?
-        data.force_encoding(BINARY)
-      end
     end
 
     # Convert the string to a hexidecimal representation.
@@ -122,12 +101,6 @@ module BSON
     # @since 2.0.0
     def from_bson_string
       force_encoding(UTF8)
-    end
-
-    private
-
-    def to_utf8_binary
-      encode(UTF8).force_encoding(BINARY)
     end
 
     module ClassMethods

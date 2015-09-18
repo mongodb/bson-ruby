@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 #include <ruby.h>
+#include <ruby/encoding.h>
+#include <stdbool.h>
 #include "portable_endian.h"
 
 #define BSON_BYTE_BUFFER_SIZE 512
@@ -53,6 +55,7 @@ static VALUE rb_bson_byte_buffer_to_s(VALUE self);
 static size_t rb_bson_byte_buffer_memsize(const void *ptr);
 static void rb_bson_byte_buffer_free(void *ptr);
 static void rb_bson_expand_buffer(byte_buffer_t* buffer_ptr, size_t length);
+static bool rb_bson_utf8_validate(const char *utf8, size_t utf8_len, bool allow_null);
 
 static const rb_data_type_t rb_byte_buffer_data_type = {
   "bson/byte_buffer",
@@ -141,10 +144,12 @@ VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes)
 VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string)
 {
   byte_buffer_t *b;
-  const char *c_str = RSTRING_PTR(string);
-  const size_t length = RSTRING_LEN(string) + 1;
-  if (strlen(c_str) < length - 1)
-    rb_raise(rb_eArgError, "Illegal C-String %s contains a null byte.", c_str);
+  char *c_str = RSTRING_PTR(string);
+  size_t length = RSTRING_LEN(string) + 1;
+
+  if (!rb_bson_utf8_validate(c_str, length - 1, false)) {
+    rb_raise(rb_eArgError, "String %s is not a valid UTF-8 CString.", c_str);
+  }
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, length);
@@ -210,8 +215,13 @@ VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i)
 VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
 {
   byte_buffer_t *b;
-  const char *str = RSTRING_PTR(string);
+
+  char *str = RSTRING_PTR(string);
   const size_t length = RSTRING_LEN(string) + 1;
+
+  if (!rb_bson_utf8_validate(str, length - 1, true)) {
+    rb_raise(rb_eArgError, "String %s is not valid UTF-8.", str);
+  }
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, length + 4);
@@ -289,4 +299,170 @@ void rb_bson_expand_buffer(byte_buffer_t* buffer_ptr, size_t length)
     buffer_ptr->write_position -= buffer_ptr->read_position;
     buffer_ptr->read_position = 0;
   }
+}
+
+/**
+ * Taken from libbson.
+ */
+static void _bson_utf8_get_sequence(const char *utf8, uint8_t *seq_length, uint8_t *first_mask)
+{
+ unsigned char c = *(const unsigned char *)utf8;
+ uint8_t m;
+ uint8_t n;
+
+ /*
+  * See the following[1] for a description of what the given multi-byte
+  * sequences will be based on the bits set of the first byte. We also need
+  * to mask the first byte based on that.  All subsequent bytes are masked
+  * against 0x3F.
+  *
+  * [1] http://www.joelonsoftware.com/articles/Unicode.html
+  */
+
+ if ((c & 0x80) == 0) {
+  n = 1;
+  m = 0x7F;
+ } else if ((c & 0xE0) == 0xC0) {
+  n = 2;
+  m = 0x1F;
+ } else if ((c & 0xF0) == 0xE0) {
+  n = 3;
+  m = 0x0F;
+ } else if ((c & 0xF8) == 0xF0) {
+  n = 4;
+  m = 0x07;
+ } else if ((c & 0xFC) == 0xF8) {
+  n = 5;
+  m = 0x03;
+ } else if ((c & 0xFE) == 0xFC) {
+  n = 6;
+  m = 0x01;
+ } else {
+  n = 0;
+  m = 0;
+ }
+
+ *seq_length = n;
+ *first_mask = m;
+}
+
+/**
+ * Taken from libbson.
+ */
+bool rb_bson_utf8_validate(const char *utf8, size_t utf8_len, bool allow_null)
+{
+  uint32_t c;
+  uint8_t first_mask;
+  uint8_t seq_length;
+  unsigned i;
+  unsigned j;
+
+  if (!utf8) {
+    return false;
+  }
+
+  for (i = 0; i < utf8_len; i += seq_length) {
+    _bson_utf8_get_sequence(&utf8[i], &seq_length, &first_mask);
+
+    /*
+     * Ensure we have a valid multi-byte sequence length.
+     */
+    if (!seq_length) {
+      return false;
+    }
+
+    /*
+     * Ensure we have enough bytes left.
+     */
+    if ((utf8_len - i) < seq_length) {
+      return false;
+    }
+
+    /*
+     * Also calculate the next char as a unichar so we can
+     * check code ranges for non-shortest form.
+     */
+    c = utf8 [i] & first_mask;
+
+    /*
+     * Check the high-bits for each additional sequence byte.
+     */
+    for (j = i + 1; j < (i + seq_length); j++) {
+      c = (c << 6) | (utf8 [j] & 0x3F);
+      if ((utf8[j] & 0xC0) != 0x80) {
+        return false;
+      }
+    }
+
+    /*
+     * Check for NULL bytes afterwards.
+     *
+     * Hint: if you want to optimize this function, starting here to do
+     * this in the same pass as the data above would probably be a good
+     * idea. You would add a branch into the inner loop, but save possibly
+     * on cache-line bouncing on larger strings. Just a thought.
+     */
+    if (!allow_null) {
+      for (j = 0; j < seq_length; j++) {
+        if (((i + j) > utf8_len) || !utf8[i + j]) {
+          return false;
+        }
+      }
+    }
+
+    /*
+     * Code point wont fit in utf-16, not allowed.
+     */
+    if (c > 0x0010FFFF) {
+      return false;
+    }
+
+    /*
+     * Byte is in reserved range for UTF-16 high-marks
+     * for surrogate pairs.
+     */
+    if ((c & 0xFFFFF800) == 0xD800) {
+      return false;
+    }
+
+    /*
+     * Check non-shortest form unicode.
+     */
+    switch (seq_length) {
+    case 1:
+      if (c <= 0x007F) {
+        continue;
+      }
+      return false;
+
+    case 2:
+      if ((c >= 0x0080) && (c <= 0x07FF)) {
+        continue;
+      } else if (c == 0) {
+        /* Two-byte representation for NULL. */
+        continue;
+      }
+      return false;
+
+    case 3:
+      if (((c >= 0x0800) && (c <= 0x0FFF)) ||
+         ((c >= 0x1000) && (c <= 0xFFFF))) {
+        continue;
+      }
+      return false;
+
+    case 4:
+      if (((c >= 0x10000) && (c <= 0x3FFFF)) ||
+         ((c >= 0x40000) && (c <= 0xFFFFF)) ||
+         ((c >= 0x100000) && (c <= 0x10FFFF))) {
+        continue;
+      }
+      return false;
+
+    default:
+      return false;
+    }
+  }
+
+  return true;
 }
