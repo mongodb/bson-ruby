@@ -13,6 +13,124 @@ describe BSON::ByteBuffer do
     end
   end
 
+  describe '#get_byte' do
+
+    let(:buffer) do
+      described_class.new(BSON::Int32::BSON_TYPE)
+    end
+
+    let(:byte) do
+      buffer.get_byte
+    end
+
+    it 'gets the byte from the buffer' do
+      expect(byte).to eq(BSON::Int32::BSON_TYPE)
+    end
+
+    it 'increments the position by 1' do
+
+    end
+  end
+
+  describe '#get_bytes' do
+
+    let(:string) do
+      "#{BSON::Int32::BSON_TYPE}#{BSON::Int32::BSON_TYPE}"
+    end
+
+    let(:buffer) do
+      described_class.new(string)
+    end
+
+    let(:bytes) do
+      buffer.get_bytes(2)
+    end
+
+    it 'gets the bytes from the buffer' do
+      expect(bytes).to eq(string)
+    end
+
+    it 'increments the position by the length' do
+
+    end
+  end
+
+  describe '#get_cstring' do
+
+    let(:buffer) do
+      described_class.new("testing#{BSON::NULL_BYTE}")
+    end
+
+    let(:string) do
+      buffer.get_cstring
+    end
+
+    it 'gets the cstring from the buffer' do
+      expect(string).to eq("testing")
+    end
+
+    it 'increments the position by string length + 1' do
+
+    end
+  end
+
+  describe '#get_double' do
+
+    let(:buffer) do
+      described_class.new("#{12.5.to_bson.to_s}")
+    end
+
+    let(:double) do
+      buffer.get_double
+    end
+
+    it 'gets the double from the buffer' do
+      expect(double).to eq(12.5)
+    end
+
+    it 'increments the position by 8' do
+
+    end
+  end
+
+  describe '#get_int32' do
+
+    let(:buffer) do
+      described_class.new("#{12.to_bson.to_s}")
+    end
+
+    let(:int32) do
+      buffer.get_int32
+    end
+
+    it 'gets the int32 from the buffer' do
+      expect(int32).to eq(12)
+    end
+
+    it 'increments the position by 4' do
+
+    end
+  end
+
+  describe '#get_int64' do
+
+    let(:buffer) do
+      described_class.new("#{(Integer::MAX_64BIT - 1).to_bson.to_s}")
+    end
+
+    let(:int64) do
+      buffer.get_int64
+    end
+
+    it 'gets the int64 from the buffer' do
+      expect(int64).to eq(Integer::MAX_64BIT - 1)
+    end
+
+    it 'increments the position by 8' do
+
+    end
+  end
+
   describe '#length' do
 
     let(:buffer) do
@@ -38,7 +156,7 @@ describe BSON::ByteBuffer do
       buffer.put_byte(BSON::Int32::BSON_TYPE)
     end
 
-    it 'appends the int32 to the byte buffer' do
+    it 'appends the byte to the byte buffer' do
       expect(modified.to_s).to eq(BSON::Int32::BSON_TYPE.chr)
     end
   end

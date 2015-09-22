@@ -18,7 +18,7 @@
 #include <stdbool.h>
 #include "portable_endian.h"
 
-#define BSON_BYTE_BUFFER_SIZE 512
+#define BSON_BYTE_BUFFER_SIZE 256
 
 typedef struct {
   size_t size;
@@ -41,7 +41,14 @@ typedef struct {
   { if (buffer_ptr->write_position + length > buffer_ptr->size) rb_bson_expand_buffer(buffer_ptr, length); }
 
 static VALUE rb_bson_byte_buffer_allocate(VALUE klass);
+static VALUE rb_bson_byte_buffer_initialize(int argc, VALUE *argv, VALUE self);
 static VALUE rb_bson_byte_buffer_length(VALUE self);
+static VALUE rb_bson_byte_buffer_get_byte(VALUE self);
+static VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i);
+static VALUE rb_bson_byte_buffer_get_cstring(VALUE self);
+static VALUE rb_bson_byte_buffer_get_double(VALUE self);
+static VALUE rb_bson_byte_buffer_get_int32(VALUE self);
+static VALUE rb_bson_byte_buffer_get_int64(VALUE self);
 static VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte);
 static VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes);
 static VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string);
@@ -71,7 +78,14 @@ void Init_native()
   VALUE rb_byte_buffer_class = rb_define_class_under(rb_bson_module, "ByteBuffer", rb_cObject);
 
   rb_define_alloc_func(rb_byte_buffer_class, rb_bson_byte_buffer_allocate);
+  rb_define_method(rb_byte_buffer_class, "initialize", rb_bson_byte_buffer_initialize, -1);
   rb_define_method(rb_byte_buffer_class, "length", rb_bson_byte_buffer_length, 0);
+  rb_define_method(rb_byte_buffer_class, "get_byte", rb_bson_byte_buffer_get_byte, 0);
+  rb_define_method(rb_byte_buffer_class, "get_bytes", rb_bson_byte_buffer_get_bytes, 1);
+  rb_define_method(rb_byte_buffer_class, "get_cstring", rb_bson_byte_buffer_get_cstring, 0);
+  rb_define_method(rb_byte_buffer_class, "get_double", rb_bson_byte_buffer_get_double, 0);
+  rb_define_method(rb_byte_buffer_class, "get_int32", rb_bson_byte_buffer_get_int32, 0);
+  rb_define_method(rb_byte_buffer_class, "get_int64", rb_bson_byte_buffer_get_int64, 0);
   rb_define_method(rb_byte_buffer_class, "put_byte", rb_bson_byte_buffer_put_byte, 1);
   rb_define_method(rb_byte_buffer_class, "put_bytes", rb_bson_byte_buffer_put_bytes, 1);
   rb_define_method(rb_byte_buffer_class, "put_cstring", rb_bson_byte_buffer_put_cstring, 1);
@@ -96,6 +110,21 @@ VALUE rb_bson_byte_buffer_allocate(VALUE klass)
 }
 
 /**
+ * Initialize a byte buffer.
+ */
+VALUE rb_bson_byte_buffer_initialize(int argc, VALUE *argv, VALUE self)
+{
+  VALUE bytes;
+  rb_scan_args(argc, argv, "01", &bytes);
+
+  if (!NIL_P(bytes)) {
+    rb_bson_byte_buffer_put_bytes(self, bytes);
+  }
+
+  return self;
+}
+
+/**
  * Get the length of the buffer.
  */
 VALUE rb_bson_byte_buffer_length(VALUE self)
@@ -103,6 +132,99 @@ VALUE rb_bson_byte_buffer_length(VALUE self)
   byte_buffer_t *b;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   return UINT2NUM(READ_SIZE(b));
+}
+
+/**
+ * Get a single byte from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_byte(VALUE self)
+{
+  byte_buffer_t *b;
+  VALUE byte;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  /* ENSURE_BSON_READ(b, 1); */
+  byte = rb_str_new(READ_PTR(b), 1);
+  b->read_position += 1;
+  return byte;
+}
+
+/**
+ * Get bytes from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i)
+{
+  byte_buffer_t *b;
+  VALUE bytes;
+  const long length = FIX2LONG(i);
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  /* ENSURE_BSON_READ(b, length); */
+  bytes = rb_str_new(READ_PTR(b), length);
+  b->read_position += length;
+  return bytes;
+}
+
+/**
+ * Get a cstring from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
+{
+  byte_buffer_t *b;
+  VALUE string;
+  int length;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  length = (int)strlen(READ_PTR(b) + b->read_position);
+  /* ENSURE_BSON_READ(b, 1); */
+  string = rb_str_new(READ_PTR(b), length);
+  b->read_position += length;
+  return string;
+}
+
+/**
+ * Get a double from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_double(VALUE self)
+{
+  byte_buffer_t *b;
+  union { uint64_t i64; double d; } ucast;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  /* ENSURE_BSON_READ(b, 8); */
+  ucast.i64 = le64toh(*(uint64_t*)READ_PTR(b));
+  b->read_position += 8;
+  return DBL2NUM(ucast.d);
+}
+
+/**
+ * Get a int32 from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_int32(VALUE self)
+{
+  byte_buffer_t *b;
+  uint32_t i32;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  /* ENSURE_BSON_READ(b, 4); */
+  i32 = le32toh(*((uint32_t*)READ_PTR(b)));
+  b->read_position += 4;
+  return UINT2NUM(i32);
+}
+
+/**
+ * Get a int64 from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_int64(VALUE self)
+{
+  byte_buffer_t *b;
+  uint64_t i64;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  /* ENSURE_BSON_READ(b, 8); */
+  i64 = le64toh(*((uint64_t*)READ_PTR(b)));
+  b->read_position += 8;
+  return ULONG2NUM(i64);
 }
 
 /**

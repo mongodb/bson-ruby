@@ -49,7 +49,6 @@ end
 
 require_relative "perf/bench" unless jruby?
 
-RSpec::Core::RakeTask.new(:spec)
 RSpec::Core::RakeTask.new(:rspec)
 
 if jruby?
@@ -74,8 +73,7 @@ task :clean_all => :clean do
   end
 end
 
-task :ext_spec => :compile do
-  ENV["WITH_EXT"] = "C"
+task :spec => :compile do
   Rake::Task["rspec"].invoke
 end
 
@@ -112,4 +110,4 @@ namespace :benchmark do
   end
 end
 
-task :default => [ :clean_all, :spec, :ext_spec ]
+task :default => [ :clean_all, :spec ]
