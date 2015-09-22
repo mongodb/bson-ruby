@@ -131,6 +131,25 @@ describe BSON::ByteBuffer do
     end
   end
 
+  describe '#get_string' do
+
+    let(:buffer) do
+      described_class.new("#{7.to_bson.to_s}testing#{BSON::NULL_BYTE}")
+    end
+
+    let(:string) do
+      buffer.get_string
+    end
+
+    it 'gets the string from the buffer' do
+      expect(string).to eq("testing")
+    end
+
+    it 'increments the position by string length + 5' do
+
+    end
+  end
+
   describe '#length' do
 
     let(:buffer) do

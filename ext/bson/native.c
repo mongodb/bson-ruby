@@ -49,6 +49,7 @@ static VALUE rb_bson_byte_buffer_get_cstring(VALUE self);
 static VALUE rb_bson_byte_buffer_get_double(VALUE self);
 static VALUE rb_bson_byte_buffer_get_int32(VALUE self);
 static VALUE rb_bson_byte_buffer_get_int64(VALUE self);
+static VALUE rb_bson_byte_buffer_get_string(VALUE self);
 static VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte);
 static VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes);
 static VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string);
@@ -86,6 +87,7 @@ void Init_native()
   rb_define_method(rb_byte_buffer_class, "get_double", rb_bson_byte_buffer_get_double, 0);
   rb_define_method(rb_byte_buffer_class, "get_int32", rb_bson_byte_buffer_get_int32, 0);
   rb_define_method(rb_byte_buffer_class, "get_int64", rb_bson_byte_buffer_get_int64, 0);
+  rb_define_method(rb_byte_buffer_class, "get_string", rb_bson_byte_buffer_get_string, 0);
   rb_define_method(rb_byte_buffer_class, "put_byte", rb_bson_byte_buffer_put_byte, 1);
   rb_define_method(rb_byte_buffer_class, "put_bytes", rb_bson_byte_buffer_put_bytes, 1);
   rb_define_method(rb_byte_buffer_class, "put_cstring", rb_bson_byte_buffer_put_cstring, 1);
@@ -176,7 +178,7 @@ VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   length = (int)strlen(READ_PTR(b) + b->read_position);
-  /* ENSURE_BSON_READ(b, 1); */
+  /* ENSURE_BSON_READ(b, length); */
   string = rb_str_new(READ_PTR(b), length);
   b->read_position += length;
   return string;
@@ -225,6 +227,29 @@ VALUE rb_bson_byte_buffer_get_int64(VALUE self)
   i64 = le64toh(*((uint64_t*)READ_PTR(b)));
   b->read_position += 8;
   return ULONG2NUM(i64);
+}
+
+/**
+ * Get a string from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_string(VALUE self)
+{
+  byte_buffer_t *b;
+  uint32_t length;
+  VALUE string;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  /* ENSURE_BSON_READ(b, 4); */
+  length = le32toh(*((uint32_t*)READ_PTR(b)));
+  b->read_position += 4;
+  /* ENSURE_BSON_READ(b, length); */
+  string = rb_str_new(READ_PTR(b), length);
+  // Associate UTF-8
+  b->read_position += length;
+  /* ENSURE_BSON_READ(b, 1); */
+  rb_str_new(READ_PTR(b), 1);
+  b->read_position += 1;
+  return string;
 }
 
 /**
