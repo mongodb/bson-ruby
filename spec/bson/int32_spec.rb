@@ -27,10 +27,11 @@ describe BSON::Int32 do
   end
 
   describe "when the integer is negative" do
+
     let(:decoded) { -1 }
-    let(:encoded) {StringIO.new([ -1 ].pack(BSON::Int32::PACK))}
+    let(:encoded) { BSON::ByteBuffer.new([ -1 ].pack(BSON::Int32::PACK)) }
     let(:decoded_2) { -50 }
-    let(:encoded_2) {StringIO.new([ -50 ].pack(BSON::Int32::PACK))}
+    let(:encoded_2) { BSON::ByteBuffer.new([ -50 ].pack(BSON::Int32::PACK)) }
 
     it "decodes a -1 correctly" do
       expect(BSON::Int32.from_bson(encoded)).to eq(decoded)

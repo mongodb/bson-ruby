@@ -50,21 +50,15 @@ module BSON
 
       # Deserialize an instance of a Float from a BSON double.
       #
-      # @param [ BSON ] bson The encoded double.
+      # @param [ ByteBuffer ] buffer The byte buffer.
       #
       # @return [ Float ] The decoded Float.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(bson)
-        from_bson_double(bson.read(8))
-      end
-
-      private
-
-      def from_bson_double(double)
-        double.unpack(PACK).first
+      def from_bson(buffer)
+        buffer.get_double
       end
     end
 

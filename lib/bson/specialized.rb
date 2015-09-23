@@ -57,16 +57,16 @@ module BSON
 
     module ClassMethods
 
-      # Deserialize MinKey from BSON.
+      # Deserialize from BSON.
       #
-      # @param [ BSON ] bson The encoded MinKey.
+      # @param [ ByteBuffer ] buffer The byte buffer.
       #
-      # @return [ MinKey ] The decoded MinKey.
+      # @return [ Specialized ] The decoded specialized class.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(bson)
+      def from_bson(buffer)
         new
       end
     end

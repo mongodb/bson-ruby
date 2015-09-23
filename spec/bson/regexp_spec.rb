@@ -37,7 +37,7 @@ describe Regexp do
     let(:obj)  { /test/ }
 
     let(:io) do
-      StringIO.new(bson)
+      BSON::ByteBuffer.new(bson)
     end
 
     let(:regex) do

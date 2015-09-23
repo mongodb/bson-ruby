@@ -79,7 +79,7 @@ describe BSON::CodeWithScope do
       { "name" => "test" }
     end
     let(:obj) { described_class.new(code, scope) }
-    let(:bson) { StringIO.new(obj.to_bson.to_s) }
+    let(:bson) { BSON::ByteBuffer.new(obj.to_bson.to_s) }
     let!(:deserialized) { described_class.from_bson(bson) }
 
     it "deserializes the javascript" do
@@ -88,10 +88,6 @@ describe BSON::CodeWithScope do
 
     it "deserializes the scope" do
       expect(deserialized.scope).to eq(scope)
-    end
-
-    it "does not leave any extra bytes" do
-      expect(bson.read(1)).to be_nil
     end
   end
 end

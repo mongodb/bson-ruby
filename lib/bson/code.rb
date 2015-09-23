@@ -87,15 +87,15 @@ module BSON
 
     # Deserialize code from BSON.
     #
-    # @param [ BSON ] bson The encoded code.
+    # @param [ ByteBuffer ] buffer The byte buffer.
     #
     # @return [ TrueClass, FalseClass ] The decoded code.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(bson)
-      new(bson.read(Int32.from_bson(bson)).from_bson_string.chop!)
+    def self.from_bson(buffer)
+      new(buffer.get_string)
     end
 
     # Register this type when the module is loaded.

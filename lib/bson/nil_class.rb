@@ -32,14 +32,14 @@ module BSON
 
       # Deserialize NilClass from BSON.
       #
-      # @param [ BSON ] bson The encoded Null value.
+      # @param [ ByteBuffer ] buffer The byte buffer.
       #
       # @return [ nil ] The decoded nil value.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(bson)
+      def from_bson(buffer)
         nil
       end
     end

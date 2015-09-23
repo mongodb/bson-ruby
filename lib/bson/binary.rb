@@ -140,18 +140,18 @@ module BSON
 
     # Deserialize the binary data from BSON.
     #
-    # @param [ BSON ] bson The bson representing binary data.
+    # @param [ ByteBuffer ] buffer The byte buffer.
     #
     # @return [ Binary ] The decoded binary data.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(bson)
-      length = Int32.from_bson(bson)
-      type = TYPES[bson.read(1)]
-      length = Int32.from_bson(bson) if type == :old
-      data = bson.read(length)
+    def self.from_bson(buffer)
+      length = buffer.get_int32
+      type = TYPES[buffer.get_byte]
+      length = buffer.get_int32 if type == :old
+      data = buffer.get_bytes(length)
       new(data, type)
     end
 

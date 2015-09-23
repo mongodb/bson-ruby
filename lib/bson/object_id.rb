@@ -206,13 +206,13 @@ module BSON
       # @example Get the object id from BSON.
       #   ObjectId.from_bson(bson)
       #
-      # @param [ String ] bson The raw BSON bytes.
+      # @param [ ByteBuffer ] buffer The byte buffer.
       #
       # @return [ BSON::ObjectId ] The object id.
       #
       # @since 2.0.0
-      def from_bson(bson)
-        from_data(bson.read(12))
+      def from_bson(buffer)
+        from_data(buffer.get_bytes(12))
       end
 
       # Create a new object id from raw bytes.

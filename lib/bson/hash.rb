@@ -65,25 +65,19 @@ module BSON
 
       # Deserialize the hash from BSON.
       #
-      # @param [ IO ] bson The bson representing a hash.
+      # @param [ ByteBuffer ] buffer The byte buffer.
       #
       # @return [ Array ] The decoded hash.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(bson)
+      def from_bson(buffer)
         hash = Document.allocate
-        # size = buffer.get_int32
-        bson.read(4) # Swallow the first four bytes.
-        # while (type = buffer.get_byte) != NULL_BYTE
-        #   field = buffer.get_cstring
-        #   hash.store(field, BSON::Registry.get(type).from_bson(buffer))
-        # end
-        # hash
-        while (type = bson.readbyte.chr) != NULL_BYTE
-          field = bson.gets(NULL_BYTE).from_bson_string.chop!
-          hash.store(field, BSON::Registry.get(type).from_bson(bson))
+        buffer.get_int32 # Throw away the size - todo: just move read position?
+        while (type = buffer.get_byte) != NULL_BYTE
+          field = buffer.get_cstring
+          hash.store(field, BSON::Registry.get(type).from_bson(buffer))
         end
         hash
       end

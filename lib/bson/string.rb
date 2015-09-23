@@ -89,33 +89,19 @@ module BSON
       unpack("H*")[0]
     end
 
-    # Take the binary string and return a UTF-8 encoded string.
-    #
-    # @example Convert from a BSON string.
-    #   "\x00".from_bson_string
-    #
-    # @raise [ EncodingError ] If the string is not UTF-8.
-    #
-    # @return [ String ] The UTF-8 string.
-    #
-    # @since 2.0.0
-    def from_bson_string
-      force_encoding(UTF8)
-    end
-
     module ClassMethods
 
       # Deserialize a string from BSON.
       #
-      # @param [ BSON ] bson The bson representing a string.
+      # @param [ ByteBuffer ] buffer The byte buffer.
       #
       # @return [ Regexp ] The decoded string.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(bson)
-        bson.read(Int32.from_bson(bson)).from_bson_string.chop!
+      def from_bson(buffer)
+        buffer.get_string
       end
     end
 

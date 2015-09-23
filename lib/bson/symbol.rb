@@ -71,17 +71,18 @@ module BSON
     end
 
     module ClassMethods
+
       # Deserialize a symbol from BSON.
       #
-      # @param [ BSON ] bson The bson representing a symbol.
+      # @param [ ByteBuffer ] buffer The byte buffer.
       #
       # @return [ Regexp ] The decoded symbol.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(bson)
-        bson.read(Int32.from_bson(bson)).from_bson_string.chop!.intern
+      def from_bson(buffer)
+        buffer.get_string.intern
       end
     end
 

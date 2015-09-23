@@ -61,7 +61,7 @@ describe BSON::ByteBuffer do
       described_class.new("testing#{BSON::NULL_BYTE}")
     end
 
-    let(:string) do
+    let!(:string) do
       buffer.get_cstring
     end
 
@@ -70,7 +70,7 @@ describe BSON::ByteBuffer do
     end
 
     it 'increments the position by string length + 1' do
-
+      expect(buffer.read_position).to eq(8)
     end
   end
 
@@ -80,7 +80,7 @@ describe BSON::ByteBuffer do
       described_class.new("#{12.5.to_bson.to_s}")
     end
 
-    let(:double) do
+    let!(:double) do
       buffer.get_double
     end
 
@@ -89,7 +89,7 @@ describe BSON::ByteBuffer do
     end
 
     it 'increments the position by 8' do
-
+      expect(buffer.read_position).to eq(8)
     end
   end
 
@@ -99,7 +99,7 @@ describe BSON::ByteBuffer do
       described_class.new("#{12.to_bson.to_s}")
     end
 
-    let(:int32) do
+    let!(:int32) do
       buffer.get_int32
     end
 
@@ -108,7 +108,7 @@ describe BSON::ByteBuffer do
     end
 
     it 'increments the position by 4' do
-
+      expect(buffer.read_position).to eq(4)
     end
   end
 
@@ -118,7 +118,7 @@ describe BSON::ByteBuffer do
       described_class.new("#{(Integer::MAX_64BIT - 1).to_bson.to_s}")
     end
 
-    let(:int64) do
+    let!(:int64) do
       buffer.get_int64
     end
 
@@ -127,17 +127,17 @@ describe BSON::ByteBuffer do
     end
 
     it 'increments the position by 8' do
-
+      expect(buffer.read_position).to eq(8)
     end
   end
 
   describe '#get_string' do
 
     let(:buffer) do
-      described_class.new("#{7.to_bson.to_s}testing#{BSON::NULL_BYTE}")
+      described_class.new("#{8.to_bson.to_s}testing#{BSON::NULL_BYTE}")
     end
 
-    let(:string) do
+    let!(:string) do
       buffer.get_string
     end
 
@@ -146,7 +146,7 @@ describe BSON::ByteBuffer do
     end
 
     it 'increments the position by string length + 5' do
-
+      expect(buffer.read_position).to eq(12)
     end
   end
 

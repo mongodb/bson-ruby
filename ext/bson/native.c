@@ -57,6 +57,7 @@ static VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f);
 static VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i);
 static VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i);
 static VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string);
+static VALUE rb_bson_byte_buffer_read_position(VALUE self);
 static VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i);
 static VALUE rb_bson_byte_buffer_to_s(VALUE self);
 
@@ -95,6 +96,7 @@ void Init_native()
   rb_define_method(rb_byte_buffer_class, "put_int32", rb_bson_byte_buffer_put_int32, 1);
   rb_define_method(rb_byte_buffer_class, "put_int64", rb_bson_byte_buffer_put_int64, 1);
   rb_define_method(rb_byte_buffer_class, "put_string", rb_bson_byte_buffer_put_string, 1);
+  rb_define_method(rb_byte_buffer_class, "read_position", rb_bson_byte_buffer_read_position, 0);
   rb_define_method(rb_byte_buffer_class, "replace_int32", rb_bson_byte_buffer_replace_int32, 2);
   rb_define_method(rb_byte_buffer_class, "to_s", rb_bson_byte_buffer_to_s, 0);
 }
@@ -177,10 +179,10 @@ VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
   int length;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  length = (int)strlen(READ_PTR(b) + b->read_position);
+  length = (int)strlen(READ_PTR(b));
   /* ENSURE_BSON_READ(b, length); */
-  string = rb_str_new(READ_PTR(b), length);
-  b->read_position += length;
+  string = rb_enc_str_new(READ_PTR(b), length, rb_utf8_encoding());
+  b->read_position += length + 1;
   return string;
 }
 
@@ -205,13 +207,13 @@ VALUE rb_bson_byte_buffer_get_double(VALUE self)
 VALUE rb_bson_byte_buffer_get_int32(VALUE self)
 {
   byte_buffer_t *b;
-  uint32_t i32;
+  int32_t i32;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   /* ENSURE_BSON_READ(b, 4); */
-  i32 = le32toh(*((uint32_t*)READ_PTR(b)));
+  i32 = le32toh(*((int32_t*)READ_PTR(b)));
   b->read_position += 4;
-  return UINT2NUM(i32);
+  return INT2NUM(i32);
 }
 
 /**
@@ -220,13 +222,13 @@ VALUE rb_bson_byte_buffer_get_int32(VALUE self)
 VALUE rb_bson_byte_buffer_get_int64(VALUE self)
 {
   byte_buffer_t *b;
-  uint64_t i64;
+  int64_t i64;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   /* ENSURE_BSON_READ(b, 8); */
-  i64 = le64toh(*((uint64_t*)READ_PTR(b)));
+  i64 = le64toh(*((int64_t*)READ_PTR(b)));
   b->read_position += 8;
-  return ULONG2NUM(i64);
+  return LONG2NUM(i64);
 }
 
 /**
@@ -235,20 +237,16 @@ VALUE rb_bson_byte_buffer_get_int64(VALUE self)
 VALUE rb_bson_byte_buffer_get_string(VALUE self)
 {
   byte_buffer_t *b;
-  uint32_t length;
+  int32_t length;
   VALUE string;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   /* ENSURE_BSON_READ(b, 4); */
-  length = le32toh(*((uint32_t*)READ_PTR(b)));
+  length = le32toh(*((int32_t*)READ_PTR(b)));
   b->read_position += 4;
   /* ENSURE_BSON_READ(b, length); */
-  string = rb_str_new(READ_PTR(b), length);
-  // Associate UTF-8
+  string = rb_enc_str_new(READ_PTR(b), length - 1, rb_utf8_encoding());
   b->read_position += length;
-  /* ENSURE_BSON_READ(b, 1); */
-  rb_str_new(READ_PTR(b), 1);
-  b->read_position += 1;
   return string;
 }
 
@@ -378,6 +376,16 @@ VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
   b->write_position += length;
 
   return self;
+}
+
+/**
+ * Get the read position.
+ */
+VALUE rb_bson_byte_buffer_read_position(VALUE self)
+{
+  byte_buffer_t *b;
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  return INT2NUM(b->read_position);
 }
 
 /**

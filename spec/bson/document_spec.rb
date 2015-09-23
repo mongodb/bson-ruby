@@ -657,7 +657,7 @@ describe BSON::Document do
       end
 
       let(:deserialized) do
-        described_class.from_bson(StringIO.new(serialized))
+        described_class.from_bson(BSON::ByteBuffer.new(serialized))
       end
 
       it 'deserializes the documents' do
@@ -723,7 +723,7 @@ describe BSON::Document do
       it_behaves_like "a deserializable bson element"
 
       let(:raw) do
-        StringIO.new(bson)
+        BSON::ByteBuffer.new(bson)
       end
 
       it "returns an instance of a BSON::Document" do
@@ -768,7 +768,7 @@ describe BSON::Document do
       end
 
       let(:deserialized) do
-        described_class.from_bson(StringIO.new(document.to_bson.to_s))
+        described_class.from_bson(BSON::ByteBuffer.new(document.to_bson.to_s))
       end
 
       it "serializes and deserializes properly" do
@@ -835,7 +835,7 @@ describe BSON::Document do
 
       it "encodes and decodes the document properly" do
         expect(
-          BSON::Document.from_bson(StringIO.new(document.to_bson.to_s))
+          BSON::Document.from_bson(BSON::ByteBuffer.new(document.to_bson.to_s))
         ).to eq({ "type" => string })
       end
     end
