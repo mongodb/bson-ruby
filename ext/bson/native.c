@@ -18,7 +18,7 @@
 #include <stdbool.h>
 #include "portable_endian.h"
 
-#define BSON_BYTE_BUFFER_SIZE 256
+#define BSON_BYTE_BUFFER_SIZE 512
 
 typedef struct {
   size_t size;

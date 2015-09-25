@@ -156,7 +156,7 @@ def benchmark!
       # count.times { Time.from_bson(StringIO.new(time_bytes)) }
     # end
 
-    doc_bytes = document.to_bson
+    doc_bytes = document.to_bson.to_s
     bench.report("Document#from_bson ---->") do
       count.times { BSON::Document.from_bson(BSON::ByteBuffer.new(doc_bytes)) }
     end
