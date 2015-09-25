@@ -273,16 +273,38 @@ describe BSON::ByteBuffer do
 
   describe '#put_string' do
 
-    let(:buffer) do
-      described_class.new
+    context 'when the buffer does not need to be expanded' do
+
+      let(:buffer) do
+        described_class.new
+      end
+
+      let(:modified) do
+        buffer.put_string('testing')
+      end
+
+      it 'appends the string to the byte buffer' do
+        expect(modified.to_s).to eq("#{8.to_bson.to_s}testing#{BSON::NULL_BYTE}")
+      end
     end
 
-    let(:modified) do
-      buffer.put_string('testing')
-    end
+    context 'when the buffer needs to be expanded' do
 
-    it 'appends the string to the byte buffer' do
-      expect(modified.to_s).to eq("#{8.to_bson.to_s}testing#{BSON::NULL_BYTE}")
+      let(:buffer) do
+        described_class.new
+      end
+
+      let(:string) do
+        300.times.inject(""){ |s, i| s << "#{i}" }
+      end
+
+      let(:modified) do
+        buffer.put_string(string)
+      end
+
+      it 'appends the string to the byte buffer' do
+        expect(modified.to_s).to eq("#{(string.bytesize + 1).to_bson.to_s}#{string}#{BSON::NULL_BYTE}")
+      end
     end
   end
 
@@ -308,96 +330,4 @@ describe BSON::ByteBuffer do
       expect(modified.to_s).to eq("#{exp_first}#{exp_second}")
     end
   end
-
-  # describe "#to_bson_string" do
-
-    # context "when the string is valid" do
-
-      # let(:string) do
-        # "test"
-      # end
-
-      # let(:encoded) do
-        # string.to_bson_string
-      # end
-
-      # it "returns the string" do
-        # expect(encoded).to eq(string)
-      # end
-
-      # it_behaves_like "a binary encoded string"
-    # end
-
-    # context "when the string contains a null byte" do
-
-      # let(:string) do
-        # "test#{BSON::NULL_BYTE}ing"
-      # end
-
-      # let(:encoded) do
-        # string.to_bson_string
-      # end
-
-      # it "retains the null byte" do
-        # expect(encoded).to eq(string)
-      # end
-
-      # it_behaves_like "a binary encoded string"
-    # end
-
-    # context "when the string contains utf-8 characters" do
-
-      # let(:string) do
-        # "Straße"
-      # end
-
-      # let(:encoded) do
-        # string.to_bson_string.to_s
-      # end
-
-      # let(:char) do
-        # "ß".chr.force_encoding(BSON::BINARY)
-      # end
-
-      # it "returns the encoded string" do
-        # expect(encoded).to eq("Stra#{char}e")
-      # end
-
-      # it_behaves_like "a binary encoded string"
-    # end
-
-    # context "when the string is encoded in non utf-8" do
-
-      # let(:string) do
-        # "Straße".encode("iso-8859-1")
-      # end
-
-      # let(:encoded) do
-        # string.to_bson_string.to_s
-      # end
-
-      # let(:char) do
-        # "ß".chr.force_encoding(BSON::BINARY)
-      # end
-
-      # it "returns the encoded string" do
-        # expect(encoded).to eq("Stra#{char}e")
-      # end
-
-      # it_behaves_like "a binary encoded string"
-    # end
-
-    # context "when the string contains non utf-8 characters" do
-
-      # let(:string) do
-        # 255.chr
-      # end
-
-      # it "raises an error" do
-        # expect {
-          # string.to_bson_string
-        # }.to raise_error(EncodingError)
-      # end
-    # end
-  # end
 end

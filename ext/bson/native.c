@@ -40,6 +40,10 @@ typedef struct {
 #define ENSURE_BSON_WRITE(buffer_ptr, length) \
   { if (buffer_ptr->write_position + length > buffer_ptr->size) rb_bson_expand_buffer(buffer_ptr, length); }
 
+#define ENSURE_BSON_READ(buffer_ptr, length) \
+  { if (buffer_ptr->read_position + length > buffer_ptr->write_position) \
+    rb_raise(rb_eRangeError, "Attempted to read %zu bytes, but only %zu bytes remain", (size_t)length, READ_SIZE(buffer_ptr)); }
+
 static VALUE rb_bson_byte_buffer_allocate(VALUE klass);
 static VALUE rb_bson_byte_buffer_initialize(int argc, VALUE *argv, VALUE self);
 static VALUE rb_bson_byte_buffer_length(VALUE self);
@@ -68,7 +72,8 @@ static bool rb_bson_utf8_validate(const char *utf8, size_t utf8_len, bool allow_
 
 static const rb_data_type_t rb_byte_buffer_data_type = {
   "bson/byte_buffer",
-  { NULL, rb_bson_byte_buffer_free, rb_bson_byte_buffer_memsize }
+  { NULL, rb_bson_byte_buffer_free, rb_bson_byte_buffer_memsize },
+  0, 0, RUBY_TYPED_FREE_IMMEDIATELY
 };
 
 /**
@@ -147,7 +152,7 @@ VALUE rb_bson_byte_buffer_get_byte(VALUE self)
   VALUE byte;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  /* ENSURE_BSON_READ(b, 1); */
+  ENSURE_BSON_READ(b, 1);
   byte = rb_str_new(READ_PTR(b), 1);
   b->read_position += 1;
   return byte;
@@ -163,7 +168,7 @@ VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i)
   const long length = FIX2LONG(i);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  /* ENSURE_BSON_READ(b, length); */
+  ENSURE_BSON_READ(b, length);
   bytes = rb_str_new(READ_PTR(b), length);
   b->read_position += length;
   return bytes;
@@ -180,7 +185,7 @@ VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   length = (int)strlen(READ_PTR(b));
-  /* ENSURE_BSON_READ(b, length); */
+  ENSURE_BSON_READ(b, length);
   string = rb_enc_str_new(READ_PTR(b), length, rb_utf8_encoding());
   b->read_position += length + 1;
   return string;
@@ -195,7 +200,7 @@ VALUE rb_bson_byte_buffer_get_double(VALUE self)
   union { uint64_t i64; double d; } ucast;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  /* ENSURE_BSON_READ(b, 8); */
+  ENSURE_BSON_READ(b, 8);
   ucast.i64 = le64toh(*(uint64_t*)READ_PTR(b));
   b->read_position += 8;
   return DBL2NUM(ucast.d);
@@ -210,7 +215,7 @@ VALUE rb_bson_byte_buffer_get_int32(VALUE self)
   int32_t i32;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  /* ENSURE_BSON_READ(b, 4); */
+  ENSURE_BSON_READ(b, 4);
   i32 = le32toh(*((int32_t*)READ_PTR(b)));
   b->read_position += 4;
   return INT2NUM(i32);
@@ -225,7 +230,7 @@ VALUE rb_bson_byte_buffer_get_int64(VALUE self)
   int64_t i64;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  /* ENSURE_BSON_READ(b, 8); */
+  ENSURE_BSON_READ(b, 8);
   i64 = le64toh(*((int64_t*)READ_PTR(b)));
   b->read_position += 8;
   return LONG2NUM(i64);
@@ -241,10 +246,10 @@ VALUE rb_bson_byte_buffer_get_string(VALUE self)
   VALUE string;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  /* ENSURE_BSON_READ(b, 4); */
+  ENSURE_BSON_READ(b, 4);
   length = le32toh(*((int32_t*)READ_PTR(b)));
   b->read_position += 4;
-  /* ENSURE_BSON_READ(b, length); */
+  ENSURE_BSON_READ(b, length);
   string = rb_enc_str_new(READ_PTR(b), length - 1, rb_utf8_encoding());
   b->read_position += length;
   return string;
@@ -279,7 +284,6 @@ VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes)
   ENSURE_BSON_WRITE(b, length);
   memcpy(WRITE_PTR(b), str, length);
   b->write_position += length;
-
   return self;
 }
 
@@ -300,7 +304,6 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string)
   ENSURE_BSON_WRITE(b, length);
   memcpy(WRITE_PTR(b), c_str, length);
   b->write_position += length;
-
   return self;
 }
 
@@ -395,12 +398,11 @@ VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i)
 {
   byte_buffer_t *b;
   const int32_t position = NUM2INT(index);
-  const int32_t i32 = NUM2INT(i);
-  const char bytes = htole32(i32);
+  const int32_t i32 = htole32(NUM2INT(i));
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
-  memcpy(READ_PTR(b) + position, &bytes, sizeof(bytes));
+  memcpy(READ_PTR(b) + position, &i32, 4);
 
   return self;
 }
@@ -429,7 +431,9 @@ size_t rb_bson_byte_buffer_memsize(const void *ptr)
 void rb_bson_byte_buffer_free(void *ptr)
 {
   byte_buffer_t *b = ptr;
-  if (b->b_ptr != b->buffer) xfree(b->b_ptr);
+  if (b->b_ptr != b->buffer) {
+    xfree(b->b_ptr);
+  }
   xfree(b);
 }
 
@@ -445,10 +449,12 @@ void rb_bson_expand_buffer(byte_buffer_t* buffer_ptr, size_t length)
     buffer_ptr->read_position = 0;
   } else {
     char *new_b_ptr;
-    const size_t new_size = buffer_ptr->size + BSON_BYTE_BUFFER_SIZE;
+    const size_t new_size = required_size + BSON_BYTE_BUFFER_SIZE;
     new_b_ptr = ALLOC_N(char, new_size);
     memcpy(new_b_ptr, READ_PTR(buffer_ptr), READ_SIZE(buffer_ptr));
-    if (buffer_ptr->b_ptr != buffer_ptr->buffer) xfree(buffer_ptr->b_ptr);
+    if (buffer_ptr->b_ptr != buffer_ptr->buffer) {
+      xfree(buffer_ptr->b_ptr);
+    }
     buffer_ptr->b_ptr = new_b_ptr;
     buffer_ptr->size = new_size;
     buffer_ptr->write_position -= buffer_ptr->read_position;
