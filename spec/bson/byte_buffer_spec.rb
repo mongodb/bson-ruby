@@ -19,7 +19,7 @@ describe BSON::ByteBuffer do
       described_class.new(BSON::Int32::BSON_TYPE)
     end
 
-    let(:byte) do
+    let!(:byte) do
       buffer.get_byte
     end
 
@@ -28,7 +28,7 @@ describe BSON::ByteBuffer do
     end
 
     it 'increments the position by 1' do
-
+      expect(buffer.read_position).to eq(1)
     end
   end
 
@@ -42,7 +42,7 @@ describe BSON::ByteBuffer do
       described_class.new(string)
     end
 
-    let(:bytes) do
+    let!(:bytes) do
       buffer.get_bytes(2)
     end
 
@@ -51,7 +51,7 @@ describe BSON::ByteBuffer do
     end
 
     it 'increments the position by the length' do
-
+      expect(buffer.read_position).to eq(string.bytesize)
     end
   end
 
@@ -171,12 +171,16 @@ describe BSON::ByteBuffer do
       described_class.new
     end
 
-    let(:modified) do
+    let!(:modified) do
       buffer.put_byte(BSON::Int32::BSON_TYPE)
     end
 
     it 'appends the byte to the byte buffer' do
       expect(modified.to_s).to eq(BSON::Int32::BSON_TYPE.chr)
+    end
+
+    it 'increments the write position by 1' do
+      expect(modified.write_position).to eq(1)
     end
   end
 
@@ -188,7 +192,7 @@ describe BSON::ByteBuffer do
 
     context 'when the string is valid' do
 
-      let(:modified) do
+      let!(:modified) do
         buffer.put_cstring('testing')
       end
 
@@ -196,6 +200,9 @@ describe BSON::ByteBuffer do
         expect(modified.to_s).to eq("testing#{BSON::NULL_BYTE}")
       end
 
+      it 'increments the write position by the length + 1' do
+        expect(modified.write_position).to eq(8)
+      end
     end
 
     context "when the string contains a null byte" do
@@ -218,12 +225,16 @@ describe BSON::ByteBuffer do
       described_class.new
     end
 
-    let(:modified) do
+    let!(:modified) do
       buffer.put_double(1.2332)
     end
 
     it 'appends the double to the buffer' do
       expect(modified.to_s).to eq([ 1.2332 ].pack(Float::PACK))
+    end
+
+    it 'increments the write position by 8' do
+      expect(modified.write_position).to eq(8)
     end
   end
 
@@ -235,7 +246,7 @@ describe BSON::ByteBuffer do
 
     context 'when the integer is 32 bit' do
 
-      let(:modified) do
+      let!(:modified) do
         buffer.put_int32(Integer::MAX_32BIT - 1)
       end
 
@@ -245,6 +256,10 @@ describe BSON::ByteBuffer do
 
       it 'appends the int32 to the byte buffer' do
         expect(modified.to_s).to eq(expected)
+      end
+
+      it 'increments the write position by 4' do
+        expect(modified.write_position).to eq(4)
       end
     end
   end
@@ -257,7 +272,7 @@ describe BSON::ByteBuffer do
 
     context 'when the integer is 64 bit' do
 
-      let(:modified) do
+      let!(:modified) do
         buffer.put_int64(Integer::MAX_64BIT - 1)
       end
 
@@ -267,6 +282,10 @@ describe BSON::ByteBuffer do
 
       it 'appends the int64 to the byte buffer' do
         expect(modified.to_s).to eq(expected)
+      end
+
+      it 'increments the write position by 8' do
+        expect(modified.write_position).to eq(8)
       end
     end
   end
@@ -279,12 +298,16 @@ describe BSON::ByteBuffer do
         described_class.new
       end
 
-      let(:modified) do
+      let!(:modified) do
         buffer.put_string('testing')
       end
 
       it 'appends the string to the byte buffer' do
         expect(modified.to_s).to eq("#{8.to_bson.to_s}testing#{BSON::NULL_BYTE}")
+      end
+
+      it 'increments the write position by length + 5' do
+        expect(modified.write_position).to eq(12)
       end
     end
 
@@ -298,12 +321,16 @@ describe BSON::ByteBuffer do
         300.times.inject(""){ |s, i| s << "#{i}" }
       end
 
-      let(:modified) do
+      let!(:modified) do
         buffer.put_string(string)
       end
 
       it 'appends the string to the byte buffer' do
         expect(modified.to_s).to eq("#{(string.bytesize + 1).to_bson.to_s}#{string}#{BSON::NULL_BYTE}")
+      end
+
+      it 'increments the write position by length + 5' do
+        expect(modified.write_position).to eq(string.bytesize + 5)
       end
     end
   end

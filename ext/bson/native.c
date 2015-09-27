@@ -63,6 +63,7 @@ static VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i);
 static VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string);
 static VALUE rb_bson_byte_buffer_read_position(VALUE self);
 static VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i);
+static VALUE rb_bson_byte_buffer_write_position(VALUE self);
 static VALUE rb_bson_byte_buffer_to_s(VALUE self);
 
 static size_t rb_bson_byte_buffer_memsize(const void *ptr);
@@ -103,6 +104,7 @@ void Init_native()
   rb_define_method(rb_byte_buffer_class, "put_string", rb_bson_byte_buffer_put_string, 1);
   rb_define_method(rb_byte_buffer_class, "read_position", rb_bson_byte_buffer_read_position, 0);
   rb_define_method(rb_byte_buffer_class, "replace_int32", rb_bson_byte_buffer_replace_int32, 2);
+  rb_define_method(rb_byte_buffer_class, "write_position", rb_bson_byte_buffer_write_position, 0);
   rb_define_method(rb_byte_buffer_class, "to_s", rb_bson_byte_buffer_to_s, 0);
 }
 
@@ -405,6 +407,16 @@ VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i)
   memcpy(READ_PTR(b) + position, &i32, 4);
 
   return self;
+}
+
+/**
+ * Get the write position.
+ */
+VALUE rb_bson_byte_buffer_write_position(VALUE self)
+{
+  byte_buffer_t *b;
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  return INT2NUM(b->write_position);
 }
 
 /**
