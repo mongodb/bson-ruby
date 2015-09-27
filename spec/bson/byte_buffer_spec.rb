@@ -246,20 +246,51 @@ describe BSON::ByteBuffer do
 
     context 'when the integer is 32 bit' do
 
-      let!(:modified) do
-        buffer.put_int32(Integer::MAX_32BIT - 1)
+      context 'when the integer is positive' do
+
+        let!(:modified) do
+          buffer.put_int32(Integer::MAX_32BIT - 1)
+        end
+
+        let(:expected) do
+          [ Integer::MAX_32BIT - 1 ].pack(BSON::Int32::PACK)
+        end
+
+        it 'appends the int32 to the byte buffer' do
+          expect(modified.to_s).to eq(expected)
+        end
+
+        it 'increments the write position by 4' do
+          expect(modified.write_position).to eq(4)
+        end
       end
 
-      let(:expected) do
-        [ Integer::MAX_32BIT - 1 ].pack(BSON::Int32::PACK)
+      context 'when the integer is negative' do
+
+        let!(:modified) do
+          buffer.put_int32(Integer::MIN_32BIT + 1)
+        end
+
+        let(:expected) do
+          [ Integer::MIN_32BIT + 1 ].pack(BSON::Int32::PACK)
+        end
+
+        it 'appends the int32 to the byte buffer' do
+          expect(modified.to_s).to eq(expected)
+        end
+
+        it 'increments the write position by 4' do
+          expect(modified.write_position).to eq(4)
+        end
       end
 
-      it 'appends the int32 to the byte buffer' do
-        expect(modified.to_s).to eq(expected)
-      end
+      context 'when the integer is not 32 bit' do
 
-      it 'increments the write position by 4' do
-        expect(modified.write_position).to eq(4)
+        it 'raises an exception' do
+          expect {
+            buffer.put_int32(Integer::MAX_64BIT - 1)
+          }.to raise_error(RangeError)
+        end
       end
     end
   end
@@ -272,20 +303,51 @@ describe BSON::ByteBuffer do
 
     context 'when the integer is 64 bit' do
 
-      let!(:modified) do
-        buffer.put_int64(Integer::MAX_64BIT - 1)
+      context 'when the integer is positive' do
+
+        let!(:modified) do
+          buffer.put_int64(Integer::MAX_64BIT - 1)
+        end
+
+        let(:expected) do
+          [ Integer::MAX_64BIT - 1 ].pack(BSON::Int64::PACK)
+        end
+
+        it 'appends the int64 to the byte buffer' do
+          expect(modified.to_s).to eq(expected)
+        end
+
+        it 'increments the write position by 8' do
+          expect(modified.write_position).to eq(8)
+        end
       end
 
-      let(:expected) do
-        [ Integer::MAX_64BIT - 1 ].pack(BSON::Int64::PACK)
+      context 'when the integer is negative' do
+
+        let!(:modified) do
+          buffer.put_int64(Integer::MIN_64BIT + 1)
+        end
+
+        let(:expected) do
+          [ Integer::MIN_64BIT + 1 ].pack(BSON::Int64::PACK)
+        end
+
+        it 'appends the int64 to the byte buffer' do
+          expect(modified.to_s).to eq(expected)
+        end
+
+        it 'increments the write position by 8' do
+          expect(modified.write_position).to eq(8)
+        end
       end
 
-      it 'appends the int64 to the byte buffer' do
-        expect(modified.to_s).to eq(expected)
-      end
+      context 'when the integer is larger than 64 bit' do
 
-      it 'increments the write position by 8' do
-        expect(modified.write_position).to eq(8)
+        it 'raises an exception' do
+          expect {
+            buffer.put_int64(Integer::MAX_64BIT + 1)
+          }.to raise_error(RangeError)
+        end
       end
     end
   end
@@ -298,16 +360,28 @@ describe BSON::ByteBuffer do
         described_class.new
       end
 
-      let!(:modified) do
-        buffer.put_string('testing')
+      context 'when the string is UTF-8' do
+
+        let!(:modified) do
+          buffer.put_string('testing')
+        end
+
+        it 'appends the string to the byte buffer' do
+          expect(modified.to_s).to eq("#{8.to_bson.to_s}testing#{BSON::NULL_BYTE}")
+        end
+
+        it 'increments the write position by length + 5' do
+          expect(modified.write_position).to eq(12)
+        end
       end
 
-      it 'appends the string to the byte buffer' do
-        expect(modified.to_s).to eq("#{8.to_bson.to_s}testing#{BSON::NULL_BYTE}")
-      end
+      context 'when the string is not UTF-8' do
 
-      it 'increments the write position by length + 5' do
-        expect(modified.write_position).to eq(12)
+        it 'raises an exception' do
+          expect {
+            buffer.put_string('gültig'.encode("iso-8859-1"))
+          }.to raise_error(ArgumentError)
+        end
       end
     end
 
