@@ -38,6 +38,9 @@ import org.jruby.runtime.builtin.IRubyObject;
  */
 public class ByteBuf extends RubyObject {
 
+  /**
+   * Constant for a null byte.
+   */
   private static byte NULL_BYTE = 0x00;
 
   /**
@@ -66,12 +69,23 @@ public class ByteBuf extends RubyObject {
   private int writePosition = 0;
 
   /**
-   * Instantiate the ByteBuf.
+   * Instantiate the ByteBuf - this is #allocate in Ruby.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
    */
   public ByteBuf(final Ruby runtime, final RubyClass rubyClass) {
     super(runtime, rubyClass);
   }
 
+  /**
+   * Initialize an empty buffer.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "initialize")
   public IRubyObject intialize() {
     this.buffer = ByteBuffer.allocate(1024).order(ByteOrder.LITTLE_ENDIAN);
@@ -79,6 +93,15 @@ public class ByteBuf extends RubyObject {
     return null;
   }
 
+  /**
+   * Instantiate the buffer with bytes.
+   *
+   * @param value The bytes to instantiate with.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "initialize")
   public IRubyObject initialize(final RubyString value) {
     this.buffer = ByteBuffer.wrap(value.getBytes()).order(ByteOrder.LITTLE_ENDIAN);
@@ -86,6 +109,13 @@ public class ByteBuf extends RubyObject {
     return null;
   }
 
+  /**
+   * Get a single byte from the buffer.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "get_byte")
   public RubyString getByte() {
     ensureBsonRead();
@@ -94,6 +124,15 @@ public class ByteBuf extends RubyObject {
     return string;
   }
 
+  /**
+   * Get the supplied number of bytes from the buffer.
+   *
+   * @param value The number of bytes to read.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "get_bytes")
   public RubyString getBytes(final IRubyObject value) {
     ensureBsonRead();
@@ -104,6 +143,13 @@ public class ByteBuf extends RubyObject {
     return string;
   }
 
+  /**
+   * Get a double from the buffer.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "get_double")
   public RubyFloat getDouble() {
     ensureBsonRead();
@@ -112,6 +158,13 @@ public class ByteBuf extends RubyObject {
     return doubl;
   }
 
+  /**
+   * Get a 32 bit integer from the buffer.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "get_int32")
   public RubyFixnum getInt32() {
     ensureBsonRead();
@@ -120,6 +173,13 @@ public class ByteBuf extends RubyObject {
     return int32;
   }
 
+  /**
+   * Get a UTF-8 string from the buffer.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "get_string")
   public RubyString getString() {
     ensureBsonRead();
@@ -133,6 +193,13 @@ public class ByteBuf extends RubyObject {
     return string;
   }
 
+  /**
+   * Get a 64 bit integer from the buffer.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "get_int64")
   public RubyBignum getInt64() {
     ensureBsonRead();
@@ -141,6 +208,15 @@ public class ByteBuf extends RubyObject {
     return int64;
   }
 
+  /**
+   * Put a single byte onto the buffer.
+   *
+   * @param value The byte to write.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "put_byte")
   public ByteBuf putByte(final IRubyObject value) {
     ensureBsonWrite();
@@ -149,6 +225,15 @@ public class ByteBuf extends RubyObject {
     return this;
   }
 
+  /**
+   * Put raw bytes onto the buffer.
+   *
+   * @param value The bytes to write.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "put_bytes")
   public ByteBuf putBytes(final IRubyObject value) {
     ensureBsonWrite();
@@ -158,6 +243,15 @@ public class ByteBuf extends RubyObject {
     return this;
   }
 
+  /**
+   * Put a double onto the buffer.
+   *
+   * @param value the double to write.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "put_double")
   public ByteBuf putDouble(final IRubyObject value) {
     ensureBsonWrite();
@@ -166,6 +260,15 @@ public class ByteBuf extends RubyObject {
     return this;
   }
 
+  /**
+   * Put a 32 bit integer onto the buffer.
+   *
+   * @param value The integer to write.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "put_int32")
   public ByteBuf putInt32(final IRubyObject value) {
     ensureBsonWrite();
@@ -174,6 +277,15 @@ public class ByteBuf extends RubyObject {
     return this;
   }
 
+  /**
+   * Put a 64 bit integer onto the buffer.
+   *
+   * @param value The integer to write.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "put_int64")
   public ByteBuf putInt64(final IRubyObject value) {
     ensureBsonWrite();
@@ -182,6 +294,15 @@ public class ByteBuf extends RubyObject {
     return this;
   }
 
+  /**
+   * Put a UTF-8 string onto the buffer.
+   *
+   * @param value The UTF-8 string to write.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "put_string")
   public ByteBuf putString(final IRubyObject value) {
     ensureBsonWrite();
@@ -193,11 +314,25 @@ public class ByteBuf extends RubyObject {
     return this;
   }
 
+  /**
+   * Get the read position of the buffer.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "read_position")
   public RubyFixnum getReadPosition() {
     return new RubyFixnum(getRuntime(), this.readPosition);
   }
 
+  /**
+   * Get the write position of the buffer.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
   @JRubyMethod(name = "write_position")
   public RubyFixnum getWritePosition() {
     return new RubyFixnum(getRuntime(), this.writePosition);
@@ -205,6 +340,10 @@ public class ByteBuf extends RubyObject {
 
   /**
    * Convert the byte buffer to a string of the bytes.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
    */
   @JRubyMethod(name = "to_s")
   public RubyString toRubyString() {
@@ -220,9 +359,6 @@ public class ByteBuf extends RubyObject {
     }
   }
 
-  /**
-   * This will grow the underlying byte buffer if the remaining size is too small.
-   */
   private void ensureBsonWrite() {
     if (this.mode == Mode.READ) {
       this.buffer.flip();
