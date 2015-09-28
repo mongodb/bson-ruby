@@ -11,8 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+require 'java'
+require 'bson-ruby.jar'
+import 'org.bson.ByteBuf'
 
 module BSON
   class ByteBuffer
+
+    def initialize(bytes = nil)
+      @buffer = bytes ? ByteBuf.new(bytes) : ByteBuf.new
+    end
+
+    def put_double(value)
+      @buffer.put_double(value)
+      self
+    end
   end
 end

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2013 MongoDB, Inc.
+ * Copyright (C) 2009-2015 MongoDB, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,11 @@ package org.bson;
 import java.io.IOException;
 
 import org.jruby.Ruby;
+import org.jruby.RubyClass;
 import org.jruby.RubyModule;
 import org.jruby.runtime.load.BasicLibraryService;
+import org.jruby.runtime.ObjectAllocator;
+import org.jruby.runtime.builtin.IRubyObject;
 
 /**
  * The native implementation of various extensions.
@@ -37,6 +40,13 @@ public class NativeService implements BasicLibraryService {
   private final String BSON = "BSON".intern();
 
   /**
+   * Constant for the BSON module name.
+   *
+   * @since 2.0.0
+   */
+  private final String BYTE_BUF = "ByteBuff".intern();
+
+  /**
    * Loads the native extension into the JRuby runtime.
    *
    * @param runtime The Ruby runtime.
@@ -47,11 +57,15 @@ public class NativeService implements BasicLibraryService {
    */
   public boolean basicLoad(final Ruby runtime) throws IOException {
     RubyModule bson = runtime.fastGetModule(BSON);
-    BooleanExtension.extend(bson);
-    FloatExtension.extend(bson);
-    GeneratorExtension.extend(bson);
-    IntegerExtension.extend(bson);
-    TimeExtension.extend(bson);
+
+    RubyClass byteBuffer = bson.defineClassUnder("ByteBuffer", runtime.getObject(), new ObjectAllocator() {
+      public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
+        return new ByteBuf(runtime, rubyClass);
+      }
+    });
+
+    byteBuffer.defineAnnotatedMethods(ByteBuf.class);
+
     return true;
   }
 }
