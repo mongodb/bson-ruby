@@ -16,9 +16,13 @@
 
 package org.bson;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+
+import org.jcodings.Encoding;
+import org.jcodings.EncodingDB;
 
 import org.jruby.Ruby;
 import org.jruby.RubyBignum;
@@ -30,6 +34,7 @@ import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.util.ByteList;
 
 /**
  * Provides native extensions around boolean operations.
@@ -42,6 +47,11 @@ public class ByteBuf extends RubyObject {
    * Constant for a null byte.
    */
   private static byte NULL_BYTE = 0x00;
+
+  /**
+   * Constant for UTF-8 encoding.
+   */
+  private static Encoding UTF_8 = EncodingDB.getEncodings().get("UTF-8".getBytes()).getEncoding();
 
   /**
    * The modes for the buffer.
@@ -144,6 +154,26 @@ public class ByteBuf extends RubyObject {
   }
 
   /**
+   * Get a cstring from the buffer.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
+  @JRubyMethod(name = "get_cstring")
+  public RubyString getCString() {
+    ensureBsonRead();
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    byte next = NULL_BYTE;
+    while((next = this.buffer.get()) != NULL_BYTE) {
+      bytes.write(next);
+    }
+    RubyString string = RubyString.newString(getRuntime(), bytes.toByteArray());
+    this.readPosition += (bytes.size() + 1);
+    return string;
+  }
+
+  /**
    * Get a double from the buffer.
    *
    * @author Durran Jordan
@@ -188,7 +218,7 @@ public class ByteBuf extends RubyObject {
     byte[] stringBytes = new byte[length];
     this.buffer.get(stringBytes);
     byte[] bytes = Arrays.copyOfRange(stringBytes, 0, stringBytes.length - 1);
-    RubyString string = RubyString.newString(getRuntime(), bytes);
+    RubyString string = RubyString.newString(getRuntime(), new ByteList(bytes, UTF_8));
     this.readPosition += length;
     return string;
   }
@@ -240,6 +270,25 @@ public class ByteBuf extends RubyObject {
     byte[] bytes = ((RubyString) value).getBytes();
     this.buffer.put(bytes);
     this.writePosition += bytes.length;
+    return this;
+  }
+
+  /**
+   * Put a cstring onto the buffer.
+   *
+   * @param value The cstring to write.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
+  @JRubyMethod(name = "put_cstring")
+  public ByteBuf putCString(final IRubyObject value) {
+    ensureBsonWrite();
+    byte[] bytes = ((RubyString) value).getBytes();
+    this.buffer.put(bytes);
+    this.buffer.put(NULL_BYTE);
+    this.writePosition += (bytes.length + 1);
     return this;
   }
 
@@ -312,6 +361,36 @@ public class ByteBuf extends RubyObject {
     this.buffer.put(NULL_BYTE);
     this.writePosition += (bytes.length + 5);
     return this;
+  }
+
+  /**
+   * Replace a 32 bit integer at the provided index in the buffer.
+   *
+   * @param index The index to replace at.
+   * @param value The value to replace with.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
+  @JRubyMethod(name = "replace_int32")
+  public ByteBuf replaceInt32(final IRubyObject index, final IRubyObject value) {
+    int i = RubyNumeric.fix2int((RubyFixnum) index);
+    int int32 = RubyNumeric.fix2int((RubyFixnum) value);
+    this.buffer.putInt(i, int32);
+    return this;
+  }
+
+  /**
+   * Get the total length of the buffer.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.29
+   * @version 4.0.0
+   */
+  @JRubyMethod(name = "length")
+  public RubyFixnum getLength() {
+    return getWritePosition();
   }
 
   /**
