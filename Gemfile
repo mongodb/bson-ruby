@@ -6,12 +6,12 @@ gem 'rake'
 group :development, :test do
   gem 'rspec', '~> 3.2'
   gem 'rake-compiler'
+  gem 'ruby-prof', :platforms => :mri
 
   if ENV['CI']
     gem 'coveralls', :require => false
     gem 'mime-types', '1.25' # v2.0+ does not supporty ruby 1.8
   else
-    gem 'ruby-prof', :platforms => :mri
     gem 'pry'
     gem 'guard-rspec', :platforms => [ :ruby_19, :ruby_20, :ruby_21 ]
     gem 'rb-inotify', :require => false # Linux
