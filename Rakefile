@@ -47,11 +47,7 @@ def extension
   RUBY_PLATFORM =~ /darwin/ ? "bundle" : "so"
 end
 
-if RUBY_VERSION < "1.9"
-  require "perf/bench"
-else
-  require_relative "perf/bench"
-end
+require_relative "perf/bench" unless jruby?
 
 RSpec::Core::RakeTask.new(:spec)
 RSpec::Core::RakeTask.new(:rspec)
