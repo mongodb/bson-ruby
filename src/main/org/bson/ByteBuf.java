@@ -17,6 +17,7 @@
 package org.bson;
 
 import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -49,9 +50,14 @@ public class ByteBuf extends RubyObject {
   private static byte NULL_BYTE = 0x00;
 
   /**
+   * The UTF-8 String.
+   */
+  private static String UTF8 = "UTF-8".intern();
+
+  /**
    * Constant for UTF-8 encoding.
    */
-  private static Encoding UTF_8 = EncodingDB.getEncodings().get("UTF-8".getBytes()).getEncoding();
+  private static Encoding UTF_8 = EncodingDB.getEncodings().get(UTF8.getBytes()).getEncoding();
 
   /**
    * The modes for the buffer.
@@ -168,7 +174,7 @@ public class ByteBuf extends RubyObject {
     while((next = this.buffer.get()) != NULL_BYTE) {
       bytes.write(next);
     }
-    RubyString string = RubyString.newString(getRuntime(), bytes.toByteArray());
+    RubyString string = getUTF8String(bytes.toByteArray());
     this.readPosition += (bytes.size() + 1);
     return string;
   }
@@ -218,7 +224,7 @@ public class ByteBuf extends RubyObject {
     byte[] stringBytes = new byte[length];
     this.buffer.get(stringBytes);
     byte[] bytes = Arrays.copyOfRange(stringBytes, 0, stringBytes.length - 1);
-    RubyString string = RubyString.newString(getRuntime(), new ByteList(bytes, UTF_8));
+    RubyString string = getUTF8String(bytes);
     this.readPosition += length;
     return string;
   }
@@ -283,9 +289,9 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_cstring")
-  public ByteBuf putCString(final IRubyObject value) {
+  public ByteBuf putCString(final IRubyObject value) throws UnsupportedEncodingException {
     ensureBsonWrite();
-    byte[] bytes = ((RubyString) value).getBytes();
+    byte[] bytes = getUTF8Bytes((RubyString) value);
     this.buffer.put(bytes);
     this.buffer.put(NULL_BYTE);
     this.writePosition += (bytes.length + 1);
@@ -353,9 +359,9 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_string")
-  public ByteBuf putString(final IRubyObject value) {
+  public ByteBuf putString(final IRubyObject value) throws UnsupportedEncodingException {
     ensureBsonWrite();
-    byte[] bytes = ((RubyString) value).getBytes();
+    byte[] bytes = getUTF8Bytes((RubyString) value);
     this.buffer.putInt(bytes.length + 1);
     this.buffer.put(bytes);
     this.buffer.put(NULL_BYTE);
@@ -430,6 +436,14 @@ public class ByteBuf extends RubyObject {
     byte[] bytes = new byte[this.writePosition];
     this.buffer.get(bytes, 0, this.writePosition);
     return RubyString.newString(getRuntime(), bytes);
+  }
+
+  private byte[] getUTF8Bytes(final RubyString value) throws UnsupportedEncodingException {
+    return value.asJavaString().getBytes(UTF8);
+  }
+
+  private RubyString getUTF8String(final byte[] bytes) {
+    return RubyString.newString(getRuntime(), new ByteList(bytes, UTF_8));
   }
 
   private void ensureBsonRead() {
