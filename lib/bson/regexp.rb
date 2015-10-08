@@ -153,13 +153,13 @@ module BSON
       def from_bson(bson)
         pattern = bson.gets(NULL_BYTE).from_bson_string.chop!
         options = 0
-        while (option = bson.readbyte) != 0
+        while (option = bson.readbyte.chr) != NULL_BYTE
           case option
-          when 105 # 'i'
+          when "i"
             options |= ::Regexp::IGNORECASE
-          when 109, 115 # 'm', 's'
+          when "m", "s"
             options |= ::Regexp::MULTILINE
-          when 120 # 'x'
+          when "x"
             options |= ::Regexp::EXTENDED
           end
         end
