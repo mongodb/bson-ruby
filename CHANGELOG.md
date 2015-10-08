@@ -1,6 +1,13 @@
 BSON Changelog
 ==============
 
+## 3.2.6
+
+### Bug Fixes
+
+* [#44](https://github.com/mongodb/bson-ruby/pull/44) Fixed regexp deserialization in
+  conjunction with SSL io. (Niels Ganser)
+
 ## 3.2.5
 
 ### Bug Fixes
