@@ -28,6 +28,31 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 11.chr.force_encoding(BINARY).freeze
 
+    # Extended value constant.
+    #
+    # @since 3.2.6
+    EXTENDED_VALUE = 'x'.freeze
+
+    # Ignore case constant.
+    #
+    # @since 3.2.6
+    IGNORECASE_VALUE = 'i'.freeze
+
+    # Multiline constant.
+    #
+    # @since 3.2.6
+    MULTILINE_VALUE = 'm'.freeze
+
+    # Newline constant.
+    #
+    # @since 3.2.6
+    NEWLINE_VALUE = 's'.freeze
+
+    # Ruby multiline constant.
+    #
+    # @since 3.2.6
+    RUBY_MULTILINE_VALUE = 'ms'.freeze
+
     # Get the regexp as JSON hash data.
     #
     # @example Get the regexp as a JSON hash.
@@ -71,15 +96,15 @@ module BSON
     end
 
     def bson_extended
-      (options & ::Regexp::EXTENDED != 0) ? "x" : NO_VALUE
+      (options & ::Regexp::EXTENDED != 0) ? EXTENDED_VALUE : NO_VALUE
     end
 
     def bson_ignorecase
-      (options & ::Regexp::IGNORECASE != 0) ? "i" : NO_VALUE
+      (options & ::Regexp::IGNORECASE != 0) ? IGNORECASE_VALUE : NO_VALUE
     end
 
     def bson_multiline
-      (options & ::Regexp::MULTILINE != 0) ? "ms" : NO_VALUE
+      (options & ::Regexp::MULTILINE != 0) ? RUBY_MULTILINE_VALUE : NO_VALUE
     end
 
     # Represents the raw values for the regular expression.
@@ -155,11 +180,11 @@ module BSON
         options = 0
         while (option = bson.readbyte.chr) != NULL_BYTE
           case option
-          when "i"
+          when IGNORECASE_VALUE
             options |= ::Regexp::IGNORECASE
-          when "m", "s"
+          when MULTILINE_VALUE, NEWLINE_VALUE
             options |= ::Regexp::MULTILINE
-          when "x"
+          when EXTENDED_VALUE
             options |= ::Regexp::EXTENDED
           end
         end
