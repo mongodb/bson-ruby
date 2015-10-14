@@ -16,9 +16,14 @@
 #include <ruby.h>
 #include <ruby/encoding.h>
 #include <stdbool.h>
-#include "portable_endian.h"
+#include <time.h>
+#include "native-endian.h"
 
 #define BSON_BYTE_BUFFER_SIZE 512
+
+#ifndef HOST_NAME_HASH_MAX
+#define HOST_NAME_HASH_MAX 256
+#endif
 
 typedef struct {
   size_t size;
@@ -65,6 +70,7 @@ static VALUE rb_bson_byte_buffer_read_position(VALUE self);
 static VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i);
 static VALUE rb_bson_byte_buffer_write_position(VALUE self);
 static VALUE rb_bson_byte_buffer_to_s(VALUE self);
+static VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self);
 
 static size_t rb_bson_byte_buffer_memsize(const void *ptr);
 static void rb_bson_byte_buffer_free(void *ptr);
@@ -78,12 +84,24 @@ static const rb_data_type_t rb_byte_buffer_data_type = {
 };
 
 /**
+ * Holds the machine id hash for object id generation.
+ */
+static char rb_bson_machine_id_hash[HOST_NAME_HASH_MAX];
+
+/**
+ * The counter for incrementing object ids.
+ */
+static unsigned int rb_bson_object_id_counter = 0;
+
+/**
  * Initialize the native extension.
  */
 void Init_native()
 {
   VALUE rb_bson_module = rb_define_module("BSON");
   VALUE rb_byte_buffer_class = rb_define_class_under(rb_bson_module, "ByteBuffer", rb_cObject);
+  VALUE rb_bson_object_id_class = rb_const_get(rb_bson_module, rb_intern("ObjectId"));
+  VALUE rb_bson_object_id_generator_class = rb_const_get(rb_bson_object_id_class, rb_intern("Generator"));
 
   rb_define_alloc_func(rb_byte_buffer_class, rb_bson_byte_buffer_allocate);
   rb_define_method(rb_byte_buffer_class, "initialize", rb_bson_byte_buffer_initialize, -1);
@@ -106,6 +124,17 @@ void Init_native()
   rb_define_method(rb_byte_buffer_class, "replace_int32", rb_bson_byte_buffer_replace_int32, 2);
   rb_define_method(rb_byte_buffer_class, "write_position", rb_bson_byte_buffer_write_position, 0);
   rb_define_method(rb_byte_buffer_class, "to_s", rb_bson_byte_buffer_to_s, 0);
+  rb_define_method(rb_bson_object_id_generator_class, "next_object_id", rb_bson_object_id_generator_next, -1);
+
+  // Get the object id machine id and hash it.
+  rb_require("digest/md5");
+  VALUE rb_digest_class = rb_const_get(rb_cObject, rb_intern("Digest"));
+  VALUE rb_md5_class = rb_const_get(rb_digest_class, rb_intern("MD5"));
+  char rb_bson_machine_id[256];
+  gethostname(rb_bson_machine_id, sizeof(rb_bson_machine_id));
+  rb_bson_machine_id[255] = '\0';
+  VALUE digest = rb_funcall(rb_md5_class, rb_intern("digest"), 1, rb_str_new2(rb_bson_machine_id));
+  memcpy(rb_bson_machine_id_hash, RSTRING_PTR(digest), RSTRING_LEN(digest));
 }
 
 /**
@@ -472,6 +501,40 @@ void rb_bson_expand_buffer(byte_buffer_t* buffer_ptr, size_t length)
     buffer_ptr->write_position -= buffer_ptr->read_position;
     buffer_ptr->read_position = 0;
   }
+}
+
+/**
+ * Generate the next object id.
+ */
+VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
+{
+  char bytes[12];
+  unsigned long t;
+  unsigned short pid = htons(getpid());
+
+  if (argc == 0 || (argc == 1 && *args == Qnil)) {
+    t = htonl((int) time(NULL));
+  }
+  else {
+    t = htonl(NUM2UINT(rb_funcall(*args, rb_intern("to_i"), 0)));
+  }
+
+  unsigned long c;
+  c = htonl(rb_bson_object_id_counter << 8);
+
+# if __BYTE_ORDER == __LITTLE_ENDIAN
+  memcpy(&bytes, &t, 4);
+  memcpy(&bytes[4], rb_bson_machine_id_hash, 3);
+  memcpy(&bytes[7], &pid, 2);
+  memcpy(&bytes[9], (unsigned char*) &c, 3);
+#elif  __BYTE_ORDER == __BIG_ENDIAN
+  memcpy(&bytes, ((unsigned char*) &t) + 4, 4);
+  memcpy(&bytes[4], rb_bson_machine_id_hash, 3);
+  memcpy(&bytes[7], &pid, 2);
+  memcpy(&bytes[9], ((unsigned char*) &c) + 4, 3);
+#endif
+  rb_bson_object_id_counter++;
+  return rb_str_new(bytes, 12);
 }
 
 /**
