@@ -819,10 +819,16 @@ describe BSON::Document do
         described_class["type", string.encode("iso-8859-1")]
       end
 
-      it "raises an exception" do
+      it "raises an exception", unless: BSON::Environment.jruby? do
         expect {
           document.to_bson
         }.to raise_error(ArgumentError)
+      end
+
+      it 'converts the values', if: BSON::Environment.jruby? do
+        expect(
+          BSON::Document.from_bson(BSON::ByteBuffer.new(document.to_bson.to_s))
+        ).to eq({ "type" => string })
       end
     end
 
@@ -830,7 +836,7 @@ describe BSON::Document do
 
       let(:string) { "europäisch" }
       let(:document) do
-        described_class["type", string.encode("binary", "binary")]
+        described_class["type", string.encode("binary")]
       end
 
       it "encodes and decodes the document properly" do

@@ -57,6 +57,7 @@ public class NativeService implements BasicLibraryService {
    */
   public boolean basicLoad(final Ruby runtime) throws IOException {
     RubyModule bson = runtime.fastGetModule(BSON);
+    GeneratorExtension.extend(bson);
 
     RubyClass byteBuffer = bson.defineClassUnder("ByteBuffer", runtime.getObject(), new ObjectAllocator() {
       public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
@@ -65,7 +66,6 @@ public class NativeService implements BasicLibraryService {
     });
 
     byteBuffer.defineAnnotatedMethods(ByteBuf.class);
-
     return true;
   }
 }

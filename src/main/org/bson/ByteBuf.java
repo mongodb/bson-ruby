@@ -37,6 +37,8 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 
+import static java.lang.String.format;
+
 /**
  * Provides native extensions around boolean operations.
  *
@@ -48,6 +50,11 @@ public class ByteBuf extends RubyObject {
    * Constant for a null byte.
    */
   private static byte NULL_BYTE = 0x00;
+
+  /**
+   * The default size of the buffer.
+   */
+  private static int DEFAULT_SIZE = 512;
 
   /**
    * The UTF-8 String.
@@ -104,7 +111,7 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "initialize")
   public IRubyObject intialize() {
-    this.buffer = ByteBuffer.allocate(1024).order(ByteOrder.LITTLE_ENDIAN);
+    this.buffer = ByteBuffer.allocate(DEFAULT_SIZE).order(ByteOrder.LITTLE_ENDIAN);
     this.mode = Mode.WRITE;
     return null;
   }
@@ -255,7 +262,7 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "put_byte")
   public ByteBuf putByte(final IRubyObject value) {
-    ensureBsonWrite();
+    ensureBsonWrite(1);
     this.buffer.put(((RubyString) value).getBytes()[0]);
     this.writePosition += 1;
     return this;
@@ -272,8 +279,8 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "put_bytes")
   public ByteBuf putBytes(final IRubyObject value) {
-    ensureBsonWrite();
     byte[] bytes = ((RubyString) value).getBytes();
+    ensureBsonWrite(bytes.length);
     this.buffer.put(bytes);
     this.writePosition += bytes.length;
     return this;
@@ -290,11 +297,8 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "put_cstring")
   public ByteBuf putCString(final IRubyObject value) throws UnsupportedEncodingException {
-    ensureBsonWrite();
-    byte[] bytes = getUTF8Bytes((RubyString) value);
-    this.buffer.put(bytes);
-    this.buffer.put(NULL_BYTE);
-    this.writePosition += (bytes.length + 1);
+    String string = ((RubyString) value).asJavaString();
+    this.writePosition += writeCharacters(string, true);
     return this;
   }
 
@@ -309,7 +313,7 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "put_double")
   public ByteBuf putDouble(final IRubyObject value) {
-    ensureBsonWrite();
+    ensureBsonWrite(8);
     this.buffer.putDouble(((RubyFloat) value).getDoubleValue());
     this.writePosition += 8;
     return this;
@@ -326,7 +330,7 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "put_int32")
   public ByteBuf putInt32(final IRubyObject value) {
-    ensureBsonWrite();
+    ensureBsonWrite(4);
     this.buffer.putInt(RubyNumeric.fix2int((RubyFixnum) value));
     this.writePosition += 4;
     return this;
@@ -343,7 +347,10 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "put_int64")
   public ByteBuf putInt64(final IRubyObject value) {
-    ensureBsonWrite();
+    if (value instanceof RubyBignum) {
+      throw getRuntime().newRangeError("Value is too large for a 64bit integer");
+    }
+    ensureBsonWrite(8);
     this.buffer.putLong(RubyNumeric.fix2long((RubyFixnum) value));
     this.writePosition += 8;
     return this;
@@ -360,12 +367,11 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "put_string")
   public ByteBuf putString(final IRubyObject value) throws UnsupportedEncodingException {
-    ensureBsonWrite();
-    byte[] bytes = getUTF8Bytes((RubyString) value);
-    this.buffer.putInt(bytes.length + 1);
-    this.buffer.put(bytes);
-    this.buffer.put(NULL_BYTE);
-    this.writePosition += (bytes.length + 5);
+    String string = ((RubyString) value).asJavaString();
+    this.buffer.putInt(0);
+    int length = writeCharacters(string, false);
+    this.buffer.putInt(this.buffer.position() - length - 4, length);
+    this.writePosition += (length + 4);
     return this;
   }
 
@@ -438,10 +444,6 @@ public class ByteBuf extends RubyObject {
     return RubyString.newString(getRuntime(), bytes);
   }
 
-  private byte[] getUTF8Bytes(final RubyString value) throws UnsupportedEncodingException {
-    return value.asJavaString().getBytes(UTF8);
-  }
-
   private RubyString getUTF8String(final byte[] bytes) {
     return RubyString.newString(getRuntime(), new ByteList(bytes, UTF_8));
   }
@@ -452,10 +454,64 @@ public class ByteBuf extends RubyObject {
     }
   }
 
-  private void ensureBsonWrite() {
+  private void ensureBsonWrite(int length) {
     if (this.mode == Mode.READ) {
       this.buffer.flip();
     }
-    // if size of item > limit, increase the buffer.
+    if (length > this.buffer.remaining()) {
+      int size = this.buffer.position() + length + DEFAULT_SIZE;
+      ByteBuffer newBuffer = ByteBuffer.allocate(size).order(ByteOrder.LITTLE_ENDIAN);
+      if (this.buffer.position() > 0) {
+        byte [] existing = new byte[this.buffer.position()];
+        this.buffer.rewind();
+        this.buffer.get(existing);
+        newBuffer.put(existing);
+      }
+      this.buffer = newBuffer;
+    }
+  }
+
+  private void write(byte b) {
+    ensureBsonWrite(1);
+    this.buffer.put(b);
+  }
+
+  private int writeCharacters(final String string, final boolean checkForNull) {
+    int len = string.length();
+    int total = 0;
+
+    for (int i = 0; i < len;) {
+      int c = Character.codePointAt(string, i);
+
+      if (checkForNull && c == 0x0) {
+        throw getRuntime().newArgumentError(format("String %s is not a valid UTF-8 CString.", string));
+      }
+
+      if (c < 0x80) {
+        write((byte) c);
+        total += 1;
+      } else if (c < 0x800) {
+        write((byte) (0xc0 + (c >> 6)));
+        write((byte) (0x80 + (c & 0x3f)));
+        total += 2;
+      } else if (c < 0x10000) {
+        write((byte) (0xe0 + (c >> 12)));
+        write((byte) (0x80 + ((c >> 6) & 0x3f)));
+        write((byte) (0x80 + (c & 0x3f)));
+        total += 3;
+      } else {
+        write((byte) (0xf0 + (c >> 18)));
+        write((byte) (0x80 + ((c >> 12) & 0x3f)));
+        write((byte) (0x80 + ((c >> 6) & 0x3f)));
+        write((byte) (0x80 + (c & 0x3f)));
+        total += 4;
+      }
+
+      i += Character.charCount(c);
+    }
+
+    write((byte) 0);
+    total++;
+    return total;
   }
 }
