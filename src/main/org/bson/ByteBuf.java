@@ -160,8 +160,9 @@ public class ByteBuf extends RubyObject {
   public RubyString getBytes(final IRubyObject value) {
     ensureBsonRead();
     int length = RubyNumeric.fix2int((RubyFixnum) value);
-    ByteBuffer buff = this.buffer.get(new byte[length]);
-    RubyString string = RubyString.newString(getRuntime(), buff.array());
+    byte[] bytes = new byte[length];
+    ByteBuffer buff = this.buffer.get(bytes);
+    RubyString string = RubyString.newString(getRuntime(), bytes);
     this.readPosition += length;
     return string;
   }
