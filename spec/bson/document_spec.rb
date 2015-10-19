@@ -832,11 +832,25 @@ describe BSON::Document do
       end
     end
 
-    context "when binary strings with utf-8 values exist" do
+    context "when binary strings with utf-8 values exist", if: BSON::Environment.jruby? do
 
       let(:string) { "europäisch" }
       let(:document) do
         described_class["type", string.encode("binary")]
+      end
+
+      it "encodes and decodes the document properly" do
+        expect(
+          BSON::Document.from_bson(BSON::ByteBuffer.new(document.to_bson.to_s))
+        ).to eq({ "type" => string })
+      end
+    end
+
+    context "when binary strings with utf-8 values exist", unless: BSON::Environment.jruby? do
+
+      let(:string) { "europäisch" }
+      let(:document) do
+        described_class["type", string.encode("binary", "binary")]
       end
 
       it "encodes and decodes the document properly" do
