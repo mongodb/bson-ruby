@@ -13,9 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifdef _WIN32
+#include <winsock2.h>
+#else
+#include <arpa/inet.h>
+#include <sys/types.h>
+#endif
+
 #include <ruby.h>
 #include <ruby/encoding.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <unistd.h>
 #include <time.h>
 #include "native-endian.h"
 
@@ -79,8 +88,7 @@ static bool rb_bson_utf8_validate(const char *utf8, size_t utf8_len, bool allow_
 
 static const rb_data_type_t rb_byte_buffer_data_type = {
   "bson/byte_buffer",
-  { NULL, rb_bson_byte_buffer_free, rb_bson_byte_buffer_memsize },
-  0, 0, RUBY_TYPED_FREE_IMMEDIATELY
+  { NULL, rb_bson_byte_buffer_free, rb_bson_byte_buffer_memsize }
 };
 
 /**

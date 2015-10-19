@@ -178,7 +178,7 @@ module BSON
       def from_bson(buffer)
         pattern = buffer.get_cstring
         options = 0
-        while (option = bson.readbyte.chr) != NULL_BYTE
+        while (option = buffer.get_byte) != NULL_BYTE
           case option
           when IGNORECASE_VALUE
             options |= ::Regexp::IGNORECASE
