@@ -13,18 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifdef _WIN32
-#include <winsock2.h>
-#else
-#include <arpa/inet.h>
-#include <sys/types.h>
-#endif
-
 #include <ruby.h>
 #include <ruby/encoding.h>
 #include <stdbool.h>
-#include <stdint.h>
-#include <unistd.h>
 #include <time.h>
 #include "native-endian.h"
 
@@ -110,6 +101,8 @@ void Init_native()
   VALUE rb_byte_buffer_class = rb_define_class_under(rb_bson_module, "ByteBuffer", rb_cObject);
   VALUE rb_bson_object_id_class = rb_const_get(rb_bson_module, rb_intern("ObjectId"));
   VALUE rb_bson_object_id_generator_class = rb_const_get(rb_bson_object_id_class, rb_intern("Generator"));
+  VALUE rb_digest_class = rb_const_get(rb_cObject, rb_intern("Digest"));
+  VALUE rb_md5_class = rb_const_get(rb_digest_class, rb_intern("MD5"));
 
   rb_define_alloc_func(rb_byte_buffer_class, rb_bson_byte_buffer_allocate);
   rb_define_method(rb_byte_buffer_class, "initialize", rb_bson_byte_buffer_initialize, -1);
@@ -136,8 +129,6 @@ void Init_native()
 
   // Get the object id machine id and hash it.
   rb_require("digest/md5");
-  VALUE rb_digest_class = rb_const_get(rb_cObject, rb_intern("Digest"));
-  VALUE rb_md5_class = rb_const_get(rb_digest_class, rb_intern("MD5"));
   char rb_bson_machine_id[256];
   gethostname(rb_bson_machine_id, sizeof(rb_bson_machine_id));
   rb_bson_machine_id[255] = '\0';
