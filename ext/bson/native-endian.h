@@ -13,7 +13,6 @@
 # include <winsock2.h>
 #else
 # include <arpa/inet.h>
-# include <sys/types.h>
 #endif
 
 #if defined(__linux__) || defined(__CYGWIN__)
