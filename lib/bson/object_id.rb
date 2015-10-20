@@ -86,7 +86,7 @@ module BSON
     #
     # @since 2.0.0
     def <=>(other)
-      generate_data <=> other.send(:generate_data)
+      generate_data <=> other.to_bson.to_s
     end
 
     # Return the UTC time at which this ObjectId was generated. This may
