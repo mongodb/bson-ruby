@@ -75,6 +75,7 @@ static VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
 static size_t rb_bson_byte_buffer_memsize(const void *ptr);
 static void rb_bson_byte_buffer_free(void *ptr);
 static void rb_bson_expand_buffer(byte_buffer_t* buffer_ptr, size_t length);
+static void rb_bson_generate_machine_id(VALUE rb_md5_class, char *rb_bson_machine_id);
 static bool rb_bson_utf8_validate(const char *utf8, size_t utf8_len, bool allow_null);
 
 static const rb_data_type_t rb_byte_buffer_data_type = {
@@ -97,6 +98,8 @@ static unsigned int rb_bson_object_id_counter = 0;
  */
 void Init_native()
 {
+  char rb_bson_machine_id[256];
+
   VALUE rb_bson_module = rb_define_module("BSON");
   VALUE rb_byte_buffer_class = rb_define_class_under(rb_bson_module, "ByteBuffer", rb_cObject);
   VALUE rb_bson_object_id_class = rb_const_get(rb_bson_module, rb_intern("ObjectId"));
@@ -129,9 +132,13 @@ void Init_native()
 
   // Get the object id machine id and hash it.
   rb_require("digest/md5");
-  char rb_bson_machine_id[256];
   gethostname(rb_bson_machine_id, sizeof(rb_bson_machine_id));
   rb_bson_machine_id[255] = '\0';
+  rb_bson_generate_machine_id(rb_md5_class, rb_bson_machine_id);
+}
+
+void rb_bson_generate_machine_id(VALUE rb_md5_class, char *rb_bson_machine_id)
+{
   VALUE digest = rb_funcall(rb_md5_class, rb_intern("digest"), 1, rb_str_new2(rb_bson_machine_id));
   memcpy(rb_bson_machine_id_hash, RSTRING_PTR(digest), RSTRING_LEN(digest));
 }
