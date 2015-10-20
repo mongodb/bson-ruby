@@ -17,7 +17,6 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <ruby.h>
-#include <ruby/encoding.h>
 #include "native-endian.h"
 
 #define BSON_BYTE_BUFFER_SIZE 512
@@ -25,6 +24,8 @@
 #ifndef HOST_NAME_HASH_MAX
 #define HOST_NAME_HASH_MAX 256
 #endif
+
+#include <ruby/encoding.h>
 
 typedef struct {
   size_t size;
@@ -517,6 +518,7 @@ VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
 {
   char bytes[12];
   unsigned long t;
+  unsigned long c;
   unsigned short pid = htons(getpid());
 
   if (argc == 0 || (argc == 1 && *args == Qnil)) {
@@ -526,7 +528,6 @@ VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
     t = htonl(NUM2UINT(rb_funcall(*args, rb_intern("to_i"), 0)));
   }
 
-  unsigned long c;
   c = htonl(rb_bson_object_id_counter << 8);
 
 # if __BYTE_ORDER == __LITTLE_ENDIAN
