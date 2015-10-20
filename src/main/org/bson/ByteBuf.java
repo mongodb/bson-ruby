@@ -54,7 +54,7 @@ public class ByteBuf extends RubyObject {
   /**
    * The default size of the buffer.
    */
-  private static int DEFAULT_SIZE = 512;
+  private static int DEFAULT_SIZE = 1024;
 
   /**
    * The UTF-8 String.

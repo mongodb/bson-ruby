@@ -20,7 +20,7 @@
 #include <unistd.h>
 #include "native-endian.h"
 
-#define BSON_BYTE_BUFFER_SIZE 512
+#define BSON_BYTE_BUFFER_SIZE 1024
 
 #ifndef HOST_NAME_HASH_MAX
 #define HOST_NAME_HASH_MAX 256
