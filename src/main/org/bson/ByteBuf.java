@@ -349,7 +349,7 @@ public class ByteBuf extends RubyObject {
   @JRubyMethod(name = "put_int64")
   public ByteBuf putInt64(final IRubyObject value) {
     if (value instanceof RubyBignum) {
-      throw getRuntime().newRangeError("Value is too large for a 64bit integer");
+      throw getRuntime().newRangeError(format("Value %s is too large for a 64bit integer", value));
     }
     ensureBsonWrite(8);
     this.buffer.putLong(RubyNumeric.fix2long((RubyFixnum) value));
