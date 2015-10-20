@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <ruby.h>
+#include "native-endian.h"
 #include <ruby/encoding.h>
 #include <stdbool.h>
 #include <time.h>
 #include <unistd.h>
-#include "native-endian.h"
+#include <ruby.h>
 
 #define BSON_BYTE_BUFFER_SIZE 512
 
