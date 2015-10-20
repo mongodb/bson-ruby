@@ -460,7 +460,7 @@ public class ByteBuf extends RubyObject {
       this.buffer.flip();
     }
     if (length > this.buffer.remaining()) {
-      int size = this.buffer.position() + length + DEFAULT_SIZE;
+      int size = (this.buffer.position() + length) * 2;
       ByteBuffer newBuffer = ByteBuffer.allocate(size).order(ByteOrder.LITTLE_ENDIAN);
       if (this.buffer.position() > 0) {
         byte [] existing = new byte[this.buffer.position()];

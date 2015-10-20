@@ -497,7 +497,7 @@ void rb_bson_expand_buffer(byte_buffer_t* buffer_ptr, size_t length)
     buffer_ptr->read_position = 0;
   } else {
     char *new_b_ptr;
-    const size_t new_size = required_size + BSON_BYTE_BUFFER_SIZE;
+    const size_t new_size = required_size * 2;
     new_b_ptr = ALLOC_N(char, new_size);
     memcpy(new_b_ptr, READ_PTR(buffer_ptr), READ_SIZE(buffer_ptr));
     if (buffer_ptr->b_ptr != buffer_ptr->buffer) {
