@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <ruby.h>
+#include <ruby/encoding.h>
+#include <stdbool.h>
 #include <time.h>
 #include <unistd.h>
-#include <stdbool.h>
-#include <ruby.h>
 #include "native-endian.h"
 
 #define BSON_BYTE_BUFFER_SIZE 512
@@ -24,8 +25,6 @@
 #ifndef HOST_NAME_HASH_MAX
 #define HOST_NAME_HASH_MAX 256
 #endif
-
-#include <ruby/encoding.h>
 
 typedef struct {
   size_t size;
