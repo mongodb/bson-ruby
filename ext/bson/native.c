@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 #include "native-endian.h"
-#include <ruby/encoding.h>
 #include <stdbool.h>
 #include <time.h>
 #include <unistd.h>
 #include <ruby.h>
+#include <ruby/encoding.h>
 
 #define BSON_BYTE_BUFFER_SIZE 512
 
