@@ -17,6 +17,7 @@
 #include <ruby/encoding.h>
 #include <stdbool.h>
 #include <time.h>
+#include <unistd.h>
 #include "native-endian.h"
 
 #define BSON_BYTE_BUFFER_SIZE 512
