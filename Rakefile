@@ -47,7 +47,7 @@ def extension
   RUBY_PLATFORM =~ /darwin/ ? "bundle" : "so"
 end
 
-require_relative "perf/bench" unless jruby?
+require_relative "perf/bench"
 
 RSpec::Core::RakeTask.new(:spec)
 RSpec::Core::RakeTask.new(:rspec)
