@@ -30,6 +30,7 @@ import org.jruby.RubyBignum;
 import org.jruby.RubyClass;
 import org.jruby.RubyFloat;
 import org.jruby.RubyFixnum;
+import org.jruby.RubyInteger;
 import org.jruby.RubyNumeric;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
@@ -348,11 +349,8 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "put_int64")
   public ByteBuf putInt64(final IRubyObject value) {
-    if (value instanceof RubyBignum) {
-      throw getRuntime().newRangeError(format("Value %s is too large for a 64bit integer", value));
-    }
     ensureBsonWrite(8);
-    this.buffer.putLong(RubyNumeric.fix2long((RubyFixnum) value));
+    this.buffer.putLong(((RubyInteger) value).getLongValue());
     this.writePosition += 8;
     return this;
   }
