@@ -63,14 +63,9 @@ describe Integer do
 
     let(:obj)  { Integer::MAX_32BIT - 1 }
     let(:encoded) { obj.to_s + BSON::NULL_BYTE }
-    let(:previous_content) { 'previous_content'.force_encoding(BSON::BINARY) }
 
     it "returns the encoded string" do
-      expect(obj.to_bson_key).to eq(encoded)
-    end
-
-    it "appends to optional previous content" do
-      expect(obj.to_bson_key(previous_content)).to eq(previous_content << encoded)
+      expect(obj.to_bson_key.to_s).to eq(encoded)
     end
   end
 end

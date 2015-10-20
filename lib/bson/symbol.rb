@@ -40,8 +40,8 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      to_s.to_bson(encoded)
+    def to_bson(buffer = ByteBuffer.new)
+      to_s.to_bson(buffer)
     end
 
     # Get the symbol as a BSON key name encoded C symbol.
@@ -54,8 +54,8 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson_key(encoded = ''.force_encoding(BINARY))
-      to_s.to_bson_key(encoded)
+    def to_bson_key
+      to_s.to_bson_key
     end
 
     # Converts the symbol to a normalized key in a BSON document.
@@ -71,17 +71,18 @@ module BSON
     end
 
     module ClassMethods
+
       # Deserialize a symbol from BSON.
       #
-      # @param [ BSON ] bson The bson representing a symbol.
+      # @param [ ByteBuffer ] buffer The byte buffer.
       #
       # @return [ Regexp ] The decoded symbol.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(bson)
-        bson.read(Int32.from_bson(bson)).from_bson_string.chop!.intern
+      def from_bson(buffer)
+        buffer.get_string.intern
       end
     end
 

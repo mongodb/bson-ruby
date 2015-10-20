@@ -31,7 +31,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.2.4
-    def to_bson_key(encoded = ''.force_encoding(BINARY))
+    def to_bson_key(buffer = ByteBuffer.new)
       raise InvalidKey.new(self)
     end
 

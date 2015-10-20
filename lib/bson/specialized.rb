@@ -45,8 +45,8 @@ module BSON
     # @return [ String ] An empty string.
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      encoded
+    def to_bson(buffer = ByteBuffer.new)
+      buffer
     end
 
     private
@@ -57,16 +57,16 @@ module BSON
 
     module ClassMethods
 
-      # Deserialize MinKey from BSON.
+      # Deserialize from BSON.
       #
-      # @param [ BSON ] bson The encoded MinKey.
+      # @param [ ByteBuffer ] buffer The byte buffer.
       #
-      # @return [ MinKey ] The decoded MinKey.
+      # @return [ Specialized ] The decoded specialized class.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(bson)
+      def from_bson(buffer)
         new
       end
     end

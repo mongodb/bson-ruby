@@ -653,11 +653,11 @@ describe BSON::Document do
       end
 
       let(:serialized) do
-        document.to_bson
+        document.to_bson.to_s
       end
 
       let(:deserialized) do
-        described_class.from_bson(StringIO.new(serialized))
+        described_class.from_bson(BSON::ByteBuffer.new(serialized))
       end
 
       it 'deserializes the documents' do
@@ -688,7 +688,7 @@ describe BSON::Document do
       end
 
       it "properly serializes the symbol" do
-        expect(obj.to_bson).to eq(bson)
+        expect(obj.to_bson.to_s).to eq(bson)
       end
     end
 
@@ -723,7 +723,7 @@ describe BSON::Document do
       it_behaves_like "a deserializable bson element"
 
       let(:raw) do
-        StringIO.new(bson)
+        BSON::ByteBuffer.new(bson)
       end
 
       it "returns an instance of a BSON::Document" do
@@ -768,7 +768,7 @@ describe BSON::Document do
       end
 
       let(:deserialized) do
-        described_class.from_bson(StringIO.new(document.to_bson))
+        described_class.from_bson(BSON::ByteBuffer.new(document.to_bson.to_s))
       end
 
       it "serializes and deserializes properly" do
@@ -812,30 +812,50 @@ describe BSON::Document do
       it_behaves_like "a document able to handle utf-8"
     end
 
-    context "when non utf-8 values exist" do
+    context "when utf-8 values exist in wrong encoding" do
 
       let(:string) { "gültig" }
       let(:document) do
         described_class["type", string.encode("iso-8859-1")]
       end
 
-      it "encodes and decodes the document properly" do
+      it "raises an exception", unless: BSON::Environment.jruby? do
+        expect {
+          document.to_bson
+        }.to raise_error(ArgumentError)
+      end
+
+      it 'converts the values', if: BSON::Environment.jruby? do
         expect(
-          BSON::Document.from_bson(StringIO.new(document.to_bson))
+          BSON::Document.from_bson(BSON::ByteBuffer.new(document.to_bson.to_s))
         ).to eq({ "type" => string })
       end
     end
 
-    context "when binary strings with utf-8 values exist" do
+    context "when binary strings with utf-8 values exist", if: BSON::Environment.jruby? && !(ENV['RUBY_VERSION'] =~ /jruby-9/) do
 
-      let(:string) { "europäischen" }
+      let(:string) { "europäisch" }
+      let(:document) do
+        described_class["type", string.encode("binary")]
+      end
+
+      it "encodes and decodes the document properly" do
+        expect(
+          BSON::Document.from_bson(BSON::ByteBuffer.new(document.to_bson.to_s))
+        ).to eq({ "type" => string })
+      end
+    end
+
+    context "when binary strings with utf-8 values exist", unless: BSON::Environment.jruby? do
+
+      let(:string) { "europäisch" }
       let(:document) do
         described_class["type", string.encode("binary", "binary")]
       end
 
       it "encodes and decodes the document properly" do
         expect(
-          BSON::Document.from_bson(StringIO.new(document.to_bson))
+          BSON::Document.from_bson(BSON::ByteBuffer.new(document.to_bson.to_s))
         ).to eq({ "type" => string })
       end
     end

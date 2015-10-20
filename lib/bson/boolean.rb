@@ -29,15 +29,15 @@ module BSON
 
     # Deserialize a boolean from BSON.
     #
-    # @param [ BSON ] bson The encoded boolean.
+    # @param [ ByteBuffer ] buffer The byte buffer.
     #
     # @return [ TrueClass, FalseClass ] The decoded boolean.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(bson)
-      bson.readbyte.chr == TrueClass::TRUE_BYTE
+    def self.from_bson(buffer)
+      buffer.get_byte == TrueClass::TRUE_BYTE
     end
 
     # Register this type when the module is loaded.

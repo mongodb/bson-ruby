@@ -27,6 +27,11 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 16.chr.force_encoding(BINARY).freeze
 
+    # The number of bytes constant.
+    #
+    # @since 4.0.0
+    BYTES_LENGTH = 4
+
     # Constant for the int 32 pack directive.
     #
     # @since 2.0.0
@@ -34,21 +39,15 @@ module BSON
 
     # Deserialize an Integer from BSON.
     #
-    # @param [ BSON ] bson The encoded int32.
+    # @param [ ByteBuffer ] buffer The byte buffer.
     #
     # @return [ Integer ] The decoded Integer.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(bson)
-      from_bson_int32(bson.read(4))
-    end
-
-    private
-
-    def self.from_bson_int32(bytes)
-      bytes.unpack(PACK).first
+    def self.from_bson(buffer)
+      buffer.get_int32
     end
 
     # Register this type when the module is loaded.

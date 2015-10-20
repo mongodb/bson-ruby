@@ -38,23 +38,15 @@ end
 
 shared_examples_for "a serializable bson element" do
 
-  let(:previous_content) do
-    'previous_content'.force_encoding(BSON::BINARY)
-  end
-
   it "serializes to bson" do
-    expect(obj.to_bson).to eq(bson)
-  end
-
-  it "serializes to bson by appending" do
-    expect(obj.to_bson(previous_content)).to eq(previous_content << bson)
+    expect(obj.to_bson.to_s).to eq(bson)
   end
 end
 
 shared_examples_for "a deserializable bson element" do
 
   let(:io) do
-    StringIO.new(bson)
+    BSON::ByteBuffer.new(bson)
   end
 
   let(:result) do
@@ -63,21 +55,6 @@ shared_examples_for "a deserializable bson element" do
 
   it "deserializes from bson" do
     expect(result).to eq(obj)
-  end
-
-  context 'when io#readbyte returns a String' do
-
-    let(:io) do
-      AlternateIO.new(bson)
-    end
-
-    let(:result) do
-      described_class.from_bson(io)
-    end
-
-    it "deserializes from bson" do
-      expect(result).to eq(obj)
-    end
   end
 end
 
@@ -108,7 +85,7 @@ shared_examples_for "a document able to handle utf-8" do
 
   it "serializes and deserializes properly" do
     expect(
-      BSON::Document.from_bson(StringIO.new(document.to_bson))
+      BSON::Document.from_bson(BSON::ByteBuffer.new(document.to_bson.to_s))
     ).to eq(document)
   end
 end

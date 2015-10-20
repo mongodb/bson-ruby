@@ -44,7 +44,7 @@ module BSON
     # @since 2.0.0
     def ==(other)
       return false unless other.is_a?(ObjectId)
-      to_bson == other.to_bson
+      generate_data == other.send(:generate_data)
     end
     alias :eql? :==
 
@@ -86,7 +86,7 @@ module BSON
     #
     # @since 2.0.0
     def <=>(other)
-      to_bson <=> other.to_bson
+      generate_data <=> other.send(:generate_data)
     end
 
     # Return the UTC time at which this ObjectId was generated. This may
@@ -100,7 +100,7 @@ module BSON
     #
     # @since 2.0.0
     def generation_time
-      ::Time.at(to_bson.unpack("N")[0]).utc
+      ::Time.at(generate_data.unpack("N")[0]).utc
     end
 
     # Get the hash value for the object id.
@@ -112,7 +112,7 @@ module BSON
     #
     # @since 2.0.0
     def hash
-      to_bson.hash
+      generate_data.hash
     end
 
     # Get a nice string for use with object inspection.
@@ -136,7 +136,7 @@ module BSON
     #
     # @since 2.0.0
     def marshal_dump
-      to_bson
+      generate_data
     end
 
     # Unmarshal the data into an object id.
@@ -168,10 +168,8 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      repair if defined?(@data)
-      @raw_data ||= @@generator.next_object_id
-      encoded << @raw_data
+    def to_bson(buffer = ByteBuffer.new)
+      buffer.put_bytes(generate_data)
     end
 
     # Get the string representation of the object id.
@@ -183,7 +181,7 @@ module BSON
     #
     # @since 2.0.0
     def to_s
-      to_bson.to_hex_string.force_encoding(UTF8)
+      generate_data.to_hex_string.force_encoding(UTF8)
     end
     alias :to_str :to_s
 
@@ -193,6 +191,11 @@ module BSON
     class Invalid < RuntimeError; end
 
     private
+
+    def generate_data
+      repair if defined?(@data)
+      @raw_data ||= @@generator.next_object_id
+    end
 
     def repair
       @raw_data = @data.to_bson_object_id
@@ -206,13 +209,13 @@ module BSON
       # @example Get the object id from BSON.
       #   ObjectId.from_bson(bson)
       #
-      # @param [ String ] bson The raw BSON bytes.
+      # @param [ ByteBuffer ] buffer The byte buffer.
       #
       # @return [ BSON::ObjectId ] The object id.
       #
       # @since 2.0.0
-      def from_bson(bson)
-        from_data(bson.read(12))
+      def from_bson(buffer)
+        from_data(buffer.get_bytes(12))
       end
 
       # Create a new object id from raw bytes.

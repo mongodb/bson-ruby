@@ -34,8 +34,8 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.1.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      to_time.to_bson(encoded)
+    def to_bson(buffer = ByteBuffer.new)
+      to_time.to_bson(buffer)
     end
   end
 

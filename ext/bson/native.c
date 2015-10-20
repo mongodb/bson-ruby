@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2013 MongoDB Inc.
+ * Copyright (C) 2009-2015 MongoDB Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,258 +13,511 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifdef _WIN32
-#include <winsock2.h>
-#else
-#include <arpa/inet.h>
-#include <sys/types.h>
-#endif
-
-#include <stdint.h>
+#include <ruby.h>
+#include <ruby/encoding.h>
+#include <stdbool.h>
 #include <time.h>
 #include <unistd.h>
-#include <ruby.h>
+#include "native-endian.h"
 
-/**
- * For 64 byte systems we convert to longs, for 32 byte systems we convert
- * to a long long.
- *
- * @since 2.0.0
- */
-#if SIZEOF_LONG == 8
-#define NUM2INT64(v) NUM2LONG(v)
-#define INT642NUM(v) LONG2NUM(v)
-#else
-#define NUM2INT64(v) NUM2LL(v)
-#define INT642NUM(v) LL2NUM(v)
-#endif
+#define BSON_BYTE_BUFFER_SIZE 512
 
-/**
- * Ruby 1.8.7 does not define DBL2NUM, so we define it if it's not there.
- *
- * @since 2.0.0
- */
-#ifndef DBL2NUM
-#define DBL2NUM(dbl) rb_float_new(dbl)
-#endif
-
-/**
- * Define the max hostname hash length constant if nonexistant.
- *
- * @since 3.2.0
- */
 #ifndef HOST_NAME_HASH_MAX
 #define HOST_NAME_HASH_MAX 256
 #endif
 
-/**
- * Define index sizes for array serialization.
- *
- * @since 2.0.0
- */
-#define BSON_INDEX_SIZE 1024
-#define BSON_INDEX_CHAR_SIZE 5
-#define INTEGER_CHAR_SIZE 22
+typedef struct {
+  size_t size;
+  size_t write_position;
+  size_t read_position;
+  char   buffer[BSON_BYTE_BUFFER_SIZE];
+  char   *b_ptr;
+} byte_buffer_t;
 
-/**
- * Constant for the intetger array indexes.
- *
- * @since 2.0.0
- */
-static char rb_bson_array_indexes[BSON_INDEX_SIZE][BSON_INDEX_CHAR_SIZE];
+#define READ_PTR(byte_buffer_ptr) \
+  (byte_buffer_ptr->b_ptr + byte_buffer_ptr->read_position)
 
-/**
- * BSON::UTF8
- *
- * @since 2.0.0
- */
-static VALUE rb_bson_utf8_string;
+#define READ_SIZE(byte_buffer_ptr) \
+  (byte_buffer_ptr->write_position - byte_buffer_ptr->read_position)
 
-/**
- * Set the UTC string method for reference at load.
- *
- * @since 2.0.0
- */
-static VALUE rb_utc_method;
+#define WRITE_PTR(byte_buffer_ptr) \
+  (byte_buffer_ptr->b_ptr + byte_buffer_ptr->write_position)
 
-#include <ruby/encoding.h>
+#define ENSURE_BSON_WRITE(buffer_ptr, length) \
+  { if (buffer_ptr->write_position + length > buffer_ptr->size) rb_bson_expand_buffer(buffer_ptr, length); }
 
-#if __BYTE_ORDER == __BIG_ENDIAN
- typedef union doublebyte
-{
-  double d;
-  unsigned char b[sizeof(double)];
-} doublebytet;
-#endif
+#define ENSURE_BSON_READ(buffer_ptr, length) \
+  { if (buffer_ptr->read_position + length > buffer_ptr->write_position) \
+    rb_raise(rb_eRangeError, "Attempted to read %zu bytes, but only %zu bytes remain", (size_t)length, READ_SIZE(buffer_ptr)); }
 
-/**
- * Convert the binary string to a ruby utf8 string.
- *
- * @example Convert the string to binary.
- *    rb_bson_from_bson_string("test");
- *
- * @param [ String ] string The ruby string.
- *
- * @return [ String ] The encoded string.
- *
- * @since 2.0.0
- */
-static VALUE rb_bson_from_bson_string(VALUE string)
-{
-  return rb_enc_associate(string, rb_utf8_encoding());
-}
+static VALUE rb_bson_byte_buffer_allocate(VALUE klass);
+static VALUE rb_bson_byte_buffer_initialize(int argc, VALUE *argv, VALUE self);
+static VALUE rb_bson_byte_buffer_length(VALUE self);
+static VALUE rb_bson_byte_buffer_get_byte(VALUE self);
+static VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i);
+static VALUE rb_bson_byte_buffer_get_cstring(VALUE self);
+static VALUE rb_bson_byte_buffer_get_double(VALUE self);
+static VALUE rb_bson_byte_buffer_get_int32(VALUE self);
+static VALUE rb_bson_byte_buffer_get_int64(VALUE self);
+static VALUE rb_bson_byte_buffer_get_string(VALUE self);
+static VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte);
+static VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes);
+static VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string);
+static VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f);
+static VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i);
+static VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i);
+static VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string);
+static VALUE rb_bson_byte_buffer_read_position(VALUE self);
+static VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i);
+static VALUE rb_bson_byte_buffer_write_position(VALUE self);
+static VALUE rb_bson_byte_buffer_to_s(VALUE self);
+static VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self);
 
-/**
- * Provide default new string with binary encoding.
- *
- * @example Check encoded and provide default new binary encoded string.
- *    if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
- *
- * @return [ String ] The new string with binary encoding.
- *
- * @since 2.0.0
- */
-static VALUE rb_str_new_encoded_binary(void)
-{
-  return rb_enc_str_new("", 0, rb_ascii8bit_encoding());
-}
+static size_t rb_bson_byte_buffer_memsize(const void *ptr);
+static void rb_bson_byte_buffer_free(void *ptr);
+static void rb_bson_expand_buffer(byte_buffer_t* buffer_ptr, size_t length);
+static void rb_bson_generate_machine_id(VALUE rb_md5_class, char *rb_bson_machine_id);
+static bool rb_bson_utf8_validate(const char *utf8, size_t utf8_len, bool allow_null);
 
-/**
- * Constant for a null byte.
- *
- * @since 2.0.0
- */
-static const char rb_bson_null_byte = 0;
-
-/**
- * Constant for a true byte.
- *
- * @since 2.0.0
- */
-static const char rb_bson_true_byte = 1;
+static const rb_data_type_t rb_byte_buffer_data_type = {
+  "bson/byte_buffer",
+  { NULL, rb_bson_byte_buffer_free, rb_bson_byte_buffer_memsize }
+};
 
 /**
  * Holds the machine id hash for object id generation.
- *
- * @since 3.2.0
- *
  */
 static char rb_bson_machine_id_hash[HOST_NAME_HASH_MAX];
 
 /**
  * The counter for incrementing object ids.
- *
- * @since 2.0.0
  */
 static unsigned int rb_bson_object_id_counter = 0;
 
 /**
- * Take the provided params and return the encoded bytes or a default one.
- *
- * @example Get the default encoded bytes.
- *    rb_get_default_encoded(1, bytes);
- *
- * @param [ int ] argc The number of arguments.
- * @param [ Object ] argv The arguments.
- *
- * @return [ String ] The encoded string.
- *
- * @since 2.0.0
+ * Initialize the native extension.
  */
-static VALUE rb_get_default_encoded(int argc, VALUE *argv)
+void Init_native()
 {
-  VALUE encoded;
-  rb_scan_args(argc, argv, "01", &encoded);
-  if (NIL_P(encoded)) encoded = rb_str_new_encoded_binary();
-  return encoded;
+  char rb_bson_machine_id[256];
+
+  VALUE rb_bson_module = rb_define_module("BSON");
+  VALUE rb_byte_buffer_class = rb_define_class_under(rb_bson_module, "ByteBuffer", rb_cObject);
+  VALUE rb_bson_object_id_class = rb_const_get(rb_bson_module, rb_intern("ObjectId"));
+  VALUE rb_bson_object_id_generator_class = rb_const_get(rb_bson_object_id_class, rb_intern("Generator"));
+  VALUE rb_digest_class = rb_const_get(rb_cObject, rb_intern("Digest"));
+  VALUE rb_md5_class = rb_const_get(rb_digest_class, rb_intern("MD5"));
+
+  rb_define_alloc_func(rb_byte_buffer_class, rb_bson_byte_buffer_allocate);
+  rb_define_method(rb_byte_buffer_class, "initialize", rb_bson_byte_buffer_initialize, -1);
+  rb_define_method(rb_byte_buffer_class, "length", rb_bson_byte_buffer_length, 0);
+  rb_define_method(rb_byte_buffer_class, "get_byte", rb_bson_byte_buffer_get_byte, 0);
+  rb_define_method(rb_byte_buffer_class, "get_bytes", rb_bson_byte_buffer_get_bytes, 1);
+  rb_define_method(rb_byte_buffer_class, "get_cstring", rb_bson_byte_buffer_get_cstring, 0);
+  rb_define_method(rb_byte_buffer_class, "get_double", rb_bson_byte_buffer_get_double, 0);
+  rb_define_method(rb_byte_buffer_class, "get_int32", rb_bson_byte_buffer_get_int32, 0);
+  rb_define_method(rb_byte_buffer_class, "get_int64", rb_bson_byte_buffer_get_int64, 0);
+  rb_define_method(rb_byte_buffer_class, "get_string", rb_bson_byte_buffer_get_string, 0);
+  rb_define_method(rb_byte_buffer_class, "put_byte", rb_bson_byte_buffer_put_byte, 1);
+  rb_define_method(rb_byte_buffer_class, "put_bytes", rb_bson_byte_buffer_put_bytes, 1);
+  rb_define_method(rb_byte_buffer_class, "put_cstring", rb_bson_byte_buffer_put_cstring, 1);
+  rb_define_method(rb_byte_buffer_class, "put_double", rb_bson_byte_buffer_put_double, 1);
+  rb_define_method(rb_byte_buffer_class, "put_int32", rb_bson_byte_buffer_put_int32, 1);
+  rb_define_method(rb_byte_buffer_class, "put_int64", rb_bson_byte_buffer_put_int64, 1);
+  rb_define_method(rb_byte_buffer_class, "put_string", rb_bson_byte_buffer_put_string, 1);
+  rb_define_method(rb_byte_buffer_class, "read_position", rb_bson_byte_buffer_read_position, 0);
+  rb_define_method(rb_byte_buffer_class, "replace_int32", rb_bson_byte_buffer_replace_int32, 2);
+  rb_define_method(rb_byte_buffer_class, "write_position", rb_bson_byte_buffer_write_position, 0);
+  rb_define_method(rb_byte_buffer_class, "to_s", rb_bson_byte_buffer_to_s, 0);
+  rb_define_method(rb_bson_object_id_generator_class, "next_object_id", rb_bson_object_id_generator_next, -1);
+
+  // Get the object id machine id and hash it.
+  rb_require("digest/md5");
+  gethostname(rb_bson_machine_id, sizeof(rb_bson_machine_id));
+  rb_bson_machine_id[255] = '\0';
+  rb_bson_generate_machine_id(rb_md5_class, rb_bson_machine_id);
+}
+
+void rb_bson_generate_machine_id(VALUE rb_md5_class, char *rb_bson_machine_id)
+{
+  VALUE digest = rb_funcall(rb_md5_class, rb_intern("digest"), 1, rb_str_new2(rb_bson_machine_id));
+  memcpy(rb_bson_machine_id_hash, RSTRING_PTR(digest), RSTRING_LEN(digest));
 }
 
 /**
- * Append the ruby float as 8-byte double value to buffer.
- *
- * @example Convert float to double and append.
- *    rb_float_to_bson(..., 1.2311);
- *
- * @param [ String] encoded Optional string buffer, default provided by rb_str_encoded_binary
- * @param [ Float ] self The ruby float value.
- *
- * @return [ String ] The encoded bytes with double value appended.
- *
- * @since 2.0.0
+ * Allocates a bson byte buffer that wraps a byte_buffer_t.
  */
-static VALUE rb_float_to_bson(int argc, VALUE *argv, VALUE self)
+VALUE rb_bson_byte_buffer_allocate(VALUE klass)
 {
-  const double v = NUM2DBL(self);
-  VALUE encoded = rb_get_default_encoded(argc, argv);
-  # if __BYTE_ORDER == __LITTLE_ENDIAN 
-  rb_str_cat(encoded, (char*) &v, 8);
-  #elif __BYTE_ORDER == __BIG_ENDIAN
-  doublebytet swap;
-  unsigned char b;
-  swap.d = v;
-  for (int i=0; i < sizeof(double)/2; i++) {
-       b=swap.b[i];
-       swap.b[i] = swap.b[((sizeof(double)-1)-i)];
-       swap.b[((sizeof(double)-1)-i)]=b;
+  byte_buffer_t *b;
+  VALUE obj = TypedData_Make_Struct(klass, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  b->b_ptr = b->buffer;
+  b->size = BSON_BYTE_BUFFER_SIZE;
+  return obj;
+}
+
+/**
+ * Initialize a byte buffer.
+ */
+VALUE rb_bson_byte_buffer_initialize(int argc, VALUE *argv, VALUE self)
+{
+  VALUE bytes;
+  rb_scan_args(argc, argv, "01", &bytes);
+
+  if (!NIL_P(bytes)) {
+    rb_bson_byte_buffer_put_bytes(self, bytes);
   }
-  rb_str_cat(encoded, (char*)&swap.d, 8);
-  #endif 
-  return encoded;
+
+  return self;
 }
 
 /**
- * Convert the bytes for the double into a Ruby float.
- *
- * @example Convert the bytes to a float.
- *    rb_float_from_bson_double(class, bytes);
- *
- * @param [ Class ] The float class.
- * @param [ String ] The double bytes.
- *
- * @return [ Float ] The ruby float value.
- *
- * @since 2.0.0
+ * Get the length of the buffer.
  */
-static VALUE rb_float_from_bson_double(VALUE self, VALUE value)
+VALUE rb_bson_byte_buffer_length(VALUE self)
 {
-  const char * bytes;
-  double v;
-  bytes = StringValuePtr(value);
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-  memcpy(&v, bytes, RSTRING_LEN(value));
-#else
-  doublebytet swap;
-  unsigned char b;
-  memcpy(&swap.d, bytes, RSTRING_LEN(value));
-  for (int i=0; i < sizeof(double)/2; i++) {
-       b=swap.b[i];
-       swap.b[i] = swap.b[((sizeof(double)-1)-i)];
-       swap.b[((sizeof(double)-1)-i)]=b;
-  }
-   memcpy(&v, swap.b, RSTRING_LEN(value));
-#endif
-
-  return DBL2NUM(v);
+  byte_buffer_t *b;
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  return UINT2NUM(READ_SIZE(b));
 }
 
 /**
- * Generate the data for the next object id.
- *
- * @example Generate the data for the next object id.
- *    rb_object_id_generator_next(0, NULL, object_id);
- *
- * @param [ int ] argc The argument count.
- * @param [ Time ] time The optional Ruby time.
- * @param [ BSON::ObjectId ] self The object id.
- *
- * @return [ String ] The raw bytes for the id.
- *
- * @since 2.0.0
+ * Get a single byte from the buffer.
  */
-static VALUE rb_object_id_generator_next(int argc, VALUE* args, VALUE self)
+VALUE rb_bson_byte_buffer_get_byte(VALUE self)
+{
+  byte_buffer_t *b;
+  VALUE byte;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_READ(b, 1);
+  byte = rb_str_new(READ_PTR(b), 1);
+  b->read_position += 1;
+  return byte;
+}
+
+/**
+ * Get bytes from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i)
+{
+  byte_buffer_t *b;
+  VALUE bytes;
+  const long length = FIX2LONG(i);
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_READ(b, length);
+  bytes = rb_str_new(READ_PTR(b), length);
+  b->read_position += length;
+  return bytes;
+}
+
+/**
+ * Get a cstring from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
+{
+  byte_buffer_t *b;
+  VALUE string;
+  int length;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  length = (int)strlen(READ_PTR(b));
+  ENSURE_BSON_READ(b, length);
+  string = rb_enc_str_new(READ_PTR(b), length, rb_utf8_encoding());
+  b->read_position += length + 1;
+  return string;
+}
+
+/**
+ * Get a double from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_double(VALUE self)
+{
+  byte_buffer_t *b;
+  union { uint64_t i64; double d; } ucast;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_READ(b, 8);
+  ucast.i64 = le64toh(*(uint64_t*)READ_PTR(b));
+  b->read_position += 8;
+  return DBL2NUM(ucast.d);
+}
+
+/**
+ * Get a int32 from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_int32(VALUE self)
+{
+  byte_buffer_t *b;
+  int32_t i32;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_READ(b, 4);
+  i32 = le32toh(*((int32_t*)READ_PTR(b)));
+  b->read_position += 4;
+  return INT2NUM(i32);
+}
+
+/**
+ * Get a int64 from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_int64(VALUE self)
+{
+  byte_buffer_t *b;
+  int64_t i64;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_READ(b, 8);
+  i64 = le64toh(*((int64_t*)READ_PTR(b)));
+  b->read_position += 8;
+  return LONG2NUM(i64);
+}
+
+/**
+ * Get a string from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_string(VALUE self)
+{
+  byte_buffer_t *b;
+  int32_t length;
+  VALUE string;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_READ(b, 4);
+  length = le32toh(*((int32_t*)READ_PTR(b)));
+  b->read_position += 4;
+  ENSURE_BSON_READ(b, length);
+  string = rb_enc_str_new(READ_PTR(b), length - 1, rb_utf8_encoding());
+  b->read_position += length;
+  return string;
+}
+
+/**
+ * Writes a byte to the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte)
+{
+  byte_buffer_t *b;
+  const char *str = RSTRING_PTR(byte);
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_WRITE(b, 1);
+  memcpy(WRITE_PTR(b), str, 1);
+  b->write_position += 1;
+
+  return self;
+}
+
+/**
+ * Writes bytes to the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes)
+{
+  byte_buffer_t *b;
+  const char *str = RSTRING_PTR(bytes);
+  const size_t length = RSTRING_LEN(bytes);
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_WRITE(b, length);
+  memcpy(WRITE_PTR(b), str, length);
+  b->write_position += length;
+  return self;
+}
+
+/**
+ * Writes a cstring to the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string)
+{
+  byte_buffer_t *b;
+  char *c_str = RSTRING_PTR(string);
+  size_t length = RSTRING_LEN(string) + 1;
+
+  if (!rb_bson_utf8_validate(c_str, length - 1, false)) {
+    rb_raise(rb_eArgError, "String %s is not a valid UTF-8 CString.", c_str);
+  }
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_WRITE(b, length);
+  memcpy(WRITE_PTR(b), c_str, length);
+  b->write_position += length;
+  return self;
+}
+
+/**
+ * Writes a 64 bit double to the buffer.
+ */
+VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
+{
+  byte_buffer_t *b;
+  union {double d; uint64_t i64;} ucast;
+
+  ucast.d = NUM2DBL(f);
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_WRITE(b, 8);
+  ucast.i64 = htole64(ucast.i64);
+  *(int64_t*)WRITE_PTR(b) = ucast.i64;
+  b->write_position += 8;
+
+  return self;
+}
+
+/**
+ * Writes a 32 bit integer to the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i)
+{
+  byte_buffer_t *b;
+  const int32_t i32 = NUM2INT(i);
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_WRITE(b, 4);
+  *((int32_t*)WRITE_PTR(b)) = htole32(i32);
+  b->write_position += 4;
+
+  return self;
+}
+
+/**
+ * Writes a 64 bit integer to the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i)
+{
+  byte_buffer_t *b;
+  const int64_t i64 = NUM2LONG(i);
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_WRITE(b, 8);
+  *((int64_t*)WRITE_PTR(b)) = htole64(i64);
+  b->write_position += 8;
+
+  return self;
+}
+
+/**
+ * Writes a string to the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
+{
+  byte_buffer_t *b;
+
+  char *str = RSTRING_PTR(string);
+  const size_t length = RSTRING_LEN(string) + 1;
+
+  if (!rb_bson_utf8_validate(str, length - 1, true)) {
+    rb_raise(rb_eArgError, "String %s is not valid UTF-8.", str);
+  }
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_WRITE(b, length + 4);
+  *((int32_t*)WRITE_PTR(b)) = htole32(length);
+  b->write_position += 4;
+  memcpy(WRITE_PTR(b), str, length);
+  b->write_position += length;
+
+  return self;
+}
+
+/**
+ * Get the read position.
+ */
+VALUE rb_bson_byte_buffer_read_position(VALUE self)
+{
+  byte_buffer_t *b;
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  return INT2NUM(b->read_position);
+}
+
+/**
+ * Replace a 32 bit integer int the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i)
+{
+  byte_buffer_t *b;
+  const int32_t position = NUM2INT(index);
+  const int32_t i32 = htole32(NUM2INT(i));
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+
+  memcpy(READ_PTR(b) + position, &i32, 4);
+
+  return self;
+}
+
+/**
+ * Get the write position.
+ */
+VALUE rb_bson_byte_buffer_write_position(VALUE self)
+{
+  byte_buffer_t *b;
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  return INT2NUM(b->write_position);
+}
+
+/**
+ * Convert the buffer to a string.
+ */
+VALUE rb_bson_byte_buffer_to_s(VALUE self)
+{
+  byte_buffer_t *b;
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  return rb_str_new(READ_PTR(b), READ_SIZE(b));
+}
+
+/**
+ * Get the size of the byte_buffer_t in memory.
+ */
+size_t rb_bson_byte_buffer_memsize(const void *ptr)
+{
+  return ptr ? sizeof(byte_buffer_t) : 0;
+}
+
+/**
+ * Free the memory for the byte buffer.
+ */
+void rb_bson_byte_buffer_free(void *ptr)
+{
+  byte_buffer_t *b = ptr;
+  if (b->b_ptr != b->buffer) {
+    xfree(b->b_ptr);
+  }
+  xfree(b);
+}
+
+/**
+ * Expand the byte buffer linearly.
+ */
+void rb_bson_expand_buffer(byte_buffer_t* buffer_ptr, size_t length)
+{
+  const size_t required_size = buffer_ptr->write_position - buffer_ptr->read_position + length;
+  if (required_size <= buffer_ptr->size) {
+    memmove(buffer_ptr->b_ptr, READ_PTR(buffer_ptr), READ_SIZE(buffer_ptr));
+    buffer_ptr->write_position -= buffer_ptr->read_position;
+    buffer_ptr->read_position = 0;
+  } else {
+    char *new_b_ptr;
+    const size_t new_size = required_size + BSON_BYTE_BUFFER_SIZE;
+    new_b_ptr = ALLOC_N(char, new_size);
+    memcpy(new_b_ptr, READ_PTR(buffer_ptr), READ_SIZE(buffer_ptr));
+    if (buffer_ptr->b_ptr != buffer_ptr->buffer) {
+      xfree(buffer_ptr->b_ptr);
+    }
+    buffer_ptr->b_ptr = new_b_ptr;
+    buffer_ptr->size = new_size;
+    buffer_ptr->write_position -= buffer_ptr->read_position;
+    buffer_ptr->read_position = 0;
+  }
+}
+
+/**
+ * Generate the next object id.
+ */
+VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
 {
   char bytes[12];
   unsigned long t;
+  unsigned long c;
   unsigned short pid = htons(getpid());
 
   if (argc == 0 || (argc == 1 && *args == Qnil)) {
@@ -274,7 +527,6 @@ static VALUE rb_object_id_generator_next(int argc, VALUE* args, VALUE self)
     t = htonl(NUM2UINT(rb_funcall(*args, rb_intern("to_i"), 0)));
   }
 
-  unsigned long c;
   c = htonl(rb_bson_object_id_counter << 8);
 
 # if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -293,453 +545,167 @@ static VALUE rb_object_id_generator_next(int argc, VALUE* args, VALUE self)
 }
 
 /**
- * Check if the integer is a 32 bit integer.
- *
- * @example Check if the integer is 32 bit.
- *    rb_integer_is_bson_int32(integer);
- *
- * @param [ Integer ] self The ruby integer.
- *
- * @return [ true, false ] If the integer is 32 bit.
- *
- * @since 2.0.0
+ * Taken from libbson.
  */
-static VALUE rb_integer_is_bson_int32(VALUE self)
+static void _bson_utf8_get_sequence(const char *utf8, uint8_t *seq_length, uint8_t *first_mask)
 {
-  const int64_t v = NUM2INT64(self);
-  if (INT_MIN <= v && v <= INT_MAX) {
-    return Qtrue;
+ unsigned char c = *(const unsigned char *)utf8;
+ uint8_t m;
+ uint8_t n;
+
+ /*
+  * See the following[1] for a description of what the given multi-byte
+  * sequences will be based on the bits set of the first byte. We also need
+  * to mask the first byte based on that.  All subsequent bytes are masked
+  * against 0x3F.
+  *
+  * [1] http://www.joelonsoftware.com/articles/Unicode.html
+  */
+
+ if ((c & 0x80) == 0) {
+  n = 1;
+  m = 0x7F;
+ } else if ((c & 0xE0) == 0xC0) {
+  n = 2;
+  m = 0x1F;
+ } else if ((c & 0xF0) == 0xE0) {
+  n = 3;
+  m = 0x0F;
+ } else if ((c & 0xF8) == 0xF0) {
+  n = 4;
+  m = 0x07;
+ } else if ((c & 0xFC) == 0xF8) {
+  n = 5;
+  m = 0x03;
+ } else if ((c & 0xFE) == 0xFC) {
+  n = 6;
+  m = 0x01;
+ } else {
+  n = 0;
+  m = 0;
+ }
+
+ *seq_length = n;
+ *first_mask = m;
+}
+
+/**
+ * Taken from libbson.
+ */
+bool rb_bson_utf8_validate(const char *utf8, size_t utf8_len, bool allow_null)
+{
+  uint32_t c;
+  uint8_t first_mask;
+  uint8_t seq_length;
+  unsigned i;
+  unsigned j;
+
+  if (!utf8) {
+    return false;
   }
-  else {
-    return Qfalse;
+
+  for (i = 0; i < utf8_len; i += seq_length) {
+    _bson_utf8_get_sequence(&utf8[i], &seq_length, &first_mask);
+
+    /*
+     * Ensure we have a valid multi-byte sequence length.
+     */
+    if (!seq_length) {
+      return false;
+    }
+
+    /*
+     * Ensure we have enough bytes left.
+     */
+    if ((utf8_len - i) < seq_length) {
+      return false;
+    }
+
+    /*
+     * Also calculate the next char as a unichar so we can
+     * check code ranges for non-shortest form.
+     */
+    c = utf8 [i] & first_mask;
+
+    /*
+     * Check the high-bits for each additional sequence byte.
+     */
+    for (j = i + 1; j < (i + seq_length); j++) {
+      c = (c << 6) | (utf8 [j] & 0x3F);
+      if ((utf8[j] & 0xC0) != 0x80) {
+        return false;
+      }
+    }
+
+    /*
+     * Check for NULL bytes afterwards.
+     *
+     * Hint: if you want to optimize this function, starting here to do
+     * this in the same pass as the data above would probably be a good
+     * idea. You would add a branch into the inner loop, but save possibly
+     * on cache-line bouncing on larger strings. Just a thought.
+     */
+    if (!allow_null) {
+      for (j = 0; j < seq_length; j++) {
+        if (((i + j) > utf8_len) || !utf8[i + j]) {
+          return false;
+        }
+      }
+    }
+
+    /*
+     * Code point wont fit in utf-16, not allowed.
+     */
+    if (c > 0x0010FFFF) {
+      return false;
+    }
+
+    /*
+     * Byte is in reserved range for UTF-16 high-marks
+     * for surrogate pairs.
+     */
+    if ((c & 0xFFFFF800) == 0xD800) {
+      return false;
+    }
+
+    /*
+     * Check non-shortest form unicode.
+     */
+    switch (seq_length) {
+    case 1:
+      if (c <= 0x007F) {
+        continue;
+      }
+      return false;
+
+    case 2:
+      if ((c >= 0x0080) && (c <= 0x07FF)) {
+        continue;
+      } else if (c == 0) {
+        /* Two-byte representation for NULL. */
+        continue;
+      }
+      return false;
+
+    case 3:
+      if (((c >= 0x0800) && (c <= 0x0FFF)) ||
+         ((c >= 0x1000) && (c <= 0xFFFF))) {
+        continue;
+      }
+      return false;
+
+    case 4:
+      if (((c >= 0x10000) && (c <= 0x3FFFF)) ||
+         ((c >= 0x40000) && (c <= 0xFFFFF)) ||
+         ((c >= 0x100000) && (c <= 0x10FFFF))) {
+        continue;
+      }
+      return false;
+
+    default:
+      return false;
+    }
   }
-}
 
-/**
- * Convert the Ruby integer into a BSON as per the 32 bit specification,
- * which is 4 bytes.
- *
- * @example Convert the integer to 32bit BSON.
- *    rb_integer_to_bson_int32(128, encoded);
- *
- * @param [ Integer ] self The Ruby integer.
- * @param [ String ] encoded The Ruby binary string to append to.
- *
- * @return [ String ] encoded Ruby binary string with BSON raw bytes appended.
- *
- * @since 2.0.0
- */
-static VALUE rb_integer_to_bson_int32(VALUE self, VALUE encoded)
-{
-  const int32_t v = NUM2INT(self);
-  const char bytes[4] = {
-    v & 255,
-    (v >> 8) & 255,
-    (v >> 16) & 255,
-    (v >> 24) & 255
-  };
-  return rb_str_cat(encoded, bytes, 4);
-}
-
-/**
- * Initialize the bson array index for integers.
- *
- * @example Initialize the array.
- *    rb_bson_init_integer_bson_array_indexes();
- *
- * @since 2.0.0
- */
-static void rb_bson_init_integer_bson_array_indexes(void)
-{
-  int i;
-  for (i = 0; i < BSON_INDEX_SIZE; i++) {
-    snprintf(rb_bson_array_indexes[i], BSON_INDEX_CHAR_SIZE, "%d", i);
-  }
-}
-
-/**
- * Convert the Ruby integer into a character string and append with nullchar to encoded BSON.
- *
- * @example Convert the integer to string and append with nullchar.
- *    rb_integer_to_bson_key(128, encoded);
- *
- * @param [ Integer ] self The Ruby integer.
- * @param [ String ] encoded The Ruby binary string to append to.
- *
- * @return [ String ] encoded Ruby binary string with BSON raw bytes appended.
- *
- * @since 2.0.0
- */
-static VALUE rb_integer_to_bson_key(int argc, VALUE *argv, VALUE self)
-{
-  char bytes[INTEGER_CHAR_SIZE];
-  const int64_t v = NUM2INT64(self);
-  VALUE encoded = rb_get_default_encoded(argc, argv);
-  int length;
-  if (v < BSON_INDEX_SIZE)
-    return rb_str_cat(encoded, rb_bson_array_indexes[v], strlen(rb_bson_array_indexes[v]) + 1);
-  length = snprintf(bytes, INTEGER_CHAR_SIZE, "%ld", (long)v);
-  return rb_str_cat(encoded, bytes, length + 1);
-}
-
-/**
- * Convert the provided raw bytes into a 32bit Ruby integer.
- *
- * @example Convert the bytes to an Integer.
- *    rb_integer_from_bson_int32(Int32, bytes);
- *
- * @param [ BSON::Int32 ] self The Int32 eigenclass.
- * @param [ String ] bytes The raw bytes.
- *
- * @return [ Integer ] The Ruby integer.
- *
- * @since 2.0.0
- */
-static VALUE rb_integer_from_bson_int32(VALUE self, VALUE bson)
-{
-  const uint8_t *v = (const uint8_t*) StringValuePtr(bson);
-  const int32_t integer = v[0] + (v[1] << 8) + (v[2] << 16) + (v[3] << 24);
-  return INT2NUM(integer);
-}
-
-/**
- * Convert the raw BSON bytes into an int64_t type.
- *
- * @example Convert the bytes into an int64_t.
- *    rb_bson_to_int64_t(bson);
- *
- * @param [ String ] bson The raw bytes.
- *
- * @return [ int64_t ] The int64_t.
- *
- * @since 2.0.0
- */
-static int64_t rb_bson_to_int64_t(VALUE bson)
-{
-  uint8_t *v;
-  uint32_t byte_0, byte_1;
-  int64_t byte_2, byte_3;
-  int64_t lower, upper;
-  v = (uint8_t*) StringValuePtr(bson);
-  byte_0 = v[0];
-  byte_1 = v[1];
-  byte_2 = v[2];
-  byte_3 = v[3];
-  lower = byte_0 + (byte_1 << 8) + (byte_2 << 16) + (byte_3 << 24);
-  byte_0 = v[4];
-  byte_1 = v[5];
-  byte_2 = v[6];
-  byte_3 = v[7];
-  upper = byte_0 + (byte_1 << 8) + (byte_2 << 16) + (byte_3 << 24);
-  return lower + (upper << 32);
-}
-
-/**
- * Convert the provided raw bytes into a 64bit Ruby integer.
- *
- * @example Convert the bytes to an Integer.
- *    rb_integer_from_bson_int64(Int64, bytes);
- *
- * @param [ BSON::Int64 ] self The Int64 eigenclass.
- * @param [ String ] bytes The raw bytes.
- *
- * @return [ Integer ] The Ruby integer.
- *
- * @since 2.0.0
- */
-static VALUE rb_integer_from_bson_int64(VALUE self, VALUE bson)
-{
-  return INT642NUM(rb_bson_to_int64_t(bson));
-}
-
-/**
- * Append the 64-bit integer to encoded BSON Ruby binary string.
- *
- * @example Append the 64-bit integer to encoded BSON.
- *    int64_t_to_bson(128, encoded);
- *
- * @param [ int64_t ] self The 64-bit integer.
- * @param [ String ] encoded The BSON Ruby binary string to append to.
- *
- * @return [ String ] encoded Ruby binary string with BSON raw bytes appended.
- *
- * @since 2.0.0
- */
-static VALUE int64_t_to_bson(int64_t v, VALUE encoded)
-{
-  const char bytes[8] = {
-    v & 255,
-    (v >> 8) & 255,
-    (v >> 16) & 255,
-    (v >> 24) & 255,
-    (v >> 32) & 255,
-    (v >> 40) & 255,
-    (v >> 48) & 255,
-    (v >> 56) & 255
-  };
-  return rb_str_cat(encoded, bytes, 8);
-}
-
-/**
- * Convert the Ruby integer into a BSON as per the 64 bit specification,
- * which is 8 bytes.
- *
- * @example Convert the integer to 64bit BSON.
- *    rb_integer_to_bson_int64(128, encoded);
- *
- * @param [ Integer ] self The Ruby integer.
- * @param [ String ] encoded The Ruby binary string to append to.
- *
- * @return [ String ] encoded Ruby binary string with BSON raw bytes appended.
- *
- * @since 2.0.0
- */
-static VALUE rb_integer_to_bson_int64(VALUE self, VALUE encoded)
-{
-  return int64_t_to_bson(NUM2INT64(self), StringValue(encoded));
-}
-
-/**
- * Converts the milliseconds time to the raw BSON bytes. We need to
- * explicitly convert using 64 bit here.
- *
- * @example Convert the milliseconds value to BSON bytes.
- *    rb_time_to_bson(time, 2124132340000, encoded);
- *
- * @param [ Time ] self The Ruby Time object.
- * @param [ Integer ] milliseconds The milliseconds pre/post epoch.
- * @param [ String ] encoded The Ruby binary string to append to.
- *
- * @return [ String ] encoded Ruby binary string with time BSON raw bytes appended.
- *
- * @since 2.0.0
- */
-static VALUE rb_time_to_bson(int argc, VALUE *argv, VALUE self)
-{
-  int64_t t = NUM2INT64(rb_funcall(self, rb_intern("to_i"), 0));
-  int64_t milliseconds = (int64_t)(t * 1000);
-  int32_t micro = NUM2INT(rb_funcall(self, rb_intern("usec"), 0));
-  int64_t time = milliseconds + (micro / 1000);
-  VALUE encoded = rb_get_default_encoded(argc, argv);
-  return int64_t_to_bson(time, encoded);
-}
-
-/**
- * Converts the raw BSON bytes into a UTC Ruby time.
- *
- * @example Convert the bytes to a Ruby time.
- *    rb_time_from_bson(time, bytes);
- *
- * @param [ Class ] self The Ruby Time class.
- * @param [ String ] bytes The raw BSON bytes.
- *
- * @return [ Time ] The UTC time.
- *
- * @since 2.0.0
- */
-static VALUE rb_time_from_bson(VALUE self, VALUE bytes)
-{
-  const int64_t millis = rb_bson_to_int64_t(bytes);
-  const VALUE time = rb_time_new(millis / 1000, (millis % 1000) * 1000);
-  return rb_funcall(time, rb_utc_method, 0);
-}
-
-/**
- * Set four bytes for int32 in a binary string and return it.
- *
- * @example Set int32 in a BSON string.
- *   rb_string_set_int32(self, pos, int32)
- *
- * @param [ String ] self The Ruby binary string.
- * @param [ Fixnum ] The position to set.
- * @param [ Fixnum ] The int32 value.
- *
- * @return [ String ] The binary string.
- *
- * @since 2.0.0
- */
-static VALUE rb_string_set_int32(VALUE str, VALUE pos, VALUE an_int32)
-{
-  const int32_t offset = NUM2INT(pos);
-  const int32_t v = NUM2INT(an_int32);
-  const char bytes[4] = {
-    v & 255,
-    (v >> 8) & 255,
-    (v >> 16) & 255,
-    (v >> 24) & 255
-  };
-  rb_str_modify(str);
-  if (offset < 0 || offset + 4 > RSTRING_LEN(str)) {
-    rb_raise(rb_eArgError, "invalid position");
-  }
-  memcpy(RSTRING_PTR(str) + offset, bytes, 4);
-  return str;
-}
-
-/**
- * Check for illegal characters in string.
- *
- * @example Check for illegal characters.
- *    rb_string_check_for_illegal_characters("test");
- *
- * @param [ String ] self The string value.
- *
- * @since 2.0.0
- */
-static VALUE rb_string_check_for_illegal_characters(VALUE self)
-{
-  if (strlen(RSTRING_PTR(self)) != (size_t) RSTRING_LEN(self))
-    rb_raise(rb_eArgError, "Illegal C-String contains a null byte.");
-  return self;
-}
-
-/**
- * Encode a false value to bson.
- *
- * @example Encode the false value.
- *    rb_false_class_to_bson(0, false);
- *
- * @param [ int ] argc The number or arguments.
- * @param [ Array<Object> ] argv The arguments.
- * @param [ TrueClass ] self The true value.
- *
- * @return [ String ] The encoded string.
- *
- * @since 2.0.0
- */
-static VALUE rb_false_class_to_bson(int argc, VALUE *argv, VALUE self)
-{
-  VALUE encoded = rb_get_default_encoded(argc, argv);
-  rb_str_cat(encoded, &rb_bson_null_byte, 1);
-  return encoded;
-}
-
-/**
- * Encode a true value to bson.
- *
- * @example Encode the true value.
- *    rb_true_class_to_bson(0, true);
- *
- * @param [ int ] argc The number or arguments.
- * @param [ Array<Object> ] argv The arguments.
- * @param [ TrueClass ] self The true value.
- *
- * @return [ String ] The encoded string.
- *
- * @since 2.0.0
- */
-static VALUE rb_true_class_to_bson(int argc, VALUE *argv, VALUE self)
-{
-  VALUE encoded = rb_get_default_encoded(argc, argv);
-  rb_str_cat(encoded, &rb_bson_true_byte, 1);
-  return encoded;
-}
-
-/**
- * Decode a string from bson.
- *
- * @example Decode a string.
- *  rb_bson_string_from_bson(string, io);
- *
- * @param [ String ] self The string class.
- * @param [ IO ] bson The io stream of BSON.
- *
- * @return [ String ] The decoded string.
- *
- * @since 3.2.5
- */
-static VALUE rb_bson_string_from_bson(VALUE self, VALUE bson)
-{
-  ID read_method = rb_intern("read");
-  VALUE int_bytes = rb_funcall(bson, read_method, 1, 4);
-  VALUE size = rb_integer_from_bson_int32(self, int_bytes);
-  VALUE string_bytes = rb_funcall(bson, read_method, 1, size - 1);
-  return rb_bson_from_bson_string(string_bytes);
-}
-
-/**
- * Initialize the bson c extension.
- *
- * @since 2.0.0
- */
-void Init_native()
-{
-  // Get all the constants to be used in the extensions.
-  VALUE bson = rb_const_get(rb_cObject, rb_intern("BSON"));
-  VALUE integer = rb_const_get(bson, rb_intern("Integer"));
-  VALUE floats = rb_const_get(bson, rb_intern("Float"));
-  VALUE float_class = rb_const_get(floats, rb_intern("ClassMethods"));
-  VALUE time = rb_const_get(bson, rb_intern("Time"));
-  VALUE time_class = rb_singleton_class(time);
-  VALUE int32 = rb_const_get(bson, rb_intern("Int32"));
-  VALUE int32_class = rb_singleton_class(int32);
-  VALUE int64 = rb_const_get(bson, rb_intern("Int64"));
-  VALUE int64_class = rb_singleton_class(int64);
-  VALUE object_id = rb_const_get(bson, rb_intern("ObjectId"));
-  VALUE generator = rb_const_get(object_id, rb_intern("Generator"));
-  VALUE string = rb_const_get(bson, rb_intern("String"));
-  VALUE string_class = rb_singleton_class(string);
-  VALUE true_class = rb_const_get(bson, rb_intern("TrueClass"));
-  VALUE false_class = rb_const_get(bson, rb_intern("FalseClass"));
-  // needed to hash the machine id
-  rb_require("digest/md5");
-  VALUE digest_class = rb_const_get(rb_cObject, rb_intern("Digest"));
-  VALUE md5_class = rb_const_get(digest_class, rb_intern("MD5"));
-  rb_bson_utf8_string = rb_const_get(bson, rb_intern("UTF8"));
-  rb_utc_method = rb_intern("utc");
-
-  // Get the object id machine id and hash it.
-  char rb_bson_machine_id[256];
-  gethostname(rb_bson_machine_id, sizeof rb_bson_machine_id);
-  rb_bson_machine_id[255] = '\0';
-  VALUE digest = rb_funcall(md5_class, rb_intern("digest"), 1, rb_str_new2(rb_bson_machine_id));
-  memcpy(rb_bson_machine_id_hash, RSTRING_PTR(digest), RSTRING_LEN(digest));
-
-  // Integer optimizations.
-  rb_undef_method(integer, "to_bson_int32");
-  rb_define_method(integer, "to_bson_int32", rb_integer_to_bson_int32, 1);
-  rb_undef_method(integer, "to_bson_int64");
-  rb_define_method(integer, "to_bson_int64", rb_integer_to_bson_int64, 1);
-  rb_undef_method(integer, "bson_int32?");
-  rb_define_method(integer, "bson_int32?", rb_integer_is_bson_int32, 0);
-  rb_bson_init_integer_bson_array_indexes();
-  rb_undef_method(integer, "to_bson_key");
-  rb_define_method(integer, "to_bson_key", rb_integer_to_bson_key, -1);
-  rb_undef_method(int32_class, "from_bson_int32");
-  rb_define_private_method(int32_class, "from_bson_int32", rb_integer_from_bson_int32, 1);
-  rb_undef_method(int64_class, "from_bson_int64");
-  rb_define_private_method(int64_class, "from_bson_int64", rb_integer_from_bson_int64, 1);
-
-  // Float optimizations.
-  rb_undef_method(floats, "to_bson");
-  rb_define_method(floats, "to_bson", rb_float_to_bson, -1);
-  rb_undef_method(float_class, "from_bson_double");
-  rb_define_private_method(float_class, "from_bson_double", rb_float_from_bson_double, 1);
-
-  // Boolean optimizations - deserialization has no benefit so we provide
-  // no extensions there.
-  rb_undef_method(true_class, "to_bson");
-  rb_define_method(true_class, "to_bson", rb_true_class_to_bson, -1);
-  rb_undef_method(false_class, "to_bson");
-  rb_define_method(false_class, "to_bson", rb_false_class_to_bson, -1);
-
-  // Optimizations around time serialization and deserialization.
-  rb_undef_method(time, "to_bson");
-  rb_define_method(time, "to_bson", rb_time_to_bson, -1);
-  rb_undef_method(time_class, "from_bson");
-  rb_define_method(time_class, "from_bson", rb_time_from_bson, 1);
-
-  // String optimizations.
-  rb_undef_method(string, "set_int32");
-  rb_define_method(string, "set_int32", rb_string_set_int32, 2);
-  rb_undef_method(string, "from_bson_string");
-  rb_define_method(string, "from_bson_string", rb_bson_from_bson_string, 0);
-  rb_undef_method(string_class, "from_bson");
-  rb_define_method(string_class, "from_bson", rb_bson_string_from_bson, 1);
-  rb_undef_method(string, "check_for_illegal_characters!");
-  rb_define_private_method(string, "check_for_illegal_characters!", rb_string_check_for_illegal_characters, 0);
-
-  // Redefine the next method on the object id generator.
-  rb_undef_method(generator, "next_object_id");
-  rb_define_method(generator, "next_object_id", rb_object_id_generator_next, -1);
+  return true;
 }

@@ -29,8 +29,8 @@ describe Hash do
       end
 
       let(:bson) do
-        "#{20.to_bson}#{String::BSON_TYPE}key#{BSON::NULL_BYTE}" +
-        "#{6.to_bson}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
+        "#{20.to_bson.to_s}#{String::BSON_TYPE}key#{BSON::NULL_BYTE}" +
+        "#{6.to_bson.to_s}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
       end
 
       it_behaves_like "a serializable bson element"
@@ -44,9 +44,9 @@ describe Hash do
       end
 
       let(:bson) do
-        "#{32.to_bson}#{Hash::BSON_TYPE}field#{BSON::NULL_BYTE}" +
-        "#{20.to_bson}#{String::BSON_TYPE}key#{BSON::NULL_BYTE}" +
-        "#{6.to_bson}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
+        "#{32.to_bson.to_s}#{Hash::BSON_TYPE}field#{BSON::NULL_BYTE}" +
+        "#{20.to_bson.to_s}#{String::BSON_TYPE}key#{BSON::NULL_BYTE}" +
+        "#{6.to_bson.to_s}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
       end
 
       it_behaves_like "a serializable bson element"

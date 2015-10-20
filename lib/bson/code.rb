@@ -21,7 +21,6 @@ module BSON
   # @since 2.0.0
   class Code
     include JSON
-    include Encodable
 
     # A code is type 0x0D in the BSON spec.
     #
@@ -82,23 +81,21 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      encode_with_placeholder_and_null(STRING_ADJUST, encoded) do |encoded|
-        javascript.to_bson_string(encoded)
-      end
+    def to_bson(buffer = ByteBuffer.new)
+      buffer.put_string(javascript) # @todo: was formerly to_bson_string
     end
 
     # Deserialize code from BSON.
     #
-    # @param [ BSON ] bson The encoded code.
+    # @param [ ByteBuffer ] buffer The byte buffer.
     #
     # @return [ TrueClass, FalseClass ] The decoded code.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(bson)
-      new(bson.read(Int32.from_bson(bson)).from_bson_string.chop!)
+    def self.from_bson(buffer)
+      new(buffer.get_string)
     end
 
     # Register this type when the module is loaded.

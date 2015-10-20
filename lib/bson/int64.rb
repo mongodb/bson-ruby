@@ -34,21 +34,15 @@ module BSON
 
     # Deserialize an Integer from BSON.
     #
-    # @param [ BSON ] bson The encoded int64.
+    # @param [ ByteBuffer ] buffer The byte buffer.
     #
     # @return [ Integer ] The decoded Integer.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(bson)
-      from_bson_int64(bson.read(8))
-    end
-
-    private
-
-    def self.from_bson_int64(bytes)
-      bytes.unpack(PACK).first
+    def self.from_bson(buffer)
+      buffer.get_int64
     end
 
     # Register this type when the module is loaded.

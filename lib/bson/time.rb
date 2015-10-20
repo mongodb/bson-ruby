@@ -37,23 +37,23 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      encoded << [ (to_i * 1000) + (usec / 1000) ].pack(Int64::PACK)
+    def to_bson(buffer = ByteBuffer.new)
+      buffer.put_int64((to_i * 1000) + (usec / 1000))
     end
 
     module ClassMethods
 
       # Deserialize UTC datetime from BSON.
       #
-      # @param [ BSON ] bson The bson representing UTC datetime.
+      # @param [ ByteBuffer ] buffer The byte buffer.
       #
       # @return [ Time ] The decoded UTC datetime.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(bson)
-        seconds, fragment = Int64.from_bson(bson).divmod(1000)
+      def from_bson(buffer)
+        seconds, fragment = Int64.from_bson(buffer).divmod(1000)
         at(seconds, fragment * 1000).utc
       end
     end

@@ -84,9 +84,9 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      source.to_bson_cstring(encoded)
-      bson_options.to_bson_cstring(encoded)
+    def to_bson(buffer = ByteBuffer.new)
+      buffer.put_cstring(source)
+      buffer.put_cstring(bson_options)
     end
 
     private
@@ -168,17 +168,17 @@ module BSON
 
       # Deserialize the regular expression from BSON.
       #
-      # @param [ BSON ] bson The bson representing a regular expression.
+      # @param [ ByteBuffer ] buffer The byte buffer.
       #
       # @return [ Regexp ] The decoded regular expression.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(bson)
-        pattern = bson.gets(NULL_BYTE).from_bson_string.chop!
+      def from_bson(buffer)
+        pattern = buffer.get_cstring
         options = 0
-        while (option = bson.readbyte.chr) != NULL_BYTE
+        while (option = buffer.get_byte) != NULL_BYTE
           case option
           when IGNORECASE_VALUE
             options |= ::Regexp::IGNORECASE

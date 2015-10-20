@@ -21,7 +21,6 @@ module BSON
   #
   # @since 2.0.0
   module Hash
-    include Encodable
 
     # An hash (embedded document) is type 0x03 in the BSON spec.
     #
@@ -38,14 +37,16 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      encode_with_placeholder_and_null(BSON_ADJUST, encoded) do |encoded|
-        each do |field, value|
-          encoded << value.bson_type
-          field.to_bson_key(encoded)
-          value.to_bson(encoded)
-        end
+    def to_bson(buffer = ByteBuffer.new)
+      position = buffer.length
+      buffer.put_int32(0)
+      each do |field, value|
+        buffer.put_byte(value.bson_type)
+        buffer.put_cstring(field.to_bson_key)
+        value.to_bson(buffer)
       end
+      buffer.put_byte(NULL_BYTE)
+      buffer.replace_int32(position, buffer.length - position)
     end
 
     # Converts the hash to a normalized value in a BSON document.
@@ -64,19 +65,19 @@ module BSON
 
       # Deserialize the hash from BSON.
       #
-      # @param [ IO ] bson The bson representing a hash.
+      # @param [ ByteBuffer ] buffer The byte buffer.
       #
       # @return [ Array ] The decoded hash.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(bson)
+      def from_bson(buffer)
         hash = Document.allocate
-        bson.read(4) # Swallow the first four bytes.
-        while (type = bson.readbyte.chr) != NULL_BYTE
-          field = bson.gets(NULL_BYTE).from_bson_string.chop!
-          hash.store(field, BSON::Registry.get(type).from_bson(bson))
+        buffer.get_int32 # Throw away the size - todo: just move read position?
+        while (type = buffer.get_byte) != NULL_BYTE
+          field = buffer.get_cstring
+          hash.store(field, BSON::Registry.get(type).from_bson(buffer))
         end
         hash
       end

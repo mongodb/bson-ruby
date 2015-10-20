@@ -87,22 +87,24 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(encoded = ''.force_encoding(BINARY))
-      increment.to_bson_int32(encoded)
-      seconds.to_bson_int32(encoded)
+    def to_bson(buffer = ByteBuffer.new)
+      buffer.put_int32(increment)
+      buffer.put_int32(seconds)
     end
 
     # Deserialize timestamp from BSON.
     #
-    # @param [ BSON ] bson The bson representing a timestamp.
+    # @param [ ByteBuffer ] buffer The byte buffer.
     #
     # @return [ Timestamp ] The decoded timestamp.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(bson)
-      new(*bson.read(8).unpack(Int32::PACK * 2).reverse)
+    def self.from_bson(buffer)
+      increment = buffer.get_int32
+      seconds = buffer.get_int32
+      new(seconds, increment)
     end
 
     # Register this type when the module is loaded.
