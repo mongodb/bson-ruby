@@ -367,6 +367,7 @@ public class ByteBuf extends RubyObject {
   @JRubyMethod(name = "put_string")
   public ByteBuf putString(final IRubyObject value) throws UnsupportedEncodingException {
     String string = ((RubyString) value).asJavaString();
+    ensureBsonWrite(4);
     this.buffer.putInt(0);
     int length = writeCharacters(string, false);
     this.buffer.putInt(this.buffer.position() - length - 4, length);
