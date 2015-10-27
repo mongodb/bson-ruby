@@ -68,6 +68,39 @@ module BSON
       super(convert_key(key), convert_value(value))
     end
 
+    # Returns true if the given key is present in the document.  Will normalize
+    # symbol keys into strings.
+    #
+    # @example Test if a key exists using a symbol
+    #   document.has_key?(:test)
+    #
+    # @return [ true, false]
+    #
+    # @since 3.2.7
+    def has_key?(key)
+      super(convert_key(key))
+    end
+
+    alias :include? :has_key?
+    alias :key?     :has_key?
+    alias :member?  :has_key?
+
+
+    # Returns true if the given value is present in the document.  Will normalize
+    # symbols into strings.
+    #
+    # @example Test if a key exists using a symbol
+    #   document.has_value?(:test)
+    #
+    # @return [ true, false]
+    #
+    # @since 3.2.7
+    def has_value?(value)
+      super(convert_value(value))
+    end
+
+    alias :value :has_value?
+
     # Instantiate a new Document. Valid parameters for instantiation is a hash
     # only or nothing.
     #
