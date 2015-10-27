@@ -159,6 +159,20 @@ describe BSON::Document do
           expect(doc.send(method, "indigo")).to be false
         end
       end
+
+      context "when the key exists and is requested with a symbol" do
+
+        it "returns true" do
+          expect(doc.send(method, :blue)).to be true
+        end
+      end
+
+      context "when the key does not exist and is requested with a symbol" do
+
+        it "returns false" do
+          expect(doc.send(method, :indigo)).to be false
+        end
+      end
     end
   end
 
