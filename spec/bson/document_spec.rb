@@ -180,6 +180,13 @@ describe BSON::Document do
 
     describe "##{method}" do
 
+      let(:key) { :purple }
+      let(:val) { :'5422a8' }
+
+      before do
+        doc[key] = val
+      end
+
       context "when the value exists" do
 
         it "returns true" do
@@ -191,6 +198,21 @@ describe BSON::Document do
 
         it "returns false" do
           expect(doc.send(method, "ABCABC")).to be false
+        end
+      end
+
+      context "when the value exists and is requested with a symbol" do
+
+        it "returns true" do
+
+          expect(doc.send(method, :'5422a8')).to be true
+        end
+      end
+
+      context "when the value does not exist and is requested with a symbol" do
+
+        it "returns false" do
+          expect(doc.send(method, :ABCABC)).to be false
         end
       end
     end
