@@ -256,10 +256,10 @@ module BSON
       # Create a new object id from a time.
       #
       # @example Create an object id from a time.
-      #   BSON::ObjectId.from_id(time)
+      #   BSON::ObjectId.from_time(time)
       #
       # @example Create an object id from a time, ensuring uniqueness.
-      #   BSON::ObjectId.from_id(time, unique: true)
+      #   BSON::ObjectId.from_time(time, unique: true)
       #
       # @param [ Time ] time The time to generate from.
       # @param [ Hash ] options The options.
