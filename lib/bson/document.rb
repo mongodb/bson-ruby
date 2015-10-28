@@ -74,9 +74,11 @@ module BSON
     # @example Test if a key exists using a symbol
     #   document.has_key?(:test)
     #
+    # @param [ Object ] key The key to check for.
+    #
     # @return [ true, false]
     #
-    # @since 3.2.7
+    # @since 4.0.0
     def has_key?(key)
       super(convert_key(key))
     end
@@ -85,21 +87,40 @@ module BSON
     alias :key?     :has_key?
     alias :member?  :has_key?
 
-
     # Returns true if the given value is present in the document.  Will normalize
     # symbols into strings.
     #
     # @example Test if a key exists using a symbol
     #   document.has_value?(:test)
     #
+    # @param [ Object ] value THe value to check for.
+    #
     # @return [ true, false]
     #
-    # @since 3.2.7
+    # @since 4.0.0
     def has_value?(value)
       super(convert_value(value))
     end
 
     alias :value :has_value?
+
+    # Deletes the key-value pair and returns the value from the document
+    # whose key is equal to key.
+    # If the key is not found, returns the default value. If the optional code
+    # block is given and the key is not found, pass in the key and return the
+    # result of block.
+    #
+    # @example Delete a key-value pair
+    #   document.delete(:test)
+    #
+    # @param [ Object ] key The key of the key-value pair to delete.
+    #
+    # @return [ Object ]
+    #
+    # @since 4.0.0
+    def delete(key, &block)
+      super(convert_key(key), &block)
+    end
 
     # Instantiate a new Document. Valid parameters for instantiation is a hash
     # only or nothing.
