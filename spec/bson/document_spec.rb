@@ -98,33 +98,61 @@ describe BSON::Document do
 
   describe "#delete" do
 
-    let(:key) { "white" }
-    let(:val) { "ffffff" }
-    let(:bad_key) { "black" }
+    shared_examples_for "a document with deletable pairs" do
 
-    before do
-      doc[key] = val
-    end
+      let!(:deleted) { doc.delete(key) }
 
-    let!(:deleted) { doc.delete(key) }
-
-    it "returns the deleted value" do
-      expect(deleted).to eq(val)
-    end
-
-    it "removes the key from the list" do
-      expect(doc.keys.length).to eq(keys.length)
-    end
-
-    it "matches the keys length to the document length" do
-      expect(doc.length).to eq(doc.keys.length)
-    end
-
-    context "when removind a bad key" do
-
-      it "returns nil" do
-        expect(doc.delete(bad_key)).to be_nil
+      it "returns the deleted value" do
+        expect(deleted).to eq(val)
       end
+
+      it "removes the key from the list" do
+        expect(doc.keys.length).to eq(keys.length)
+      end
+
+      it "matches the keys length to the document length" do
+        expect(doc.length).to eq(doc.keys.length)
+      end
+
+      context "when removing a bad key" do
+
+        it "returns nil" do
+          expect(doc.delete(bad_key)).to be_nil
+        end
+
+        context "when a block is provided" do
+
+          it "returns the result of the block" do
+            expect(doc.delete(bad_key) { |k| "golden key" }).to eq("golden key")
+          end
+        end
+      end
+    end
+
+    context "when keys are strings" do
+
+      let(:key) { "white" }
+      let(:val) { "ffffff" }
+      let(:bad_key) { "black" }
+
+      before do
+        doc[key] = val
+      end
+
+      it_behaves_like "a document with deletable pairs"
+    end
+
+    context "when keys are symbols" do
+
+      let(:key) { :white }
+      let(:val) { "ffffff" }
+      let(:bad_key) { :black }
+
+      before do
+        doc[key] = val
+      end
+
+      it_behaves_like "a document with deletable pairs"
     end
   end
 
