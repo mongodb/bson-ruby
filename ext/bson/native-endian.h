@@ -63,8 +63,6 @@
 # define BSON_UINT64_TO_LE(v)    ((uint64_t)v)
 # define BSON_UINT64_FROM_BE(v)  BSON_UINT64_SWAP_LE_BE (v)
 # define BSON_UINT64_TO_BE(v)    BSON_UINT64_SWAP_LE_BE (v)
-# define BSON_DOUBLE_FROM_LE(v)  ((double)v)
-# define BSON_DOUBLE_TO_LE(v)    ((double)v)
 #elif BYTE_ORDER == BIG_ENDIAN
 # define BSON_UINT32_FROM_LE(v)  BSON_UINT32_SWAP_LE_BE (v)
 # define BSON_UINT32_TO_LE(v)    BSON_UINT32_SWAP_LE_BE (v)
@@ -74,8 +72,6 @@
 # define BSON_UINT64_TO_LE(v)    BSON_UINT64_SWAP_LE_BE (v)
 # define BSON_UINT64_FROM_BE(v)  ((uint64_t)v)
 # define BSON_UINT64_TO_BE(v)    ((uint64_t)v)
-# define BSON_DOUBLE_FROM_LE(v)  (__bson_double_swap_slow (v))
-# define BSON_DOUBLE_TO_LE(v)    (__bson_double_swap_slow (v))
 #else
 # error "The endianness of target architecture is unknown."
 #endif
