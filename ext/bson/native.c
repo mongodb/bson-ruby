@@ -529,12 +529,12 @@ VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
 
   c = htonl(rb_bson_object_id_counter << 8);
 
-# if BYTE_ORDER == LITTLE_ENDIAN
+# if BSON_BYTE_ORDER == BSON_LITTLE_ENDIAN
   memcpy(&bytes, &t, 4);
   memcpy(&bytes[4], rb_bson_machine_id_hash, 3);
   memcpy(&bytes[7], &pid, 2);
   memcpy(&bytes[9], (unsigned char*) &c, 3);
-#elif  BYTE_ORDER == BIG_ENDIAN
+#elif BSON_BYTE_ORDER == BSON_BIG_ENDIAN
   memcpy(&bytes, ((unsigned char*) &t) + 4, 4);
   memcpy(&bytes[4], rb_bson_machine_id_hash, 3);
   memcpy(&bytes[7], &pid, 2);

@@ -23,8 +23,24 @@
 # include <sys/types.h>
 #endif
 
+#define BSON_BIG_ENDIAN    4321
+#define BSON_LITTLE_ENDIAN 1234
+
 #if defined(__sun)
 # include <sys/byteorder.h>
+# if defined(_LITTLE_ENDIAN)
+#  define BSON_BYTE_ORDER 1234
+# elif
+#  define BSON_BYTE_ORDER 4321
+# endif
+#endif
+
+#ifndef BSON_BYTE_ORDER
+# if BYTE_ORDER == LITTLE_ENDIAN
+#  define BSON_BYTE_ORDER 1234
+# elif BYTE_ORDER == BIG_ENDIAN
+#  define BSON_BYTE_ORDER 4321
+# endif
 #endif
 
 #if defined(__sun)
@@ -45,7 +61,7 @@
 # endif
 #endif
 
-#if BYTE_ORDER == LITTLE_ENDIAN
+#if BSON_BYTE_ORDER == BSON_LITTLE_ENDIAN
 # define BSON_UINT32_FROM_LE(v)  ((uint32_t)v)
 # define BSON_UINT32_TO_LE(v)    ((uint32_t)v)
 # define BSON_UINT32_FROM_BE(v)  BSON_UINT32_SWAP_LE_BE(v)
@@ -54,7 +70,7 @@
 # define BSON_UINT64_TO_LE(v)    ((uint64_t)v)
 # define BSON_UINT64_FROM_BE(v)  BSON_UINT64_SWAP_LE_BE(v)
 # define BSON_UINT64_TO_BE(v)    BSON_UINT64_SWAP_LE_BE(v)
-#elif BYTE_ORDER == BIG_ENDIAN
+#elif BSON_BYTE_ORDER == BSON_BIG_ENDIAN
 # define BSON_UINT32_FROM_LE(v)  BSON_UINT32_SWAP_LE_BE(v)
 # define BSON_UINT32_TO_LE(v)    BSON_UINT32_SWAP_LE_BE(v)
 # define BSON_UINT32_FROM_BE(v)  ((uint32_t)v)
