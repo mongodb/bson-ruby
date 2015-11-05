@@ -235,13 +235,13 @@ VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
 VALUE rb_bson_byte_buffer_get_double(VALUE self)
 {
   byte_buffer_t *b;
-  union { uint64_t i64; double d; } ucast;
+  double d;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_READ(b, 8);
-  ucast.i64 = BSON_UINT64_FROM_LE(*(uint64_t*)READ_PTR(b));
+  d = BSON_DOUBLE_FROM_LE(*(double*)READ_PTR(b));
   b->read_position += 8;
-  return DBL2NUM(ucast.d);
+  return DBL2NUM(d);
 }
 
 /**
@@ -351,13 +351,10 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string)
 VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
 {
   byte_buffer_t *b;
-  union {double d; uint64_t i64;} ucast;
-
-  ucast.d = NUM2DBL(f);
+  const double d = BSON_DOUBLE_TO_LE(NUM2DBL(f));
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 8);
-  ucast.i64 = BSON_UINT64_TO_LE(ucast.i64);
-  *(int64_t*)WRITE_PTR(b) = ucast.i64;
+  memcpy(WRITE_PTR(b), &d, sizeof(d));
   b->write_position += 8;
 
   return self;

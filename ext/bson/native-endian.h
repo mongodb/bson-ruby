@@ -78,6 +78,8 @@
 # define BSON_UINT64_TO_LE(v)    ((uint64_t)v)
 # define BSON_UINT64_FROM_BE(v)  BSON_UINT64_SWAP_LE_BE(v)
 # define BSON_UINT64_TO_BE(v)    BSON_UINT64_SWAP_LE_BE(v)
+# define BSON_DOUBLE_FROM_LE(v)  ((double)v)
+# define BSON_DOUBLE_TO_LE(v)    ((double)v)
 #elif BSON_BYTE_ORDER == BSON_BIG_ENDIAN
 # define BSON_UINT32_FROM_LE(v)  BSON_UINT32_SWAP_LE_BE(v)
 # define BSON_UINT32_TO_LE(v)    BSON_UINT32_SWAP_LE_BE(v)
@@ -87,6 +89,8 @@
 # define BSON_UINT64_TO_LE(v)    BSON_UINT64_SWAP_LE_BE(v)
 # define BSON_UINT64_FROM_BE(v)  ((uint64_t)v)
 # define BSON_UINT64_TO_BE(v)    ((uint64_t)v)
+# define BSON_DOUBLE_FROM_LE(v)  (__bson_double_swap_slow(v))
+# define BSON_DOUBLE_TO_LE(v)    (__bson_double_swap_slow(v))
 #else
 # error "The endianness of target architecture is unknown."
 #endif
@@ -141,3 +145,30 @@ static uint64_t __bson_uint64_swap_slow (uint64_t v)
           ((v & 0x00FF000000000000ULL) >> 40) |
           ((v & 0xFF00000000000000ULL) >> 56);
 }
+
+/*
+ *--------------------------------------------------------------------------
+ *
+ * __bson_double_swap_slow --
+ *
+ *       Fallback endianness conversion for double floating point.
+ *
+ * Returns:
+ *       The endian swapped version.
+ *
+ * Side effects:
+ *       None.
+ *
+ *--------------------------------------------------------------------------
+ */
+static double __bson_double_swap_slow(double v)
+{
+   uint64_t uv;
+
+   memcpy(&uv, &v, sizeof(v));
+   uv = BSON_UINT64_SWAP_LE_BE(uv);
+   memcpy(&v, &uv, sizeof(v));
+
+   return v;
+}
+
