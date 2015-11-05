@@ -1,11 +1,18 @@
-// "License": Public Domain
-// I, Mathias PanzenbГ¶ck, place this file hereby into the public domain. Use it at your own risk for whatever you like.
-// In case there are jurisdictions that don't support putting things in the public domain you can also consider it to
-// be "dual licensed" under the BSD, MIT and Apache licenses, if you want to. This code is trivial anyway. Consider it
-// an example on how to get the endian conversion functions on different platforms.
-
-#ifndef PORTABLE_ENDIAN_H__
-#define PORTABLE_ENDIAN_H__
+/*
+ * Copyright 2015 MongoDB, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(__WINDOWS__)
 
@@ -16,105 +23,133 @@
 # include <sys/types.h>
 #endif
 
-#if defined(__linux__) || defined(__CYGWIN__)
+#if defined(__sun)
+# include <sys/byteorder.h>
+#endif
 
-# include <endian.h>
-
-#elif defined(__APPLE__)
-
-# include <libkern/OSByteOrder.h>
-
-# define htobe16(x) OSSwapHostToBigInt16(x)
-# define htole16(x) OSSwapHostToLittleInt16(x)
-# define be16toh(x) OSSwapBigToHostInt16(x)
-# define le16toh(x) OSSwapLittleToHostInt16(x)
-
-# define htobe32(x) OSSwapHostToBigInt32(x)
-# define htole32(x) OSSwapHostToLittleInt32(x)
-# define be32toh(x) OSSwapBigToHostInt32(x)
-# define le32toh(x) OSSwapLittleToHostInt32(x)
-
-# define htobe64(x) OSSwapHostToBigInt64(x)
-# define htole64(x) OSSwapHostToLittleInt64(x)
-# define be64toh(x) OSSwapBigToHostInt64(x)
-# define le64toh(x) OSSwapLittleToHostInt64(x)
-
-# define __BYTE_ORDER    BYTE_ORDER
-# define __BIG_ENDIAN    BIG_ENDIAN
-# define __LITTLE_ENDIAN LITTLE_ENDIAN
-# define __PDP_ENDIAN    PDP_ENDIAN
-
-#elif defined(__OpenBSD__)
-
-# include <sys/endian.h>
-
-#elif defined(__NetBSD__) || defined(__FreeBSD__) || defined(__DragonFly__)
-
-# include <sys/endian.h>
-
-# define be16toh(x) betoh16(x)
-# define le16toh(x) letoh16(x)
-
-# define be32toh(x) betoh32(x)
-# define le32toh(x) letoh32(x)
-
-# define be64toh(x) betoh64(x)
-# define le64toh(x) letoh64(x)
-
-#elif defined(__WINDOWS__)
-
-# include <sys/param.h>
-
-# if BYTE_ORDER == LITTLE_ENDIAN
-
-#   define htobe16(x) htons(x)
-#   define htole16(x) (x)
-#   define be16toh(x) ntohs(x)
-#   define le16toh(x) (x)
-
-#   define htobe32(x) htonl(x)
-#   define htole32(x) (x)
-#   define be32toh(x) ntohl(x)
-#   define le32toh(x) (x)
-
-#   define htobe64(x) htonll(x)
-#   define htole64(x) (x)
-#   define be64toh(x) ntohll(x)
-#   define le64toh(x) (x)
-
-# elif BYTE_ORDER == BIG_ENDIAN
-
-    /* that would be xbox 360 */
-#   define htobe16(x) (x)
-#   define htole16(x) __builtin_bswap16(x)
-#   define be16toh(x) (x)
-#   define le16toh(x) __builtin_bswap16(x)
-
-#   define htobe32(x) (x)
-#   define htole32(x) __builtin_bswap32(x)
-#   define be32toh(x) (x)
-#   define le32toh(x) __builtin_bswap32(x)
-
-#   define htobe64(x) (x)
-#   define htole64(x) __builtin_bswap64(x)
-#   define be64toh(x) (x)
-#   define le64toh(x) __builtin_bswap64(x)
-
-# else
-
-#   error byte order not supported
-
+#if defined(__sun)
+# define BSON_UINT16_SWAP_LE_BE(v) BSWAP_16((uint16_t)v)
+# define BSON_UINT32_SWAP_LE_BE(v) BSWAP_32((uint32_t)v)
+# define BSON_UINT64_SWAP_LE_BE(v) BSWAP_64((uint64_t)v)
+#elif defined(__clang__) && defined(__clang_major__) && defined(__clang_minor__) && \
+  (__clang_major__ >= 3) && (__clang_minor__ >= 1)
+# if __has_builtin(__builtin_bswap32)
+#  define BSON_UINT32_SWAP_LE_BE(v) __builtin_bswap32(v)
 # endif
+# if __has_builtin(__builtin_bswap64)
+#  define BSON_UINT64_SWAP_LE_BE(v) __builtin_bswap64(v)
+# endif
+#elif defined(__GNUC__) && (__GNUC__ >= 4)
+# if __GNUC__ >= 4 && defined (__GNUC_MINOR__) && __GNUC_MINOR__ >= 3
+#  define BSON_UINT32_SWAP_LE_BE(v) __builtin_bswap32 ((uint32_t)v)
+#  define BSON_UINT64_SWAP_LE_BE(v) __builtin_bswap64 ((uint64_t)v)
+# endif
+#endif
 
-# define __BYTE_ORDER    BYTE_ORDER
-# define __BIG_ENDIAN    BIG_ENDIAN
-# define __LITTLE_ENDIAN LITTLE_ENDIAN
-# define __PDP_ENDIAN    PDP_ENDIAN
+#ifndef BSON_UINT32_SWAP_LE_BE
+# define BSON_UINT32_SWAP_LE_BE(v) __bson_uint32_swap_slow ((uint32_t)v)
+#endif
 
+#ifndef BSON_UINT64_SWAP_LE_BE
+# define BSON_UINT64_SWAP_LE_BE(v) __bson_uint64_swap_slow ((uint64_t)v)
+#endif
+
+#if BYTE_ORDER == LITTLE_ENDIAN
+# define BSON_UINT32_FROM_LE(v)  ((uint32_t)v)
+# define BSON_UINT32_TO_LE(v)    ((uint32_t)v)
+# define BSON_UINT32_FROM_BE(v)  BSON_UINT32_SWAP_LE_BE (v)
+# define BSON_UINT32_TO_BE(v)    BSON_UINT32_SWAP_LE_BE (v)
+# define BSON_UINT64_FROM_LE(v)  ((uint64_t)v)
+# define BSON_UINT64_TO_LE(v)    ((uint64_t)v)
+# define BSON_UINT64_FROM_BE(v)  BSON_UINT64_SWAP_LE_BE (v)
+# define BSON_UINT64_TO_BE(v)    BSON_UINT64_SWAP_LE_BE (v)
+#elif BYTE_ORDER == BIG_ENDIAN
+# define BSON_UINT32_FROM_LE(v)  BSON_UINT32_SWAP_LE_BE (v)
+# define BSON_UINT32_TO_LE(v)    BSON_UINT32_SWAP_LE_BE (v)
+# define BSON_UINT32_FROM_BE(v)  ((uint32_t)v)
+# define BSON_UINT32_TO_BE(v)    ((uint32_t)v)
+# define BSON_UINT64_FROM_LE(v)  BSON_UINT64_SWAP_LE_BE (v)
+# define BSON_UINT64_TO_LE(v)    BSON_UINT64_SWAP_LE_BE (v)
+# define BSON_UINT64_FROM_BE(v)  ((uint64_t)v)
+# define BSON_UINT64_TO_BE(v)    ((uint64_t)v)
 #else
-
-# error platform not supported
-
+# error "The endianness of target architecture is unknown."
 #endif
 
-#endif
+/*
+ *--------------------------------------------------------------------------
+ *
+ * __bson_uint32_swap_slow --
+ *
+ *       Fallback endianness conversion for 32-bit integers.
+ *
+ * Returns:
+ *       The endian swapped version.
+ *
+ * Side effects:
+ *       None.
+ *
+ *--------------------------------------------------------------------------
+ */
+static uint32_t __bson_uint32_swap_slow(uint32_t v)
+{
+   return ((v & 0x000000FFU) << 24) |
+          ((v & 0x0000FF00U) <<  8) |
+          ((v & 0x00FF0000U) >>  8) |
+          ((v & 0xFF000000U) >> 24);
+}
+
+
+/*
+ *--------------------------------------------------------------------------
+ *
+ * __bson_uint64_swap_slow --
+ *
+ *       Fallback endianness conversion for 64-bit integers.
+ *
+ * Returns:
+ *       The endian swapped version.
+ *
+ * Side effects:
+ *       None.
+ *
+ *--------------------------------------------------------------------------
+ */
+static uint64_t __bson_uint64_swap_slow (uint64_t v)
+{
+   return ((v & 0x00000000000000FFULL) << 56) |
+          ((v & 0x000000000000FF00ULL) << 40) |
+          ((v & 0x0000000000FF0000ULL) << 24) |
+          ((v & 0x00000000FF000000ULL) <<  8) |
+          ((v & 0x000000FF00000000ULL) >>  8) |
+          ((v & 0x0000FF0000000000ULL) >> 24) |
+          ((v & 0x00FF000000000000ULL) >> 40) |
+          ((v & 0xFF00000000000000ULL) >> 56);
+}
+
+
+/*
+ *--------------------------------------------------------------------------
+ *
+ * __bson_double_swap_slow --
+ *
+ *       Fallback endianness conversion for double floating point.
+ *
+ * Returns:
+ *       The endian swapped version.
+ *
+ * Side effects:
+ *       None.
+ *
+ *--------------------------------------------------------------------------
+ */
+static double __bson_double_swap_slow (double v)
+{
+   uint64_t uv;
+
+   memcpy(&uv, &v, sizeof(v));
+   uv = BSON_UINT64_SWAP_LE_BE(uv);
+   memcpy(&v, &uv, sizeof(v));
+
+   return v;
+}
