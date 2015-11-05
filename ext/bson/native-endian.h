@@ -47,11 +47,11 @@
 #endif
 
 #ifndef BSON_UINT32_SWAP_LE_BE
-# define BSON_UINT32_SWAP_LE_BE(v) __bson_uint32_swap_slow ((uint32_t)v)
+# define BSON_UINT32_SWAP_LE_BE(v) __bson_uint32_swap_slow((uint32_t)v)
 #endif
 
 #ifndef BSON_UINT64_SWAP_LE_BE
-# define BSON_UINT64_SWAP_LE_BE(v) __bson_uint64_swap_slow ((uint64_t)v)
+# define BSON_UINT64_SWAP_LE_BE(v) __bson_uint64_swap_slow((uint64_t)v)
 #endif
 
 #if BYTE_ORDER == LITTLE_ENDIAN
@@ -125,31 +125,4 @@ static uint64_t __bson_uint64_swap_slow (uint64_t v)
           ((v & 0x0000FF0000000000ULL) >> 24) |
           ((v & 0x00FF000000000000ULL) >> 40) |
           ((v & 0xFF00000000000000ULL) >> 56);
-}
-
-
-/*
- *--------------------------------------------------------------------------
- *
- * __bson_double_swap_slow --
- *
- *       Fallback endianness conversion for double floating point.
- *
- * Returns:
- *       The endian swapped version.
- *
- * Side effects:
- *       None.
- *
- *--------------------------------------------------------------------------
- */
-static double __bson_double_swap_slow (double v)
-{
-   uint64_t uv;
-
-   memcpy(&uv, &v, sizeof(v));
-   uv = BSON_UINT64_SWAP_LE_BE(uv);
-   memcpy(&v, &uv, sizeof(v));
-
-   return v;
 }
