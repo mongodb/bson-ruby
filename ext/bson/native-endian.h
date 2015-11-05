@@ -44,8 +44,8 @@
 #endif
 
 #if defined(__sun)
-# define BSON_UINT32_SWAP_LE_BE(v) __bson_uint32_swap_slow((uint32_t)v)
-# define BSON_UINT64_SWAP_LE_BE(v) __bson_uint64_swap_slow((uint64_t)v)
+# define BSON_UINT32_SWAP_LE_BE(v) BSWAP_32((uint32_t)v)
+# define BSON_UINT64_SWAP_LE_BE(v) BSWAP_64((uint64_t)v)
 #elif defined(__clang__) && defined(__clang_major__) && defined(__clang_minor__) && \
   (__clang_major__ >= 3) && (__clang_minor__ >= 1)
 # if __has_builtin(__builtin_bswap32)
@@ -59,6 +59,14 @@
 #  define BSON_UINT32_SWAP_LE_BE(v) __builtin_bswap32 ((uint32_t)v)
 #  define BSON_UINT64_SWAP_LE_BE(v) __builtin_bswap64 ((uint64_t)v)
 # endif
+#endif
+
+#ifndef BSON_UINT32_SWAP_LE_BE
+# define BSON_UINT32_SWAP_LE_BE(v) __bson_uint32_swap_slow ((uint32_t)v)
+#endif
+
+#ifndef BSON_UINT64_SWAP_LE_BE
+# define BSON_UINT64_SWAP_LE_BE(v) __bson_uint64_swap_slow ((uint64_t)v)
 #endif
 
 #if BSON_BYTE_ORDER == BSON_LITTLE_ENDIAN
