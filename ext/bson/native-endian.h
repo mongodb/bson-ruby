@@ -30,7 +30,7 @@
 # include <sys/byteorder.h>
 # if defined(_LITTLE_ENDIAN)
 #  define BSON_BYTE_ORDER 1234
-# elif
+# else
 #  define BSON_BYTE_ORDER 4321
 # endif
 #endif
