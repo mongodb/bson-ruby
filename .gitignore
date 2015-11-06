@@ -12,6 +12,8 @@ build/*
 tmp/*
 *.o
 *.bundle
+*.so
+core
 Makefile
 .idea/
 *.gem
