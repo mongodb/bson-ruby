@@ -95,6 +95,14 @@
 # error "The endianness of target architecture is unknown."
 #endif
 
+#if SIZEOF_LONG == 8
+#define NUM2INT64(v) NUM2LONG(v)
+#define INT642NUM(v) LONG2NUM(v)
+#else
+#define NUM2INT64(v) NUM2LL(v)
+#define INT642NUM(v) LL2NUM(v)
+#endif
+
 /*
  *--------------------------------------------------------------------------
  *

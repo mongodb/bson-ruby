@@ -271,7 +271,7 @@ VALUE rb_bson_byte_buffer_get_int64(VALUE self)
   ENSURE_BSON_READ(b, 8);
   i64 = BSON_UINT64_FROM_LE(*((int64_t*)READ_PTR(b)));
   b->read_position += 8;
-  return LONG2NUM(i64);
+  return INT642NUM(i64);
 }
 
 /**
@@ -382,7 +382,7 @@ VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i)
 VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i)
 {
   byte_buffer_t *b;
-  const int64_t i64 = NUM2LONG(i);
+  const int64_t i64 = NUM2INT64(i);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 8);
