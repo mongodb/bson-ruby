@@ -239,7 +239,7 @@ VALUE rb_bson_byte_buffer_get_double(VALUE self)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_READ(b, 8);
-  d = BSON_DOUBLE_FROM_LE(*(double*)READ_PTR(b));
+  d = BSON_DOUBLE_FROM_LE(*((double*)READ_PTR(b)));
   b->read_position += 8;
   return DBL2NUM(d);
 }
@@ -351,10 +351,10 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string)
 VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
 {
   byte_buffer_t *b;
-  const double d = BSON_DOUBLE_TO_LE(NUM2DBL(f));
+  const double d = NUM2DBL(f);
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 8);
-  memcpy(WRITE_PTR(b), &d, sizeof(d));
+  *((double*)WRITE_PTR(b)) = BSON_DOUBLE_TO_LE(d);
   b->write_position += 8;
 
   return self;
