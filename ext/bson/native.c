@@ -203,7 +203,7 @@ VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i)
 {
   byte_buffer_t *b;
   VALUE bytes;
-  const long length = FIX2LONG(i);
+  const uint32_t length = FIX2LONG(i);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_READ(b, length);
@@ -513,8 +513,8 @@ void rb_bson_expand_buffer(byte_buffer_t* buffer_ptr, size_t length)
 VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
 {
   char bytes[12];
-  unsigned long t;
-  unsigned long c;
+  uint32_t t;
+  uint32_t c;
   unsigned short pid = htons(getpid());
 
   if (argc == 0 || (argc == 1 && *args == Qnil)) {
