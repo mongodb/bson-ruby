@@ -271,7 +271,7 @@ VALUE rb_bson_byte_buffer_get_int64(VALUE self)
   ENSURE_BSON_READ(b, 8);
   i64 = BSON_UINT64_FROM_LE(*((int64_t*)READ_PTR(b)));
   b->read_position += 8;
-  return INT642NUM(i64);
+  return LL2NUM(i64);
 }
 
 /**
@@ -382,7 +382,7 @@ VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i)
 VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i)
 {
   byte_buffer_t *b;
-  const int64_t i64 = NUM2INT64(i);
+  const int64_t i64 = NUM2LL(i);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 8);
@@ -432,8 +432,8 @@ VALUE rb_bson_byte_buffer_read_position(VALUE self)
 VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i)
 {
   byte_buffer_t *b;
-  const int32_t position = NUM2INT(index);
-  const uint32_t i32 = BSON_UINT32_TO_LE(NUM2INT(i));
+  const int32_t position = NUM2LONG(index);
+  const uint32_t i32 = BSON_UINT32_TO_LE(NUM2LONG(i));
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
@@ -521,7 +521,7 @@ VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
     t = htonl((int) time(NULL));
   }
   else {
-    t = htonl(NUM2UINT(rb_funcall(*args, rb_intern("to_i"), 0)));
+    t = htonl(NUM2ULONG(rb_funcall(*args, rb_intern("to_i"), 0)));
   }
 
   c = htonl(rb_bson_object_id_counter << 8);
