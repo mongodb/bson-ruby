@@ -62,11 +62,11 @@
 #endif
 
 #ifndef BSON_UINT32_SWAP_LE_BE
-# define BSON_UINT32_SWAP_LE_BE(v) __bson_uint32_swap_slow ((uint32_t)v)
+# define BSON_UINT32_SWAP_LE_BE(v) __bson_uint32_swap_slow((uint32_t)v)
 #endif
 
 #ifndef BSON_UINT64_SWAP_LE_BE
-# define BSON_UINT64_SWAP_LE_BE(v) __bson_uint64_swap_slow ((uint64_t)v)
+# define BSON_UINT64_SWAP_LE_BE(v) __bson_uint64_swap_slow((uint64_t)v)
 #endif
 
 #if BSON_BYTE_ORDER == BSON_LITTLE_ENDIAN
@@ -142,7 +142,7 @@ static uint32_t __bson_uint32_swap_slow(uint32_t v)
  *
  *--------------------------------------------------------------------------
  */
-static uint64_t __bson_uint64_swap_slow (uint64_t v)
+static uint64_t __bson_uint64_swap_slow(uint64_t v)
 {
    return ((v & 0x00000000000000FFULL) << 56) |
           ((v & 0x000000000000FF00ULL) << 40) |
