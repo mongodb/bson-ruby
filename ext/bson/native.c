@@ -239,9 +239,9 @@ VALUE rb_bson_byte_buffer_get_double(VALUE self)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_READ(b, 8);
-  d = BSON_DOUBLE_FROM_LE(*((double*)READ_PTR(b)));
+  memcpy(&d, READ_PTR(b), 8);
   b->read_position += 8;
-  return DBL2NUM(d);
+  return DBL2NUM(BSON_DOUBLE_FROM_LE(d));
 }
 
 /**
@@ -254,9 +254,9 @@ VALUE rb_bson_byte_buffer_get_int32(VALUE self)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_READ(b, 4);
-  i32 = BSON_UINT32_FROM_LE(*((int32_t*)READ_PTR(b)));
+  memcpy(&i32, READ_PTR(b), 4);
   b->read_position += 4;
-  return INT2NUM(i32);
+  return INT2NUM(BSON_UINT32_FROM_LE(i32));
 }
 
 /**
@@ -269,9 +269,9 @@ VALUE rb_bson_byte_buffer_get_int64(VALUE self)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_READ(b, 8);
-  i64 = BSON_UINT64_FROM_LE(*((int64_t*)READ_PTR(b)));
+  memcpy(&i64, READ_PTR(b), 8);
   b->read_position += 8;
-  return LL2NUM(i64);
+  return LL2NUM(BSON_UINT64_FROM_LE(i64));
 }
 
 /**
@@ -281,15 +281,17 @@ VALUE rb_bson_byte_buffer_get_string(VALUE self)
 {
   byte_buffer_t *b;
   int32_t length;
+  int32_t length_le;
   VALUE string;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_READ(b, 4);
-  length = BSON_UINT32_FROM_LE(*((int32_t*)READ_PTR(b)));
+  memcpy(&length, READ_PTR(b), 4);
+  length_le = BSON_UINT32_FROM_LE(length);
   b->read_position += 4;
-  ENSURE_BSON_READ(b, length);
-  string = rb_enc_str_new(READ_PTR(b), length - 1, rb_utf8_encoding());
-  b->read_position += length;
+  ENSURE_BSON_READ(b, length_le);
+  string = rb_enc_str_new(READ_PTR(b), length_le - 1, rb_utf8_encoding());
+  b->read_position += length_le;
   return string;
 }
 
@@ -351,10 +353,10 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string)
 VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
 {
   byte_buffer_t *b;
-  const double d = NUM2DBL(f);
+  const double d = BSON_DOUBLE_TO_LE(NUM2DBL(f));
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 8);
-  *((double*)WRITE_PTR(b)) = BSON_DOUBLE_TO_LE(d);
+  memcpy(WRITE_PTR(b), (char*)&d, 8);
   b->write_position += 8;
 
   return self;
@@ -366,11 +368,11 @@ VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
 VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i)
 {
   byte_buffer_t *b;
-  const int32_t i32 = NUM2INT(i);
+  const int32_t i32 = BSON_UINT32_TO_LE(NUM2INT(i));
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 4);
-  *((uint32_t*)WRITE_PTR(b)) = BSON_UINT32_TO_LE(i32);
+  memcpy(WRITE_PTR(b), (char*)&i32, 4);
   b->write_position += 4;
 
   return self;
@@ -382,11 +384,11 @@ VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i)
 VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i)
 {
   byte_buffer_t *b;
-  const int64_t i64 = NUM2LL(i);
+  const int64_t i64 = BSON_UINT64_TO_LE(NUM2LL(i));
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 8);
-  *((uint64_t*)WRITE_PTR(b)) = BSON_UINT64_TO_LE(i64);
+  memcpy(WRITE_PTR(b), (char*)&i64, 8);
   b->write_position += 8;
 
   return self;
@@ -400,7 +402,7 @@ VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
   byte_buffer_t *b;
 
   char *str = RSTRING_PTR(string);
-  const int32_t length = RSTRING_LEN(string) + 1;
+  const int32_t length = BSON_UINT32_TO_LE(RSTRING_LEN(string) + 1);
 
   if (!rb_bson_utf8_validate(str, length - 1, true)) {
     rb_raise(rb_eArgError, "String %s is not valid UTF-8.", str);
@@ -408,7 +410,7 @@ VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, length + 4);
-  *((uint32_t*)WRITE_PTR(b)) = BSON_UINT32_TO_LE(length);
+  memcpy(WRITE_PTR(b), (char*)&length, 4);
   b->write_position += 4;
   memcpy(WRITE_PTR(b), str, length);
   b->write_position += length;
@@ -433,7 +435,7 @@ VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i)
 {
   byte_buffer_t *b;
   const int32_t position = NUM2LONG(index);
-  const uint32_t i32 = BSON_UINT32_TO_LE(NUM2LONG(i));
+  const int32_t i32 = BSON_UINT32_TO_LE(NUM2LONG(i));
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
