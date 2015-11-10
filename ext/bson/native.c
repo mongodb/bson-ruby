@@ -400,9 +400,11 @@ VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i)
 VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
 {
   byte_buffer_t *b;
+  int32_t length_le;
 
   char *str = RSTRING_PTR(string);
-  const int32_t length = BSON_UINT32_TO_LE(RSTRING_LEN(string) + 1);
+  const int32_t length = RSTRING_LEN(string) + 1;
+  length_le = BSON_UINT32_TO_LE(length);
 
   if (!rb_bson_utf8_validate(str, length - 1, true)) {
     rb_raise(rb_eArgError, "String %s is not valid UTF-8.", str);
@@ -410,7 +412,7 @@ VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, length + 4);
-  memcpy(WRITE_PTR(b), (char*)&length, 4);
+  memcpy(WRITE_PTR(b), (char*)&length_le, 4);
   b->write_position += 4;
   memcpy(WRITE_PTR(b), str, length);
   b->write_position += length;
