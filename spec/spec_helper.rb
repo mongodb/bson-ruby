@@ -15,7 +15,7 @@
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
 
-if ENV["CI"] && !ENV["WITH_EXT"]
+if ENV["CI"] && !ENV["WITH_EXT"] && RUBY_VERSION =~ /2.\d.\d/
   require "simplecov"
   require "coveralls"
   SimpleCov.formatter = Coveralls::SimpleCov::Formatter
