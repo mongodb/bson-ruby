@@ -8,10 +8,7 @@ group :development, :test do
   gem 'rake-compiler'
   gem 'ruby-prof', :platforms => :mri
 
-  if ENV['CI']
-    gem 'coveralls', :require => false
-    gem 'mime-types', '1.25' # v2.0+ does not supporty ruby 1.8
-  else
+  if !ENV['CI']
     gem 'pry'
   end
 end
