@@ -896,7 +896,7 @@ describe BSON::Document do
       end
     end
 
-    context "when binary strings with utf-8 values exist", if: BSON::Environment.jruby? && !(ENV['RUBY_VERSION'] =~ /jruby-9/) do
+    context "when binary strings with utf-8 values exist", if: BSON::Environment.jruby? && (JRUBY_VERSION !~ /9.0/) do
 
       let(:string) { "europäisch" }
       let(:document) do
