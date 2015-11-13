@@ -132,7 +132,7 @@ module BSON
     def to_bson(buffer = ByteBuffer.new)
       position = buffer.length
       buffer.put_int32(0)
-      buffer.put_byte(SUBTYPES.fetch(type))
+      buffer.put_byte(SUBTYPES[type])
       buffer.put_int32(data.bytesize) if type == :old
       buffer.put_bytes(data.force_encoding(BINARY))
       buffer.replace_int32(position, buffer.length - position - 5)

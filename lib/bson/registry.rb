@@ -40,7 +40,7 @@ module BSON
     #
     # @since 2.0.0
     def get(byte)
-      MAPPINGS.fetch(byte)
+      MAPPINGS[byte]
     end
 
     # Register the Ruby type for the corresponding single byte.

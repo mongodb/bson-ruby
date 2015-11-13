@@ -35,10 +35,8 @@ describe BSON::Registry do
 
     context "when the type has no corresponding class" do
 
-      it "raises an error" do
-        expect {
-          described_class.get("test")
-        }.to raise_error(KeyError)
+      it "returns nil" do
+        expect(described_class.get("test")).to be_nil
       end
     end
   end
