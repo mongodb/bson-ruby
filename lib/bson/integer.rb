@@ -145,8 +145,8 @@ module BSON
       encoded << ((self >> 56) & 255)
     end
 
-    def to_bson_key(buffer = ByteBuffer.new)
-      buffer.put_cstring(to_s)
+    def to_bson_key
+      to_s
     end
 
     private

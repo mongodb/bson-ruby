@@ -37,6 +37,21 @@ describe Hash do
       it_behaves_like "a deserializable bson element"
     end
 
+    context "when the hash has non-string keys" do
+
+      let(:obj) do
+        { 1 => "value" }
+      end
+
+      let(:expected) do
+        { "1" => "value" }
+      end
+
+      it "properly converts to bson" do
+        expect(BSON::Document.from_bson(BSON::ByteBuffer.new(obj.to_bson.to_s))).to eq(expected)
+      end
+    end
+
     context "when the hash is embedded" do
 
       let(:obj) do
