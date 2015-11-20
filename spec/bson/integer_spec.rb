@@ -62,10 +62,10 @@ describe Integer do
   describe "#to_bson_key" do
 
     let(:obj)  { Integer::MAX_32BIT - 1 }
-    let(:encoded) { obj.to_s + BSON::NULL_BYTE }
+    let(:encoded) { obj.to_s }
 
-    it "returns the encoded string" do
-      expect(obj.to_bson_key.to_s).to eq(encoded)
+    it "returns the key as a string" do
+      expect(obj.to_bson_key).to eq(encoded)
     end
   end
 end
