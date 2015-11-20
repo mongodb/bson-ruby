@@ -840,15 +840,6 @@ describe BSON::Document do
       end
     end
 
-    context "when the symbols are utf-8" do
-
-      let(:document) do
-        described_class["type", "gültig".to_sym]
-      end
-
-      it_behaves_like "a document able to handle utf-8"
-    end
-
     context "when utf-8 string values are in an array" do
 
       let(:document) do

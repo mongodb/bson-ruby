@@ -30,6 +30,22 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 14.chr.force_encoding(BINARY).freeze
 
+    # Symbols are serialized as strings as symbols are now removed from the
+    # BSON specification. Therefore the bson_type when serializing must be a
+    # string.
+    #
+    # @example Get the BSON type for the symbol.
+    #   :test.bson_type
+    #
+    # @return [ String ] The single byte BSON type.
+    #
+    # @see http://bsonspec.org/#/specification
+    #
+    # @since 4.0.0
+    def bson_type
+      String::BSON_TYPE
+    end
+
     # Get the symbol as encoded BSON.
     #
     # @example Get the symbol as encoded BSON.
@@ -89,7 +105,7 @@ module BSON
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
-    Registry.register(BSON_TYPE, ::Symbol)
+    Registry::MAPPINGS.store(BSON_TYPE, ::Symbol)
   end
 
   # Enrich the core Symbol class with this module.

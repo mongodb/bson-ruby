@@ -16,16 +16,22 @@ require "spec_helper"
 
 describe Symbol do
 
+  describe "#bson_type" do
+
+    it "returns the type for a string" do
+      expect(:type.bson_type).to eq("type".bson_type)
+    end
+  end
+
   describe "#to_bson/#from_bson" do
 
-    let(:type) { 14.chr }
+    let(:type) { 2.chr }
     let(:obj)  { :test }
     let(:bson) { "#{5.to_bson.to_s}test#{BSON::NULL_BYTE}" }
 
     it_behaves_like "a bson element"
     it_behaves_like "a serializable bson element"
     it_behaves_like "a deserializable bson element"
-
   end
 
   describe "#to_bson_key" do

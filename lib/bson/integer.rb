@@ -161,7 +161,6 @@ module BSON
     def out_of_range!
       raise RangeError.new("#{self} is not a valid 8 byte integer value.")
     end
-
   end
 
   # Enrich the core Integer class with this module.
