@@ -74,7 +74,7 @@ module BSON
       # @since 2.0.0
       def from_bson(buffer)
         hash = Document.allocate
-        buffer.get_int32 # Throw away the size - todo: just move read position?
+        buffer.get_int32 # Throw away the size.
         while (type = buffer.get_byte) != NULL_BYTE
           field = buffer.get_cstring
           hash.store(field, BSON::Registry.get(type).from_bson(buffer))
