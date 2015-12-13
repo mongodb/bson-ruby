@@ -92,7 +92,7 @@ static char rb_bson_machine_id_hash[HOST_NAME_HASH_MAX];
 /**
  * The counter for incrementing object ids.
  */
-static unsigned int rb_bson_object_id_counter = 0;
+static unsigned int rb_bson_object_id_counter;
 
 /**
  * Initialize the native extension.
@@ -136,6 +136,9 @@ void Init_native()
   gethostname(rb_bson_machine_id, sizeof(rb_bson_machine_id));
   rb_bson_machine_id[255] = '\0';
   rb_bson_generate_machine_id(rb_md5_class, rb_bson_machine_id);
+
+  // Set the object id counter to a random number
+  rb_bson_object_id_counter = FIX2INT(rb_funcall(rb_mKernel, rb_intern("rand"), 1, INT2FIX(0x1000000)));
 }
 
 void rb_bson_generate_machine_id(VALUE rb_md5_class, char *rb_bson_machine_id)

@@ -331,7 +331,7 @@ module BSON
       #
       # @since 2.0.0
       def initialize
-        @counter = 0
+        @counter = rand(0x1000000)
         @machine_id = Digest::MD5.digest(Socket.gethostname).unpack("N")[0]
         @mutex = Mutex.new
       end
