@@ -69,6 +69,7 @@ static VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i);
 static VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string);
 static VALUE rb_bson_byte_buffer_read_position(VALUE self);
 static VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i);
+static VALUE rb_bson_byte_buffer_rewind(VALUE self);
 static VALUE rb_bson_byte_buffer_write_position(VALUE self);
 static VALUE rb_bson_byte_buffer_to_s(VALUE self);
 static VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self);
@@ -127,6 +128,7 @@ void Init_native()
   rb_define_method(rb_byte_buffer_class, "put_string", rb_bson_byte_buffer_put_string, 1);
   rb_define_method(rb_byte_buffer_class, "read_position", rb_bson_byte_buffer_read_position, 0);
   rb_define_method(rb_byte_buffer_class, "replace_int32", rb_bson_byte_buffer_replace_int32, 2);
+  rb_define_method(rb_byte_buffer_class, "rewind!", rb_bson_byte_buffer_rewind, 0);
   rb_define_method(rb_byte_buffer_class, "write_position", rb_bson_byte_buffer_write_position, 0);
   rb_define_method(rb_byte_buffer_class, "to_s", rb_bson_byte_buffer_to_s, 0);
   rb_define_method(rb_bson_object_id_generator_class, "next_object_id", rb_bson_object_id_generator_next, -1);
@@ -445,6 +447,18 @@ VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i)
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
   memcpy(READ_PTR(b) + position, &i32, 4);
+
+  return self;
+}
+
+/**
+ * Reset the read position to the beginning of the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_rewind(VALUE self)
+{
+  byte_buffer_t *b;
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  b->read_position = 0;
 
   return self;
 }

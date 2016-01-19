@@ -442,4 +442,28 @@ describe BSON::ByteBuffer do
       expect(modified.to_s).to eq("#{exp_first}#{exp_second}")
     end
   end
+
+  describe '#rewind!' do
+
+    let(:string) do
+      "#{BSON::Int32::BSON_TYPE}#{BSON::Int32::BSON_TYPE}"
+    end
+
+    let(:buffer) do
+      described_class.new(string)
+    end
+
+    before do
+      buffer.get_bytes(1)
+      buffer.rewind!
+    end
+
+    it 'resets the read position to 0' do
+      expect(buffer.read_position).to eq(0)
+    end
+
+    it 'starts subsequent reads at position 0' do
+      expect(buffer.get_bytes(2)).to eq(string)
+    end
+  end
 end
