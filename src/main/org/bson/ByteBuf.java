@@ -393,6 +393,20 @@ public class ByteBuf extends RubyObject {
     return this;
   }
 
+ /**
+   * Reset the read position to the beginning of the byte buffer.
+   *
+   * @author Emily Stolfo
+   * @since 2016.01.19
+   * @version 4.0.1
+   */
+  @JRubyMethod(name = "rewind!")
+  public ByteBuf rewind() {
+    this.buffer.rewind();
+    this.readPosition = 0;
+    return this;
+   }
+
   /**
    * Get the total length of the buffer.
    *
