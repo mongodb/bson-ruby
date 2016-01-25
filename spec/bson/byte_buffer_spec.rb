@@ -445,25 +445,46 @@ describe BSON::ByteBuffer do
 
   describe '#rewind!' do
 
-    let(:string) do
-      "#{BSON::Int32::BSON_TYPE}#{BSON::Int32::BSON_TYPE}"
+    shared_examples_for 'a rewindable buffer' do
+
+      let(:string) do
+        "#{BSON::Int32::BSON_TYPE}#{BSON::Int32::BSON_TYPE}"
+      end
+
+      before do
+        buffer.get_bytes(1)
+        buffer.rewind!
+      end
+
+      it 'resets the read position to 0' do
+        expect(buffer.read_position).to eq(0)
+      end
+
+      it 'starts subsequent reads at position 0' do
+        expect(buffer.get_bytes(2)).to eq(string)
+      end
     end
 
-    let(:buffer) do
-      described_class.new(string)
+    context 'when the buffer is instantiated with a string' do
+
+      let(:buffer) do
+        described_class.new(string)
+      end
+
+      it_behaves_like 'a rewindable buffer'
     end
 
-    before do
-      buffer.get_bytes(1)
-      buffer.rewind!
-    end
+    context 'when the buffer is instantiated with nothing' do
 
-    it 'resets the read position to 0' do
-      expect(buffer.read_position).to eq(0)
-    end
+      let(:buffer) do
+        described_class.new
+      end
 
-    it 'starts subsequent reads at position 0' do
-      expect(buffer.get_bytes(2)).to eq(string)
+      before do
+        buffer.put_byte(BSON::Int32::BSON_TYPE).put_byte(BSON::Int32::BSON_TYPE)
+      end
+
+      it_behaves_like 'a rewindable buffer'
     end
   end
 end
