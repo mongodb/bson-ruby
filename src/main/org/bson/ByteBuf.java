@@ -403,6 +403,7 @@ public class ByteBuf extends RubyObject {
   @JRubyMethod(name = "rewind!")
   public ByteBuf rewind() {
     this.buffer.rewind();
+    this.mode = Mode.READ;
     this.readPosition = 0;
     return this;
    }
