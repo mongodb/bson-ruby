@@ -486,5 +486,28 @@ describe BSON::ByteBuffer do
 
       it_behaves_like 'a rewindable buffer'
     end
+
+    context 'when the buffer is instantiated from a deserialization' do
+
+      let(:string) do
+        "#{BSON::Int32::BSON_TYPE}#{BSON::Int32::BSON_TYPE}"
+      end
+
+      let(:buffer) do
+        string.to_bson
+      end
+
+      before do
+        buffer.rewind!
+      end
+
+      it 'resets the read position to 0' do
+        expect(buffer.read_position).to eq(0)
+      end
+
+      it 'starts subsequent reads at position 0' do
+        expect(buffer.get_bytes(2)).to eq(string.to_bson.get_bytes(2))
+      end
+    end
   end
 end
