@@ -32,5 +32,16 @@ module BSON
     def jruby?
       defined?(JRUBY_VERSION)
     end
+
+    # Determin if we are using Rubinius or not.
+    #
+    # @example Are we running with Rubinius?
+    #   Environment.rubinius?
+    #
+    # @return [ true, false ] If Rubinius is our vm.
+    #
+    def rubinius?
+      (defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'ruby') == 'rbx'
+    end
   end
 end
