@@ -33,7 +33,7 @@ module BSON
       defined?(JRUBY_VERSION)
     end
 
-    # Determin if we are using Rubinius or not.
+    # Determine if we are using Rubinius or not.
     #
     # @example Are we running with Rubinius?
     #   Environment.rubinius?
