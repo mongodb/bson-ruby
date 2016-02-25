@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gemspec
 gem 'json', :platforms => [ :jruby ]
 gem 'rake'
 
