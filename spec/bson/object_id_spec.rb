@@ -383,6 +383,15 @@ describe BSON::ObjectId do
     end
   end
 
+  describe "#initialize" do
+
+    it "does not generate duplicate ids" do
+      100000.times do
+        expect(BSON::ObjectId.new).to_not eq(BSON::ObjectId.new)
+      end
+    end
+  end
+
   describe "#inspect" do
 
     let(:object_id) do

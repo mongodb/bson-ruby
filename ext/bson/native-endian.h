@@ -44,10 +44,14 @@
 #endif
 
 #if defined(__sun)
+# define BSON_UINT16_SWAP_LE_BE(v) __bson_uint16_swap_slow((uint16_t)v)
 # define BSON_UINT32_SWAP_LE_BE(v) __bson_uint32_swap_slow((uint32_t)v)
 # define BSON_UINT64_SWAP_LE_BE(v) __bson_uint64_swap_slow((uint64_t)v)
 #elif defined(__clang__) && defined(__clang_major__) && defined(__clang_minor__) && \
   (__clang_major__ >= 3) && (__clang_minor__ >= 1)
+# if __has_builtin(__builtin_bswap16)
+#  define BSON_UINT16_SWAP_LE_BE(v) __builtin_bswap16(v)
+# endif
 # if __has_builtin(__builtin_bswap32)
 #  define BSON_UINT32_SWAP_LE_BE(v) __builtin_bswap32(v)
 # endif
@@ -61,6 +65,10 @@
 # endif
 #endif
 
+#ifndef BSON_UINT16_SWAP_LE_BE
+# define BSON_UINT16_SWAP_LE_BE(v) __bson_uint16_swap_slow((uint16_t)v)
+#endif
+
 #ifndef BSON_UINT32_SWAP_LE_BE
 # define BSON_UINT32_SWAP_LE_BE(v) __bson_uint32_swap_slow((uint32_t)v)
 #endif
@@ -70,6 +78,7 @@
 #endif
 
 #if BSON_BYTE_ORDER == BSON_LITTLE_ENDIAN
+# define BSON_UINT16_TO_BE(v)    BSON_UINT16_SWAP_LE_BE(v)
 # define BSON_UINT32_FROM_LE(v)  ((uint32_t)v)
 # define BSON_UINT32_TO_LE(v)    ((uint32_t)v)
 # define BSON_UINT32_FROM_BE(v)  BSON_UINT32_SWAP_LE_BE(v)
@@ -81,6 +90,7 @@
 # define BSON_DOUBLE_FROM_LE(v)  ((double)v)
 # define BSON_DOUBLE_TO_LE(v)    ((double)v)
 #elif BSON_BYTE_ORDER == BSON_BIG_ENDIAN
+# define BSON_UINT16_TO_BE(v)    ((uint16_t)v)
 # define BSON_UINT32_FROM_LE(v)  BSON_UINT32_SWAP_LE_BE(v)
 # define BSON_UINT32_TO_LE(v)    BSON_UINT32_SWAP_LE_BE(v)
 # define BSON_UINT32_FROM_BE(v)  ((uint32_t)v)
@@ -94,6 +104,27 @@
 #else
 # error "The endianness of target architecture is unknown."
 #endif
+
+/*
+ *--------------------------------------------------------------------------
+ *
+ * __bson_uint16_swap_slow --
+ *
+ *       Fallback endianness conversion for 16-bit integers.
+ *
+ * Returns:
+ *       The endian swapped version.
+ *
+ * Side effects:
+ *       None.
+ *
+ *--------------------------------------------------------------------------
+ */
+static uint16_t __bson_uint16_swap_slow(uint16_t v)
+{
+   return ((v & 0x00FF) << 8) |
+          ((v & 0xFF00) >> 8);
+}
 
 /*
  *--------------------------------------------------------------------------

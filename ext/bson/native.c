@@ -536,28 +536,21 @@ VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
   char bytes[12];
   uint32_t t;
   uint32_t c;
-  unsigned short pid = htons(getpid());
+  uint16_t pid = BSON_UINT16_TO_BE(getpid());
 
   if (argc == 0 || (argc == 1 && *args == Qnil)) {
-    t = htonl((int) time(NULL));
+    t = BSON_UINT32_TO_BE((int) time(NULL));
   }
   else {
-    t = htonl(NUM2ULONG(rb_funcall(*args, rb_intern("to_i"), 0)));
+    t = BSON_UINT32_TO_BE(NUM2ULONG(rb_funcall(*args, rb_intern("to_i"), 0)));
   }
 
-  c = htonl(rb_bson_object_id_counter << 8);
+  c = BSON_UINT32_TO_BE(rb_bson_object_id_counter << 8);
 
-# if BSON_BYTE_ORDER == BSON_LITTLE_ENDIAN
   memcpy(&bytes, &t, 4);
   memcpy(&bytes[4], rb_bson_machine_id_hash, 3);
   memcpy(&bytes[7], &pid, 2);
   memcpy(&bytes[9], (unsigned char*) &c, 3);
-#elif BSON_BYTE_ORDER == BSON_BIG_ENDIAN
-  memcpy(&bytes, ((unsigned char*) &t) + 4, 4);
-  memcpy(&bytes[4], rb_bson_machine_id_hash, 3);
-  memcpy(&bytes[7], &pid, 2);
-  memcpy(&bytes[9], ((unsigned char*) &c) + 4, 3);
-#endif
   rb_bson_object_id_counter++;
   return rb_str_new(bytes, 12);
 }
