@@ -93,7 +93,7 @@ static char rb_bson_machine_id_hash[HOST_NAME_HASH_MAX];
 /**
  * The counter for incrementing object ids.
  */
-static unsigned int rb_bson_object_id_counter;
+static uint32_t rb_bson_object_id_counter;
 
 /**
  * Initialize the native extension.
