@@ -152,8 +152,8 @@ module BSON
       # @param [ String] method The name of a method.
       #
       # @since 3.1.0
-      def respond_to?(method)
-        compile.respond_to?(method) || super
+      def respond_to?(method, include_private = false)
+        compile.respond_to?(method, include_private = false) || super
       end
 
       private
