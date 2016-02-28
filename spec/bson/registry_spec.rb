@@ -25,7 +25,7 @@ describe BSON::Registry do
       end
 
       let(:klass) do
-        described_class.get(BSON::MinKey::BSON_TYPE)
+        described_class.get(BSON::MinKey::BSON_TYPE, "field")
       end
 
       it "returns the class" do
@@ -35,8 +35,10 @@ describe BSON::Registry do
 
     context "when the type has no corresponding class" do
 
-      it "returns nil" do
-        expect(described_class.get("test")).to be_nil
+      it "raises an error" do
+        expect {
+          described_class.get(25.chr, "field")
+        }.to raise_error(BSON::Registry::UnsupportedType)
       end
     end
   end

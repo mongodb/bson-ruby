@@ -534,7 +534,7 @@ describe BSON::ObjectId do
   context "when the class is loaded" do
 
     let(:registered) do
-      BSON::Registry.get(BSON::ObjectId::BSON_TYPE)
+      BSON::Registry.get(BSON::ObjectId::BSON_TYPE, 'field')
     end
 
     it "registers the type" do
