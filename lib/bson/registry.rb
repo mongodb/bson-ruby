@@ -39,8 +39,12 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def get(byte)
-      MAPPINGS[byte]
+    def get(byte, field = nil)
+      if type = MAPPINGS[byte]
+        type
+      else
+        handle_unsupported_type!(byte, field)
+      end
     end
 
     # Register the Ruby type for the corresponding single byte.
@@ -59,12 +63,24 @@ module BSON
       define_type_reader(type)
     end
 
+    # Raised when trying to get a type from the registry that doesn't exist.
+    #
+    # @since 4.1.0
+    class UnsupportedType < RuntimeError; end
+
     private
 
     def define_type_reader(type)
       type.module_eval <<-MOD
         def bson_type; BSON_TYPE; end
       MOD
+    end
+
+    def handle_unsupported_type!(byte, field)
+      message = "Detected unknown BSON type #{byte.inspect} "
+      message += (field ? "for fieldname \"#{field}\". " : "in array. ")
+      message +="Are you using the latest BSON version?"
+      raise UnsupportedType.new(message)
     end
   end
 end
