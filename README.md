@@ -32,7 +32,7 @@ As of 2.0.0, this project adheres to the [Semantic Versioning Specification](htt
 License
 -------
 
-Copyright (C) 2009-2014 MongoDB Inc.
+Copyright (C) 2009-2016 MongoDB Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
