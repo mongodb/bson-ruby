@@ -114,7 +114,7 @@ module BSON
       #
       # @since 4.1.0
       def initialize(string)
-        super("#{string} is an illegal key in MongoDB. Keys may not start with '$' or contain a '.'.")
+        super("'#{string}' is an illegal key in MongoDB. Keys may not start with '$' or contain a '.'.")
       end
     end
 

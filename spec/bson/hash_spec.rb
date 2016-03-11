@@ -52,6 +52,54 @@ describe Hash do
       end
     end
 
+    context "when the hash has invalid keys" do
+
+      let(:obj) do
+        { "$testing" => "value" }
+      end
+
+      context "when validating keys" do
+
+        context "when validating globally" do
+
+          before do
+            BSON::Config.validating_keys = true
+          end
+
+          after do
+            BSON::Config.validating_keys = false
+          end
+
+          it "raises an error" do
+            expect {
+              obj.to_bson
+            }.to raise_error(BSON::String::IllegalKey)
+          end
+        end
+
+        context "when validating locally" do
+
+          it "raises an error" do
+            expect {
+              obj.to_bson(BSON::ByteBuffer.new, true)
+            }.to raise_error(BSON::String::IllegalKey)
+          end
+        end
+      end
+
+      context "when not validating keys" do
+
+        let(:bson) do
+          "#{25.to_bson.to_s}#{String::BSON_TYPE}$testing#{BSON::NULL_BYTE}" +
+          "#{6.to_bson.to_s}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
+        end
+
+        it "serializes the hash" do
+          expect(obj.to_bson.to_s).to eq(bson)
+        end
+      end
+    end
+
     context "when the hash is embedded" do
 
       let(:obj) do

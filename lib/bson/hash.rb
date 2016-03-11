@@ -37,12 +37,12 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(buffer = ByteBuffer.new)
+    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       position = buffer.length
       buffer.put_int32(0)
       each do |field, value|
         buffer.put_byte(value.bson_type)
-        buffer.put_cstring(field.to_bson_key)
+        buffer.put_cstring(field.to_bson_key(validating_keys))
         value.to_bson(buffer)
       end
       buffer.put_byte(NULL_BYTE)
