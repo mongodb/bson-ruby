@@ -43,4 +43,31 @@ describe Symbol do
       expect(symbol.to_bson_key).to eq(encoded)
     end
   end
+
+  describe "#to_bson_key" do
+
+    context "when validating keys" do
+
+      let(:symbol) do
+        :'$testing.testing'
+      end
+
+      it "raises an exception" do
+        expect {
+          symbol.to_bson_key(true)
+        }.to raise_error(BSON::String::IllegalKey)
+      end
+    end
+
+    context "when not validating keys" do
+
+      let(:symbol) do
+        :'$testing.testing'
+      end
+
+      it "allows invalid keys" do
+        expect(symbol.to_bson_key).to eq(symbol.to_s)
+      end
+    end
+  end
 end

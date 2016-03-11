@@ -87,4 +87,47 @@ describe String do
       expect(string.to_hex_string).to eq("74657374696e67313233")
     end
   end
+
+  describe "#to_bson_key" do
+
+    context "when validating keys" do
+
+      context "when validating globally" do
+
+        before do
+          BSON::Config.validating_keys = true
+        end
+
+        after do
+          BSON::Config.validating_keys = false
+        end
+
+        let(:validated) do
+          string.to_bson_key
+        end
+
+        it_behaves_like "a validated BSON key"
+      end
+
+      context "when validating locally" do
+
+        let(:validated) do
+          string.to_bson_key(true)
+        end
+
+        it_behaves_like "a validated BSON key"
+      end
+    end
+
+    context "when allowing invalid keys" do
+
+      let(:string) do
+        "$testing.testing"
+      end
+
+      it "allows invalid keys" do
+        expect(string.to_bson_key).to eq(string)
+      end
+    end
+  end
 end

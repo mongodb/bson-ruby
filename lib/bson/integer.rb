@@ -145,9 +145,18 @@ module BSON
       encoded << ((self >> 56) & 255)
     end
 
-    # @todo: Durran: use config option.
-    def to_bson_key
-      to_s.to_bson_key
+    # Convert the integer to a BSON string key.
+    #
+    # @example Convert the integer to a BSON key string.
+    #   1.to_bson_key
+    #
+    # @param [ true, false ] validating_keys If BSON should validate the key.
+    #
+    # @return [ String ] The string key.
+    #
+    # @since 2.0.0
+    def to_bson_key(validating_keys = Config.validating_keys?)
+      to_s.to_bson_key(validating_keys)
     end
 
     private

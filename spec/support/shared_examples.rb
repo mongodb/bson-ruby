@@ -96,3 +96,60 @@ shared_examples_for "a class which converts to Time" do
     expect(described_class.new.bson_type).to eq(Time::BSON_TYPE)
   end
 end
+
+shared_examples_for "a validated BSON key" do
+
+  context "when the string is valid" do
+
+    context "when the string has no invalid characters" do
+
+      let(:string) do
+        "testing"
+      end
+
+      it "returns the key" do
+        expect(validated).to eq(string)
+      end
+    end
+
+    context "when the string contains a $" do
+
+      let(:string) do
+        "te$ting"
+      end
+
+      it "returns the key" do
+        expect(validated).to eq(string)
+      end
+    end
+  end
+
+  context "when the string is invalid" do
+
+    context "when the string starts with $" do
+
+      let(:string) do
+        "$testing"
+      end
+
+      it "raises an exception" do
+        expect {
+          validated
+        }.to raise_error(BSON::String::IllegalKey)
+      end
+    end
+
+    context "when the string contains a ." do
+
+      let(:string) do
+        "testing.testing"
+      end
+
+      it "raises an exception" do
+        expect {
+          validated
+        }.to raise_error(BSON::String::IllegalKey)
+      end
+    end
+  end
+end

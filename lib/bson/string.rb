@@ -28,6 +28,11 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 2.chr.force_encoding(BINARY).freeze
 
+    # Regex for matching illegal BSON keys.
+    #
+    # @since 4.1.0
+    ILLEGAL_KEY = /(\A[$])|(\.)/.freeze
+
     # Get the string as encoded BSON.
     #
     # @example Get the string as encoded BSON.
@@ -51,14 +56,18 @@ module BSON
     #
     # @raise [ EncodingError ] If the string is not UTF-8.
     #
+    # @raise [ IllegalKey ] If validating keys and it contains a '.' or starts
+    #   with '$'.
+    #
     # @return [ String ] The encoded string.
     #
     # @see http://bsonspec.org/#/specification
     #
-    # @todo: Durran: Validate.
-    #
     # @since 2.0.0
-    def to_bson_key
+    def to_bson_key(validating_keys = Config.validating_keys?)
+      if validating_keys
+        raise IllegalKey.new(self) if ILLEGAL_KEY =~ self
+      end
       self
     end
 
@@ -89,6 +98,24 @@ module BSON
     # @since 2.0.0
     def to_hex_string
       unpack("H*")[0]
+    end
+
+    # Raised when validating keys and a key is illegal in MongoDB
+    #
+    # @since 4.1.0
+    class IllegalKey < RuntimeError
+
+      # Instantiate the exception.
+      #
+      # @example Instantiate the exception.
+      #   BSON::Object::IllegalKey.new(string)
+      #
+      # @param [ String ] string The illegal string.
+      #
+      # @since 4.1.0
+      def initialize(string)
+        super("#{string} is an illegal key in MongoDB. Keys may not start with '$' or contain a '.'.")
+      end
     end
 
     module ClassMethods
