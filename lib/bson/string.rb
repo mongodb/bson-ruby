@@ -55,6 +55,8 @@ module BSON
     #
     # @see http://bsonspec.org/#/specification
     #
+    # @todo: Durran: Validate.
+    #
     # @since 2.0.0
     def to_bson_key
       self

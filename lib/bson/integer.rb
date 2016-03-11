@@ -145,8 +145,9 @@ module BSON
       encoded << ((self >> 56) & 255)
     end
 
+    # @todo: Durran: use config option.
     def to_bson_key
-      to_s
+      to_s.to_bson_key
     end
 
     private

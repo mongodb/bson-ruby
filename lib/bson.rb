@@ -56,6 +56,7 @@ module BSON
   UTF8 = "UTF-8".freeze
 end
 
+require "bson/config"
 require "bson/registry"
 require "bson/specialized"
 require "bson/json"
