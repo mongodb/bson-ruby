@@ -59,6 +59,7 @@ static VALUE rb_bson_byte_buffer_get_cstring(VALUE self);
 static VALUE rb_bson_byte_buffer_get_double(VALUE self);
 static VALUE rb_bson_byte_buffer_get_int32(VALUE self);
 static VALUE rb_bson_byte_buffer_get_int64(VALUE self);
+static VALUE rb_bson_byte_buffer_get_uint64(VALUE self);
 static VALUE rb_bson_byte_buffer_get_string(VALUE self);
 static VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte);
 static VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes);
@@ -66,6 +67,7 @@ static VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string);
 static VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f);
 static VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i);
 static VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i);
+static VALUE rb_bson_byte_buffer_put_uint64(VALUE self, VALUE i);
 static VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string);
 static VALUE rb_bson_byte_buffer_read_position(VALUE self);
 static VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i);
@@ -118,6 +120,7 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "get_double", rb_bson_byte_buffer_get_double, 0);
   rb_define_method(rb_byte_buffer_class, "get_int32", rb_bson_byte_buffer_get_int32, 0);
   rb_define_method(rb_byte_buffer_class, "get_int64", rb_bson_byte_buffer_get_int64, 0);
+  rb_define_method(rb_byte_buffer_class, "get_uint64", rb_bson_byte_buffer_get_uint64, 0);
   rb_define_method(rb_byte_buffer_class, "get_string", rb_bson_byte_buffer_get_string, 0);
   rb_define_method(rb_byte_buffer_class, "put_byte", rb_bson_byte_buffer_put_byte, 1);
   rb_define_method(rb_byte_buffer_class, "put_bytes", rb_bson_byte_buffer_put_bytes, 1);
@@ -125,6 +128,7 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "put_double", rb_bson_byte_buffer_put_double, 1);
   rb_define_method(rb_byte_buffer_class, "put_int32", rb_bson_byte_buffer_put_int32, 1);
   rb_define_method(rb_byte_buffer_class, "put_int64", rb_bson_byte_buffer_put_int64, 1);
+  rb_define_method(rb_byte_buffer_class, "put_uint64", rb_bson_byte_buffer_put_uint64, 1);
   rb_define_method(rb_byte_buffer_class, "put_string", rb_bson_byte_buffer_put_string, 1);
   rb_define_method(rb_byte_buffer_class, "read_position", rb_bson_byte_buffer_read_position, 0);
   rb_define_method(rb_byte_buffer_class, "replace_int32", rb_bson_byte_buffer_replace_int32, 2);
@@ -280,6 +284,21 @@ VALUE rb_bson_byte_buffer_get_int64(VALUE self)
 }
 
 /**
+ * Get an unsigned int64 from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_uint64(VALUE self)
+{
+  byte_buffer_t *b;
+  int64_t i64;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_READ(b, 8);
+  memcpy(&i64, READ_PTR(b), 8);
+  b->read_position += 8;
+  return ULL2NUM(BSON_UINT64_FROM_LE(i64));
+}
+
+/**
  * Get a string from the buffer.
  */
 VALUE rb_bson_byte_buffer_get_string(VALUE self)
@@ -390,6 +409,22 @@ VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i)
 {
   byte_buffer_t *b;
   const int64_t i64 = BSON_UINT64_TO_LE(NUM2LL(i));
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_WRITE(b, 8);
+  memcpy(WRITE_PTR(b), (char*)&i64, 8);
+  b->write_position += 8;
+
+  return self;
+}
+
+/**
+ * Writes a 64 bit unsigned integer to the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_put_uint64(VALUE self, VALUE i)
+{
+  byte_buffer_t *b;
+  const int64_t i64 = BSON_UINT64_TO_LE(NUM2ULL(i));
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 8);
