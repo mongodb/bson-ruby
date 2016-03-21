@@ -29,12 +29,24 @@ module BSON
     # @since 4.1.0
     BSON_TYPE = 19.chr.force_encoding(BINARY).freeze
 
+    # Infinity mask.
+    #
+    # @since 4.1.0
     INFINITY_MASK = 0x7800000000000000
 
+    # NaN mask.
+    #
+    # @since 4.1.0
     NAN_MASK = 0x7c00000000000000
 
+    # Signed bit mask.
+    #
+    # @since 4.1.0
     SIGN_BIT_MASK = 1 << 63
 
+    # Exponent offset.
+    #
+    # @since 4.1.0
     EXPONENT_OFFSET = 6176
 
     # Get the Decimal128 as JSON hash data.
@@ -66,18 +78,19 @@ module BSON
     end
     alias :eql? :==
 
-    # Check case equality on the decimal object.
+    # Check case equality on the decimal128 object.
     #
     # @example Check case equality.
     #   decimal === other
     #
     # @param [ Object ] other The object to check against.
     #
-    # @return [ true, false ] If the objects are equal in a case.
+    # @return [ true, false ] If the objects are have the same high and low bits.
     #
-    # @since 2.0.0
+    # @since 4.1.0
     def ===(other)
-      # @todo
+      return @high === other.instance_variable_get(:@high) &&
+        @low === other.instance_variable_get(:@low)
       super
     end
 
@@ -106,13 +119,11 @@ module BSON
     # @since 4.1.0
     def initialize(value)
       raise Exception unless value.is_a?(BigDecimal)
-      if special?(value)
+      if special_big_decimal?(value)
         set_special_values(value)
       else
-        parts = value.split
-        exponent = parts[3]
-        exponent  = exponent - parts[1].length
-        set_bits(parts[1], exponent, value.sign == BigDecimal::SIGN_NEGATIVE_FINITE)
+        sign, significant_digits, exponent = extract_from_big_decimal(value)
+        set_bits(significant_digits, exponent, sign == BigDecimal::SIGN_NEGATIVE_FINITE)
       end
     end
 
@@ -125,7 +136,7 @@ module BSON
     #
     # @since 4.1.0
     def hash
-      # @todo
+      ([ @high, @low ].join).hash
     end
 
     # Get a nice string for use with object inspection.
@@ -190,19 +201,28 @@ module BSON
     #
     # @since 4.1.0
     def to_s
-      #binding.pry
       "high: #{@high} and low: #{@low}"
       # @todo
       #...force_encoding(UTF8)
     end
     alias :to_str :to_s
 
-    # Raised when trying to create a deciaml128 with invalid data.
+    # Raised when trying to create a decimal128 with invalid data.
     #
-    # @since 2.0.0
+    # @since 4.1.0
     class Invalid < RuntimeError; end
 
     private
+
+    def extract_from_big_decimal(value)
+      simple_sign, digits, base, exp = value.split
+      exponent  = exp - digits.length
+      [ value.sign, digits, exponent ]
+    end
+
+    def special_big_decimal?(decimal)
+      decimal.infinite? || decimal.nan?
+    end
 
     def set_special_values(decimal)
       @low = 0
@@ -218,12 +238,8 @@ module BSON
 
     def set_bits(significand_str, exponent, negative = false)
       validate_range!(significand_str)
-      set_exponent!(significand_str, exponent)
+      set_exponent!(exponent)
       set_high_low_bits(significand_str, negative)
-    end
-
-    def special?(decimal)
-      decimal.infinite? || decimal.nan?
     end
 
     def set_high_low_bits(significand_str, negative = false)
@@ -244,7 +260,7 @@ module BSON
       end
     end
 
-    def set_exponent!(significand_str, exponent)
+    def set_exponent!(exponent)
       validate_exponent!(exponent)
       @exponent = exponent + EXPONENT_OFFSET
     end
@@ -258,27 +274,26 @@ module BSON
     end
 
     def get_low_bits(significand)
-      low = 0
+      low_bits = 0
       bit_length = [significand.bit_length, 64].min
       0.upto(bit_length-1) do |i|
         if significand[i] == 1
-          low |= 1 << i
+          low_bits |= 1 << i
         end
       end
-      low
+      low_bits
     end
 
     def get_high_bits(significand)
-      high = 0
+      high_bits = 0
       # todo check upto
       64.upto(significand.bit_length-1) do |i|
         if significand[i] == 1
-          high |= 1 << (i - 64)
+          high_bits |= 1 << (i - 64)
         end
       end
-      high
+      high_bits
     end
-
 
     class << self
 
@@ -310,7 +325,7 @@ module BSON
       #
       # @return [ BSON::Decimal128 ] The new decimal128.
       #
-      # @since 2.0.0
+      # @since 4.1.0
       def from_string(string)
         unless legal_string?(string)
           raise Invalid.new("'#{string}' is an invalid Decimal128 string format.")
@@ -319,24 +334,22 @@ module BSON
         if (string =~ /\d+/).nil?
           new(BigDecimal(string))
         else
-          empty, negative, string = /^(\-)?(\S+)/.match(string).to_a
+          original, sign, digits_str = /^(\-)?(\S+)/.match(string).to_a
 
-          # handle scientific
-          digits, e, sci_exp = string.partition(/E\+?/)
-          before_decimal, d, after_decimal = digits.partition('.')
+          digits, e, scientific_exp = digits_str.partition(/E\+?/)
+          before_decimal, decimal, after_decimal = digits.partition('.')
 
           if before_decimal.to_i > 0
             significant_digits = before_decimal << after_decimal
-            exponent = -(after_decimal.length)
           else
-            significant_digits = after_decimal.slice(/(0*)(\d+)/, 2)
-            exponent = -(after_decimal.length)
+            significant_digits = /(0*)(\d+)/.match(after_decimal).to_a[2]
           end
 
-          exponent = exponent + sci_exp.to_i
+          exponent = -(after_decimal.length)
+          exponent = exponent + scientific_exp.to_i
 
           decimal = allocate
-          decimal.send(:set_bits, significant_digits, exponent, negative)
+          decimal.send(:set_bits, significant_digits, exponent, sign == '-')
           decimal
         end
       end
@@ -350,7 +363,7 @@ module BSON
       #
       # @return [ true, false ] If the string is legal.
       #
-      # @since 2.0.0
+      # @since 4.1.0
       def legal_string?(string)
        # @todo
         true
@@ -359,7 +372,7 @@ module BSON
 
     # Register this type when the module is loaded.
     #
-    # @since 2.0.0
+    # @since 4.1.0
     Registry.register(BSON_TYPE, self)
   end
 end
