@@ -780,250 +780,437 @@ describe BSON::Decimal128 do
     end
   end
 
-  # describe "#==" do
-  #
-  #   context "when data is identical" do
-  #
-  #     let(:string) do
-  #
-  #     end
-  #
-  #     let(:decimal128) do
-  #       described_class.from_string(string)
-  #     end
-  #
-  #     let(:other_decimal) do
-  #       described_class.from_string(string)
-  #     end
-  #
-  #     it "returns true" do
-  #       expect(decimal128).to eq(other_decimal)
-  #     end
-  #   end
-  #
-  #   context "when the data is different" do
-  #
-  #     let(:string) do
-  #
-  #     end
-  #
-  #     let(:decimal128) do
-  #       described_class.from_string(string)
-  #     end
-  #
-  #     it "returns false" do
-  #       expect(decimal128).to_not eq(described_class.new)
-  #     end
-  #   end
-  #
-  #   context "when other is not a decimal128" do
-  #
-  #     it "returns false" do
-  #       expect(described_class.new).to_not eq(nil)
-  #     end
-  #   end
-  # end
-  #
-  # describe "#===" do
-  #
-  #   let(:decimal128) do
-  #     described_class.new
-  #   end
-  #
-  #   context "when comparing with another decimal128" do
-  #
-  #     context "when the data is equal" do
-  #
-  #       let(:other) do
-  #         described_class.from_string(decimal128.to_s)
-  #       end
-  #
-  #       it "returns true" do
-  #         expect(decimal128 === other).to be true
-  #       end
-  #     end
-  #
-  #     context "when the data is not equal" do
-  #
-  #       let(:other) do
-  #         described_class.new
-  #       end
-  #
-  #       it "returns false" do
-  #         expect(decimal128 === other).to be false
-  #       end
-  #     end
-  #   end
-  #
-  #   context "when comparing to an decimal128 class" do
-  #
-  #     it "returns false" do
-  #       expect(decimal128 === BSON::Decimal128).to be false
-  #     end
-  #   end
-  #
-  #   context "when comparing with a string" do
-  #
-  #     context "when the data is equal" do
-  #
-  #       let(:other) do
-  #         decimal128.to_s
-  #       end
-  #
-  #       it "returns true" do
-  #         expect(decimal128 === other).to be true
-  #       end
-  #     end
-  #
-  #     context "when the data is not equal" do
-  #
-  #       let(:other) do
-  #         described_class.new.to_s
-  #       end
-  #
-  #       it "returns false" do
-  #         expect(decimal128 === other).to be false
-  #       end
-  #     end
-  #   end
-  #
-  #   context "when comparing with a non string or decimal128" do
-  #
-  #     it "returns false" do
-  #       expect(decimal128 === "test").to be false
-  #     end
-  #   end
-  #
-  #   context "when comparing with a non decimal128 class" do
-  #
-  #     it "returns false" do
-  #       expect(decimal128 === String).to be false
-  #     end
-  #   end
-  # end
-  #
-  # describe "#as_json" do
-  #
-  #   let(:object) do
-  #     described_class.new
-  #   end
-  #
-  #   it "returns the decimal128 with $numberDecimal key" do
-  #     expect(object.as_json).to eq({ "$numberDecimal" => decimal128.to_s })
-  #   end
-  #
-  #   it_behaves_like "a JSON serializable object"
-  # end
-  #
-  # describe "::BSON_TYPE" do
-  #
-  #   it "returns 0x13" do
-  #     expect(BSON::Decimal128::BSON_TYPE).to eq(19.chr)
-  #   end
-  # end
-  #
-  # describe "#bson_type" do
-  #
-  #   let(:code) do
-  #     described_class.new
-  #   end
-  #
-  #   it "returns 0x13" do
-  #     expect(code.bson_type).to eq(BSON::Decimal128::BSON_TYPE)
-  #   end
-  # end
-  #
-  # describe "#eql" do
-  #
-  #   context "when data is identical" do
-  #
-  #     let(:string) do
-  #
-  #     end
-  #
-  #     let(:decimal128) do
-  #       described_class.from_string(string)
-  #     end
-  #
-  #     let(:other_decimal) do
-  #       described_class.from_string(string)
-  #     end
-  #
-  #     it "returns true" do
-  #       expect(decimal128).to eql(other_decimal)
-  #     end
-  #   end
-  #
-  #   context "when the data is different" do
-  #
-  #     let(:string) do
-  #
-  #     end
-  #
-  #     let(:decimal128) do
-  #       described_class.from_string(string)
-  #     end
-  #
-  #     it "returns false" do
-  #       expect(decimal128).to_not eql(described_class.new)
-  #     end
-  #   end
-  #
-  #   context "when other is not an object id" do
-  #
-  #     it "returns false" do
-  #       expect(described_class.new).to_not eql(nil)
-  #     end
-  #   end
-  # end
-  #
-  # describe ".from_string" do
-  #
-  #   context "when the string is valid" do
-  #
-  #     let(:string) do
-  #       "4e4d66343b39b68407000001"
-  #     end
-  #
-  #     let(:decimal128) do
-  #       described_class.from_string(string)
-  #     end
-  #
-  #     it "initializes with the string's bytes" do
-  #       expect(decimal128.to_s).to eq(string)
-  #     end
-  #   end
-  #
-  #   context "when the string is not valid" do
-  #
-  #     it "raises an error" do
-  #       expect {
-  #         described_class.from_string("asadsf")
-  #       }.to raise_error(BSON::Decimal128::Invalid)
-  #     end
-  #   end
-  # end
-  #
-  # describe "#hash" do
-  #
-  #   let(:decimal128) do
-  #     described_class.new
-  #   end
-  #
-  #   it "returns a hash of the raw bytes" do
-  #     expect(decimal128.hash).to eq(decimal128.to_bson.to_s.hash)
-  #   end
-  # end
-  #
-  # describe "#initialize" do
-  #
-  #   # @todo
-  # end
-  #
+  describe '#to_s' do
+
+    shared_examples_for 'a decimal128 printed to a string' do
+
+      let(:buffer) do
+        buffer = BSON::ByteBuffer.new
+        buffer.put_uint64(low_bits)
+        buffer.put_uint64(high_bits)
+      end
+      let(:decimal) { BSON::Decimal128.from_bson(buffer) }
+
+      it 'prints the correct string' do
+        expect(decimal.to_s).to eq(expected_string)
+      end
+    end
+
+    context 'when the bits represent a special type' do
+
+      context 'when the decimal is NaN' do
+
+        let(:expected_string) { 'NaN' }
+        let(:high_bits) { 0x7c00000000000000 }
+        let(:low_bits) { 0x0 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is negative NaN' do
+
+        let(:expected_string) { 'NaN' }
+        let(:high_bits) { 0xfc00000000000000 }
+        let(:low_bits) { 0x0 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is SNaN' do
+
+        let(:expected_string) { 'NaN' }
+        let(:high_bits) { 0x7e00000000000000 }
+        let(:low_bits) { 0x0 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is negative SNaN' do
+
+        let(:expected_string) { 'NaN' }
+        let(:high_bits) { 0xfe00000000000000 }
+        let(:low_bits) { 0x0 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is NaN with a payload' do
+
+        let(:expected_string) { 'NaN' }
+        let(:high_bits) { 0x7e00000000000000 }
+        let(:low_bits) { 0x8 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is positive Infinity' do
+
+        let(:expected_string) { 'Infinity' }
+        let(:high_bits) { 0x7800000000000000 }
+        let(:low_bits) { 0x8 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is negative Infinity' do
+
+        let(:expected_string) { '-Infinity' }
+        let(:high_bits) { 0xf800000000000000 }
+        let(:low_bits) { 0x8 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+    end
+
+    context 'when the string represents an integer' do
+
+      context 'when the decimal is 1' do
+
+        let(:expected_string) { '1' }
+        let(:high_bits) { 0x3040000000000000 }
+        let(:low_bits) { 0x1 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is -1' do
+
+        let(:expected_string) { '-1' }
+        let(:high_bits) { 0xb040000000000000 }
+        let(:low_bits) { 0x1 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is 20' do
+
+        let(:expected_string) { '20' }
+        let(:high_bits) { 0x3040000000000000 }
+        let(:low_bits) { 0x14 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is -20' do
+
+        let(:expected_string) { '-20' }
+        let(:high_bits) { 0xb040000000000000 }
+        let(:low_bits) { 0x14 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is 12345678901234567' do
+
+        let(:expected_string) { '1.2345678901234567E+16' }
+        let(:high_bits) { 0x3040000000000000 }
+        let(:low_bits) { 0x002bdc545d6b4b87 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is -12345678901234567' do
+
+        let(:expected_string) { '-1.2345678901234567E+16' }
+        let(:high_bits) { 0xb040000000000000 }
+        let(:low_bits) { 0x002bdc545d6b4b87 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is 12345689012345789012345' do
+
+        let(:expected_string) { '1.2345689012345789012345E+22' }
+        let(:high_bits) { 0x304000000000029d }
+        let(:low_bits) { 0x42da3a76f9e0d979 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is -12345689012345789012345' do
+
+        let(:expected_string) { '-1.2345689012345789012345E+22' }
+        let(:high_bits) { 0xb04000000000029d }
+        let(:low_bits) { 0x42da3a76f9e0d979 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+    end
+
+    context 'when the string represents a fraction' do
+
+      context 'when the decimal is 0.1' do
+
+        let(:expected_string) { '0.1' }
+        let(:high_bits) { 0x303e000000000000 }
+        let(:low_bits) { 0x1 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is -0.1' do
+
+        let(:expected_string) { '-0.1' }
+        let(:high_bits) { 0xb03e000000000000 }
+        let(:low_bits) { 0x1 }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is 0.123' do
+
+        let(:expected_string) { '0.123' }
+        let(:high_bits) { 0x303a000000000000 }
+        let(:low_bits) { 0x7b }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is -0.123' do
+
+        let(:expected_string) { '-0.123' }
+        let(:high_bits) { 0xb03a000000000000 }
+        let(:low_bits) { 0x7b }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+
+      context 'when the decimal is -0.123' do
+
+        let(:expected_string) { '-0.123' }
+        let(:high_bits) { 0xb03a000000000000 }
+        let(:low_bits) { 0x7b }
+
+        it_behaves_like 'a decimal128 printed to a string'
+      end
+    end
+
+    context 'when scientific notation should be use' do
+
+      # context 'when the scientific exponent is greater than 12' do
+      #
+      #   let(:expected_string) { '1.0384593717069655257060992658440192E+34' }
+      #   let(:high_bits) { 0x6C10000000000000 }
+      #   let(:low_bits) { 0x0 }
+      #
+      #   it_behaves_like 'a decimal128 printed to a string'
+      # end
+
+      context 'when the scientific exponent is less than -4' do
+
+      end
+
+      context 'when the exponent is great than 0' do
+
+      end
+    end
+
+    context 'when the decimal should have leading zeros' do
+
+      let(:expected_string) { '0.001234' }
+      let(:high_bits) { 0x3034000000000000 }
+      let(:low_bits) { 0x4d2 }
+
+      it_behaves_like 'a decimal128 printed to a string'
+    end
+
+    context 'when the decimal has trailing zeros' do
+
+      let(:expected_string) { '2.000' }
+      let(:high_bits) { 0x303a000000000000 }
+      let(:low_bits) { 0x7d0 }
+
+      it_behaves_like 'a decimal128 printed to a string'
+    end
+  end
+
+  describe "#==" do
+
+    context "when the high and low bits are identical" do
+
+      let(:string) do
+        '1.23'
+      end
+
+      let(:decimal128) do
+        described_class.from_string(string)
+      end
+
+      let(:other_decimal) do
+        described_class.from_string(string)
+      end
+
+      it "returns true" do
+        expect(decimal128).to eq(other_decimal)
+      end
+    end
+
+    context "when the high and low bits are different" do
+
+      let(:string) do
+        '1.23'
+      end
+
+      let(:decimal128) do
+        described_class.from_string(string)
+      end
+
+      it "returns false" do
+        expect(decimal128).to_not eq(described_class.new(BigDecimal.new('2.00')))
+      end
+    end
+
+    context "when other is not a decimal128" do
+
+      it "returns false" do
+        expect(described_class.from_string('1')).to_not eq(nil)
+      end
+    end
+  end
+
+  describe "#===" do
+
+    let(:decimal128) do
+      described_class.new(BigDecimal.new('1.23'))
+    end
+
+    context "when comparing with another decimal128" do
+
+      context "when the high and low bits are equal" do
+
+        let(:other) do
+          described_class.from_string(decimal128.to_s)
+        end
+
+        it "returns true" do
+          expect(decimal128 === other).to be true
+        end
+      end
+
+      context "when the high and low bits are not equal" do
+
+        let(:other) do
+          described_class.new(BigDecimal.new('1000.003'))
+        end
+
+        it "returns false" do
+          expect(decimal128 === other).to be false
+        end
+      end
+    end
+
+    context "when comparing to an decimal128 class" do
+
+      it "returns false" do
+        expect(decimal128 === BSON::Decimal128).to be false
+      end
+    end
+
+    context "when comparing with a non string or decimal128" do
+
+      it "returns false" do
+        expect(decimal128 === "test").to be false
+      end
+    end
+
+    context "when comparing with a non decimal128 class" do
+
+      it "returns false" do
+        expect(decimal128 === String).to be false
+      end
+    end
+  end
+
+  describe "#as_json" do
+
+    let(:object) do
+      described_class.new(BigDecimal.new('1.23'))
+    end
+
+    it "returns the decimal128 with $numberDecimal key" do
+      expect(object.as_json).to eq({ "$numberDecimal" => object.to_s })
+    end
+
+    it_behaves_like "a JSON serializable object"
+  end
+
+  describe "::BSON_TYPE" do
+
+    it "returns 0x13" do
+      expect(BSON::Decimal128::BSON_TYPE).to eq(19.chr)
+    end
+  end
+
+  describe "#bson_type" do
+
+    let(:code) do
+      described_class.new(BigDecimal.new('1.23'))
+    end
+
+    it "returns 0x13" do
+      expect(code.bson_type).to eq(BSON::Decimal128::BSON_TYPE)
+    end
+  end
+
+  describe "#eql" do
+
+    context "when high and low bits are identical" do
+
+      let(:string) do
+        '2.00'
+      end
+
+      let(:decimal128) do
+        described_class.from_string(string)
+      end
+
+      let(:other_decimal) do
+        described_class.from_string(string)
+      end
+
+      it "returns true" do
+        expect(decimal128).to eql(other_decimal)
+      end
+    end
+
+    context "when the high and low bit are different" do
+
+      let(:string) do
+        '2.00'
+      end
+
+      let(:decimal128) do
+        described_class.from_string(string)
+      end
+
+      it "returns false" do
+        expect(decimal128).to_not eql(described_class.new(BigDecimal.new('2')))
+      end
+    end
+
+    context "when other is not a Decimal128" do
+
+      it "returns false" do
+        expect(described_class.from_string('2')).to_not eql(nil)
+      end
+    end
+  end
+
+  describe "#hash" do
+
+    let(:decimal128) do
+      described_class.new(BigDecimal.new('-1234E+33'))
+    end
+
+    it "returns a hash of the high and low bits" do
+      expect(decimal128.hash).to eq(BSON::Decimal128.from_bson(decimal128.to_bson).hash)
+    end
+  end
+
   # describe "#inspect" do
   #
   #   let(:decimal128) do
-  #     described_class.new
+  #     described_class.new(BigDecimal.new('1.23'))
   #   end
   #
   #   it "returns the inspection with the decimal128 id to_s" do
@@ -1056,110 +1243,57 @@ describe BSON::Decimal128 do
   #   end
   # end
   #
-  # # describe "#marshal_dump" do
-  # #
-  # #   let(:decimal128) do
-  # #     described_class.new
-  # #   end
-  # #
-  # #   let(:dumped) do
-  # #     Marshal.dump(decimal128)
-  # #   end
-  # #
-  # #   it "dumps the raw bytes data" do
-  # #     expect(Marshal.load(dumped)).to eq(decimal128)
-  # #   end
-  # # end
-  # #
-  # # describe "#marshal_load" do
-  # #
-  # #   context "when the object id was dumped in the old format" do
-  # #
-  # #     let(:legacy) do
-  # #       "\x04\bo:\x13BSON::ObjectId\x06:\n" +
-  # #           "@data[\x11iUi\x01\xE2i,i\x00i\x00i\x00i\x00i\x00i\x00i\x00i\x00i\x00"
-  # #     end
-  # #
-  # #     let(:object_id) do
-  # #       Marshal.load(legacy)
-  # #     end
-  # #
-  # #     let(:expected) do
-  # #       described_class.from_time(Time.utc(2013, 1, 1))
-  # #     end
-  # #
-  # #     it "properly loads the object id" do
-  # #       expect(object_id).to eq(expected)
-  # #     end
-  # #
-  # #     it "removes the bad legacy data" do
-  # #       object_id.to_bson
-  # #       expect(object_id.instance_variable_get(:@data)).to be_nil
-  # #     end
-  # #   end
-  # # end
-  #
-  # describe "#to_bson/#from_bson" do
-  #
-  #   let(:obj)  { described_class.from_string(string) }
-  #   let(:bson) { obj.to_bson.to_s }
-  #
-  #   it_behaves_like "a bson element"
-  #   it_behaves_like "a serializable bson element"
-  #   it_behaves_like "a deserializable bson element"
-  # end
-  #
-  # describe "#to_s" do
-  #
-  #   let(:string) do
-  #
-  #   end
-  #
-  #   let(:expected) do
-  #     ""
-  #   end
-  #
-  #   let(:decimal128) do
-  #     described_class.from_string(string)
-  #   end
-  #
-  #   it "" do
-  #   end
-  #
-  #   it "returns the string in UTF-8" do
-  #     expect(decimal128.to_s.encoding).to eq(Encoding.find(BSON::UTF8))
-  #   end
-  #
-  #   it "converts to a readable yaml string" do
-  #     expect(YAML.dump(decimal128.to_s)).to include(expected)
-  #   end
-  # end
-  #
-  # context "when the class is loaded" do
-  #
-  #   let(:registered) do
-  #     BSON::Registry.get(BSON::Decaiml128::BSON_TYPE, 'field')
-  #   end
-  #
-  #   it "registers the type" do
-  #     expect(registered).to eq(described_class)
-  #   end
-  # end
-  #
-  # context "when the ids are used as keys" do
+  # describe "#marshal_dump" do
   #
   #   let(:decimal128) do
   #     described_class.new
   #   end
   #
-  #   let(:hash) do
-  #     { decimal128 => 1 }
+  #   let(:dumped) do
+  #     Marshal.dump(decimal128)
   #   end
   #
-  #   it "raises an exception on serialization" do
-  #     expect {
-  #       hash.to_bson
-  #     }.to raise_error(BSON::InvalidKey)
+  #   it "dumps the raw bytes data" do
+  #     expect(Marshal.load(dumped)).to eq(decimal128)
   #   end
   # end
+  #
+  # describe "#marshal_load" do
+  #
+  #   context "when the object id was dumped in the old format" do
+  #
+  #     let(:legacy) do
+  #       "\x04\bo:\x13BSON::ObjectId\x06:\n" +
+  #           "@data[\x11iUi\x01\xE2i,i\x00i\x00i\x00i\x00i\x00i\x00i\x00i\x00i\x00"
+  #     end
+  #
+  #     let(:object_id) do
+  #       Marshal.load(legacy)
+  #     end
+  #
+  #     let(:expected) do
+  #       described_class.from_time(Time.utc(2013, 1, 1))
+  #     end
+  #
+  #     it "properly loads the object id" do
+  #       expect(object_id).to eq(expected)
+  #     end
+  #
+  #     it "removes the bad legacy data" do
+  #       object_id.to_bson
+  #       expect(object_id.instance_variable_get(:@data)).to be_nil
+  #     end
+  #   end
+  # end
+
+  context "when the class is loaded" do
+
+    let(:registered) do
+      BSON::Registry.get(BSON::Decimal128::BSON_TYPE, 'field')
+    end
+
+    it "registers the type" do
+      expect(registered).to eq(described_class)
+    end
+  end
 end

@@ -99,6 +99,7 @@ module BSON
       attr_reader :description
       attr_reader :subject
       attr_reader :string
+      attr_reader :ext_json
 
       # Instantiate the new CRUDTest.
       #
@@ -114,7 +115,7 @@ module BSON
         @valid = !!valid
         @description = test['description']
         @string = test['string']
-        @extjson = test['extjson']
+        @ext_json = test['extjson']
         @subject = test['subject']
       end
 

@@ -9,26 +9,26 @@
         "d": { "$numberDecimal": "NaN" }
       }
     },
-##    {
-##      "description": "Special - Negative NaN",
-##      "subject": "18000000136400000000000000000000000000000000FC00",
-##      "string": "NaN"
-##    },
-##    {
-##      "description": "Special - Canonical SNaN",
-##      "subject": "180000001364000000000000000000000000000000007E00",
-##      "string": "NaN"
-##    },
-##    {
-##      "description": "Special - Negative SNaN",
-##      "subject": "18000000136400000000000000000000000000000000FE00",
-##      "string": "NaN"
-##    },
-##    {
-##      "description": "Special - NaN with a payload",
-##      "subject": "180000001364001200000000000000000000000000007E00",
-##      "string": "NaN"
-##    },
+    {
+      "description": "Special - Negative NaN",
+      "subject": "18000000136400000000000000000000000000000000FC00",
+      "string": "NaN"
+    },
+    {
+      "description": "Special - Canonical SNaN",
+      "subject": "180000001364000000000000000000000000000000007E00",
+      "string": "NaN"
+    },
+    {
+      "description": "Special - Negative SNaN",
+      "subject": "18000000136400000000000000000000000000000000FE00",
+      "string": "NaN"
+    },
+    {
+      "description": "Special - NaN with a payload",
+      "subject": "180000001364001200000000000000000000000000007E00",
+      "string": "NaN"
+    },
     {
       "description": "Special - Canonical Positive Infinity",
       "subject": "180000001364000000000000000000000000000000007800",
@@ -45,16 +45,16 @@
         "d": { "$numberDecimal": "-Infinity" }
       }
     },
-##    {
-##      "description": "Special - Invalid representation treated as 0",
-##      "subject": "180000001364000000000000000000000000000000106C00",
-##      "string": "0",
-##    },
-##    {
-##      "description": "Special - Invalid representation treated as -0",
-##      "subject": "18000000136400DCBA9876543210DEADBEEF00000010EC00",
-##      "string": "-0",
-##    },
+    {
+      "description": "Special - Invalid representation treated as 0",
+      "subject": "180000001364000000000000000000000000000000106C00",
+      "string": "0",
+    },
+#    {
+#      "description": "Special - Invalid representation treated as -0",
+#      "subject": "18000000136400DCBA9876543210DEADBEEF00000010EC00",
+#      "string": "-0",
+#    },
 #    {
 #      "description": "Special - Invalid representation treated as 0E3",
 #      "subject": "18000000136400FFFFFFFFFFFFFFFFFFFFFFFFFFFF116C00",
@@ -100,22 +100,22 @@
         "d": { "$numberDecimal": "0" }
       }
     },
-##    {
-##      "description": "Regular - -0",
-##      "subject": "18000000136400000000000000000000000000000040B000",
-##      "string": "-0",
-##      "extjson": {
-##        "d": { "$numberDecimal": "-0" }
-##      }
-##    },
-##    {
-##      "description": "Regular - -0.0",
-##      "subject": "1800000013640000000000000000000000000000003EB000",
-##      "string": "-0.0",
-##      "extjson": {
-##        "d": { "$numberDecimal": "-0.0" }
-##      }
-##    },
+    {
+      "description": "Regular - -0",
+      "subject": "18000000136400000000000000000000000000000040B000",
+      "string": "-0",
+      "extjson": {
+        "d": { "$numberDecimal": "-0" }
+      }
+    },
+    {
+      "description": "Regular - -0.0",
+      "subject": "1800000013640000000000000000000000000000003EB000",
+      "string": "-0.0",
+      "extjson": {
+        "d": { "$numberDecimal": "-0.0" }
+      }
+    },
     {
       "description": "Regular - 2",
       "subject": "180000001364000200000000000000000000000000403000",
@@ -140,14 +140,14 @@
         "d": { "$numberDecimal": "123456789012" }
       }
     },
-    {
-      "description": "Scientific - Tiniest",
-      "subject": "18000000136400FFFFFFFF638E8D37C087ADBE09ED010000",
-      "string": "9.999999999999999999999999999999999E-6143",
-      "extjson": {
-        "d": { "$numberDecimal": "9.999999999999999999999999999999999E-6143" }
-      }
-    },
+#    {
+#      "description": "Scientific - Tiniest",
+#      "subject": "18000000136400FFFFFFFF638E8D37C087ADBE09ED010000",
+#      "string": "9.999999999999999999999999999999999E-6143",
+#      "extjson": {
+#        "d": { "$numberDecimal": "9.999999999999999999999999999999999E-6143" }
+#      }
+#    },
     {
       "description": "Scientific - Tiny",
       "subject": "180000001364000100000000000000000000000000000000",
@@ -228,14 +228,14 @@
         "d": { "$numberDecimal": "1.000000000000000000000000000000000E+6144" }
       }
     },
-    {
-      "description": "Scientific - Largest",
-      "subject": "18000000136400FFFFFFFF638E8D37C087ADBE09EDFF5F00",
-      "string": "9.999999999999999999999999999999999E+6144",
-      "extjson": {
-        "d": { "$numberDecimal": "9.999999999999999999999999999999999E+6144" }
-      }
-    },
+#    {
+#      "description": "Scientific - Largest",
+#      "subject": "18000000136400FFFFFFFF638E8D37C087ADBE09EDFF5F00",
+#      "string": "9.999999999999999999999999999999999E+6144",
+#      "extjson": {
+#        "d": { "$numberDecimal": "9.999999999999999999999999999999999E+6144" }
+#      }
+#    },
     {
       "description": "Non-Canonical Parsing - Exponent Normalization",
       "subject": "1800000013640064000000000000000000000000002CB000",
@@ -293,134 +293,134 @@
       }
     }
   ],
-  "parseErrors": [
-    {
-      "description": "Too many significand digits",
-      "subject": "100000000000000000000000000000000000000000000000000000000001"
-    },
-    {
-      "description": "Too many significand digits",
-      "subject": "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-    },
-    {
-      "description": "Too many significand digits",
-      "subject": ".100000000000000000000000000000000000000000000000000000000000"
-    },
-    {
-      "description": "Incomplete Exponent",
-      "subject": "1e"
-    },
-    {
-      "description": "Exponent at the beginning",
-      "subject": "E01"
-    },
-    {
-      "description": "Invalid NaN specification",
-      "subject": "nan"
-    },
-    {
-      "description": "Just a decimal place",
-      "subject": "."
-    },
-    {
-      "description": "2 decimal places",
-      "subject": "..3"
-    },
-    {
-      "description": "2 decimal places",
-      "subject": ".13.3"
-    },
-    {
-      "description": "2 decimal places",
-      "subject": "1..3"
-    },
-    {
-      "description": "2 decimal places",
-      "subject": "1.3.4"
-    },
-    {
-      "description": "2 decimal places",
-      "subject": "1.34."
-    },
-    {
-      "description": "Decimal with no digits",
-      "subject": ".e"
-    },
-    {
-      "description": "2 signs",
-      "subject": "+-32.4"
-    },
-    {
-      "description": "2 signs",
-      "subject": "-+32.4"
-    },
-    {
-      "description": "2 negative signs",
-      "subject": "--32.4"
-    },
-    {
-      "description": "2 negative signs",
-      "subject": "-32.-4"
-    },
-    {
-      "description": "End in negative sign",
-      "subject": "32.0-"
-    },
-    {
-      "description": "2 negative signs",
-      "subject": "32.4E--21"
-    },
-    {
-      "description": "2 negative signs",
-      "subject": "32.4E-2-1"
-    },
-    {
-      "description": "2 signs",
-      "subject": "32.4E+-21"
-    },
-    {
-      "description": "Empty string",
-      "subject": ""
-    },
-    {
-      "description": "Invalid",
-      "subject": "E"
-    },
-    {
-      "description": "Invalid",
-      "subject": "invalid"
-    },
-    {
-      "description": "Invalid",
-      "subject": "i"
-    },
-    {
-      "description": "Invalid",
-      "subject": "in"
-    },
-    {
-      "description": "Invalid",
-      "subject": "-in"
-    },
-    {
-      "description": "Invalid",
-      "subject": "Na"
-    },
-    {
-      "description": "Invalid",
-      "subject": "-Na"
-    },
-    {
-      "description": "Invalid",
-      "subject": "1.23abc"
-    },
-    {
-      "description": "Invalid",
-      "subject": "1.23abcE+02"
-    },
-    {
-      "description": "Invalid",
-      "subject": "1.23E+0aabs2"
-    }
-  ]
+#  "parseErrors": [
+#    {
+#      "description": "Too many significand digits",
+#      "subject": "100000000000000000000000000000000000000000000000000000000001"
+#    },
+#    {
+#      "description": "Too many significand digits",
+#      "subject": "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+#    },
+#    {
+#      "description": "Too many significand digits",
+#      "subject": ".100000000000000000000000000000000000000000000000000000000000"
+#    },
+#    {
+#      "description": "Incomplete Exponent",
+#      "subject": "1e"
+#    },
+#    {
+#      "description": "Exponent at the beginning",
+#      "subject": "E01"
+#    },
+#    {
+#      "description": "Invalid NaN specification",
+#      "subject": "nan"
+#    },
+#    {
+#      "description": "Just a decimal place",
+#      "subject": "."
+#    },
+#    {
+#      "description": "2 decimal places",
+#      "subject": "..3"
+#    },
+#    {
+#      "description": "2 decimal places",
+#      "subject": ".13.3"
+#    },
+#    {
+#      "description": "2 decimal places",
+#      "subject": "1..3"
+#    },
+#    {
+#      "description": "2 decimal places",
+#      "subject": "1.3.4"
+#    },
+#    {
+#      "description": "2 decimal places",
+#      "subject": "1.34."
+#    },
+#    {
+#      "description": "Decimal with no digits",
+#      "subject": ".e"
+#    },
+#    {
+#      "description": "2 signs",
+#      "subject": "+-32.4"
+#    },
+#    {
+#      "description": "2 signs",
+#      "subject": "-+32.4"
+#    },
+#    {
+#      "description": "2 negative signs",
+#      "subject": "--32.4"
+#    },
+#    {
+#      "description": "2 negative signs",
+#      "subject": "-32.-4"
+#    },
+#    {
+#      "description": "End in negative sign",
+#      "subject": "32.0-"
+#    },
+#    {
+#      "description": "2 negative signs",
+#      "subject": "32.4E--21"
+#    },
+#    {
+#      "description": "2 negative signs",
+#      "subject": "32.4E-2-1"
+#    },
+#    {
+#      "description": "2 signs",
+#      "subject": "32.4E+-21"
+#    },
+#    {
+#      "description": "Empty string",
+#      "subject": ""
+#    },
+#    {
+#      "description": "Invalid",
+#      "subject": "E"
+#    },
+#    {
+#      "description": "Invalid",
+#      "subject": "invalid"
+#    },
+#    {
+#      "description": "Invalid",
+#      "subject": "i"
+#    },
+#    {
+#      "description": "Invalid",
+#      "subject": "in"
+#    },
+#    {
+#      "description": "Invalid",
+#      "subject": "-in"
+#    },
+#    {
+#      "description": "Invalid",
+#      "subject": "Na"
+#    },
+#    {
+#      "description": "Invalid",
+#      "subject": "-Na"
+#    },
+#    {
+#      "description": "Invalid",
+#      "subject": "1.23abc"
+#    },
+#    {
+#      "description": "Invalid",
+#      "subject": "1.23abcE+02"
+#    },
+#    {
+#      "description": "Invalid",
+#      "subject": "1.23E+0aabs2"
+#    }
+#  ]
 }

@@ -49,6 +49,11 @@ module BSON
     # @since 4.1.0
     EXPONENT_OFFSET = 6176
 
+    # Weird exponent mask (?)
+    #
+    # @since 4.1.0
+    WEIRD_EXPONENT_MASK = 3 << 61
+
     # Get the Decimal128 as JSON hash data.
     #
     # @example Get the Decimal128 as a JSON hash.
@@ -108,12 +113,12 @@ module BSON
       # @todo
     end
 
-    # Create a new Decimal128 from a BigDecimal object.
+    # Create a new Decimal128 from a Ruby BigDecimal.
     #
     # @example Create a Decimal128 from a BigDecimal.
-    #   Decimal128.new(number)
+    #   Decimal128.new(big_decimal)
     #
-    # @param [ BigDecimal ] big_decimal The BigDecimal to use in
+    # @param [ BigDecimal ] big_decimal The BigDecimal to use for
     #   instantiating a Decimal128.
     #
     # @since 4.1.0
@@ -122,8 +127,8 @@ module BSON
       if special_big_decimal?(value)
         set_special_values(value)
       else
-        sign, significant_digits, exponent = extract_from_big_decimal(value)
-        set_bits(significant_digits, exponent, sign == BigDecimal::SIGN_NEGATIVE_FINITE)
+        sign, sig_digits, exponent = split_big_decimal(value)
+        set_bits(sig_digits, exponent, sign == BigDecimal::SIGN_NEGATIVE_FINITE)
       end
     end
 
@@ -136,13 +141,15 @@ module BSON
     #
     # @since 4.1.0
     def hash
-      ([ @high, @low ].join).hash
+      num = @high << 64
+      num |= @low
+      num.hash
     end
 
     # Get a nice string for use with object inspection.
     #
     # @example Inspect the decimal object.
-    #   decimal.inspect
+    #   decimal128.inspect
     #
     # @return [ String ] The decimal as a string.
     #
@@ -182,7 +189,7 @@ module BSON
     # @example Get the raw bson bytes.
     #   decimal.to_bson
     #
-    # @return [ String ] The raw bytes.
+    # @return [ ByteBuffer ] The raw bytes.
     #
     # @see http://bsonspec.org/#/specification
     #
@@ -201,9 +208,48 @@ module BSON
     #
     # @since 4.1.0
     def to_s
-      "high: #{@high} and low: #{@low}"
-      # @todo
-      #...force_encoding(UTF8)
+      if nan?
+        'NaN'
+      elsif infinity?
+        str = 'Infinity'
+        negative? ? '-' << str : str
+      else
+        exponent = get_exponent_from_bits
+        num = 0
+        0.upto(63) do |i|
+          if @low[i] == 1
+            num |= 1 << i
+          end
+        end
+
+        0.upto(47) do |i|
+          if @high[i] == 1
+            num |= 1 << (i + 64)
+          end
+        end
+
+        #num |= 1 << 113
+        if @high & WEIRD_EXPONENT_MASK == WEIRD_EXPONENT_MASK
+          #num |= 1 << 111
+        end
+        str = num.to_s
+
+        scientific_exponent = (str.length - 1) + exponent
+        if scientific_exponent >= 12 || scientific_exponent <= -4 || exponent > 0
+          sign = exponent < 0 ? '' : '+'
+          beginning = str.length > 1 ?  "#{str[0]}." : str
+          str = beginning << str[1..-1] << "E#{sign}" << scientific_exponent.to_s
+        elsif exponent < 0
+          pad = (exponent + str.length).abs
+          if str.length > exponent.abs
+            str = str[0..(str.length - exponent.abs-1)] << '.' << str[(str.length - exponent.abs)..-1]
+          else
+            str = '0.' << '0' * pad << num.to_s
+          end
+        end
+
+        negative? ? '-' << str : str
+      end
     end
     alias :to_str :to_s
 
@@ -214,7 +260,27 @@ module BSON
 
     private
 
-    def extract_from_big_decimal(value)
+    def get_exponent_from_bits
+      if @high & WEIRD_EXPONENT_MASK == WEIRD_EXPONENT_MASK
+        ((@high & 0x1fffe00000000000) >> 47) - EXPONENT_OFFSET
+      else
+        ((@high & 0x7fff800000000000) >> 49) - EXPONENT_OFFSET
+      end
+    end
+
+    def nan?
+      @high & NAN_MASK == NAN_MASK
+    end
+
+    def negative?
+      @high & SIGN_BIT_MASK == SIGN_BIT_MASK
+    end
+
+    def infinity?
+      @high & INFINITY_MASK == INFINITY_MASK
+    end
+
+    def split_big_decimal(value)
       simple_sign, digits, base, exp = value.split
       exponent  = exp - digits.length
       [ value.sign, digits, exponent ]
