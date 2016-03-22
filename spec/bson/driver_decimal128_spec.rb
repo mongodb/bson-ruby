@@ -6,9 +6,9 @@ describe 'Decimal128' do
 
   context(spec.description) do
 
-    spec.tests.each do |test|
+    spec.valid_tests.each do |test|
 
-      context(test.description) do
+      context(test.description << ' - ' << test.string) do
 
         it 'serializes to json correctly', if: test.ext_json do
           #expect(test.decimal.as_json).to eq(test.ext_json)
@@ -24,6 +24,18 @@ describe 'Decimal128' do
 
         it 'roundtrips correctly' do
           expect(test.reencoded_hex.upcase).to eq(test.subject)
+        end
+      end
+    end
+
+    spec.invalid_tests.each do |test|
+
+      context(test.description) do
+
+        it 'raises an exception when parsing' do
+          expect {
+            test.parse_string
+          }.to raise_error(Exception)
         end
       end
     end

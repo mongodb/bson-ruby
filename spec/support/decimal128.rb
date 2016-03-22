@@ -12,47 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Matcher for determining if the results of the opeartion match the
-# test's expected results.
-#
-# @since 2.0.0
-
-# Matcher for determining if the collection's data matches the
-# test's expected collection data.
-#
-# @since 2.0.0
-RSpec::Matchers.define :match_string do |test|
-
-  match do |actual|
-    test.compare_string
-  end
-end
-
-RSpec::Matchers.define :match_ext_json do |test|
-
-  match do |actual|
-    test.compare_ext_json
-  end
-end
-
-RSpec::Matchers.define :round_trip do |test|
-
-  match do |actual|
-    test.reencoded == test.subject
-  end
-end
-
 module BSON
   module DriverDecimal128
 
     # Represents a Decimal128 specification test.
     #
-    # @since
+    # @since 4.1.0
     class Spec
 
+      # The spec description.
+      #
       # @return [ String ] description The spec description.
       #
-      # @since
+      # @since 4.1.0
       attr_reader :description
 
       # Instantiate the new spec.
@@ -60,96 +32,116 @@ module BSON
       # @example Create the spec.
       #   Spec.new(file)
       #
-      # @param [ String ] file The name of the file.
+      # @param [ String ] file The name of the yaml file.
       #
-      # @since 2.0.0
+      # @since 4.1.0
       def initialize(file)
-        file = File.new(file)
-        @spec = YAML.load(ERB.new(file.read).result)
-        file.close
+        File.open(file) do |file|
+          @spec = YAML.load(ERB.new(file.read).result)
+        end
         @valid = @spec['valid']
+        @invalid = @spec['parseErrors']
       end
 
-      # Get a list of CRUDTests for each test definition.
+      # Get a list of tests that don't raise exceptions.
       #
-      # @example Get the list of CRUDTests.
-      #   spec.tests
+      # @example Get the list of valid tests.
+      #   spec.valid_tests
       #
-      # @return [ Array<CRUDTest> ] The list of CRUDTests.
+      # @return [ Array<BSON::DriverDecimal128::Test> ] The list of valid Tests.
       #
-      # @since 2.0.0
-      def tests
-        @tests ||=
+      # @since 4.1.0
+      def valid_tests
+        @valid_tests ||=
           @valid.collect do |test|
-            BSON::DriverDecimal128::Test.new(test, true)
+            BSON::DriverDecimal128::Test.new(test)
+          end
+      end
+
+      # Get a list of tests that raise exceptions.
+      #
+      # @example Get the list of invalid tests.
+      #   spec.invalid_tests
+      #
+      # @return [ Array<BSON::DriverDecimal128::Test> ] The list of invalid Tests.
+      #
+      # @since 4.1.0
+      def invalid_tests
+        @invalid_tests ||=
+          @invalid.collect do |test|
+            BSON::DriverDecimal128::Test.new(test)
           end
       end
     end
 
-    # Represents a single CRUD test.
+    # Represents a single Decimal128 test.
     #
-    # @since 2.0.0
+    # @since 4.1.0
     class Test
 
       # The test description.
       #
       # @return [ String ] description The test description.
       #
-      # @since 2.0.0
+      # @since 4.1.0
       attr_reader :description
+
+      # The test subject.
+      #
+      # @return [ String ] subject The test subject.
+      #
+      # @since 4.1.0
       attr_reader :subject
+
+      # The string representing the decimal128.
+      #
+      # @return [ String ] string The decimal128 as a string.
+      #
+      # @since 4.1.0
       attr_reader :string
+
+      # The json representation of the decimal128.
+      #
+      # @return [ Hash ] ext_json The json representation of the decimal128.
+      #
+      # @since 4.1.0
       attr_reader :ext_json
 
-      # Instantiate the new CRUDTest.
+      # Instantiate the new Test.
       #
       # @example Create the test.
-      #   CRUDTest.new(data, test)
+      #   Test.new(test)
       #
-      # @param [ Array<Hash> ] data The documents the collection
-      # must have before the test runs.
       # @param [ Hash ] test The test specification.
       #
-      # @since 2.0.0
-      def initialize(test, valid)
-        @valid = !!valid
+      # @since 4.1.0
+      def initialize(test)
         @description = test['description']
         @string = test['string']
         @ext_json = test['extjson']
         @subject = test['subject']
       end
 
-      # Run the test.
+      # Get the reencoded document in hex format.
       #
-      # @example Run the test.
-      #   test.run(collection)
+      # @example Get the reencoded document as hex.
+      #   test.reencoded_hex
       #
-      # @param [ Collection ] collection The collection the test
-      #   should be run on.
+      # @return [ String ] The reencoded document in hex format.
       #
-      # @return [ Result, Array<Hash> ] The result(s) of running the test.
-      #
-      # @since 2.0.0
-      def high_order
-        @decimal.instance_variable_get(:@high)
-      end
-
-      def low_order
-        @decimal.instance_variable_get(:@low)
-      end
-
-      def compare_string
-        @decimal.to_s == @string
-      end
-
-      def compare_ext_json
-        @decimal.to_json == @extjson
-      end
-
+      # @since 4.1.0
       def reencoded_hex
-        decoded_document.to_bson.to_s.unpack("H*").first.upcase
+        decoded_document.to_bson.to_s.unpack("H*").first
       end
 
+      # The decimal128 object described by this test.
+      #
+      # @example Get the decimal128 object for this test.
+      #   test.decimal
+      #
+      # @return [ BSON::Decimal128 ] The decimal128 object.
+      #
+      # @since 4.1.0
       def decimal
         @decimal ||= decoded_document['d']
       end

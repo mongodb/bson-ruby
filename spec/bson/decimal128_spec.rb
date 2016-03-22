@@ -281,6 +281,45 @@ describe BSON::Decimal128 do
       end
     end
 
+    context 'when the string represents 0' do
+
+      context "when the string is '0'" do
+
+        let(:string) { '0' }
+
+        let(:expected_exponent) { 0 }
+        let(:expected_significand) { 0 }
+        let(:expected_high_bits) { 0x3040000000000000 }
+        let(:expected_low_bits) { 0 }
+
+        it_behaves_like 'a decimal128 initialized from a string'
+      end
+
+      context "when the string is '-0'" do
+
+        let(:string) { '-0' }
+
+        let(:expected_exponent) { 0 }
+        let(:expected_significand) { 0 }
+        let(:expected_high_bits) { 0xb040000000000000 }
+        let(:expected_low_bits) { 0 }
+
+        it_behaves_like 'a decimal128 initialized from a string'
+      end
+
+      context "when the string is '0.0'" do
+
+        let(:string) { '0.0' }
+
+        let(:expected_exponent) { -1 }
+        let(:expected_significand) { 0 }
+        let(:expected_high_bits) { 0x303e000000000000 }
+        let(:expected_low_bits) { 0 }
+
+        it_behaves_like 'a decimal128 initialized from a string'
+      end
+    end
+
     context 'when the string represents an integer' do
 
       context "when the string is '1'" do
@@ -297,7 +336,7 @@ describe BSON::Decimal128 do
 
       context "when the string is '-1'" do
 
-        let(:string) { '-1 '}
+        let(:string) { '-1'}
 
         let(:expected_exponent) { 0 }
         let(:expected_significand) { 1 }
@@ -432,55 +471,16 @@ describe BSON::Decimal128 do
         it_behaves_like 'a decimal128 initialized from a string'
       end
 
-      context 'when the string does not have a leading 0' do
+      context "when the string is '0.1234567890123456789012345678901234'" do
 
-        context "when the string is '.1'" do
+        let(:string) { '0.1234567890123456789012345678901234' }
 
-          let(:string) { '.1' }
+        let(:expected_exponent) { -34 }
+        let(:expected_significand) { 1234567890123456789012345678901234 }
+        let(:expected_low_bits) { 0xde825cd07e96aff2 }
+        let(:expected_high_bits) { 0x2ffc3cde6fff9732 }
 
-          let(:expected_exponent) { -1 }
-          let(:expected_significand) { 1 }
-          let(:expected_low_bits) { 0x1 }
-          let(:expected_high_bits) { 0x303e000000000000 }
-
-          it_behaves_like 'a decimal128 initialized from a string'
-        end
-
-        context "when the string is '-.1'" do
-
-          let(:string) { '-.1' }
-
-          let(:expected_exponent) { -1 }
-          let(:expected_significand) { 1 }
-          let(:expected_low_bits) { 0x1 }
-          let(:expected_high_bits) { 0xb03e000000000000 }
-
-          it_behaves_like 'a decimal128 initialized from a string'
-        end
-
-        context "when the string is '.123'" do
-
-          let(:string) { '.123' }
-
-          let(:expected_exponent) { -3 }
-          let(:expected_significand) { 123 }
-          let(:expected_low_bits) { 0x7b }
-          let(:expected_high_bits) { 0x303a000000000000 }
-
-          it_behaves_like 'a decimal128 initialized from a string'
-        end
-
-        context "when the string is '-.123'" do
-
-          let(:string) { '-.123' }
-
-          let(:expected_exponent) { -3 }
-          let(:expected_significand) { 123 }
-          let(:expected_low_bits) { 0x7b }
-          let(:expected_high_bits) { 0xb03a000000000000 }
-
-          it_behaves_like 'a decimal128 initialized from a string'
-        end
+        it_behaves_like 'a decimal128 initialized from a string'
       end
     end
 

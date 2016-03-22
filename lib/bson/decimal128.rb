@@ -271,7 +271,7 @@ module BSON
     end
 
     def validate_range!(significand_str)
-
+      raise Exception unless /^(0*)(\d*)/.match(significand_str).to_a[2].length <= 34
     end
 
     def validate_exponent!(exp)
@@ -410,24 +410,27 @@ module BSON
         #
         # @since 4.1.0
         def parse_string(string)
+          validate!(string)
           original, sign, digits_str = /^(\-)?(\S+)/.match(string).to_a
+
           digits, e, scientific_exp = digits_str.partition(SCIENTIFIC_EXPONENT_REGEX)
           before_decimal, decimal, after_decimal = digits.partition(DECIMAL_POINT)
 
-          if before_decimal.to_i > 0
+          if before_decimal.to_i >= 0
             significant_digits = before_decimal << after_decimal
           else
             significant_digits = SIGNIFICAND_WITH_LEADING_ZEROS.match(after_decimal).to_a[2]
           end
           exponent = -(after_decimal.length)
           exponent = exponent + scientific_exp.to_i
+
           [ significant_digits, exponent, sign == '-' ]
         end
 
         private
 
-        def legal?(string)
-          string =~ /\d+/ || special_type?(string)
+        def validate!(string)
+          raise Exception unless string =~ /^\-?\d+(\.\d+)?(E?[\-\+]?\d+)?$/
         end
       end
 
