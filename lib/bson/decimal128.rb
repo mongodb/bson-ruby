@@ -280,8 +280,7 @@ module BSON
 
     def get_low_bits(significand)
       low_bits = 0
-      bit_length = [significand.bit_length, 64].min
-      0.upto(bit_length-1) do |i|
+      0.upto(63) do |i|
         if significand[i] == 1
           low_bits |= 1 << i
         end
@@ -292,7 +291,7 @@ module BSON
     def get_high_bits(significand)
       high_bits = 0
       # todo check upto
-      64.upto(significand.bit_length-1) do |i|
+      64.upto(127) do |i|
         if significand[i] == 1
           high_bits |= 1 << (i - 64)
         end
