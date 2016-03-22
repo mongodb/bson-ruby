@@ -208,7 +208,7 @@ module BSON
     #
     # @since 4.1.0
     def to_s
-      Parser.new(self).string
+      @string ||= Parser.new(self).string
     end
     alias :to_str :to_s
 
@@ -375,89 +375,123 @@ module BSON
       end
     end
 
-  class Parser
+    # Class for parsing a decimal into a string.
+    #
+    # @since 4.1.0
+    class Parser
 
-    NAN_STRING = 'NaN'
-    INFINITY_STRING = 'Infinity'
+      # String representing a NaN value.
+      #
+      # @return [ String ] The string representing NaN.
+      #
+      # @since 4.1.0
+      NAN_STRING = 'NaN'
 
-    def initialize(decimal)
-      @decimal = decimal
-    end
+      # String representing an Infinity value.
+      #
+      # @return [ String ] The string representing Infinity.
+      #
+      # @since 4.1.0
+      INFINITY_STRING = 'Infinity'
 
-    def string
-      return NAN_STRING if nan?
-      string = infinity? ? INFINITY_STRING : parse
-      negative? ? '-' << string : string
-    end
-
-    private
-
-    def parse
-      high_bits = @decimal.instance_variable_get(:@high)
-      low_bits = @decimal.instance_variable_get(:@low)
-      num = set_bits(0, low_bits, 63)
-      num = set_bits(num, high_bits, 47, 64)
-      apply_exponent_mask(num)
-      get_string(num)
-    end
-
-    def set_bits(to, from, bit_length, offset = 0)
-      0.upto(bit_length) do |i|
-        if from[i] == 1
-          to |= 1 << (i + offset)
-        end
+      # Initialize the Decimal128 parser.
+      #
+      # @example Initialize the parser.
+      #  Parser.new(decimal)
+      #
+      # @param [ BSON::Decaiml128 ] The decimal128 to be parsed.
+      #
+      # @since 4.1.0
+      def initialize(decimal)
+        @decimal = decimal
       end
-      to
-    end
 
-    def apply_exponent_mask(num)
-
-    end
-
-    def get_string(significand)
-      string = significand.to_s
-      scientific_exponent = (string.length - 1) + exponent
-      if scientific_exponent >= 12 || scientific_exponent <= -4 || exponent > 0
-        sign = exponent < 0 ? '' : '+'
-        beginning = string.length > 1 ?  "#{string[0]}." : string
-        string = beginning << string[1..-1] << "E#{sign}" << scientific_exponent.to_s
-      elsif exponent < 0
-        pad = (exponent + string.length).abs
-        if string.length > exponent.abs
-          string = string[0..(string.length - exponent.abs-1)] << '.' << string[(string.length - exponent.abs)..-1]
-        else
-          string = '0.' << '0' * pad << string
-        end
+      # Get the string representing the Decimal128 object.
+      #
+      # @example Get a string representing the Decimal128 object.
+      #  parser.string
+      #
+      # @return [ String ] The string representing the decimal128.
+      #
+      # @since 4.1.0
+      def string
+        return NAN_STRING if nan?
+        string = infinity? ? INFINITY_STRING : parse
+        negative? ? '-' << string : string
       end
-      string
-    end
 
-    def exponent
-      @exponent ||= high_bits & Decimal128::WEIRD_EXPONENT_MASK == Decimal128::WEIRD_EXPONENT_MASK ?
-                      ((high_bits & 0x1fffe00000000000) >> 47) - Decimal128::EXPONENT_OFFSET :
-                      ((high_bits & 0x7fff800000000000) >> 49) - Decimal128::EXPONENT_OFFSET
-    end
+      private
 
-    def nan?
-      high_bits & Decimal128::NAN_MASK == Decimal128::NAN_MASK
-    end
+      def parse
+        high_bits = @decimal.instance_variable_get(:@high)
+        low_bits = @decimal.instance_variable_get(:@low)
+        num = set_bits(0, low_bits, 63)
+        num = set_bits(num, high_bits, 47, 64)
+        apply_exponent_mask(num)
+        get_string(num)
+      end
 
-    def negative?
-      high_bits & Decimal128::SIGN_BIT_MASK == Decimal128::SIGN_BIT_MASK
-    end
+      def set_bits(to, from, bit_length, offset = 0)
+        0.upto(bit_length) do |i|
+          if from[i] == 1
+            to |= 1 << (i + offset)
+          end
+        end
+        to
+      end
 
-    def infinity?
-      high_bits & Decimal128::INFINITY_MASK == Decimal128::INFINITY_MASK
-    end
+      def apply_exponent_mask(num)
 
-    def high_bits
-      @high_bits ||= @decimal.instance_variable_get(:@high)
-    end
+      end
 
-    def low_bits
-      @low_bits ||= @decimal.instance_variable_get(:@low)
+      def get_string(significand)
+        sig_string = significand.to_s
+        if use_scientific_notation?(sig_string)
+          sign = exponent < 0 ? '' : '+'
+          beginning = sig_string.length > 1 ?  sig_string[0] << '.' : sig_string
+          sig_string = beginning << sig_string[1..-1] << "E#{sign}" << @scientific_exponent.to_s
+        elsif exponent < 0
+          pad = (exponent + sig_string.length).abs
+          if sig_string.length > exponent.abs
+            sig_string = sig_string[0..(sig_string.length - exponent.abs-1)] << '.' << sig_string[(sig_string.length - exponent.abs)..-1]
+          else
+            sig_string = '0.' << '0' * pad << sig_string
+          end
+        end
+        sig_string
+      end
+
+      def use_scientific_notation?(significand_string)
+        @scientific_exponent = (significand_string.length - 1) + exponent
+        @scientific_exponent >= 12 || @scientific_exponent <= -4 || exponent > 0
+      end
+
+      def exponent
+        @exponent ||= high_bits & Decimal128::WEIRD_EXPONENT_MASK == Decimal128::WEIRD_EXPONENT_MASK ?
+                        ((high_bits & 0x1fffe00000000000) >> 47) - Decimal128::EXPONENT_OFFSET :
+                        ((high_bits & 0x7fff800000000000) >> 49) - Decimal128::EXPONENT_OFFSET
+      end
+
+      def nan?
+        high_bits & Decimal128::NAN_MASK == Decimal128::NAN_MASK
+      end
+
+      def negative?
+        high_bits & Decimal128::SIGN_BIT_MASK == Decimal128::SIGN_BIT_MASK
+      end
+
+      def infinity?
+        high_bits & Decimal128::INFINITY_MASK == Decimal128::INFINITY_MASK
+      end
+
+      def high_bits
+        @high_bits ||= @decimal.instance_variable_get(:@high)
+      end
+
+      def low_bits
+        @low_bits ||= @decimal.instance_variable_get(:@low)
+      end
     end
-  end
 
     # Register this type when the module is loaded.
     #
