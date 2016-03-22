@@ -122,12 +122,12 @@ module BSON
     #   instantiating a Decimal128.
     #
     # @since 4.1.0
-    def initialize(value)
-      raise Exception unless value.is_a?(BigDecimal)
-      if special_big_decimal?(value)
-        set_special_values(value)
+    def initialize(big_decimal)
+      raise Exception unless big_decimal.is_a?(BigDecimal)
+      if special_big_decimal?(big_decimal)
+        set_special_values(big_decimal)
       else
-        sign, sig_digits, exponent = split_big_decimal(value)
+        sign, sig_digits, exponent = split_big_decimal(big_decimal)
         set_bits(sig_digits, exponent, sign == BigDecimal::SIGN_NEGATIVE_FINITE)
       end
     end
@@ -208,48 +208,7 @@ module BSON
     #
     # @since 4.1.0
     def to_s
-      if nan?
-        'NaN'
-      elsif infinity?
-        str = 'Infinity'
-        negative? ? '-' << str : str
-      else
-        exponent = get_exponent_from_bits
-        num = 0
-        0.upto(63) do |i|
-          if @low[i] == 1
-            num |= 1 << i
-          end
-        end
-
-        0.upto(47) do |i|
-          if @high[i] == 1
-            num |= 1 << (i + 64)
-          end
-        end
-
-        #num |= 1 << 113
-        if @high & WEIRD_EXPONENT_MASK == WEIRD_EXPONENT_MASK
-          #num |= 1 << 111
-        end
-        str = num.to_s
-
-        scientific_exponent = (str.length - 1) + exponent
-        if scientific_exponent >= 12 || scientific_exponent <= -4 || exponent > 0
-          sign = exponent < 0 ? '' : '+'
-          beginning = str.length > 1 ?  "#{str[0]}." : str
-          str = beginning << str[1..-1] << "E#{sign}" << scientific_exponent.to_s
-        elsif exponent < 0
-          pad = (exponent + str.length).abs
-          if str.length > exponent.abs
-            str = str[0..(str.length - exponent.abs-1)] << '.' << str[(str.length - exponent.abs)..-1]
-          else
-            str = '0.' << '0' * pad << num.to_s
-          end
-        end
-
-        negative? ? '-' << str : str
-      end
+      Parser.new(self).string
     end
     alias :to_str :to_s
 
@@ -259,26 +218,6 @@ module BSON
     class Invalid < RuntimeError; end
 
     private
-
-    def get_exponent_from_bits
-      if @high & WEIRD_EXPONENT_MASK == WEIRD_EXPONENT_MASK
-        ((@high & 0x1fffe00000000000) >> 47) - EXPONENT_OFFSET
-      else
-        ((@high & 0x7fff800000000000) >> 49) - EXPONENT_OFFSET
-      end
-    end
-
-    def nan?
-      @high & NAN_MASK == NAN_MASK
-    end
-
-    def negative?
-      @high & SIGN_BIT_MASK == SIGN_BIT_MASK
-    end
-
-    def infinity?
-      @high & INFINITY_MASK == INFINITY_MASK
-    end
 
     def split_big_decimal(value)
       simple_sign, digits, base, exp = value.split
@@ -435,6 +374,90 @@ module BSON
         true
       end
     end
+
+  class Parser
+
+    NAN_STRING = 'NaN'
+    INFINITY_STRING = 'Infinity'
+
+    def initialize(decimal)
+      @decimal = decimal
+    end
+
+    def string
+      return NAN_STRING if nan?
+      string = infinity? ? INFINITY_STRING : parse
+      negative? ? '-' << string : string
+    end
+
+    private
+
+    def parse
+      high_bits = @decimal.instance_variable_get(:@high)
+      low_bits = @decimal.instance_variable_get(:@low)
+      num = set_bits(0, low_bits, 63)
+      num = set_bits(num, high_bits, 47, 64)
+      apply_exponent_mask(num)
+      get_string(num)
+    end
+
+    def set_bits(to, from, bit_length, offset = 0)
+      0.upto(bit_length) do |i|
+        if from[i] == 1
+          to |= 1 << (i + offset)
+        end
+      end
+      to
+    end
+
+    def apply_exponent_mask(num)
+
+    end
+
+    def get_string(significand)
+      string = significand.to_s
+      scientific_exponent = (string.length - 1) + exponent
+      if scientific_exponent >= 12 || scientific_exponent <= -4 || exponent > 0
+        sign = exponent < 0 ? '' : '+'
+        beginning = string.length > 1 ?  "#{string[0]}." : string
+        string = beginning << string[1..-1] << "E#{sign}" << scientific_exponent.to_s
+      elsif exponent < 0
+        pad = (exponent + string.length).abs
+        if string.length > exponent.abs
+          string = string[0..(string.length - exponent.abs-1)] << '.' << string[(string.length - exponent.abs)..-1]
+        else
+          string = '0.' << '0' * pad << string
+        end
+      end
+      string
+    end
+
+    def exponent
+      @exponent ||= high_bits & Decimal128::WEIRD_EXPONENT_MASK == Decimal128::WEIRD_EXPONENT_MASK ?
+                      ((high_bits & 0x1fffe00000000000) >> 47) - Decimal128::EXPONENT_OFFSET :
+                      ((high_bits & 0x7fff800000000000) >> 49) - Decimal128::EXPONENT_OFFSET
+    end
+
+    def nan?
+      high_bits & Decimal128::NAN_MASK == Decimal128::NAN_MASK
+    end
+
+    def negative?
+      high_bits & Decimal128::SIGN_BIT_MASK == Decimal128::SIGN_BIT_MASK
+    end
+
+    def infinity?
+      high_bits & Decimal128::INFINITY_MASK == Decimal128::INFINITY_MASK
+    end
+
+    def high_bits
+      @high_bits ||= @decimal.instance_variable_get(:@high)
+    end
+
+    def low_bits
+      @low_bits ||= @decimal.instance_variable_get(:@low)
+    end
+  end
 
     # Register this type when the module is loaded.
     #
