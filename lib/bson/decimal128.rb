@@ -32,27 +32,27 @@ module BSON
     # Infinity mask.
     #
     # @since 4.1.0
-    INFINITY_MASK = 0x7800000000000000
+    INFINITY_MASK = 0x7800000000000000.freeze
 
     # NaN mask.
     #
     # @since 4.1.0
-    NAN_MASK = 0x7c00000000000000
+    NAN_MASK = 0x7c00000000000000.freeze
 
     # Signed bit mask.
     #
     # @since 4.1.0
-    SIGN_BIT_MASK = 1 << 63
+    SIGN_BIT_MASK = (1 << 63).freeze
 
     # Exponent offset.
     #
     # @since 4.1.0
-    EXPONENT_OFFSET = 6176
+    EXPONENT_OFFSET = 6176.freeze
 
     # Weird exponent mask (?)
     #
     # @since 4.1.0
-    WEIRD_EXPONENT_MASK = 3 << 61
+    WEIRD_EXPONENT_MASK = (3 << 61).freeze
 
     # Get the Decimal128 as JSON hash data.
     #
@@ -332,29 +332,11 @@ module BSON
       #
       # @since 4.1.0
       def from_string(string)
-        unless legal_string?(string)
-          raise Invalid.new("'#{string}' is an invalid Decimal128 string format.")
-        end
-
-        if (string =~ /\d+/).nil?
+        if Parser.special_type?(string)
           new(BigDecimal(string))
         else
-          original, sign, digits_str = /^(\-)?(\S+)/.match(string).to_a
-
-          digits, e, scientific_exp = digits_str.partition(/E\+?/)
-          before_decimal, decimal, after_decimal = digits.partition('.')
-
-          if before_decimal.to_i > 0
-            significant_digits = before_decimal << after_decimal
-          else
-            significant_digits = /(0*)(\d+)/.match(after_decimal).to_a[2]
-          end
-
-          exponent = -(after_decimal.length)
-          exponent = exponent + scientific_exp.to_i
-
           decimal = allocate
-          decimal.send(:set_bits, significant_digits, exponent, sign == '-')
+          decimal.send(:set_bits, *Parser.parse_string(string))
           decimal
         end
       end
@@ -380,26 +362,95 @@ module BSON
     # @since 4.1.0
     class Parser
 
+      class << self
+
+        # Regex matching a scientific exponent.
+        #
+        # @return [ Regex ] A regex matching E or E+.
+        #
+        # @since 4.1.0
+        SCIENTIFIC_EXPONENT_REGEX = /E\+?/.freeze
+
+        # Regex matching a post-decimal significand with leading zeros.
+        #
+        # @return [ Regex ] The regex matching a post-decimal significand
+        #   including leading zeros.
+        #
+        # @since 4.1.0
+        SIGNIFICAND_WITH_LEADING_ZEROS = /(0*)(\d+)/.freeze
+
+        # The decimal point string.
+        #
+        # @return [ String ] A decimal point.
+        #
+        # @since 4.1.0
+        DECIMAL_POINT = '.'.freeze
+
+        # Does the string represent a special Decimal128 type.
+        #
+        # @example Determine if the string is a special type.
+        #  Parser.special_type?('NaN')
+        #
+        # @return [ true, false ] Whether the string represents a special type.
+        #
+        # @since 4.1.0
+        def special_type?(string)
+          string =~ /#{self::NAN_STRING}|#{self::INFINITY_STRING}/
+        end
+
+        # Extract the decimal128 components from a string.
+        #
+        # @example Get the significand, exponent and sign from a string.
+        #  Parser.special_type?('NaN')
+        #
+        # @param [ String ] string The string to parse.
+        #
+        # @return [ Array<Object> ] The extracted significand, exponent
+        #   and whether the decimal128 is negative.
+        #
+        # @since 4.1.0
+        def parse_string(string)
+          original, sign, digits_str = /^(\-)?(\S+)/.match(string).to_a
+          digits, e, scientific_exp = digits_str.partition(SCIENTIFIC_EXPONENT_REGEX)
+          before_decimal, decimal, after_decimal = digits.partition(DECIMAL_POINT)
+
+          if before_decimal.to_i > 0
+            significant_digits = before_decimal << after_decimal
+          else
+            significant_digits = SIGNIFICAND_WITH_LEADING_ZEROS.match(after_decimal).to_a[2]
+          end
+          exponent = -(after_decimal.length)
+          exponent = exponent + scientific_exp.to_i
+          [ significant_digits, exponent, sign == '-' ]
+        end
+
+        private
+
+        def legal?(string)
+          string =~ /\d+/ || special_type?(string)
+        end
+      end
+
       # String representing a NaN value.
       #
       # @return [ String ] The string representing NaN.
       #
       # @since 4.1.0
-      NAN_STRING = 'NaN'
+      NAN_STRING = 'NaN'.freeze
 
       # String representing an Infinity value.
       #
       # @return [ String ] The string representing Infinity.
       #
       # @since 4.1.0
-      INFINITY_STRING = 'Infinity'
+      INFINITY_STRING = 'Infinity'.freeze
 
       # Initialize the Decimal128 parser.
       #
       # @example Initialize the parser.
       #  Parser.new(decimal)
       #
-      # @param [ BSON::Decaiml128 ] The decimal128 to be parsed.
+      # @param [ BSON::Decimal128 ] The decimal128 to be parsed.
       #
       # @since 4.1.0
       def initialize(decimal)
