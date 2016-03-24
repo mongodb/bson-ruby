@@ -198,12 +198,7 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "get_decimal128_bytes")
   public RubyString getDecimal128Bytes() {
-    ensureBsonRead();
-    byte[] bytes = new byte[16];
-    this.buffer.get(bytes);
-    RubyString string = RubyString.newString(getRuntime(), bytes);
-    this.readPosition += 16;
-    return string;
+    return getBytes(new RubyFixnum(getRuntime(), 16));
   }
 
   /**
