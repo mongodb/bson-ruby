@@ -18,7 +18,7 @@ describe 'Decimal128' do
           expect(test.decimal.to_s).to eq(test.string)
         end
 
-        it 'instantiates the correct Decaiml128 object from a string', if: test.ext_json do
+        it 'instantiates the correct Decimal128 object from a string', if: test.ext_json do
           expect(BSON::Decimal128.from_string(test.string)).to eq(test.decimal)
         end
 
@@ -35,7 +35,7 @@ describe 'Decimal128' do
         it 'raises an exception when parsing' do
           expect {
             test.parse_string
-          }.to raise_error(Exception)
+          }.to raise_error(BSON::Decimal128::InvalidString)
         end
       end
     end

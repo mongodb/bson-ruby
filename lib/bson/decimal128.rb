@@ -54,6 +54,11 @@ module BSON
     # @since 4.1.0
     WEIRD_EXPONENT_MASK = (3 << 61).freeze
 
+    # Regex for getting the significands.
+    #
+    # @since 4.1.0
+    SIGNIFICANDS_REGEX = /^(0*)(\d*)/.freeze
+
     # Get the Decimal128 as JSON hash data.
     #
     # @example Get the Decimal128 as a JSON hash.
@@ -123,7 +128,7 @@ module BSON
     #
     # @since 4.1.0
     def initialize(big_decimal)
-      raise Exception unless big_decimal.is_a?(BigDecimal)
+      raise Invalid.new unless big_decimal.is_a?(BigDecimal)
       if special_big_decimal?(big_decimal)
         set_special_values(big_decimal)
       else
@@ -211,10 +216,58 @@ module BSON
     end
     alias :to_str :to_s
 
-    # Raised when trying to create a decimal128 with invalid data.
+    # Raised when trying to create a Decimal128 from an invalid type.
     #
     # @since 4.1.0
     class Invalid < RuntimeError; end
+
+    # Raised when trying to create a Decimal128 with a significand outside
+    #   the valid range.
+    #
+    # @since 4.1.0
+    class InvalidRange < RuntimeError
+
+      # The custom error message for this error.
+      #
+      # @since 4.1.0
+      MESSAGE = 'Invalid significand range.'.freeze
+
+      # Get the custom error message for the exception.
+      #
+      # @example Get the message.
+      #   error.message
+      #
+      # @return [ String ] The error message.
+      #
+      # @since 4.1.0
+      def message
+        MESSAGE
+      end
+    end
+
+    # Raised when trying to create a Decimal128 from a string with
+    #   an invalid format.
+    #
+    # @since 4.1.0
+    class InvalidString < RuntimeError
+
+      # The custom error message for this error.
+      #
+      # @since 4.1.0
+      MESSAGE = 'Invalid string format for Decimal128.'.freeze
+
+      # Get the custom error message for the exception.
+      #
+      # @example Get the message.
+      #   error.message
+      #
+      # @return [ String ] The error message.
+      #
+      # @since 4.1.0
+      def message
+        MESSAGE
+      end
+    end
 
     private
 
@@ -270,11 +323,13 @@ module BSON
     end
 
     def validate_range!(significand_str)
-      raise Exception unless /^(0*)(\d*)/.match(significand_str).to_a[2].length <= 34
+      unless SIGNIFICANDS_REGEX.match(significand_str).to_a[2].length <= 34
+        raise InvalidRange.new
+      end
     end
 
     def validate_exponent!(exp)
-
+      # @todo
     end
 
     def get_low_bits(significand)
@@ -326,7 +381,7 @@ module BSON
       #
       # @param [ String ] string The string to create the decimal from.
       #
-      # @raise [ BSON::Decimal128::Invalid ] If the provided string is invalid.
+      # @raise [ BSON::Decimal128::InvalidString ] If the provided string is invalid.
       #
       # @return [ BSON::Decimal128 ] The new decimal128.
       #
@@ -339,21 +394,6 @@ module BSON
           decimal.send(:set_bits, *Parser.parse_string(string))
           decimal
         end
-      end
-
-      # Determine if the provided string is a legal decimal128.
-      #
-      # @example Is the string a legal decimal128?
-      #   BSON::Decimal128.legal?(string)
-      #
-      # @param [ String ] The string to check.
-      #
-      # @return [ true, false ] If the string is legal.
-      #
-      # @since 4.1.0
-      def legal_string?(string)
-       # @todo
-        true
       end
     end
 
@@ -371,9 +411,9 @@ module BSON
         # @since 4.1.0
         SCIENTIFIC_EXPONENT_REGEX = /E\+?/.freeze
 
-        # Regex matching a post-decimal significand with leading zeros.
+        # Regex for a post-decimal significand with leading zeros.
         #
-        # @return [ Regex ] The regex matching a post-decimal significand
+        # @return [ Regex ] The regex for matching a post-decimal significand
         #   including leading zeros.
         #
         # @since 4.1.0
@@ -385,6 +425,13 @@ module BSON
         #
         # @since 4.1.0
         DECIMAL_POINT = '.'.freeze
+
+        # Regex for a valid decimal128 format.
+        #
+        # @return [ Regex ] The regex for a valid decimal128 string.
+        #
+        # @since 4.1.0
+        VALID_DECIMAL128_STRING_REGEX = /^\-?\d+(\.\d+)?(E?[\-\+]?\d+)?$/.freeze
 
         # Does the string represent a special Decimal128 type.
         #
@@ -430,7 +477,7 @@ module BSON
         private
 
         def validate!(string)
-          raise Exception unless string =~ /^\-?\d+(\.\d+)?(E?[\-\+]?\d+)?$/
+          raise BSON::Decimal128::InvalidString.new unless string =~ VALID_DECIMAL128_STRING_REGEX
         end
       end
 

@@ -146,6 +146,18 @@ module BSON
         @decimal ||= decoded_document['d']
       end
 
+      # Create a decimal128 from the given test string.
+      #
+      # @example
+      #   test.parse_string
+      #
+      # @return [ BSON::Decimal128 ] The decimal128 object.
+      #
+      # @since 4.1.0
+      def parse_string
+        BSON::Decimal128.from_string(string)
+      end
+
       private
 
       def decoded_document
