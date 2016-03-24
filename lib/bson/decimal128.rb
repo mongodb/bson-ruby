@@ -195,8 +195,7 @@ module BSON
     #
     # @since 4.1.0
     def to_bson(buffer = ByteBuffer.new)
-      buffer.put_uint64(@low)
-      buffer.put_uint64(@high)
+      buffer.put_decimal128(@low, @high)
     end
 
     # Get the string representation of the decimal128.
@@ -313,8 +312,10 @@ module BSON
       # @since 4.1.0
       def from_bson(buffer)
         decimal = allocate
-        decimal.instance_variable_set(:@low, buffer.get_uint64)
-        decimal.instance_variable_set(:@high, buffer.get_uint64)
+        bytes = buffer.get_decimal128_bytes
+        low, high = bytes.unpack('Q*')
+        decimal.instance_variable_set(:@low, low)
+        decimal.instance_variable_set(:@high, high)
         decimal
       end
 

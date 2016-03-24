@@ -786,8 +786,7 @@ describe BSON::Decimal128 do
 
       let(:buffer) do
         buffer = BSON::ByteBuffer.new
-        buffer.put_uint64(low_bits)
-        buffer.put_uint64(high_bits)
+        buffer.put_decimal128(low_bits, high_bits)
       end
       let(:decimal) { BSON::Decimal128.from_bson(buffer) }
 
