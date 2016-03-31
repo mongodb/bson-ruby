@@ -146,7 +146,7 @@ module BSON
     #
     # @since 4.1.0
     def hash
-      num = @high << 64
+      num = @high << 63
       num |= @low
       num.hash
     end
