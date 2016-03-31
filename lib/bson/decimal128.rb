@@ -433,6 +433,13 @@ module BSON
         # @since 4.1.0
         VALID_DECIMAL128_STRING_REGEX = /^\-?\d+(\.\d+)?(E?[\-\+]?\d+)?$/.freeze
 
+        # Regex for separating a negative sign from the significands.
+        #
+        # @return [ Regex ] The regex for separating a sign from significands.
+        #
+        # @since 4.1.0
+        SIGN_DIGITS_SEPARATOR = /^(\-)?(\S+)/.freeze
+
         # Does the string represent a special Decimal128 type.
         #
         # @example Determine if the string is a special type.
@@ -442,7 +449,7 @@ module BSON
         #
         # @since 4.1.0
         def special_type?(string)
-          string =~ /#{self::NAN_STRING}|#{self::INFINITY_STRING}/
+          string =~ /#{NAN_STRING}|#{INFINITY_STRING}/
         end
 
         # Extract the decimal128 components from a string.
@@ -458,7 +465,7 @@ module BSON
         # @since 4.1.0
         def parse_string(string)
           validate!(string)
-          original, sign, digits_str = /^(\-)?(\S+)/.match(string).to_a
+          original, sign, digits_str = SIGN_DIGITS_SEPARATOR.match(string).to_a
 
           digits, e, scientific_exp = digits_str.partition(SCIENTIFIC_EXPONENT_REGEX)
           before_decimal, decimal, after_decimal = digits.partition(DECIMAL_POINT)
