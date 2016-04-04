@@ -12,20 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module BSON
-  module DriverDecimal128
+require 'json'
 
-    # Represents a Decimal128 specification test.
+module BSON
+  module CommonDriver
+
+    # Represents a Common Driver specification test.
     #
     # @since 4.1.0
     class Spec
 
       # The spec description.
       #
-      # @return [ String ] description The spec description.
+      # @return [ String ] The spec description.
       #
       # @since 4.1.0
       attr_reader :description
+
+      # The document key of the object to test.
+      #
+      # @return [ String ] The document key.
+      #
+      # @since 4.1.0
+      attr_reader :test_key
 
       # Instantiate the new spec.
       #
@@ -41,6 +50,8 @@ module BSON
         end
         @valid = @spec['valid']
         @invalid = @spec['parseErrors']
+        @description = @spec['description']
+        @test_key = @spec['test_key']
       end
 
       # Get a list of tests that don't raise exceptions.
@@ -48,13 +59,13 @@ module BSON
       # @example Get the list of valid tests.
       #   spec.valid_tests
       #
-      # @return [ Array<BSON::DriverDecimal128::Test> ] The list of valid Tests.
+      # @return [ Array<BSON::CommonDriver::Test> ] The list of valid Tests.
       #
       # @since 4.1.0
       def valid_tests
         @valid_tests ||=
           @valid.collect do |test|
-            BSON::DriverDecimal128::Test.new(test)
+            BSON::CommonDriver::Test.new(self, test)
           end
       end
 
@@ -63,63 +74,87 @@ module BSON
       # @example Get the list of invalid tests.
       #   spec.invalid_tests
       #
-      # @return [ Array<BSON::DriverDecimal128::Test> ] The list of invalid Tests.
+      # @return [ Array<BSON::CommonDriver::Test> ] The list of invalid Tests.
       #
       # @since 4.1.0
       def invalid_tests
         @invalid_tests ||=
           @invalid.collect do |test|
-            BSON::DriverDecimal128::Test.new(test)
+            BSON::CommonDriver::Test.new(self, test)
           end
+      end
+
+      # The class of the bson object to test.
+      #
+      # @example Get the class of the object to test.
+      #   spec.klass
+      #
+      # @return [ Class ] The object class.
+      #
+      # @since 4.1.0
+      def klass
+        @klass ||= BSON.const_get(description)
       end
     end
 
-    # Represents a single Decimal128 test.
+    # Represents a single CommonDriver test.
     #
     # @since 4.1.0
     class Test
 
       # The test description.
       #
-      # @return [ String ] description The test description.
+      # @return [ String ] The test description.
       #
       # @since 4.1.0
       attr_reader :description
 
       # The test subject.
       #
-      # @return [ String ] subject The test subject.
+      # @return [ String ] The test subject.
       #
       # @since 4.1.0
       attr_reader :subject
 
-      # The string representing the decimal128.
+      # The string representing the object.
       #
-      # @return [ String ] string The decimal128 as a string.
+      # @return [ String ] The object as a string.
       #
       # @since 4.1.0
       attr_reader :string
 
-      # The json representation of the decimal128.
+      # The json representation of the object.
       #
-      # @return [ Hash ] ext_json The json representation of the decimal128.
+      # @return [ Hash ] The json representation of the object.
       #
       # @since 4.1.0
       attr_reader :ext_json
+
+      # Whether the object can be instantiated from extended json.
+      #
+      # @return [ true, false ] If the object can be instantiated from
+      #   extended json.
+      #
+      # @since 4.1.0
+      attr_reader :from_extjson
 
       # Instantiate the new Test.
       #
       # @example Create the test.
       #   Test.new(test)
       #
+      # @param [ CommonDriver::Spec ] spec The test specification.
       # @param [ Hash ] test The test specification.
       #
       # @since 4.1.0
-      def initialize(test)
+      def initialize(spec, test)
+        @spec = spec
         @description = test['description']
         @string = test['string']
-        @ext_json = test['extjson']
+        @ext_json = ::JSON.parse(test['extjson']) if test['extjson']
+        @from_extjson = test['from_extjson'].nil? ? true : false
         @subject = test['subject']
+        @test_key = spec.test_key
       end
 
       # Get the reencoded document in hex format.
@@ -134,28 +169,64 @@ module BSON
         decoded_document.to_bson.to_s.unpack("H*").first
       end
 
-      # The decimal128 object described by this test.
+      # The object tested.
       #
-      # @example Get the decimal128 object for this test.
-      #   test.decimal
+      # @example Get the object for this test.
+      #   test.object
       #
-      # @return [ BSON::Decimal128 ] The decimal128 object.
+      # @return [ BSON::Object ] The object.
       #
       # @since 4.1.0
-      def decimal
-        @decimal ||= decoded_document['d']
+      def object
+        @object ||= decoded_document[@test_key]
       end
 
-      # Create a decimal128 from the given test string.
+      # The object as json, in a document with the test key.
+      #
+      # @example Get a document with the object at the test key.
+      #   test.document_as_json
+      #
+      # @return [ BSON::Document ] The json document.
+      #
+      # @since 4.1.0
+      def document_as_json
+        { @test_key => object.as_json }
+      end
+
+      # Create an object from the given test string.
       #
       # @example
       #   test.parse_string
       #
-      # @return [ BSON::Decimal128 ] The decimal128 object.
+      # @return [ BSON::Object ] The object.
       #
       # @since 4.1.0
       def parse_string
-        BSON::Decimal128.from_string(string)
+        klass.from_string(string)
+      end
+
+      # The class of the object being tested.
+      #
+      # @example
+      #   test.klass
+      #
+      # @return [ Class ] The object class.
+      #
+      # @since 4.1.0
+      def klass
+        @spec.klass
+      end
+
+      # The error class of a parse error.
+      #
+      # @example
+      #   test.parse_error
+      #
+      # @return [ Class ] The parse error class.
+      #
+      # @since 4.1.0
+      def parse_error
+        klass::InvalidString
       end
 
       private
