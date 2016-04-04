@@ -324,7 +324,7 @@ public class ByteBuf extends RubyObject {
    * @param high The high 64 bits.
    *
    * @author Emily Stolfo
-   * @since 2016.03.34
+   * @since 2016.03.24
    * @version 4.1.0
    */
   @JRubyMethod(name = "put_decimal128")
