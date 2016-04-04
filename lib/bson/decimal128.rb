@@ -415,14 +415,14 @@ module BSON
         # @return [ Regex ] A regex matching a positive or negative Infinity string.
         #
         # @since 4.1.0
-        INFINITY_REGEX = /^(\+|\-)?Inf(inity)?$/i
+        INFINITY_REGEX = /^(\+|\-)?Inf(inity)?$/i.freeze
 
         # Regex matching a string representing NaN.
         #
         # @return [ Regex ] A regex matching a NaN string.
         #
         # @since 4.1.0
-        NAN_REGEX = /^NaN$/i
+        NAN_REGEX = /^NaN$/i.freeze
 
         # Regex for a post-decimal significand with leading zeros.
         #
