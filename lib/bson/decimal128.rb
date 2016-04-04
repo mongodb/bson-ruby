@@ -293,13 +293,13 @@ module BSON
       end
     end
 
-    def set_bits(significand_str, exponent, negative = false)
+    def set_bits(significand_str, exponent, is_negative = false)
       validate_range!(significand_str)
       set_exponent!(exponent)
-      set_high_low_bits(significand_str, negative)
+      set_high_low_bits(significand_str, is_negative)
     end
 
-    def set_high_low_bits(significand_str, negative = false)
+    def set_high_low_bits(significand_str, is_negative = false)
       @significand = significand_str.to_i.abs
       @low = get_low_bits(@significand)
       @high = get_high_bits(@significand)
@@ -312,7 +312,7 @@ module BSON
         @high |= @exponent << 49
       end
 
-      if negative
+      if is_negative
         @high |= SIGN_BIT_MASK
       end
     end
