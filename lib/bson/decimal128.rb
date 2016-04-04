@@ -387,13 +387,12 @@ module BSON
       #
       # @since 4.1.0
       def from_string(string)
-        if Parser.special_type?(string)
-          new(BigDecimal(string))
-        else
-          decimal = allocate
-          decimal.send(:set_bits, *Parser.parse_string(string))
-          decimal
+        if decimal = Parser.parse_special_type(string)
+          return decimal
         end
+        decimal = allocate
+        decimal.send(:set_bits, *Parser.parse_string(string))
+        decimal
       end
     end
 
@@ -406,10 +405,24 @@ module BSON
 
         # Regex matching a scientific exponent.
         #
-        # @return [ Regex ] A regex matching E or E+.
+        # @return [ Regex ] A regex matching E, e, E+, e+.
         #
         # @since 4.1.0
-        SCIENTIFIC_EXPONENT_REGEX = /E\+?/.freeze
+        SCIENTIFIC_EXPONENT_REGEX = /(E|e)\+?/.freeze
+
+        # Regex matching a string representing positive or negative Infinity.
+        #
+        # @return [ Regex ] A regex matching a positive or negative Infinity string.
+        #
+        # @since 4.1.0
+        INFINITY_REGEX = /^(\+|\-)?Inf(inity)?$/i
+
+        # Regex matching a string representing NaN.
+        #
+        # @return [ Regex ] A regex matching a NaN string.
+        #
+        # @since 4.1.0
+        NAN_REGEX = /^NaN$/i
 
         # Regex for a post-decimal significand with leading zeros.
         #
@@ -431,7 +444,7 @@ module BSON
         # @return [ Regex ] The regex for a valid decimal128 string.
         #
         # @since 4.1.0
-        VALID_DECIMAL128_STRING_REGEX = /^\-?\d+(\.\d+)?(E?[\-\+]?\d+)?$/.freeze
+        VALID_DECIMAL128_STRING_REGEX = /^(\+|\-)?\d+(\.\d+)?((E|e)?[\-\+]?\d+)?$/.freeze
 
         # Regex for separating a negative sign from the significands.
         #
@@ -440,22 +453,10 @@ module BSON
         # @since 4.1.0
         SIGN_DIGITS_SEPARATOR = /^(\-)?(\S+)/.freeze
 
-        # Does the string represent a special Decimal128 type.
-        #
-        # @example Determine if the string is a special type.
-        #  Parser.special_type?('NaN')
-        #
-        # @return [ true, false ] Whether the string represents a special type.
-        #
-        # @since 4.1.0
-        def special_type?(string)
-          string =~ /#{NAN_STRING}|#{INFINITY_STRING}/
-        end
-
         # Extract the decimal128 components from a string.
         #
         # @example Get the significand, exponent and sign from a string.
-        #  Parser.special_type?('NaN')
+        #  Parser.parse_string('1.23')
         #
         # @param [ String ] string The string to parse.
         #
@@ -479,6 +480,24 @@ module BSON
           exponent = exponent + scientific_exp.to_i
 
           [ significant_digits, exponent, sign == '-' ]
+        end
+
+        # Parse a string representing positive or negative Infinity or NaN.
+        #
+        # @example Parse the string representing a special type.
+        #  Parser.parse_string('Nan')
+        #
+        # @param [ String ] string The string to parse.
+        #
+        # @return [ BSON::Decimal128 ] The corresponding Decimal128 object.
+        #
+        # @since 4.1.0
+        def parse_special_type(string)
+          if string =~ NAN_REGEX
+            BSON::Decimal128.new(BigDecimal(NAN_STRING))
+          elsif match = INFINITY_REGEX.match(string)
+            BSON::Decimal128.new(BigDecimal("#{match[1]}#{INFINITY_STRING}"))
+          end
         end
 
         private
@@ -571,7 +590,7 @@ module BSON
 
       def use_scientific_notation?(significand_string)
         @scientific_exponent = (significand_string.length - 1) + exponent
-        @scientific_exponent >= 12 || @scientific_exponent <= -4 || exponent > 0
+        exponent > 0 || @scientific_exponent < -6
       end
 
       def exponent

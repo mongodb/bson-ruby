@@ -130,14 +130,6 @@ module BSON
       # @since 4.1.0
       attr_reader :ext_json
 
-      # Whether the object can be instantiated from extended json.
-      #
-      # @return [ true, false ] If the object can be instantiated from
-      #   extended json.
-      #
-      # @since 4.1.0
-      attr_reader :from_extjson
-
       # Instantiate the new Test.
       #
       # @example Create the test.
@@ -152,7 +144,8 @@ module BSON
         @description = test['description']
         @string = test['string']
         @ext_json = ::JSON.parse(test['extjson']) if test['extjson']
-        @from_extjson = test['from_extjson'].nil? ? true : false
+        @from_ext_json = test['from_extjson'].nil? ? true : false
+        @to_ext_json = test['to_extjson'].nil? ? true : false
         @subject = test['subject']
         @test_key = spec.test_key
       end
@@ -193,6 +186,18 @@ module BSON
         { @test_key => object.as_json }
       end
 
+      # Use the string in the extended json to instantiate the bson object.
+      #
+      # @example Get a bson object from the string in the extended json.
+      #   test.from_json
+      #
+      # @return [ BSON::Object ] The BSON object.
+      #
+      # @since 4.1.0
+      def from_json
+        klass.from_string(@ext_json[@test_key].values.first)
+      end
+
       # Create an object from the given test string.
       #
       # @example
@@ -227,6 +232,32 @@ module BSON
       # @since 4.1.0
       def parse_error
         klass::InvalidString
+      end
+
+      # Whether the object can be instantiated from extended json.
+      #
+      # @example Check if an object can be instantiated from the extended json.
+      #  test.from_ex_json?
+      #
+      # @return [ true, false ] If the object can be instantiated from
+      #   the provided extended json.
+      #
+      # @since 4.1.0
+      def from_ext_json?
+        @from_ext_json
+      end
+
+      # Whether the object can be represented as extended json.
+      #
+      # @example Check if an object can be represented as extended json.
+      #  test.to_ext_json?
+      #
+      # @return [ true, false ] If the object can be represented as
+      #   extended json.
+      #
+      # @since 4.1.0
+      def to_ext_json?
+        @to_ext_json
       end
 
       private

@@ -901,7 +901,7 @@ describe BSON::Decimal128 do
 
       context 'when the decimal is 12345678901234567' do
 
-        let(:expected_string) { '1.2345678901234567E+16' }
+        let(:expected_string) { '12345678901234567' }
         let(:high_bits) { 0x3040000000000000 }
         let(:low_bits) { 0x002bdc545d6b4b87 }
 
@@ -910,7 +910,7 @@ describe BSON::Decimal128 do
 
       context 'when the decimal is -12345678901234567' do
 
-        let(:expected_string) { '-1.2345678901234567E+16' }
+        let(:expected_string) { '-12345678901234567' }
         let(:high_bits) { 0xb040000000000000 }
         let(:low_bits) { 0x002bdc545d6b4b87 }
 
@@ -919,7 +919,7 @@ describe BSON::Decimal128 do
 
       context 'when the decimal is 12345689012345789012345' do
 
-        let(:expected_string) { '1.2345689012345789012345E+22' }
+        let(:expected_string) { '12345689012345789012345' }
         let(:high_bits) { 0x304000000000029d }
         let(:low_bits) { 0x42da3a76f9e0d979 }
 
@@ -928,7 +928,7 @@ describe BSON::Decimal128 do
 
       context 'when the decimal is -12345689012345789012345' do
 
-        let(:expected_string) { '-1.2345689012345789012345E+22' }
+        let(:expected_string) { '-12345689012345789012345' }
         let(:high_bits) { 0xb04000000000029d }
         let(:low_bits) { 0x42da3a76f9e0d979 }
 
