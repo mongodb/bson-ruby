@@ -273,7 +273,7 @@ module BSON
 
     def split_big_decimal(value)
       simple_sign, digits, base, exp = value.split
-      exponent  = exp - digits.length
+      exponent = exp - digits.length
       [ value.sign, digits, exponent ]
     end
 
