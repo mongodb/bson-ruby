@@ -168,7 +168,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(buffer = ByteBuffer.new)
+    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       buffer.put_bytes(generate_data)
     end
 

@@ -45,7 +45,7 @@ module BSON
     # @return [ String ] An empty string.
     #
     # @since 2.0.0
-    def to_bson(buffer = ByteBuffer.new)
+    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       buffer
     end
 

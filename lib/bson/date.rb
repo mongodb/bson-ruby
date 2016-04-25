@@ -34,7 +34,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.1.0
-    def to_bson(buffer = ByteBuffer.new)
+    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       ::Time.utc(year, month, day).to_bson(buffer)
     end
 

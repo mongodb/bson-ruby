@@ -87,7 +87,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(buffer = ByteBuffer.new)
+    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       position = buffer.length
       buffer.put_int32(0)
       buffer.put_string(javascript)
