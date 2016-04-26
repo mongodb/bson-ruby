@@ -27,6 +27,111 @@ describe Array do
     it_behaves_like "a bson element"
     it_behaves_like "a serializable bson element"
     it_behaves_like "a deserializable bson element"
+
+    context "when the array has documents containing invalid keys" do
+
+      let(:obj) do
+        [ { "$testing" => "value" } ]
+      end
+
+      context "when validating keys" do
+
+        context "when validating globally" do
+
+          before do
+            BSON::Config.validating_keys = true
+          end
+
+          after do
+            BSON::Config.validating_keys = false
+          end
+
+          it "raises an error" do
+            expect {
+              obj.to_bson
+            }.to raise_error(BSON::String::IllegalKey)
+          end
+        end
+
+        context "when validating locally" do
+
+          it "raises an error" do
+            expect {
+              obj.to_bson(BSON::ByteBuffer.new, true)
+            }.to raise_error(BSON::String::IllegalKey)
+          end
+
+          context "when serializing different types" do
+
+            let(:obj) do
+              [ BSON::Binary.new("testing", :generic),
+                BSON::Code.new("this.value = 5"),
+                BSON::CodeWithScope.new("this.value = val", "test"),
+                Date.new(2012, 1, 1),
+                Time.utc(2012, 1, 1),
+                DateTime.new(2012, 1, 1, 0, 0, 0),
+                false,
+                1.2332,
+                Integer::MAX_32BIT - 1,
+                BSON::ObjectId.new,
+                /\W+/i,
+                'a string',
+                :a_symbol,
+                Time.utc(2012, 1, 1, 0, 0, 0),
+                BSON::Timestamp.new(1, 10),
+                true,
+                { "$testing" => "value" }
+              ]
+            end
+
+            it "raises an error" do
+              expect {
+                obj.to_bson(BSON::ByteBuffer.new, true)
+              }.to raise_error(BSON::String::IllegalKey)
+            end
+          end
+        end
+      end
+
+      context "when not validating keys" do
+
+        let(:bson) do
+          BSON::Document["0", { "$testing" => "value" }].to_bson.to_s
+        end
+
+        it "serializes the hash" do
+          expect(obj.to_bson.to_s).to eq(bson)
+        end
+
+        context "when serializing different types" do
+
+          let(:obj) do
+            [ BSON::Binary.new("testing", :generic),
+              BSON::Code.new("this.value = 5"),
+              BSON::CodeWithScope.new("this.value = val", "test"),
+              Date.new(2012, 1, 1),
+              Time.utc(2012, 1, 1),
+              DateTime.new(2012, 1, 1, 0, 0, 0),
+              false,
+              1.2332,
+              Integer::MAX_32BIT - 1,
+              BSON::ObjectId.new,
+              /\W+/i,
+              'a string',
+              :a_symbol,
+              Time.utc(2012, 1, 1, 0, 0, 0),
+              BSON::Timestamp.new(1, 10),
+              true,
+              { "$testing" => "value" }
+            ]
+          end
+
+          it "serializes the hash" do
+            expect(obj.to_bson.length).to eq(251)
+          end
+        end
+      end
+    end
   end
 
   describe "#to_bson_normalized_value" do

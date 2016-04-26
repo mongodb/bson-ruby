@@ -75,6 +75,19 @@ describe Hash do
               obj.to_bson
             }.to raise_error(BSON::String::IllegalKey)
           end
+
+          context "when the hash contains an array of documents containing invalid keys" do
+
+            let(:obj) do
+              { "array" =>  [{ "$testing" => "value" }] }
+            end
+
+            it "raises an error" do
+              expect {
+                obj.to_bson
+              }.to raise_error(BSON::String::IllegalKey)
+            end
+          end
         end
 
         context "when validating locally" do
@@ -83,6 +96,19 @@ describe Hash do
             expect {
               obj.to_bson(BSON::ByteBuffer.new, true)
             }.to raise_error(BSON::String::IllegalKey)
+          end
+
+          context "when the hash contains an array of documents containing invalid keys" do
+
+            let(:obj) do
+              { "array" =>  [{ "$testing" => "value" }] }
+            end
+
+            it "raises an error" do
+              expect {
+                obj.to_bson(BSON::ByteBuffer.new, true)
+              }.to raise_error(BSON::String::IllegalKey)
+            end
           end
         end
       end
@@ -96,6 +122,22 @@ describe Hash do
 
         it "serializes the hash" do
           expect(obj.to_bson.to_s).to eq(bson)
+        end
+
+        context "when the hash contains an array of documents containing invalid keys" do
+
+          let(:obj) do
+            { "array" =>  [{ "$testing" => "value" }] }
+          end
+
+          let(:bson) do
+            "#{45.to_bson.to_s}#{Array::BSON_TYPE}array#{BSON::NULL_BYTE}" +
+              "#{[{ "$testing" => "value" }].to_bson.to_s}#{BSON::NULL_BYTE}"
+          end
+
+          it "serializes the hash" do
+            expect(obj.to_bson.to_s).to eq(bson)
+          end
         end
       end
     end
