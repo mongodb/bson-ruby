@@ -1,10 +1,30 @@
 functions:
+  'install rvm':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        if [[ -s "$HOME/.rvm/scripts/rvm" ]] ; then
+          source "$HOME/.rvm/scripts/rvm"
+        elif [[ -s "/usr/local/rvm/scripts/rvm" ]] ; then
+          source "/usr/local/rvm/scripts/rvm"
+        else
+          gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+          \curl -sSL https://get.rvm.io | bash -s stable
+          source ~/.profile
+        fi
+  'install ruby':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        rvm install ruby-2.3.0
   'use ruby':
     command: shell.exec
     params:
       working_dir: src
       script: |
-        rvm use 2.3
+        rvm use 2.3.0
   'install bundler':
     command: shell.exec
     params:
@@ -46,6 +66,6 @@ buildvariants:
   - name: ubuntu
     display_name: Ubuntu
     run_on:
-    - ubuntu1404-test
+      - ubuntu1604-test
     tasks:
-    - name: build
+      - name: build
