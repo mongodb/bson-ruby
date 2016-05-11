@@ -1,0 +1,51 @@
+functions:
+  'use ruby':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        rvm use 2.3
+  'install bundler':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        gem install bundler
+  'install dependencies':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        bundle install
+  'clean project':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        bundle exec rake clean
+  'compile and run specs':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        bundle exec rake
+
+tasks:
+  - name: build
+    commands:
+      - command: git.get_project
+        params:
+          directory: src
+      - func: 'use ruby'
+      - func: 'install bundler'
+      - func: 'install dependencies'
+      - func: 'clean project'
+      - func: 'compile and run specs'
+
+buildvariants:
+  - name: ubuntu
+    display_name: Ubuntu
+    run_on:
+    - ubuntu1404-test
+    tasks:
+    - name: build
