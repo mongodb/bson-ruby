@@ -64,8 +64,20 @@ tasks:
 
 buildvariants:
   - name: ubuntu
-    display_name: Ubuntu
+    display_name: Ubuntu 16.04
     run_on:
       - ubuntu1604-test
+    tasks:
+      - name: build
+  - name: rhelzseries
+    display_name: Red Hat on Z Series
+    run_on:
+      - rhel72-zseries-test
+    tasks:
+      - name: build
+  - name: rhelpower
+    display_name: Red Hat on PowerPC
+    run_on:
+      - rhel71-power8-test
     tasks:
       - name: build
