@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gemspec
-gem 'json', :platforms => [ :jruby ]
+gem 'json'
 gem 'rake'
 
 group :development, :test do
