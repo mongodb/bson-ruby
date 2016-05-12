@@ -7,6 +7,9 @@ functions:
         if [ -s "$HOME/.rvm/scripts/rvm" ] ; then
           export PATH="$PATH:$HOME/.rvm/bin"
           . "$HOME/.rvm/scripts/rvm"
+        elif [ -s "/usr/local/rvm/scripts/rvm" ] ; then
+          export PATH="$PATH:/usr/local/rvm/bin"
+          . "/usr/local/rvm/scripts/rvm"
         else
           command curl -sSL https://rvm.io/mpapis.asc | gpg --import -
           curl -sSL https://get.rvm.io | bash -s stable --auto-dotfiles
