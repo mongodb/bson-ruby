@@ -5,13 +5,13 @@ functions:
       working_dir: src
       script: |
         if [ -s "$HOME/.rvm/scripts/rvm" ] ; then
-          ls -la "$HOME/.rvm/scripts"
-          more "$HOME/.profile"
-          . "$HOME/.profile"
+          export PATH="$PATH:$HOME/.rvm/bin"
+          . "$HOME/.rvm/scripts/rvm"
         else
           command curl -sSL https://rvm.io/mpapis.asc | gpg --import -
           curl -sSL https://get.rvm.io | bash -s stable --auto-dotfiles
-          . "$HOME/.profile"
+          export PATH="$PATH:$HOME/.rvm/bin"
+          . "$HOME/.rvm/scripts/rvm"
         fi
   'install ruby':
     command: shell.exec
