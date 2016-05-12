@@ -11,8 +11,19 @@ functions:
         else
           command curl -sSL https://rvm.io/mpapis.asc | gpg --import -
           curl -sSL https://get.rvm.io | bash -s stable --auto-dotfiles
-          bash -s . "$HOME/.profile"
         fi
+  'source rvm ubuntu':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        source "$HOME/.rvm/scripts/rvm"
+  'source rvm default':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        bash -s . "$HOME/.profile"
   'install ruby':
     command: shell.exec
     params:
@@ -57,12 +68,41 @@ functions:
         bundle exec rake spec
 
 tasks:
-  - name: build
+  - name: 'build-zseries'
     commands:
       - command: git.get_project
         params:
           directory: src
       - func: 'install rvm'
+      - func: 'source rvm default'
+      - func: 'install ruby'
+      - func: 'use ruby'
+      - func: 'install bundler'
+      - func: 'install dependencies'
+      - func: 'clean project'
+      - func: 'compile'
+      - func: 'run specs'
+  - name: 'build-ppc'
+    commands:
+      - command: git.get_project
+        params:
+          directory: src
+      - func: 'install rvm'
+      - func: 'source rvm default'
+      - func: 'install ruby'
+      - func: 'use ruby'
+      - func: 'install bundler'
+      - func: 'install dependencies'
+      - func: 'clean project'
+      - func: 'compile'
+      - func: 'run specs'
+  - name: 'build-ubuntu'
+    commands:
+      - command: git.get_project
+        params:
+          directory: src
+      - func: 'install rvm'
+      - func: 'source rvm ubuntu'
       - func: 'install ruby'
       - func: 'use ruby'
       - func: 'install bundler'
@@ -77,16 +117,16 @@ buildvariants:
     run_on:
       - ubuntu1410-test
     tasks:
-      - name: build
+      - name: 'build-ubuntu'
   - name: rhelzseries
     display_name: RHEL 7.2 Z-Series
     run_on:
       - rhel72-zseries-test
     tasks:
-      - name: build
+      - name: 'build-zseries'
   - name: rhelpower
     display_name: RHEL 7.1 PowerPC
     run_on:
       - rhel71-power8-test
     tasks:
-      - name: build
+      - name: 'build-ppc'
