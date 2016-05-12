@@ -11,7 +11,7 @@ functions:
         else
           command curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -
           curl -sSL https://get.rvm.io | bash -s stable --auto-dotfiles
-          bash -s source "$HOME/.profile"
+          bash source "$HOME/.profile"
         fi
   'install ruby':
     command: shell.exec
@@ -43,43 +43,26 @@ functions:
       working_dir: src
       script: |
         bundle exec rake clean
-  'compile':
+  'compile and run specs':
     command: shell.exec
     params:
       working_dir: src
       script: |
-        bundle exec rake compile
-  'run specs':
-    command: shell.exec
-    params:
-      working_dir: src
-      script: |
-        bundle exec rake spec
+        bundle exec rake
 
 tasks:
-  - name: checkout
+  - name: build
     commands:
       - command: git.get_project
         params:
           directory: src
-  - name: rvm
-    commands:
       - func: 'install rvm'
       - func: 'install ruby'
       - func: 'use ruby'
-  - name: bundler
-    commands:
       - func: 'install bundler'
       - func: 'install dependencies'
-  - name: clean
-    commands:
       - func: 'clean project'
-  - name: compile
-    commands:
-      - func: 'compile'
-  - name: spec
-    commands:
-      - func: 'run specs'
+      - func: 'compile and run specs'
 
 buildvariants:
   - name: ubuntu
@@ -87,31 +70,16 @@ buildvariants:
     run_on:
       - ubuntu1604-test
     tasks:
-      - name: checkout
-      - name: rvm
-      - name: bundler
-      - name: clean
-      - name: compile
-      - name: spec
+      - name: build
   - name: rhelzseries
     display_name: RHEL 7.2 Z-Series
     run_on:
       - rhel72-zseries-test
     tasks:
-      - name: checkout
-      - name: rvm
-      - name: bundler
-      - name: clean
-      - name: compile
-      - name: spec
+      - name: build
   - name: rhelpower
     display_name: RHEL 7.1 PowerPC
     run_on:
       - rhel71-power8-test
     tasks:
-      - name: checkout
-      - name: rvm
-      - name: bundler
-      - name: clean
-      - name: compile
-      - name: spec
+      - name: build
