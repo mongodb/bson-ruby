@@ -19,12 +19,18 @@ functions:
       working_dir: src
       script: |
         rvm install ruby-2.3.0
-  'use ruby':
+  'use ruby standard':
     command: shell.exec
     params:
       working_dir: src
       script: |
         rvm use 2.3.0
+  'use ruby pps':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        bash --login -s rvm use 2.3.0
   'install bundler':
     command: shell.exec
     params:
@@ -67,12 +73,18 @@ tasks:
       - name: checkout
     commands:
       - func: 'install rvm'
-  - name: ruby
+  - name: rubystandard
     depends_on:
       - name: rvm
     commands:
       - func: 'install ruby'
-      - func: 'use ruby'
+      - func: 'use ruby standard'
+  - name: rubyppc
+    depends_on:
+      - name: rvm
+    commands:
+      - func: 'install ruby'
+      - func: 'use ruby ppc'
   - name: bundler
     depends_on:
       - name: ruby
@@ -103,7 +115,7 @@ buildvariants:
     tasks:
       - name: checkout
       - name: rvm
-      - name: ruby
+      - name: rubystandard
       - name: bundler
       - name: clean
       - name: compile
@@ -115,7 +127,7 @@ buildvariants:
     tasks:
       - name: checkout
       - name: rvm
-      - name: ruby
+      - name: rubystandard
       - name: bundler
       - name: clean
       - name: compile
@@ -127,7 +139,7 @@ buildvariants:
     tasks:
       - name: checkout
       - name: rvm
-      - name: ruby
+      - name: rubyppc
       - name: bundler
       - name: clean
       - name: compile
