@@ -43,26 +43,57 @@ functions:
       working_dir: src
       script: |
         bundle exec rake clean
-  'compile and run specs':
+  'compile':
     command: shell.exec
     params:
       working_dir: src
       script: |
-        bundle exec rake
+        bundle exec rake compile
+  'run specs':
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        bundle exec rake spec
 
 tasks:
-  - name: build
+  - name: checkout
     commands:
       - command: git.get_project
         params:
           directory: src
+  - name: rvm
+    depends_on:
+      - name: checkout
+    commands:
       - func: 'install rvm'
+  - name: ruby
+    depends_on:
+      - name: rvm
+    commands:
       - func: 'install ruby'
       - func: 'use ruby'
+  - name: bundler
+    depends_on:
+      - name: ruby
+    commands:
       - func: 'install bundler'
       - func: 'install dependencies'
+  - name: clean
+    depends_on:
+      - name: bundler
+    commands:
       - func: 'clean project'
-      - func: 'compile and run specs'
+  - name: compile
+    depends_on:
+      - name: clean
+    commands:
+      - func: 'compile'
+  - name: rspec
+    depends_on:
+      - name: compile
+    commands:
+      - func: 'run specs'
 
 buildvariants:
   - name: ubuntu
@@ -70,16 +101,34 @@ buildvariants:
     run_on:
       - ubuntu1604-test
     tasks:
-      - name: build
+      - name: checkout
+      - name: rvm
+      - name: ruby
+      - name: bundler
+      - name: clean
+      - name: compile
+      - name: rspec
   - name: rhelzseries
     display_name: RHEL 7.2 Z-Series
     run_on:
       - rhel72-zseries-test
     tasks:
-      - name: build
+      - name: checkout
+      - name: rvm
+      - name: ruby
+      - name: bundler
+      - name: clean
+      - name: compile
+      - name: rspec
   - name: rhelpower
     display_name: RHEL 7.1 PowerPC
     run_on:
       - rhel71-power8-test
     tasks:
-      - name: build
+      - name: checkout
+      - name: rvm
+      - name: ruby
+      - name: bundler
+      - name: clean
+      - name: compile
+      - name: rspec
