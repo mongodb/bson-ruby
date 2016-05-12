@@ -17,7 +17,10 @@ functions:
     params:
       working_dir: src
       script: |
-        source "$HOME/.rvm/scripts/rvm"
+        echo $HOME
+        ls -la $HOME
+        ls -la $HOME/.rvm/scripts
+        export PATH="$HOME/.rvm/scripts/:$PATH"
   'source rvm default':
     command: shell.exec
     params:
@@ -35,7 +38,7 @@ functions:
     params:
       working_dir: src
       script: |
-        bash --login -s rvm use 2.3.0
+        rvm use 2.3.0
   'install bundler':
     command: shell.exec
     params:
