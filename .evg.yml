@@ -17,11 +17,8 @@ functions:
     params:
       working_dir: src
       script: |
-        echo $HOME
-        ls -la $HOME
-        ls -la $HOME/.rvm/scripts
-        more $HOME/.profile
-        export PATH="$HOME/.rvm/scripts/:$PATH"
+        export PATH="$PATH:$HOME/.rvm/bin"
+        [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
   'source rvm default':
     command: shell.exec
     params:
