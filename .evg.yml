@@ -5,14 +5,14 @@ functions:
       working_dir: src
       script: |
         bash
-        if [[ -s "$HOME/.rvm/scripts/rvm" ]] ; then
-          source "$HOME/.rvm/scripts/rvm"
-        elif [[ -s "/usr/local/rvm/scripts/rvm" ]] ; then
-          source "/usr/local/rvm/scripts/rvm"
+        if [ -s "$HOME/.rvm/scripts/rvm" ] ; then
+          . "$HOME/.rvm/scripts/rvm"
+        elif [ -s "/usr/local/rvm/scripts/rvm" ] ; then
+          . "/usr/local/rvm/scripts/rvm"
         else
           command curl -sSL https://rvm.io/mpapis.asc | gpg --import -
           curl -sSL https://get.rvm.io | bash -s stable --auto-dotfiles
-          source "$HOME/.profile"
+          . "$HOME/.profile"
         fi
   'install ruby':
     command: shell.exec
