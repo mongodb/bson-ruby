@@ -6,9 +6,13 @@ functions:
       script: |
         if [[ -s "$HOME/.rvm/scripts/rvm" ]] ; then
           source "$HOME/.rvm/scripts/rvm"
+        elif [[ -s "/usr/local/rvm/scripts/rvm" ]] ; then
+          source "/usr/local/rvm/scripts/rvm"
         else
-          echo $HOME
+          pwd
           ls -la
+          echo $HOME
+          ls -la $HOME
           command curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -
           curl -sSL https://get.rvm.io | bash -s stable
         fi
