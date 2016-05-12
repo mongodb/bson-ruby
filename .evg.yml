@@ -9,7 +9,7 @@ functions:
         elif [[ -s "/usr/local/rvm/scripts/rvm" ]] ; then
           source "/usr/local/rvm/scripts/rvm"
         else
-          command curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -
+          command curl -sSL https://rvm.io/mpapis.asc | gpg --import -
           curl -sSL https://get.rvm.io | bash -s stable --auto-dotfiles
           bash -s . "$HOME/.profile"
         fi
@@ -97,9 +97,9 @@ tasks:
 
 buildvariants:
   - name: ubuntu
-    display_name: Ubuntu 16.04 x86
+    display_name: Ubuntu 14.10 x86
     run_on:
-      - ubuntu1604-test
+      - ubuntu1410-test
     tasks:
       - name: checkout
       - name: rvm
