@@ -21,43 +21,43 @@ functions:
     params:
       working_dir: src
       script: |
-        rvm install ruby-2.3.0
+        bash -l rvm install ruby-2.3.0
   'use ruby':
     command: shell.exec
     params:
       working_dir: src
       script: |
-        rvm use 2.3.0
+        bash -l rvm use 2.3.0
   'install bundler':
     command: shell.exec
     params:
       working_dir: src
       script: |
-        gem install bundler
+        bash -l gem install bundler
   'install dependencies':
     command: shell.exec
     params:
       working_dir: src
       script: |
-        bundle install
+        bash -l bundle install
   'clean project':
     command: shell.exec
     params:
       working_dir: src
       script: |
-        bundle exec rake clean
+        bash -l bundle exec rake clean
   'compile':
     command: shell.exec
     params:
       working_dir: src
       script: |
-        bundle exec rake compile
+        bash -l bundle exec rake compile
   'run specs':
     command: shell.exec
     params:
       working_dir: src
       script: |
-        bundle exec rake spec
+        bash -l bundle exec rake spec
 
 tasks:
   - name: 'build'
