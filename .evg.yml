@@ -6,15 +6,15 @@ functions:
       script: |
         if [ -s "$HOME/.rvm/scripts/rvm" ] ; then
           export PATH="$PATH:$HOME/.rvm/bin"
-          . "$HOME/.rvm/scripts/rvm"
+          bash -s source "$HOME/.rvm/scripts/rvm"
         elif [ -s "/usr/local/rvm/scripts/rvm" ] ; then
           export PATH="$PATH:/usr/local/rvm/bin"
-          . "/usr/local/rvm/scripts/rvm"
+          bash -s source "/usr/local/rvm/scripts/rvm"
         else
           command curl -sSL https://rvm.io/mpapis.asc | gpg --import -
           curl -sSL https://get.rvm.io | bash -s stable --auto-dotfiles
           export PATH="$PATH:$HOME/.rvm/bin"
-          . "$HOME/.rvm/scripts/rvm"
+          bash -s source "$HOME/.rvm/scripts/rvm"
         fi
   'install ruby':
     command: shell.exec
@@ -79,18 +79,6 @@ buildvariants:
     display_name: Debian 8.1 x86
     run_on:
       - debian81-test
-    tasks:
-      - name: 'build'
-  - name: amazon
-    display_name: Amazon Linux 64bit x86
-    run_on:
-      - linux-64-amzn-test
-    tasks:
-      - name: 'build'
-  - name: suse
-    display_name: Suse 12 x86
-    run_on:
-      - suse12-test
     tasks:
       - name: 'build'
   - name: rhelzseries
