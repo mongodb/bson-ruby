@@ -49,10 +49,10 @@ module BSON
     # @since 4.1.0
     EXPONENT_OFFSET = 6176.freeze
 
-    # Weird exponent mask (?)
+    # The two highest bits of the 64 high order bits.
     #
     # @since 4.1.0
-    TWO_HIGH_BITS_SET = (3 << 61).freeze
+    TWO_HIGHEST_BITS_SET = (3 << 61).freeze
 
     # Regex for getting the significands.
     #
@@ -126,11 +126,13 @@ module BSON
     # @param [ BigDecimal ] big_decimal The BigDecimal to use for
     #   instantiating a Decimal128.
     #
+    # @raise [ InvalidBigDecimal ] Raise error unless object is a BigDecimal.
+    #
     # @since 4.1.0
     def initialize(big_decimal)
-      raise Invalid.new unless big_decimal.is_a?(BigDecimal)
+      raise InvalidBigDecimal.new unless big_decimal.is_a?(BigDecimal)
       if special_big_decimal?(big_decimal)
-        set_special_values(big_decimal)
+        set_special_bit_orders(big_decimal)
       else
         sign, sig_digits, exponent = split_big_decimal(big_decimal)
         set_bits(sig_digits, exponent, sign == BigDecimal::SIGN_NEGATIVE_FINITE)
@@ -146,7 +148,7 @@ module BSON
     #
     # @since 4.1.0
     def hash
-      num = @high << 63
+      num = @high << 64
       num |= @low
       num.hash
     end
@@ -219,7 +221,7 @@ module BSON
     # Raised when trying to create a Decimal128 from an invalid type.
     #
     # @since 4.1.0
-    class Invalid < RuntimeError; end
+    class InvalidBigDecimal < RuntimeError; end
 
     # Raised when trying to create a Decimal128 with a significand outside
     #   the valid range.
@@ -281,7 +283,7 @@ module BSON
       decimal.infinite? || decimal.nan?
     end
 
-    def set_special_values(decimal)
+    def set_special_bit_orders(decimal)
       @low = 0
       case decimal.sign
         when BigDecimal::SIGN_POSITIVE_INFINITE
@@ -550,21 +552,9 @@ module BSON
       private
 
       def parse
-        high_bits = @decimal.instance_variable_get(:@high)
-        low_bits = @decimal.instance_variable_get(:@low)
-        significand = 0
-
-        0.upto(112) do |i|
-          if i < 64
-            if low_bits[i] == 1
-              significand |= 1 << i
-            end
-          else
-            if high_bits[i - 64] == 1
-              significand |= 1 << i
-            end
-          end
-        end
+        significand = @decimal.instance_variable_get(:@high) & 0x1ffffffffffff
+        significand = significand << 64
+        significand  = (significand |= @decimal.instance_variable_get(:@low))
         get_string(significand)
       end
 
@@ -597,7 +587,7 @@ module BSON
       end
 
       def two_highest_bits_set?
-        high_bits & Decimal128::TWO_HIGH_BITS_SET == Decimal128::TWO_HIGH_BITS_SET
+        high_bits & Decimal128::TWO_HIGHEST_BITS_SET == Decimal128::TWO_HIGHEST_BITS_SET
       end
 
       def nan?
