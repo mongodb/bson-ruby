@@ -444,7 +444,7 @@ module BSON
         # @return [ Regex ] The regex for a valid decimal128 string.
         #
         # @since 4.1.0
-        VALID_DECIMAL128_STRING_REGEX = /^(\+|\-)?\d+(\.\d+)?((E|e)?[\-\+]?\d+)?$/.freeze
+        VALID_DECIMAL128_STRING_REGEX = /^(\+|\-)?(\d+|(\d*\.\d+))?((E|e)?[\-\+]?\d+)?$/.freeze
 
         # Regex for separating a negative sign from the significands.
         #
