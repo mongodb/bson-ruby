@@ -13,7 +13,7 @@
 # limitations under the License.
 
 CURRENT_PATH = File.expand_path(File.dirname(__FILE__))
-DRIVER_COMMON_BSON_TESTS = Dir.glob("#{CURRENT_PATH}/support/driver-spec-tests/*.yml")
+DRIVER_COMMON_BSON_TESTS = Dir.glob("#{CURRENT_PATH}/support/driver-spec-tests/**/*.yml")
 
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "..", "lib"))

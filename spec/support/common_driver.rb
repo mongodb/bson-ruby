@@ -49,7 +49,7 @@ module BSON
           @spec = YAML.load(ERB.new(file.read).result)
         end
         @valid = @spec['valid']
-        @invalid = @spec['parseErrors']
+        @invalid = @spec['parseErrors'] || []
         @description = @spec['description']
         @test_key = @spec['test_key']
       end
@@ -144,8 +144,8 @@ module BSON
         @description = test['description']
         @string = test['string']
         @ext_json = ::JSON.parse(test['extjson']) if test['extjson']
-        @from_ext_json = test['from_extjson'].nil? ? true : false
-        @to_ext_json = test['to_extjson'].nil? ? true : false
+        @from_ext_json = test['from_extjson'].nil? ? true : test['from_extjson']
+        @to_ext_json = test['to_extjson'].nil? ? true : test['to_extjson']
         @subject = test['subject']
         @test_key = spec.test_key
       end

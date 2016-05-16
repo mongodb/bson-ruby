@@ -52,7 +52,7 @@ module BSON
     # Weird exponent mask (?)
     #
     # @since 4.1.0
-    WEIRD_EXPONENT_MASK = (3 << 61).freeze
+    TWO_HIGH_BITS_SET = (3 << 61).freeze
 
     # Regex for getting the significands.
     #
@@ -199,7 +199,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 4.1.0
-    def to_bson(buffer = ByteBuffer.new)
+    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       buffer.put_decimal128(@low, @high)
     end
 
@@ -396,7 +396,7 @@ module BSON
       end
     end
 
-    # Class for parsing a decimal into a string.
+    # Class for parsing a decimal into and from a string.
     #
     # @since 4.1.0
     class Parser
@@ -552,27 +552,24 @@ module BSON
       def parse
         high_bits = @decimal.instance_variable_get(:@high)
         low_bits = @decimal.instance_variable_get(:@low)
-        num = set_bits(0, low_bits, 63)
-        num = set_bits(num, high_bits, 47, 64)
-        apply_exponent_mask(num)
-        get_string(num)
-      end
+        significand = 0
 
-      def set_bits(to, from, bit_length, offset = 0)
-        0.upto(bit_length) do |i|
-          if from[i] == 1
-            to |= 1 << (i + offset)
+        0.upto(112) do |i|
+          if i < 64
+            if low_bits[i] == 1
+              significand |= 1 << i
+            end
+          else
+            if high_bits[i - 64] == 1
+              significand |= 1 << i
+            end
           end
         end
-        to
-      end
-
-      def apply_exponent_mask(num)
-
+        get_string(significand)
       end
 
       def get_string(significand)
-        sig_string = significand.to_s
+        sig_string = two_highest_bits_set? ? '0' : significand.to_s
         if use_scientific_notation?(sig_string)
           sign = exponent < 0 ? '' : '+'
           beginning = sig_string.length > 1 ?  sig_string[0] << '.' : sig_string
@@ -594,9 +591,13 @@ module BSON
       end
 
       def exponent
-        @exponent ||= high_bits & Decimal128::WEIRD_EXPONENT_MASK == Decimal128::WEIRD_EXPONENT_MASK ?
+        @exponent ||= two_highest_bits_set? ?
                         ((high_bits & 0x1fffe00000000000) >> 47) - Decimal128::EXPONENT_OFFSET :
                         ((high_bits & 0x7fff800000000000) >> 49) - Decimal128::EXPONENT_OFFSET
+      end
+
+      def two_highest_bits_set?
+        high_bits & Decimal128::TWO_HIGH_BITS_SET == Decimal128::TWO_HIGH_BITS_SET
       end
 
       def nan?
