@@ -46,7 +46,7 @@ module BSON
       # @since 4.1.0
       def initialize(file)
         @spec = ::JSON.parse(File.read(file))
-        @valid = @spec['valid']
+        @valid = @spec['valid'] || []
         @invalid = @spec['parseErrors'] || []
         @description = @spec['description']
         @test_key = @spec['test_key']
