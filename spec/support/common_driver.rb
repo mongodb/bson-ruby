@@ -45,9 +45,7 @@ module BSON
       #
       # @since 4.1.0
       def initialize(file)
-        File.open(file) do |file|
-          @spec = YAML.load(ERB.new(file.read).result)
-        end
+        @spec = ::JSON.parse(File.read(file))
         @valid = @spec['valid']
         @invalid = @spec['parseErrors'] || []
         @description = @spec['description']
