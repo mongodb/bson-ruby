@@ -35,7 +35,7 @@ if jruby?
 else
   require "rake/extensiontask"
   Rake::ExtensionTask.new do |ext|
-    ext.name = "native"
+    ext.name = "bson_native"
     ext.ext_dir = "ext/bson"
     ext.lib_dir = "lib"
   end
@@ -64,8 +64,8 @@ end
 task :clean_all => :clean do
   begin
     Dir.chdir(Pathname(__FILE__).dirname + "lib") do
-      `rm native.#{extension}`
-      `rm native.o`
+      `rm bson_native.#{extension}`
+      `rm bson_native.o`
       `rm bson-ruby.jar`
     end
   rescue Exception => e

@@ -96,9 +96,9 @@ static char rb_bson_machine_id_hash[HOST_NAME_HASH_MAX];
 static uint32_t rb_bson_object_id_counter;
 
 /**
- * Initialize the native extension.
+ * Initialize the bson_native extension.
  */
-void Init_native()
+void Init_bson_native()
 {
   char rb_bson_machine_id[256];
 

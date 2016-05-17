@@ -98,7 +98,7 @@ begin
     require "bson-ruby.jar"
     org.bson.NativeService.new.basicLoad(JRuby.runtime)
   else
-    require "native"
+    require "bson_native"
   end
 rescue LoadError
   $stderr.puts("BSON is using the pure Ruby implementation.")
