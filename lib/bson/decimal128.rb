@@ -49,6 +49,16 @@ module BSON
     # @since 4.1.0
     EXPONENT_OFFSET = 6176.freeze
 
+    # Minimum exponent.
+    #
+    # @since 4.1.0
+    MIN_EXPONENT = -6176.freeze
+
+    # Maximum exponent.
+    #
+    # @since 4.1.0
+    MAX_EXPONENT = 6111.freeze
+
     # The two highest bits of the 64 high order bits.
     #
     # @since 4.1.0
@@ -227,7 +237,7 @@ module BSON
     #   the valid range.
     #
     # @since 4.1.0
-    class InvalidRange < RuntimeError
+    class InvalidSignificand < RuntimeError
 
       # The custom error message for this error.
       #
@@ -257,6 +267,30 @@ module BSON
       #
       # @since 4.1.0
       MESSAGE = 'Invalid string format for Decimal128.'.freeze
+
+      # Get the custom error message for the exception.
+      #
+      # @example Get the message.
+      #   error.message
+      #
+      # @return [ String ] The error message.
+      #
+      # @since 4.1.0
+      def message
+        MESSAGE
+      end
+    end
+
+    # Raised when the exponent provided is outside the valid range.
+    #
+    # @since 4.1.0
+    class InvalidExponent < RuntimeError
+
+      # The custom error message for this error.
+      #
+      # @since 4.1.0
+      MESSAGE = "Exponent out of range. It must be at least #{Decimal128::MIN_EXPONENT} and ' +
+                  'no greater than #{Decimal128::MAX_EXPONENT}.".freeze
 
       # Get the custom error message for the exception.
       #
@@ -330,8 +364,8 @@ module BSON
       end
     end
 
-    def validate_exponent!(exp)
-      # @todo
+    def validate_exponent!(exponent)
+      raise InvalidExponent.new unless Parser.valid_exponent?(exponent)
     end
 
     def get_low_bits(significand)
@@ -480,8 +514,32 @@ module BSON
           end
           exponent = -(after_decimal.length)
           exponent = exponent + scientific_exp.to_i
+          exponent, significant_digits = round_exact!(exponent, significant_digits)
+          exponent, significant_digits = clamp!(exponent, significant_digits)
+          raise Decimal128::InvalidExponent.new unless valid_exponent?(exponent)
 
           [ significant_digits, exponent, sign == '-' ]
+        end
+
+        def round_exact!(exponent, significant_digits)
+          if exponent < Decimal128::MIN_EXPONENT
+            while exponent < Decimal128::MIN_EXPONENT && significant_digits[-1] == '0'
+              exponent += 1
+              significant_digits.slice!('0')
+            end
+          end
+
+          [exponent, significant_digits]
+        end
+
+        def clamp!(exponent, significant_digits)
+          if exponent > Decimal128::MAX_EXPONENT
+            while exponent > Decimal128::MAX_EXPONENT && significant_digits.length < 34
+              exponent -= 1
+              significant_digits << '0'
+            end
+          end
+          [exponent, significant_digits]
         end
 
         # Parse a string representing positive or negative Infinity or NaN.
@@ -500,6 +558,10 @@ module BSON
           elsif match = INFINITY_REGEX.match(string)
             BSON::Decimal128.new(BigDecimal("#{match[1]}#{INFINITY_STRING}"))
           end
+        end
+
+        def valid_exponent?(exp)
+          exp >= Decimal128::MIN_EXPONENT && exp <= Decimal128::MAX_EXPONENT
         end
 
         private

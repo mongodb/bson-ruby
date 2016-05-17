@@ -288,16 +288,16 @@
       string: "-Infinity"
       to_extjson: false
       extjson: "{\"d\" : {\"$numberDecimal\" : \"-inF\"}}"
-#    -
-#      description: "Rounded Subnormal number"
-#      subject: "180000001364000100000000000000000000000000000000"
-#      string: "10E-6177"
-#      match_string: "1E-6176"
-#    -
-#      description: "Clamped"
-#      subject: "180000001364000a00000000000000000000000000fe5f00"
-#      string: "1E6112"
-#      match_string: "1.0E+6112"
+    -
+      description: "Rounded Subnormal number"
+      subject: "180000001364000100000000000000000000000000000000"
+      string: "10E-6177"
+      match_string: "1E-6176"
+    -
+      description: "Clamped"
+      subject: "180000001364000a00000000000000000000000000fe5f00"
+      string: "1E6112"
+      match_string: "1.0E+6112"
 #    -
 #      description: "Exact rounding"
 #      subject: "18000000136400000000000a5bc138938d44c64d31cc3700"

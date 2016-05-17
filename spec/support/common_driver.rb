@@ -116,12 +116,19 @@ module BSON
       # @since 4.1.0
       attr_reader :subject
 
-      # The string representing the object.
+      # The string to use to create a Decimal128.
+      #
+      # @return [ String ] The string to use in creating a Decimal128 object.
+      #
+      # @since 4.1.0
+      attr_reader :string
+
+      # The expected string representation of the Decimal128 object.
       #
       # @return [ String ] The object as a string.
       #
       # @since 4.1.0
-      attr_reader :string
+      attr_reader :match_string
 
       # The json representation of the object.
       #
@@ -143,6 +150,7 @@ module BSON
         @spec = spec
         @description = test['description']
         @string = test['string']
+        @match_string = test['match_string']
         @ext_json = ::JSON.parse(test['extjson']) if test['extjson']
         @from_ext_json = test['from_extjson'].nil? ? true : test['from_extjson']
         @to_ext_json = test['to_extjson'].nil? ? true : test['to_extjson']
@@ -244,7 +252,7 @@ module BSON
       #
       # @since 4.1.0
       def from_ext_json?
-        @from_ext_json
+        @ext_json && @from_ext_json
       end
 
       # Whether the object can be represented as extended json.
@@ -257,7 +265,7 @@ module BSON
       #
       # @since 4.1.0
       def to_ext_json?
-        @to_ext_json
+        @ext_json && @to_ext_json
       end
 
       private
