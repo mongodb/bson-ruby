@@ -180,32 +180,6 @@ module BSON
       "BSON::Decimal128('#{to_s}')"
     end
 
-    # Dump the raw bson when calling Marshal.dump.
-    #
-    # @example Dump the raw bson.
-    #   Marshal.dump(decimal)
-    #
-    # @return [ String ] The raw bson bytes.
-    #
-    # @since 4.1.0
-    def marshal_dump
-      # @todo
-    end
-
-    # Unmarshal the data into a decimal128 object.
-    #
-    # @example Unmarshal the data.
-    #   Marshal.load(data)
-    #
-    # @param [ String ] data The raw bson bytes.
-    #
-    # @return [ String ] The raw bson bytes.
-    #
-    # @since 4.1.0
-    def marshal_load(data)
-      # @todo
-    end
-
     # Get the decimal128 as its raw BSON data.
     #
     # @example Get the raw bson bytes.
@@ -385,7 +359,6 @@ module BSON
 
     def get_high_bits(significand)
       high_bits = 0
-      # todo check upto
       64.upto(127) do |i|
         if significand[i] == 1
           high_bits |= 1 << (i - 64)

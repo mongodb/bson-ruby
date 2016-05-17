@@ -1206,84 +1206,16 @@ describe BSON::Decimal128 do
     end
   end
 
-  # describe "#inspect" do
-  #
-  #   let(:decimal128) do
-  #     described_class.new(BigDecimal.new('1.23'))
-  #   end
-  #
-  #   it "returns the inspection with the decimal128 id to_s" do
-  #     expect(decimal128.inspect).to eq("BSON::Decimal128('#{decimal128.to_s}')")
-  #   end
-  #
-  #   it "returns a string that evaluates into an equivalent decimal128 id" do
-  #     expect(eval decimal128.inspect).to eq decimal128
-  #   end
-  # end
-  #
-  # describe ".legal?" do
-  #
-  #   context "when the string is too short to be an decimal128" do
-  #
-  #     it "returns false" do
-  #       expect(described_class).to_not be_legal("a" * 23)
-  #     end
-  #   end
-  #
-  #   context "when checking against another decimal128 id" do
-  #
-  #     let(:decimal128) do
-  #       described_class.new
-  #     end
-  #
-  #     it "returns true" do
-  #       expect(described_class).to be_legal(decimal128)
-  #     end
-  #   end
-  # end
-  #
-  # describe "#marshal_dump" do
-  #
-  #   let(:decimal128) do
-  #     described_class.new
-  #   end
-  #
-  #   let(:dumped) do
-  #     Marshal.dump(decimal128)
-  #   end
-  #
-  #   it "dumps the raw bytes data" do
-  #     expect(Marshal.load(dumped)).to eq(decimal128)
-  #   end
-  # end
-  #
-  # describe "#marshal_load" do
-  #
-  #   context "when the object id was dumped in the old format" do
-  #
-  #     let(:legacy) do
-  #       "\x04\bo:\x13BSON::ObjectId\x06:\n" +
-  #           "@data[\x11iUi\x01\xE2i,i\x00i\x00i\x00i\x00i\x00i\x00i\x00i\x00i\x00"
-  #     end
-  #
-  #     let(:object_id) do
-  #       Marshal.load(legacy)
-  #     end
-  #
-  #     let(:expected) do
-  #       described_class.from_time(Time.utc(2013, 1, 1))
-  #     end
-  #
-  #     it "properly loads the object id" do
-  #       expect(object_id).to eq(expected)
-  #     end
-  #
-  #     it "removes the bad legacy data" do
-  #       object_id.to_bson
-  #       expect(object_id.instance_variable_get(:@data)).to be_nil
-  #     end
-  #   end
-  # end
+  describe "#inspect" do
+
+    let(:decimal128) do
+      BSON::Decimal128.new(BigDecimal.new('1.23'))
+    end
+
+    it "returns the inspection with the decimal128 to_s" do
+      expect(decimal128.inspect).to eq("BSON::Decimal128('#{decimal128.to_s}')")
+    end
+  end
 
   context "when the class is loaded" do
 
