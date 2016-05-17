@@ -12,12 +12,12 @@ describe 'Driver common bson tests' do
 
         context(test.description << ' - ' << test.string) do
 
-          it 'displays as the correct string', if: test.match_string do
-            expect(test.object.to_s).to eq(test.match_string)
+          it 'displays as the correct string' do
+            expect(test.object.to_s).to eq(test.expected_to_string)
           end
 
-          it 'roundtrips correctly' do
-            expect(test.reencoded_hex.upcase).to eq(test.subject.upcase)
+          it 'encodeds the decoded object correctly (roundtrips)' do
+            expect(test.reencoded_hex).to eq(test.subject)
           end
 
           it 'instantiates the correct object from extended json', if: test.from_ext_json? do
@@ -28,7 +28,7 @@ describe 'Driver common bson tests' do
             expect(test.document_as_json).to eq(test.ext_json)
           end
 
-          it 'instantiates the correct object from the string', if: (test.match_string && (test.string != test.match_string)) do
+          it 'instantiates the correct object from a string', if: test.from_ext_json? do
             expect(BSON::Decimal128.from_string(test.string)).to eq(test.object)
           end
         end

@@ -69,6 +69,11 @@ module BSON
     # @since 4.1.0
     SIGNIFICANDS_REGEX = /^(0*)(\d*)/.freeze
 
+    # Extended json key.
+    #
+    # @since 4.1.0
+    EXTENDED_JSON_KEY = "$numberDecimal".freeze
+
     # Get the Decimal128 as JSON hash data.
     #
     # @example Get the Decimal128 as a JSON hash.
@@ -78,7 +83,7 @@ module BSON
     #
     # @since 4.1.0
     def as_json(*args)
-      { "$numberDecimal" => to_s }
+      { EXTENDED_JSON_KEY => to_s }
     end
 
     # Check equality of the decimal128 object with another object.

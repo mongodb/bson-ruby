@@ -154,7 +154,7 @@ module BSON
         @ext_json = ::JSON.parse(test['extjson']) if test['extjson']
         @from_ext_json = test['from_extjson'].nil? ? true : test['from_extjson']
         @to_ext_json = test['to_extjson'].nil? ? true : test['to_extjson']
-        @subject = test['subject']
+        @subject = test['subject'].upcase
         @test_key = spec.test_key
       end
 
@@ -167,7 +167,7 @@ module BSON
       #
       # @since 4.1.0
       def reencoded_hex
-        decoded_document.to_bson.to_s.unpack("H*").first
+        decoded_document.to_bson.to_s.unpack("H*").first.upcase
       end
 
       # The object tested.
@@ -203,7 +203,7 @@ module BSON
       #
       # @since 4.1.0
       def from_json
-        klass.from_string(@ext_json[@test_key].values.first)
+        klass.from_string(@ext_json[@test_key][klass::EXTENDED_JSON_KEY])
       end
 
       # Create an object from the given test string.
@@ -266,6 +266,10 @@ module BSON
       # @since 4.1.0
       def to_ext_json?
         @ext_json && @to_ext_json
+      end
+
+      def expected_to_string
+        match_string || string
       end
 
       private
