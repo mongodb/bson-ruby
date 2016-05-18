@@ -44,6 +44,11 @@ module BSON
     # @since 4.1.0
     SIGN_BIT_MASK = (1 << 63).freeze
 
+    # Exponent mask.
+    #
+    # @since 4.1.0
+    EXPONENT_MASK = (3 << 61).freeze
+
     # Exponent offset.
     #
     # @since 4.1.0
@@ -326,8 +331,8 @@ module BSON
 
       if @high >> 49 == 1
         @high = @high & 0x7fffffffffff
-        @high |= 0x3 << 61
-        @high |= @exponent & 0x3fff << 47
+        @high |= EXPONENT_MASK
+        @high |= (@exponent & 0x3fff) << 47
       else
         @high |= @exponent << 49
       end
@@ -584,7 +589,7 @@ module BSON
       def parse
         significand = high_bits & 0x1ffffffffffff
         significand = significand << 64
-        significand  = (significand |= low_bits)
+        significand |= low_bits
         get_string(significand)
       end
 
