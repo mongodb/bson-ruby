@@ -24,7 +24,7 @@ module BSON
   class Decimal128
     include JSON
 
-    # A Decimcal128 is type 0x0D in the BSON spec.
+    # A Decimal128 is type 0x0D in the BSON spec.
     #
     # @since 4.1.0
     BSON_TYPE = 19.chr.force_encoding(BINARY).freeze
@@ -69,7 +69,7 @@ module BSON
     # @since 4.1.0
     SIGNIFICANDS_REGEX = /^(0*)(\d*)/.freeze
 
-    # Extended json key.
+    # Key for this type when converted to extended json.
     #
     # @since 4.1.0
     EXTENDED_JSON_KEY = "$numberDecimal".freeze
@@ -110,27 +110,13 @@ module BSON
     #
     # @param [ Object ] other The object to check against.
     #
-    # @return [ true, false ] If the objects are have the same high and low bits.
+    # @return [ true, false ] If the objects have the same high and low bits.
     #
     # @since 4.1.0
     def ===(other)
       return @high === other.instance_variable_get(:@high) &&
         @low === other.instance_variable_get(:@low)
       super
-    end
-
-    # Compare this decimal128 with another object for use in sorting.
-    #
-    # @example Compare the decimal128 object with the other object.
-    #   object <=> other
-    #
-    # @param [ Object ] other The object to compare to.
-    #
-    # @return [ Integer ] The result of the comparison.
-    #
-    # @since 2.0.0
-    def <=>(other)
-      # @todo
     end
 
     # Create a new Decimal128 from a Ruby BigDecimal.
@@ -170,7 +156,7 @@ module BSON
 
     # Get a nice string for use with object inspection.
     #
-    # @example Inspect the decimal object.
+    # @example Inspect the decimal128 object.
     #   decimal128.inspect
     #
     # @return [ String ] The decimal as a string.
@@ -182,10 +168,10 @@ module BSON
 
     # Get the decimal128 as its raw BSON data.
     #
-    # @example Get the raw bson bytes.
+    # @example Get the raw bson bytes in a buffer.
     #   decimal.to_bson
     #
-    # @return [ ByteBuffer ] The raw bytes.
+    # @return [ BSON::ByteBuffer ] The raw bytes in a buffer.
     #
     # @see http://bsonspec.org/#/specification
     #
@@ -207,7 +193,7 @@ module BSON
     end
     alias :to_str :to_s
 
-    # Raised when trying to create a Decimal128 from an invalid type.
+    # Raised when trying to create a Decimal128 from a non-BigDecimal type.
     #
     # @since 4.1.0
     class InvalidBigDecimal < RuntimeError; end
@@ -221,7 +207,7 @@ module BSON
       # The custom error message for this error.
       #
       # @since 4.1.0
-      MESSAGE = 'Invalid significand range.'.freeze
+      MESSAGE = 'Significand contains too many digits. A maximum of 34 digits is allowed'.freeze
 
       # Get the custom error message for the exception.
       #
@@ -245,7 +231,7 @@ module BSON
       # The custom error message for this error.
       #
       # @since 4.1.0
-      MESSAGE = 'Invalid string format for Decimal128.'.freeze
+      MESSAGE = 'Invalid string format for creating a Decimal128 object.'.freeze
 
       # Get the custom error message for the exception.
       #
@@ -316,8 +302,8 @@ module BSON
 
     def set_high_low_bits(significand_str, is_negative = false)
       @significand = significand_str.to_i.abs
-      @low = get_low_bits(@significand)
-      @high = get_high_bits(@significand)
+      @high = @significand >> 64
+      @low = (@high << 64) ^ @significand
 
       if @high >> 49 == 1
         @high = @high & 0x7fffffffffff
@@ -327,9 +313,11 @@ module BSON
         @high |= @exponent << 49
       end
 
-      if is_negative
-        @high |= SIGN_BIT_MASK
-      end
+      @high |= SIGN_BIT_MASK if is_negative
+    end
+
+    def valid_exponent?(exp)
+      exp >= MIN_EXPONENT && exp <= MAX_EXPONENT
     end
 
     def set_exponent!(exponent)
@@ -344,27 +332,7 @@ module BSON
     end
 
     def validate_exponent!(exponent)
-      raise InvalidExponent.new unless Parser.valid_exponent?(exponent)
-    end
-
-    def get_low_bits(significand)
-      low_bits = 0
-      0.upto(63) do |i|
-        if significand[i] == 1
-          low_bits |= 1 << i
-        end
-      end
-      low_bits
-    end
-
-    def get_high_bits(significand)
-      high_bits = 0
-      64.upto(127) do |i|
-        if significand[i] == 1
-          high_bits |= 1 << (i - 64)
-        end
-      end
-      high_bits
+      raise InvalidExponent.new unless valid_exponent?(exponent)
     end
 
     class << self
@@ -393,7 +361,7 @@ module BSON
       # @example Create a decimal128 from the string.
       #   BSON::Decimal128.from_string("1.05E+3")
       #
-      # @param [ String ] string The string to create the decimal from.
+      # @param [ String ] string The string to parse.
       #
       # @raise [ BSON::Decimal128::InvalidString ] If the provided string is invalid.
       #
@@ -410,7 +378,8 @@ module BSON
       end
     end
 
-    # Class for parsing a decimal into and from a string.
+    # Class for representing a Decimal128 object as a string or parsing a string into
+    #   a Decimal128 object.
     #
     # @since 4.1.0
     class Parser
@@ -438,9 +407,9 @@ module BSON
         # @since 4.1.0
         NAN_REGEX = /^NaN$/i.freeze
 
-        # Regex for a post-decimal significand with leading zeros.
+        # Regex for the fraction, including leading zeros.
         #
-        # @return [ Regex ] The regex for matching a post-decimal significand
+        # @return [ Regex ] The regex for matching the fraction,
         #   including leading zeros.
         #
         # @since 4.1.0
@@ -452,6 +421,13 @@ module BSON
         #
         # @since 4.1.0
         DECIMAL_POINT = '.'.freeze
+
+        # The 0 string.
+        #
+        # @return [ String ] The 0 string.
+        #
+        # @since 4.1.0
+        ZERO = '0'.freeze
 
         # Regex for a valid decimal128 format.
         #
@@ -494,16 +470,15 @@ module BSON
           exponent = exponent + scientific_exp.to_i
           exponent, significant_digits = round_exact!(exponent, significant_digits)
           exponent, significant_digits = clamp!(exponent, significant_digits)
-          raise Decimal128::InvalidExponent.new unless valid_exponent?(exponent)
 
           [ significant_digits, exponent, sign == '-' ]
         end
 
         def round_exact!(exponent, significant_digits)
           if exponent < Decimal128::MIN_EXPONENT
-            while exponent < Decimal128::MIN_EXPONENT && significant_digits[-1] == '0'
+            while exponent < Decimal128::MIN_EXPONENT && significant_digits[-1] == ZERO
               exponent += 1
-              significant_digits.slice!('0')
+              significant_digits.slice!(ZERO)
             end
           end
 
@@ -514,7 +489,7 @@ module BSON
           if exponent > Decimal128::MAX_EXPONENT
             while exponent > Decimal128::MAX_EXPONENT && significant_digits.length < 34
               exponent -= 1
-              significant_digits << '0'
+              significant_digits << ZERO
             end
           end
           [exponent, significant_digits]
@@ -538,10 +513,6 @@ module BSON
           end
         end
 
-        def valid_exponent?(exp)
-          exp >= Decimal128::MIN_EXPONENT && exp <= Decimal128::MAX_EXPONENT
-        end
-
         private
 
         def validate!(string)
@@ -563,9 +534,9 @@ module BSON
       # @since 4.1.0
       INFINITY_STRING = 'Infinity'.freeze
 
-      # Initialize the Decimal128 parser.
+      # Initialize the Decimal128 string parser.
       #
-      # @example Initialize the parser.
+      # @example Initialize the string parser.
       #  Parser.new(decimal)
       #
       # @param [ BSON::Decimal128 ] The decimal128 to be parsed.
@@ -592,9 +563,9 @@ module BSON
       private
 
       def parse
-        significand = @decimal.instance_variable_get(:@high) & 0x1ffffffffffff
+        significand = high_bits & 0x1ffffffffffff
         significand = significand << 64
-        significand  = (significand |= @decimal.instance_variable_get(:@low))
+        significand  = (significand |= low_bits)
         get_string(significand)
       end
 
@@ -643,11 +614,11 @@ module BSON
       end
 
       def high_bits
-        @high_bits ||= @decimal.instance_variable_get(:@high)
+        @decimal.instance_variable_get(:@high)
       end
 
       def low_bits
-        @low_bits ||= @decimal.instance_variable_get(:@low)
+        @decimal.instance_variable_get(:@low)
       end
     end
 
