@@ -44,11 +44,6 @@ module BSON
     # @since 4.1.0
     SIGN_BIT_MASK = (1 << 63).freeze
 
-    # Exponent mask.
-    #
-    # @since 4.1.0
-    EXPONENT_MASK = (3 << 61).freeze
-
     # Exponent offset.
     #
     # @since 4.1.0
@@ -113,22 +108,6 @@ module BSON
     end
     alias :eql? :==
 
-    # Check case equality on the decimal128 object.
-    #
-    # @example Check case equality.
-    #   decimal === other
-    #
-    # @param [ Object ] other The object to check against.
-    #
-    # @return [ true, false ] If the objects have the same high and low bits.
-    #
-    # @since 4.1.0
-    def ===(other)
-      return @high === other.instance_variable_get(:@high) &&
-        @low === other.instance_variable_get(:@low)
-      super
-    end
-
     # Create a new Decimal128 from a Ruby BigDecimal.
     #
     # @example Create a Decimal128 from a BigDecimal.
@@ -137,7 +116,7 @@ module BSON
     # @param [ BigDecimal ] big_decimal The BigDecimal to use for
     #   instantiating a Decimal128.
     #
-    # @raise [ InvalidBigDecimal ] Raise error unless object is a BigDecimal.
+    # @raise [ InvalidBigDecimal ] Raise error unless object argument is a BigDecimal.
     #
     # @since 4.1.0
     def initialize(big_decimal)
@@ -331,7 +310,7 @@ module BSON
 
       if @high >> 49 == 1
         @high = @high & 0x7fffffffffff
-        @high |= EXPONENT_MASK
+        @high |= TWO_HIGHEST_BITS_SET
         @high |= (@exponent & 0x3fff) << 47
       else
         @high |= @exponent << 49
