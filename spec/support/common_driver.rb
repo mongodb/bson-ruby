@@ -13,6 +13,7 @@
 # limitations under the License.
 
 require 'json'
+require 'bigdecimal'
 
 module BSON
   module CommonDriver
@@ -266,11 +267,51 @@ module BSON
         @ext_json && @to_ext_json
       end
 
+      # The expected string representation of the test object.
+      #
+      # @example Get the expected String representation of the test object.
+      #  test.expected_to_string
+      #
+      # @return [ String ] The expected string representation.
+      #
+      # @since 4.1.0
       def expected_to_string
         match_string || string
       end
 
+      # The Ruby class to which this bson object can be converted via a helper.
+      #
+      # @example Get the native type to which this object can be converted.
+      #  test.native_type
+      #
+      # @return [ Class ] The Ruby native type.
+      #
+      # @since 4.1.0
+      def native_type
+        klass::NATIVE_TYPE
+      end
+
+      # Get the object converted to an instance of the native Ruby type.
+      #
+      # @example Get a native Ruby instance.
+      #  test.native_type_conversion
+      #
+      # @return [ Object ] An instance of the Ruby native type.
+      #
+      # @since 4.1.0
+      def native_type_conversion
+        object.send("to_#{to_snake_case(native_type)}")
+      end
+
       private
+
+      def to_snake_case(string)
+        string.to_s.gsub(/::/, '/').
+            gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+            gsub(/([a-z\d])([A-Z])/,'\1_\2').
+            tr("-", "_").
+            downcase
+      end
 
       def decoded_document
         @document ||= (data = [ @subject ].pack('H*')

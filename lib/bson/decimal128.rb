@@ -74,6 +74,11 @@ module BSON
     # @since 4.1.0
     EXTENDED_JSON_KEY = "$numberDecimal".freeze
 
+    # The native type to which this object can be converted.
+    #
+    # @since 4.1.0
+    NATIVE_TYPE = BigDecimal.freeze
+
     # Get the Decimal128 as JSON hash data.
     #
     # @example Get the Decimal128 as a JSON hash.
@@ -192,6 +197,20 @@ module BSON
       @string ||= Parser.new(self).string
     end
     alias :to_str :to_s
+
+    # Get a BigDecimal object corresponding to this Decimal128.
+    # Note that the precision of the resulting BigDecimal is not guaranteed to exactly
+    # match that of the MongoDB implementation.
+    #
+    # @example Get the decimal as a BigDecimal.
+    #   decimal.to_big_decimal
+    #
+    # @return [ BigDecimal ] The decimal as a BigDecimal.
+    #
+    # @since 4.1.0
+    def to_big_decimal
+      NATIVE_TYPE.new(to_s)
+    end
 
     # Raised when trying to create a Decimal128 from a non-BigDecimal type.
     #

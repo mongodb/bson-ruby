@@ -35,6 +35,10 @@ describe 'Driver common bson tests' do
           it 'parses the #to_s (match_string) value to the same value as the decoded document', if: test.match_string do
             expect(BSON::Decimal128.from_string(test.match_string)).to eq(test.object)
           end
+
+          it 'can be converted to a native type' do
+            expect(test.native_type_conversion).to be_a(test.native_type)
+          end
         end
       end
 

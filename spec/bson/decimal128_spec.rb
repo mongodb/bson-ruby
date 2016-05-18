@@ -973,35 +973,6 @@ describe BSON::Decimal128 do
 
         it_behaves_like 'a decimal128 printed to a string'
       end
-
-      context 'when the decimal is -0.123' do
-
-        let(:expected_string) { '-0.123' }
-        let(:high_bits) { 0xb03a000000000000 }
-        let(:low_bits) { 0x7b }
-
-        it_behaves_like 'a decimal128 printed to a string'
-      end
-    end
-
-    context 'when scientific notation should be use' do
-
-      # context 'when the scientific exponent is greater than 12' do
-      #
-      #   let(:expected_string) { '1.0384593717069655257060992658440192E+34' }
-      #   let(:high_bits) { 0x6C10000000000000 }
-      #   let(:low_bits) { 0x0 }
-      #
-      #   it_behaves_like 'a decimal128 printed to a string'
-      # end
-
-      context 'when the scientific exponent is less than -4' do
-
-      end
-
-      context 'when the exponent is great than 0' do
-
-      end
     end
 
     context 'when the decimal should have leading zeros' do
@@ -1214,6 +1185,237 @@ describe BSON::Decimal128 do
 
     it "returns the inspection with the decimal128 to_s" do
       expect(decimal128.inspect).to eq("BSON::Decimal128('#{decimal128.to_s}')")
+    end
+  end
+
+  describe "#to_big_decimal" do
+
+    shared_examples_for 'a decimal128 convertible to a Ruby BigDecimal' do
+
+      let(:decimal128) do
+        described_class.new(big_decimal)
+      end
+
+      it 'properly converts the Decimal128 to a BigDecimal' do
+        expect(decimal128.to_big_decimal).to eq(expected_big_decimal)
+      end
+    end
+
+    context 'when the Decimal128 is a special type' do
+
+      context 'when the value is Infinity' do
+
+        let(:big_decimal) do
+          BigDecimal.new('Infinity')
+        end
+
+        let(:expected_big_decimal) do
+          big_decimal
+        end
+
+        it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+      end
+
+      context 'when the value is -Infinity' do
+
+        let(:big_decimal) do
+          BigDecimal.new('-Infinity')
+        end
+
+        let(:expected_big_decimal) do
+          big_decimal
+        end
+
+        it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+      end
+    end
+
+    context 'when the value represents an Integer' do
+
+      context 'when the value is 1' do
+
+        let(:big_decimal) do
+          BigDecimal.new(1)
+        end
+
+        let(:expected_big_decimal) do
+          big_decimal
+        end
+
+        it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+      end
+
+      context 'when the value is -1' do
+
+        let(:big_decimal) do
+          BigDecimal.new(-1)
+        end
+
+        let(:expected_big_decimal) do
+          big_decimal
+        end
+
+        it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+      end
+
+      context 'when the value is 20' do
+
+        let(:big_decimal) do
+          BigDecimal.new(20)
+        end
+
+        let(:expected_big_decimal) do
+          big_decimal
+        end
+
+        it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+      end
+
+      context 'when the value is -20' do
+
+        let(:big_decimal) do
+          BigDecimal.new(-20)
+        end
+
+        let(:expected_big_decimal) do
+          big_decimal
+        end
+
+        it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+      end
+
+      context 'when the value is 12345678901234567' do
+
+        let(:big_decimal) do
+          BigDecimal.new(12345678901234567)
+        end
+
+        let(:expected_big_decimal) do
+          big_decimal
+        end
+
+        it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+      end
+
+      context 'when the value is -12345678901234567' do
+
+        let(:big_decimal) do
+          BigDecimal.new(-12345678901234567)
+        end
+
+        let(:expected_big_decimal) do
+          big_decimal
+        end
+
+        it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+      end
+
+      context 'when the value is 12345689012345789012345' do
+
+        let(:big_decimal) do
+          BigDecimal.new(12345689012345789012345)
+        end
+
+        let(:expected_big_decimal) do
+          big_decimal
+        end
+
+        it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+      end
+
+      context 'when the value is -12345689012345789012345' do
+
+        let(:big_decimal) do
+          BigDecimal.new(-12345689012345789012345)
+        end
+
+        let(:expected_big_decimal) do
+          big_decimal
+        end
+
+        it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+      end
+    end
+
+    context 'when the value has a fraction' do
+
+      context 'when the value is 0.1' do
+
+        let(:big_decimal) do
+          BigDecimal.new(0.1, 1)
+        end
+
+        let(:expected_big_decimal) do
+          big_decimal
+        end
+
+        it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+      end
+
+      context 'when the value is -0.1' do
+
+        let(:big_decimal) do
+          BigDecimal.new(-0.1, 1)
+        end
+
+        let(:expected_big_decimal) do
+          big_decimal
+        end
+
+        it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+      end
+
+      context 'when the value is 0.123' do
+
+        let(:big_decimal) do
+          BigDecimal.new(0.123, 3)
+        end
+
+        let(:expected_big_decimal) do
+          big_decimal
+        end
+
+        it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+      end
+
+      context 'when the value is -0.123' do
+
+        let(:big_decimal) do
+          BigDecimal.new(-0.123, 3)
+        end
+
+        let(:expected_big_decimal) do
+          big_decimal
+        end
+
+        it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+      end
+    end
+
+    context 'when the value has leading zeros' do
+
+      let(:big_decimal) do
+        BigDecimal.new(0.001234, 4)
+      end
+
+      let(:expected_big_decimal) do
+        big_decimal
+      end
+
+      it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
+    end
+
+    context 'when the value has trailing zeros' do
+
+      let(:big_decimal) do
+        BigDecimal.new(2.000, 4)
+      end
+
+      let(:expected_big_decimal) do
+        big_decimal
+      end
+
+      it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
     end
   end
 
