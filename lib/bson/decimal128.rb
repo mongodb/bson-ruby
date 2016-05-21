@@ -471,13 +471,13 @@ module BSON
           end
           exponent = -(after_decimal.length)
           exponent = exponent + scientific_exp.to_i
-          exponent, significant_digits = round_exact!(exponent, significant_digits)
-          exponent, significant_digits = clamp!(exponent, significant_digits)
+          exponent, significant_digits = round_exact(exponent, significant_digits)
+          exponent, significant_digits = clamp(exponent, significant_digits)
 
           [ significant_digits, exponent, sign == '-' ]
         end
 
-        def round_exact!(exponent, significant_digits)
+        def round_exact(exponent, significant_digits)
           if exponent < Decimal128::MIN_EXPONENT
             while exponent < Decimal128::MIN_EXPONENT && significant_digits[-1] == ZERO
               exponent += 1
@@ -488,7 +488,7 @@ module BSON
           [exponent, significant_digits]
         end
 
-        def clamp!(exponent, significant_digits)
+        def clamp(exponent, significant_digits)
           if exponent > Decimal128::MAX_EXPONENT
             while exponent > Decimal128::MAX_EXPONENT && significant_digits.length < 34
               exponent -= 1
