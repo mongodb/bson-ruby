@@ -559,39 +559,49 @@ module BSON
       # @since 4.1.0
       def string
         return NAN_STRING if nan?
-        string = infinity? ? INFINITY_STRING : parse
+        string = infinity? ? INFINITY_STRING : get_string
         negative? ? '-' << string : string
       end
 
       private
 
-      def parse
+      def significand
+        @significand ||= two_highest_bits_set? ? '0' : bits_to_significand.to_s
+      end
+
+      def bits_to_significand
         significand = high_bits & 0x1ffffffffffff
         significand = significand << 64
         significand |= low_bits
-        get_string(significand)
       end
 
-      def get_string(significand)
-        sig_string = two_highest_bits_set? ? '0' : significand.to_s
-        if use_scientific_notation?(sig_string)
-          sign = exponent < 0 ? '' : '+'
-          beginning = sig_string.length > 1 ?  sig_string[0] << '.' : sig_string
-          sig_string = beginning << sig_string[1..-1] << "E#{sign}" << @scientific_exponent.to_s
-        elsif exponent < 0
-          pad = (exponent + sig_string.length).abs
-          if sig_string.length > exponent.abs
-            sig_string = sig_string[0..(sig_string.length - exponent.abs-1)] << '.' << sig_string[(sig_string.length - exponent.abs)..-1]
+      def get_string
+        if use_scientific_notation?
+          exp_pos_sign = exponent < 0 ? '' : '+'
+          if significand.length > 1
+            "#{significand[0]}.#{significand[1..-1]}E#{exp_pos_sign}#{scientific_exponent}"
           else
-            sig_string = '0.' << '0' * pad << sig_string
+            "#{significand}E#{exp_pos_sign}#{scientific_exponent}"
           end
+        elsif exponent < 0
+          if significand.length > exponent.abs
+            decimal_point_index = significand.length - exponent.abs
+            "#{significand[0..decimal_point_index-1]}.#{significand[decimal_point_index..-1]}"
+          else
+            left_zero_pad = (exponent + significand.length).abs
+            "0.#{'0' * left_zero_pad}#{significand}"
+          end
+        else
+          significand
         end
-        sig_string
       end
 
-      def use_scientific_notation?(significand_string)
-        @scientific_exponent = (significand_string.length - 1) + exponent
-        exponent > 0 || @scientific_exponent < -6
+      def scientific_exponent
+        @scientific_exponent ||= (significand.length - 1) + exponent
+      end
+
+      def use_scientific_notation?
+        exponent > 0 || scientific_exponent < -6
       end
 
       def exponent
