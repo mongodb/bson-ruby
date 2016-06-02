@@ -132,6 +132,11 @@ module BSON
         # @since 4.1.0
         SIGNIFICANDS_REGEX = /^(0*)(\d*)/.freeze
 
+        # Regex for capturing trailing zeros.
+        #
+        # @since 4.1.0
+        TRAILING_ZEROS = /[1-9]*(0+)$/.freeze
+
         # Regex for a valid decimal128 string format.
         #
         # @return [ Regex ] The regex for a valid decimal128 string.
@@ -188,14 +193,23 @@ module BSON
 
         def round_exact(exponent, significand)
           if exponent < Decimal128::MIN_EXPONENT
-            while exponent < Decimal128::MIN_EXPONENT && significand[-1] == '0'
-              exponent += 1
-              significand.slice!('0') unless significand == '0'
+            if significand.to_i == 0
+              round = Decimal128::MIN_EXPONENT - exponent
+              exponent += round
+            elsif trailing_zeros = TRAILING_ZEROS.match(significand)
+              round = [ (Decimal128::MIN_EXPONENT - exponent),
+                        trailing_zeros[1].size ].min
+              significand = significand[0...-round]
+              exponent += round
             end
           elsif significand.length > Decimal128::MAX_DIGITS_OF_PRECISION
-            while significand.length > Decimal128::MAX_DIGITS_OF_PRECISION && significand[-1] == '0' && exponent < Decimal128::MAX_EXPONENT
-              exponent += 1
-              significand.slice!('0') unless significand == '0'
+            trailing_zeros = TRAILING_ZEROS.match(significand)
+            if trailing_zeros
+              round = [ trailing_zeros[1].size,
+                        (significand.length - Decimal128::MAX_DIGITS_OF_PRECISION),
+                        (Decimal128::MAX_EXPONENT - exponent)].min
+              significand = significand[0...-round]
+              exponent += round
             end
           end
           [ exponent, significand ]
@@ -203,10 +217,15 @@ module BSON
 
         def clamp(exponent, significand)
           if exponent > Decimal128::MAX_EXPONENT
-            while exponent > Decimal128::MAX_EXPONENT && significand.length < Decimal128::MAX_DIGITS_OF_PRECISION
-              exponent -= 1
-              significand << '0' unless significand == '0'
+            if significand.to_i == 0
+              adjust = exponent - Decimal128::MAX_EXPONENT
+              significand = '0'
+            else
+              adjust = [ (exponent - Decimal128::MAX_EXPONENT),
+                         Decimal128::MAX_DIGITS_OF_PRECISION - significand.length ].min
+              significand << '0'* adjust
             end
+            exponent -= adjust
           end
 
           [ exponent, significand ]
