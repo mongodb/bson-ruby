@@ -19,7 +19,7 @@ module BSON
 
   class Decimal128
 
-    # A Decimal128 is type 0x0D in the BSON spec.
+    # A Decimal128 is type 0x13 in the BSON spec.
     #
     # @since 4.1.0
     BSON_TYPE = 19.chr.force_encoding(BINARY).freeze
