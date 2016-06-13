@@ -270,24 +270,15 @@ module BSON
       end
     end
 
-    # Raised when the exponent provided is outside the valid range.
+    # Raised when the exponent or significand provided is outside the valid range.
     #
     # @since 4.1.0
     class InvalidRange < RuntimeError
 
-      # Create an InvalidRange error.
-      #
-      # @example Create the error.
-      #   InvalidRange.new(exponent, significand)
-      #
-      # @param [ Integer ] exponent The provided exponent.
-      # @param [ Integer ] significand The provided significand.
+      # The custom error message for this error.
       #
       # @since 4.1.0
-      def initialize(exponent, significand)
-        @exponent = exponent
-        @significand = significand
-      end
+      MESSAGE = 'Value out of range for Decimal128 representation.'.freeze
 
       # Get the custom error message for the exception.
       #
@@ -298,10 +289,7 @@ module BSON
       #
       # @since 4.1.0
       def message
-        "Value out of range for Decimal128 representation. The exponent provided (#{@exponent}) " +
-          "must be at least #{Decimal128::MIN_EXPONENT} and no greater than " +
-          "#{Decimal128::MAX_EXPONENT}. The provided significand (#{@significand}) can only have " +
-          "up to 34 digits of precision."
+        MESSAGE
       end
     end
 

@@ -77,7 +77,7 @@ module BSON
 
       def validate_range!(exponent, significand)
         unless valid_significand?(significand) && valid_exponent?(exponent)
-          raise Decimal128::InvalidRange.new(exponent, significand)
+          raise Decimal128::InvalidRange.new
         end
       end
 
