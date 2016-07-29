@@ -144,7 +144,7 @@ module BSON
     #
     # @param [ BSON::Document, Hash ] other The document/hash to merge with.
     #
-    # @eturn [ BSON::Document ] The result of the merge.
+    # @return [ BSON::Document ] The result of the merge.
     #
     # @since 3.0.0
     def merge(other, &block)
@@ -159,7 +159,7 @@ module BSON
     #
     # @param [ BSON::Document, Hash ] other The document/hash to merge with.
     #
-    # @eturn [ BSON::Document ] The result of the merge.
+    # @return [ BSON::Document ] The result of the merge.
     #
     # @since 3.0.0
     def merge!(other)

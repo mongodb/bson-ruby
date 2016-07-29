@@ -53,7 +53,7 @@ module BSON
     #   BSON::Registry.register("\x01", Float)
     #
     # @param [ String ] byte The single byte.
-    # @param [ Class ] The class the byte maps to.
+    # @param [ Class ] type The class the byte maps to.
     #
     # @return [ Class ] The class.
     #

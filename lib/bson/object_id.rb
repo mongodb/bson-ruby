@@ -279,7 +279,7 @@ module BSON
       # @example Is the string a legal object id?
       #   BSON::ObjectId.legal?(string)
       #
-      # @param [ String ] The string to check.
+      # @param [ String ] string The string to check.
       #
       # @return [ true, false ] If the string is legal.
       #

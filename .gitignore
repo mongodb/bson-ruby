@@ -26,3 +26,6 @@ TODO
 gem-private_key.pem
 .ruby-version
 .ruby-gemset
+yard-docs
+lib/*.jar
+.yardoc

@@ -41,7 +41,7 @@ module BSON
     # @example Compare with another object.
     #   max_key <=> 1000
     #
-    # @param [ Object ] The object to compare against.
+    # @param [ Object ] other The object to compare against.
     #
     # @return [ Integer ] Always 1.
     #
