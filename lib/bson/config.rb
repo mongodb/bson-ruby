@@ -45,7 +45,7 @@ module BSON
     #
     # @since 4.1.0
     def validating_keys?
-      !!@validating_keys
+      !!(@validating_keys||=nil)
     end
   end
 end
