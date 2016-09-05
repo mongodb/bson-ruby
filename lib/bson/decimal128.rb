@@ -152,12 +152,21 @@ module BSON
     end
     alias :to_str :to_s
 
-    # Get a BigDecimal object corresponding to this Decimal128.
-    # Note that the precision of the resulting BigDecimal is not guaranteed to exactly
-    # match that of the MongoDB implementation.
+    # Get a Ruby BigDecimal object corresponding to this Decimal128.
+    # Note that, when converting to a Ruby BigDecimal, non-zero significant digits
+    # are preserved but trailing zeroes may be lost.
+    # See the following example:
     #
-    # @example Get the decimal as a BigDecimal.
-    #   decimal.to_big_decimal
+    # @example
+    #  decimal128 = BSON::Decimal128.new("0.200")
+    #    => BSON::Decimal128('0.200')
+    #  big_decimal = decimal128.to_big_decimal
+    #    => #<BigDecimal:7fc619c95388,'0.2E0',9(18)>
+    #  big_decimal.to_s
+    #    => "0.2E0"
+    #
+    # Note that the the BSON::Decimal128 object can represent -NaN, sNaN,
+    # and -sNaN while Ruby's BigDecimal cannot.
     #
     # @return [ BigDecimal ] The decimal as a BigDecimal.
     #
