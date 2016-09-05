@@ -102,6 +102,7 @@ module BSON
     def generation_time
       ::Time.at(generate_data.unpack("N")[0]).utc
     end
+    alias :to_time :generation_time
 
     # Get the hash value for the object id.
     #
