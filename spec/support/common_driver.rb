@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2015 MongoDB, Inc.
+# Copyright (C) 2014-2016 MongoDB, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,21 +20,21 @@ module BSON
 
     # Represents a Common Driver specification test.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     class Spec
 
       # The spec description.
       #
       # @return [ String ] The spec description.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       attr_reader :description
 
       # The document key of the object to test.
       #
       # @return [ String ] The document key.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       attr_reader :test_key
 
       # Instantiate the new spec.
@@ -44,7 +44,7 @@ module BSON
       #
       # @param [ String ] file The name of the yaml file.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def initialize(file)
         @spec = ::JSON.parse(File.read(file))
         @valid = @spec['valid'] || []
@@ -60,7 +60,7 @@ module BSON
       #
       # @return [ Array<BSON::CommonDriver::Test> ] The list of valid Tests.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def valid_tests
         @valid_tests ||=
           @valid.collect do |test|
@@ -75,7 +75,7 @@ module BSON
       #
       # @return [ Array<BSON::CommonDriver::Test> ] The list of invalid Tests.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def invalid_tests
         @invalid_tests ||=
           @invalid.collect do |test|
@@ -90,7 +90,7 @@ module BSON
       #
       # @return [ Class ] The object class.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def klass
         @klass ||= BSON.const_get(description)
       end
@@ -98,42 +98,42 @@ module BSON
 
     # Represents a single CommonDriver test.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     class Test
 
       # The test description.
       #
       # @return [ String ] The test description.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       attr_reader :description
 
       # The test subject.
       #
       # @return [ String ] The test subject.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       attr_reader :subject
 
       # The string to use to create a Decimal128.
       #
       # @return [ String ] The string to use in creating a Decimal128 object.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       attr_reader :string
 
       # The expected string representation of the Decimal128 object.
       #
       # @return [ String ] The object as a string.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       attr_reader :match_string
 
       # The json representation of the object.
       #
       # @return [ Hash ] The json representation of the object.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       attr_reader :ext_json
 
       # Instantiate the new Test.
@@ -144,7 +144,7 @@ module BSON
       # @param [ CommonDriver::Spec ] spec The test specification.
       # @param [ Hash ] test The test specification.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def initialize(spec, test)
         @spec = spec
         @description = test['description']
@@ -164,7 +164,7 @@ module BSON
       #
       # @return [ String ] The reencoded document in hex format.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def reencoded_hex
         decoded_document.to_bson.to_s.unpack("H*").first.upcase
       end
@@ -176,7 +176,7 @@ module BSON
       #
       # @return [ BSON::Object ] The object.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def object
         @object ||= decoded_document[@test_key]
       end
@@ -188,7 +188,7 @@ module BSON
       #
       # @return [ BSON::Document ] The json document.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def document_as_json
         { @test_key => object.as_json }
       end
@@ -200,7 +200,7 @@ module BSON
       #
       # @return [ BSON::Object ] The BSON object.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def from_json_string
         klass.from_string(@ext_json[@test_key][klass::EXTENDED_JSON_KEY])
       end
@@ -212,7 +212,7 @@ module BSON
       #
       # @return [ BSON::Object ] The object.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def parse_string
         klass.from_string(string)
       end
@@ -224,7 +224,7 @@ module BSON
       #
       # @raise [ Error ] Parsing an invalid string will raise an error.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def parse_invalid_string
         klass.from_string(subject)
       end
@@ -236,7 +236,7 @@ module BSON
       #
       # @return [ Class ] The object class.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def klass
         @spec.klass
       end
@@ -248,7 +248,7 @@ module BSON
       #
       # @return [ Class ] The parse error class.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def parse_error
         klass::InvalidRange
       end
@@ -261,7 +261,7 @@ module BSON
       # @return [ true, false ] If the object can be instantiated from
       #   the provided extended json.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def from_ext_json?
         @ext_json && @from_ext_json
       end
@@ -274,7 +274,7 @@ module BSON
       # @return [ true, false ] If the object can be represented as
       #   extended json.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def to_ext_json?
         @ext_json && @to_ext_json
       end
@@ -286,7 +286,7 @@ module BSON
       #
       # @return [ true, false ] If the object can be instantiated from a string.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def from_string?
         @string && @from_ext_json
       end
@@ -298,7 +298,7 @@ module BSON
       #
       # @return [ String ] The expected string representation.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def expected_to_string
         match_string || string
       end
@@ -310,7 +310,7 @@ module BSON
       #
       # @return [ Class ] The Ruby native type.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def native_type
         klass::NATIVE_TYPE
       end
@@ -322,7 +322,7 @@ module BSON
       #
       # @return [ Object ] An instance of the Ruby native type.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def native_type_conversion
         object.send("to_#{to_snake_case(native_type)}")
       end

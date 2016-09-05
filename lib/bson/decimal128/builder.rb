@@ -1,4 +1,4 @@
-# Copyright (C) 2009-2015 MongoDB Inc.
+# Copyright (C) 2009-2016 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,27 +18,27 @@ module BSON
     # Helper module for parsing string, big decimal, and decimal128 objects into
     # other objects.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     module Builder
 
       # Infinity mask.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       INFINITY_MASK = 0x7800000000000000.freeze
 
       # NaN mask.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       NAN_MASK = 0x7c00000000000000.freeze
 
       # Signed bit mask.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       SIGN_BIT_MASK = (1 << 63).freeze
 
       # The two highest bits of the 64 high order bits.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       TWO_HIGHEST_BITS_SET = (3 << 61).freeze
 
       extend self
@@ -51,7 +51,7 @@ module BSON
       #
       # @return [ Array ] Tuple of the low and high bits.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def parts_to_bits(significand, exponent, is_negative)
         validate_range!(exponent, significand)
         exponent = exponent + Decimal128::EXPONENT_OFFSET
@@ -95,14 +95,14 @@ module BSON
         #
         # @return [ Regex ] A regex matching a NaN string.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         NAN_REGEX = /^(\-)?NaN$/i.freeze
 
         # Regex matching a string representing positive or negative Infinity.
         #
         # @return [ Regex ] A regex matching a positive or negative Infinity string.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         INFINITY_REGEX = /^(\+|\-)?Inf(inity)?$/i.freeze
 
         # Regex for the fraction, including leading zeros.
@@ -110,38 +110,38 @@ module BSON
         # @return [ Regex ] The regex for matching the fraction,
         #   including leading zeros.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         SIGNIFICAND_WITH_LEADING_ZEROS = /(0*)(\d+)/.freeze
 
         # Regex for separating a negative sign from the significands.
         #
         # @return [ Regex ] The regex for separating a sign from significands.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         SIGN_DIGITS_SEPARATOR = /^(\-)?(\S+)/.freeze
 
         # Regex matching a scientific exponent.
         #
         # @return [ Regex ] A regex matching E, e, E+, e+.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         SCIENTIFIC_EXPONENT_REGEX = /E\+?/i.freeze
 
         # Regex for capturing the significands.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         SIGNIFICANDS_REGEX = /^(0*)(\d*)/.freeze
 
         # Regex for capturing trailing zeros.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         TRAILING_ZEROS = /[1-9]*(0+)$/.freeze
 
         # Regex for a valid decimal128 string format.
         #
         # @return [ Regex ] The regex for a valid decimal128 string.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         VALID_DECIMAL128_STRING_REGEX = /^[\-\+]?(\d+(\.\d*)?|\.\d+)(E[\-\+]?\d+)?$/i.freeze
 
         # Initialize the FromString Builder object.
@@ -151,7 +151,7 @@ module BSON
         #
         # @param [ String ] string The string to create a Decimal128 from.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         def initialize(string)
           @string = string
         end
@@ -163,7 +163,7 @@ module BSON
         #
         # @return [ Array ] Tuple of the low and high bits.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         def bits
           if special?
             to_special_bits
@@ -262,7 +262,7 @@ module BSON
         # @param [ BigDecimal ] big_decimal The big decimal object to
         #   create a Decimal128 from.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         def initialize(big_decimal)
           @big_decimal = big_decimal
         end
@@ -274,7 +274,7 @@ module BSON
         #
         # @return [ Array ] Tuple of the low and high bits.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         def bits
           if special?
             to_special_bits
@@ -316,14 +316,14 @@ module BSON
         #
         # @return [ String ] The string representing NaN.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         NAN_STRING = 'NaN'.freeze
 
         # String representing an Infinity value.
         #
         # @return [ String ] The string representing Infinity.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         INFINITY_STRING = 'Infinity'.freeze
 
         # Initialize the FromBigDecimal Builder object.
@@ -334,7 +334,7 @@ module BSON
         # @param [ Decimal128 ] decimal128 The decimal128 object to
         #   create a String from.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         def initialize(decimal128)
           @decimal128 = decimal128
         end
@@ -346,7 +346,7 @@ module BSON
         #
         # @return [ String ] The string representing the decimal128 object.
         #
-        # @since 4.1.0
+        # @since 4.2.0
         def string
           return NAN_STRING if nan?
           str = infinity? ? INFINITY_STRING : create_string

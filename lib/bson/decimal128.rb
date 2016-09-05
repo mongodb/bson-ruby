@@ -1,4 +1,4 @@
-# Copyright (C) 2009-2015 MongoDB Inc.
+# Copyright (C) 2009-2016 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,37 +21,37 @@ module BSON
 
     # A Decimal128 is type 0x13 in the BSON spec.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     BSON_TYPE = 19.chr.force_encoding(BINARY).freeze
 
     # Exponent offset.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     EXPONENT_OFFSET = 6176.freeze
 
     # Minimum exponent.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     MIN_EXPONENT = -6176.freeze
 
     # Maximum exponent.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     MAX_EXPONENT = 6111.freeze
 
     # Maximum digits of precision.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     MAX_DIGITS_OF_PRECISION = 34.freeze
 
     # Key for this type when converted to extended json.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     EXTENDED_JSON_KEY = "$numberDecimal".freeze
 
     # The native type to which this object can be converted.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     NATIVE_TYPE = BigDecimal.freeze
 
     # Get the Decimal128 as JSON hash data.
@@ -61,7 +61,7 @@ module BSON
     #
     # @return [ Hash ] The number as a JSON hash.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     def as_json(*args)
       { EXTENDED_JSON_KEY => to_s }
     end
@@ -75,7 +75,7 @@ module BSON
     #
     # @return [ true, false ] If the objects are equal.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     def ==(other)
       return false unless other.is_a?(Decimal128)
       @high == other.instance_variable_get(:@high) &&
@@ -93,7 +93,7 @@ module BSON
     #
     # @raise [ InvalidBigDecimal ] Raise error unless object argument is a BigDecimal.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     def initialize(big_decimal)
       raise InvalidBigDecimal.new unless big_decimal.is_a?(BigDecimal)
       set_bits(*Builder::FromBigDecimal.new(big_decimal).bits)
@@ -108,7 +108,7 @@ module BSON
     #
     # @see http://bsonspec.org/#/specification
     #
-    # @since 4.1.0
+    # @since 4.2.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       buffer.put_decimal128(@low, @high)
     end
@@ -120,7 +120,7 @@ module BSON
     #
     # @return [ Integer ] The hash value.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     def hash
       num = @high << 64
       num |= @low
@@ -134,7 +134,7 @@ module BSON
     #
     # @return [ String ] The decimal as a string.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     def inspect
       "BSON::Decimal128('#{to_s}')"
     end
@@ -146,7 +146,7 @@ module BSON
     #
     # @return [ String ] The decimal128 as a string.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     def to_s
       @string ||= Builder::ToString.new(self).string
     end
@@ -161,7 +161,7 @@ module BSON
     #
     # @return [ BigDecimal ] The decimal as a BigDecimal.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     def to_big_decimal
       @big_decimal ||= BigDecimal.new(to_s)
     end
@@ -184,7 +184,7 @@ module BSON
       #
       # @return [ BSON::Decimal128 ] The decimal object.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def from_bson(buffer)
         from_bits(*buffer.get_decimal128_bytes.unpack('Q*'))
       end
@@ -200,7 +200,7 @@ module BSON
       #
       # @return [ BSON::Decimal128 ] The new decimal128.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def from_string(string)
         from_bits(*Builder::FromString.new(string).bits)
       end
@@ -218,7 +218,7 @@ module BSON
       #
       # @return [ BSON::Decimal128 ] The new decimal128.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def from_big_decimal(big_decimal)
         new(big_decimal)
       end
@@ -233,7 +233,7 @@ module BSON
       #
       # @return [ BSON::Decimal128 ] The new decimal128.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def from_bits(low, high)
         decimal = allocate
         decimal.send(:set_bits, low, high)
@@ -243,18 +243,18 @@ module BSON
 
     # Raised when a Decimal128 is instantiated with a non-BigDecimal type.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     class InvalidBigDecimal < RuntimeError; end
 
     # Raised when trying to create a Decimal128 from a string with
     #   an invalid format.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     class InvalidString < RuntimeError
 
       # The custom error message for this error.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       MESSAGE = 'Invalid string format for creating a Decimal128 object.'.freeze
 
       # Get the custom error message for the exception.
@@ -264,7 +264,7 @@ module BSON
       #
       # @return [ String ] The error message.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def message
         MESSAGE
       end
@@ -272,12 +272,12 @@ module BSON
 
     # Raised when the exponent or significand provided is outside the valid range.
     #
-    # @since 4.1.0
+    # @since 4.2.0
     class InvalidRange < RuntimeError
 
       # The custom error message for this error.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       MESSAGE = 'Value out of range for Decimal128 representation.'.freeze
 
       # Get the custom error message for the exception.
@@ -287,7 +287,7 @@ module BSON
       #
       # @return [ String ] The error message.
       #
-      # @since 4.1.0
+      # @since 4.2.0
       def message
         MESSAGE
       end
