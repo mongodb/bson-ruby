@@ -382,11 +382,11 @@ VALUE rb_bson_byte_buffer_put_decimal128(VALUE self, VALUE low, VALUE high)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 8);
-  memcpy(WRITE_PTR(b), (char*)&low64, 8);
+  memcpy(WRITE_PTR(b), &low64, 8);
   b->write_position += 8;
 
   ENSURE_BSON_WRITE(b, 8);
-  memcpy(WRITE_PTR(b), (char*)&high64, 8);
+  memcpy(WRITE_PTR(b), &high64, 8);
   b->write_position += 8;
 
   return self;
@@ -401,7 +401,7 @@ VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
   const double d = BSON_DOUBLE_TO_LE(NUM2DBL(f));
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 8);
-  memcpy(WRITE_PTR(b), (char*)&d, 8);
+  memcpy(WRITE_PTR(b), &d, 8);
   b->write_position += 8;
 
   return self;
@@ -417,7 +417,7 @@ VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 4);
-  memcpy(WRITE_PTR(b), (char*)&i32, 4);
+  memcpy(WRITE_PTR(b), &i32, 4);
   b->write_position += 4;
 
   return self;
@@ -433,7 +433,7 @@ VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 8);
-  memcpy(WRITE_PTR(b), (char*)&i64, 8);
+  memcpy(WRITE_PTR(b), &i64, 8);
   b->write_position += 8;
 
   return self;
@@ -457,7 +457,7 @@ VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, length + 4);
-  memcpy(WRITE_PTR(b), (char*)&length_le, 4);
+  memcpy(WRITE_PTR(b), &length_le, 4);
   b->write_position += 4;
   memcpy(WRITE_PTR(b), str, length);
   b->write_position += length;
@@ -590,7 +590,7 @@ VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
   memcpy(&bytes, &t, 4);
   memcpy(&bytes[4], rb_bson_machine_id_hash, 3);
   memcpy(&bytes[7], &pid, 2);
-  memcpy(&bytes[9], (unsigned char*) &c, 3);
+  memcpy(&bytes[9], &c, 3);
   rb_bson_object_id_counter++;
   return rb_str_new(bytes, 12);
 }
