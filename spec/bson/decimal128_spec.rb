@@ -64,10 +64,10 @@ describe BSON::Decimal128 do
 
     context 'when the value is not a big decimal' do
 
-      it 'raises an InvalidBigDecimal exception' do
+      it 'raises an exception' do
         expect {
-          described_class.new("1")
-        }.to raise_exception(described_class::InvalidBigDecimal)
+          described_class.new(:invalid)
+        }.to raise_exception(TypeError)
       end
     end
 

@@ -83,19 +83,31 @@ module BSON
     end
     alias :eql? :==
 
-    # Create a new Decimal128 from a BigDecimal.
+    # Create a new Decimal128 from a Integer, Float, Rational, BigDecimal, or String.
     #
-    # @example Create a Decimal128 from a BigDecimal.
-    #   Decimal128.new(big_decimal)
+    # @example Create a Decimal128 from an Integer.
+    #   Decimal128.new(100)
     #
-    # @param [ BigDecimal ] big_decimal The BigDecimal to use for
+    # @example Create a Decimal128 from an Float.
+    #   Decimal128.new(1.45, 3)
+    #
+    # @example Create a Decimal128 from an Rational.
+    #   Decimal128.new(Rational(2, 3), 2)
+    #
+    # @example Create a Decimal128 from an BigDecimal.
+    #   Decimal128.new(BigDecimal.new("2.45"))
+    #
+    # @example Create a Decimal128 from an String.
+    #   Decimal128.new("2.45")
+    #
+    # @param [ Integer, Float, Rational, BigDecimal, String ] initial The initial value to use for
     #   instantiating a Decimal128.
-    #
-    # @raise [ InvalidBigDecimal ] Raise error unless object argument is a BigDecimal.
+    # @param [ Fixnum ] digits The number of significant digits, as a Fixnum.
+    #   If omitted or 0, the number of significant digits is determined from the initial value.
     #
     # @since 4.2.0
-    def initialize(big_decimal)
-      raise InvalidBigDecimal.new unless big_decimal.is_a?(BigDecimal)
+    def initialize(initial, digits = nil)
+      big_decimal = BigDecimal.new(*[initial, digits].compact)
       set_bits(*Builder::FromBigDecimal.new(big_decimal).bits)
     end
 
@@ -222,9 +234,6 @@ module BSON
       # @param [ BigDecimal ] big_decimal The big decimal to instantiate the
       #   Decimal128 from.
       #
-      # @raise [ BSON::Decimal128::InvalidBigDecimal ] If the provided value is not a
-      #   BigDecimal.
-      #
       # @return [ BSON::Decimal128 ] The new decimal128.
       #
       # @since 4.2.0
@@ -249,11 +258,6 @@ module BSON
         decimal
       end
     end
-
-    # Raised when a Decimal128 is instantiated with a non-BigDecimal type.
-    #
-    # @since 4.2.0
-    class InvalidBigDecimal < RuntimeError; end
 
     # Raised when trying to create a Decimal128 from a string with
     #   an invalid format.
