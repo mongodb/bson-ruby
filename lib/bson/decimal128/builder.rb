@@ -111,14 +111,14 @@ module BSON
         #   including leading zeros.
         #
         # @since 4.2.0
-        SIGNIFICAND_WITH_LEADING_ZEROS = /(0*)(\d+)/.freeze
+        SIGNIFICAND_WITH_LEADING_ZEROS_REGEX = /(0*)(\d+)/.freeze
 
         # Regex for separating a negative sign from the significands.
         #
         # @return [ Regex ] The regex for separating a sign from significands.
         #
         # @since 4.2.0
-        SIGN_DIGITS_SEPARATOR = /^(\-)?(\S+)/.freeze
+        SIGN_AND_DIGITS_REGEX = /^(\-)?(\S+)/.freeze
 
         # Regex matching a scientific exponent.
         #
@@ -127,15 +127,10 @@ module BSON
         # @since 4.2.0
         SCIENTIFIC_EXPONENT_REGEX = /E\+?/i.freeze
 
-        # Regex for capturing the significands.
-        #
-        # @since 4.2.0
-        SIGNIFICANDS_REGEX = /^(0*)(\d*)/.freeze
-
         # Regex for capturing trailing zeros.
         #
         # @since 4.2.0
-        TRAILING_ZEROS = /[1-9]*(0+)$/.freeze
+        TRAILING_ZEROS_REGEX = /[1-9]*(0+)$/.freeze
 
         # Regex for a valid decimal128 string format.
         #
@@ -176,12 +171,12 @@ module BSON
         private
 
         def to_bits
-          original, sign, digits_str = SIGN_DIGITS_SEPARATOR.match(@string).to_a
+          original, sign, digits_str = SIGN_AND_DIGITS_REGEX.match(@string).to_a
           digits, e, scientific_exp = digits_str.partition(SCIENTIFIC_EXPONENT_REGEX)
           before_decimal, decimal, after_decimal = digits.partition('.')
 
           significand_str = before_decimal << after_decimal
-          significand_str = SIGNIFICAND_WITH_LEADING_ZEROS.match(significand_str).to_a[2]
+          significand_str = SIGNIFICAND_WITH_LEADING_ZEROS_REGEX.match(significand_str).to_a[2]
 
           exponent = -(after_decimal.length)
           exponent = exponent + scientific_exp.to_i
@@ -196,14 +191,14 @@ module BSON
             if significand.to_i == 0
               round = Decimal128::MIN_EXPONENT - exponent
               exponent += round
-            elsif trailing_zeros = TRAILING_ZEROS.match(significand)
+            elsif trailing_zeros = TRAILING_ZEROS_REGEX.match(significand)
               round = [ (Decimal128::MIN_EXPONENT - exponent),
                         trailing_zeros[1].size ].min
               significand = significand[0...-round]
               exponent += round
             end
           elsif significand.length > Decimal128::MAX_DIGITS_OF_PRECISION
-            trailing_zeros = TRAILING_ZEROS.match(significand)
+            trailing_zeros = TRAILING_ZEROS_REGEX.match(significand)
             if trailing_zeros
               round = [ trailing_zeros[1].size,
                         (significand.length - Decimal128::MAX_DIGITS_OF_PRECISION),
