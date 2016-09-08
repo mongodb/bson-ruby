@@ -107,8 +107,12 @@ module BSON
     #
     # @since 4.2.0
     def initialize(initial, digits = nil)
-      big_decimal = BigDecimal.new(*[initial, digits].compact)
-      set_bits(*Builder::FromBigDecimal.new(big_decimal).bits)
+      if initial.is_a?(String)
+        set_bits(*Builder::FromString.new(initial).bits)
+      else
+        big_decimal = BigDecimal.new(*[initial, digits].compact)
+        set_bits(*Builder::FromBigDecimal.new(big_decimal).bits)
+      end
     end
 
     # Get the decimal128 as its raw BSON data.

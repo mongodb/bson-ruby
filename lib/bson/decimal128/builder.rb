@@ -31,6 +31,11 @@ module BSON
       # @since 4.2.0
       NAN_MASK = 0x7c00000000000000.freeze
 
+      # SNaN mask.
+      #
+      # @since 4.2.0
+      SNAN_MASK = (1 << 57).freeze
+
       # Signed bit mask.
       #
       # @since 4.2.0
@@ -70,6 +75,7 @@ module BSON
           high |= SIGN_BIT_MASK
         end
 
+
         [ low, high ]
       end
 
@@ -96,7 +102,7 @@ module BSON
         # @return [ Regex ] A regex matching a NaN string.
         #
         # @since 4.2.0
-        NAN_REGEX = /^(\-)?NaN$/i.freeze
+        NAN_REGEX = /^(\-)?(S)?NaN$/i.freeze
 
         # Regex matching a string representing positive or negative Infinity.
         #
@@ -231,6 +237,7 @@ module BSON
           if match = NAN_REGEX.match(@string)
             high = NAN_MASK
             high = high | SIGN_BIT_MASK if match[1]
+            high = high | SNAN_MASK if match[2]
           elsif match = INFINITY_REGEX.match(@string)
             high = INFINITY_MASK
             high = high | SIGN_BIT_MASK if match[1] == '-'
