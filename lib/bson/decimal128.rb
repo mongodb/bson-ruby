@@ -241,7 +241,7 @@ module BSON
         new(big_decimal)
       end
 
-      # Instantiate a Decimal128 from a high and low bits.
+      # Instantiate a Decimal128 from high and low bits.
       #
       # @example Create a Decimal128 from high and low bits.
       #   BSON::Decimal128.from_bits(high, low)
