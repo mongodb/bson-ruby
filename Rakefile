@@ -122,18 +122,6 @@ namespace :benchmark do
       require 'bson'
       benchmark_decimal128_to_string!
     end
-
-    task :from_integer do
-      puts "Benchmarking getting a Decimal128 from an Integer"
-      require 'bson'
-      benchmark_decimal128_from_integer!
-    end
-
-    task :from_float do
-      puts "Benchmarking getting a Decimal128 from a Float"
-      require 'bson'
-      benchmark_decimal128_from_float!
-    end
   end
 end
 
