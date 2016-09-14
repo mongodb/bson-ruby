@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+CURRENT_PATH = File.expand_path(File.dirname(__FILE__))
+DRIVER_COMMON_BSON_TESTS = Dir.glob("#{CURRENT_PATH}/support/driver-spec-tests/**/*.json")
+
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
 

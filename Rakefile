@@ -108,6 +108,21 @@ namespace :benchmark do
     require "bson"
     benchmark!
   end
+
+  namespace :decimal128 do
+
+    task :from_string do
+      puts "Benchmarking creating Decimal128 objects from a string"
+      require 'bson'
+      benchmark_decimal128_from_string!
+    end
+
+    task :to_string do
+      puts "Benchmarking getting a string representation of a Decimal128"
+      require 'bson'
+      benchmark_decimal128_to_string!
+    end
+  end
 end
 
 task :default => [ :clean_all, :spec ]

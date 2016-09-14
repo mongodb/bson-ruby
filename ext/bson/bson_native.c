@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2015 MongoDB Inc.
+ * Copyright (C) 2009-2016 MongoDB Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,7 @@ static VALUE rb_bson_byte_buffer_length(VALUE self);
 static VALUE rb_bson_byte_buffer_get_byte(VALUE self);
 static VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i);
 static VALUE rb_bson_byte_buffer_get_cstring(VALUE self);
+static VALUE rb_bson_byte_buffer_get_decimal128_bytes(VALUE self);
 static VALUE rb_bson_byte_buffer_get_double(VALUE self);
 static VALUE rb_bson_byte_buffer_get_int32(VALUE self);
 static VALUE rb_bson_byte_buffer_get_int64(VALUE self);
@@ -63,6 +64,7 @@ static VALUE rb_bson_byte_buffer_get_string(VALUE self);
 static VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte);
 static VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes);
 static VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string);
+static VALUE rb_bson_byte_buffer_put_decimal128(VALUE self, VALUE low, VALUE high);
 static VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f);
 static VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i);
 static VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i);
@@ -115,6 +117,7 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "get_byte", rb_bson_byte_buffer_get_byte, 0);
   rb_define_method(rb_byte_buffer_class, "get_bytes", rb_bson_byte_buffer_get_bytes, 1);
   rb_define_method(rb_byte_buffer_class, "get_cstring", rb_bson_byte_buffer_get_cstring, 0);
+  rb_define_method(rb_byte_buffer_class, "get_decimal128_bytes", rb_bson_byte_buffer_get_decimal128_bytes, 0);
   rb_define_method(rb_byte_buffer_class, "get_double", rb_bson_byte_buffer_get_double, 0);
   rb_define_method(rb_byte_buffer_class, "get_int32", rb_bson_byte_buffer_get_int32, 0);
   rb_define_method(rb_byte_buffer_class, "get_int64", rb_bson_byte_buffer_get_int64, 0);
@@ -122,6 +125,7 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "put_byte", rb_bson_byte_buffer_put_byte, 1);
   rb_define_method(rb_byte_buffer_class, "put_bytes", rb_bson_byte_buffer_put_bytes, 1);
   rb_define_method(rb_byte_buffer_class, "put_cstring", rb_bson_byte_buffer_put_cstring, 1);
+  rb_define_method(rb_byte_buffer_class, "put_decimal128", rb_bson_byte_buffer_put_decimal128, 2);
   rb_define_method(rb_byte_buffer_class, "put_double", rb_bson_byte_buffer_put_double, 1);
   rb_define_method(rb_byte_buffer_class, "put_int32", rb_bson_byte_buffer_put_int32, 1);
   rb_define_method(rb_byte_buffer_class, "put_int64", rb_bson_byte_buffer_put_int64, 1);
@@ -232,6 +236,21 @@ VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
   string = rb_enc_str_new(READ_PTR(b), length, rb_utf8_encoding());
   b->read_position += length + 1;
   return string;
+}
+
+/**
+ * Get the 16 bytes representing the decimal128 from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_decimal128_bytes(VALUE self)
+{
+  byte_buffer_t *b;
+  VALUE bytes;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_READ(b, 16);
+  bytes = rb_str_new(READ_PTR(b), 16);
+  b->read_position += 16;
+  return bytes;
 }
 
 /**
@@ -353,6 +372,27 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string)
 }
 
 /**
+ * Writes a 128 bit decimal to the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_put_decimal128(VALUE self, VALUE low, VALUE high)
+{
+  byte_buffer_t *b;
+  const int64_t low64 = BSON_UINT64_TO_LE(NUM2ULL(low));
+  const int64_t high64 = BSON_UINT64_TO_LE(NUM2ULL(high));
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  ENSURE_BSON_WRITE(b, 8);
+  memcpy(WRITE_PTR(b), &low64, 8);
+  b->write_position += 8;
+
+  ENSURE_BSON_WRITE(b, 8);
+  memcpy(WRITE_PTR(b), &high64, 8);
+  b->write_position += 8;
+
+  return self;
+}
+
+/**
  * Writes a 64 bit double to the buffer.
  */
 VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
@@ -361,7 +401,7 @@ VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
   const double d = BSON_DOUBLE_TO_LE(NUM2DBL(f));
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 8);
-  memcpy(WRITE_PTR(b), (char*)&d, 8);
+  memcpy(WRITE_PTR(b), &d, 8);
   b->write_position += 8;
 
   return self;
@@ -377,7 +417,7 @@ VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 4);
-  memcpy(WRITE_PTR(b), (char*)&i32, 4);
+  memcpy(WRITE_PTR(b), &i32, 4);
   b->write_position += 4;
 
   return self;
@@ -393,7 +433,7 @@ VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 8);
-  memcpy(WRITE_PTR(b), (char*)&i64, 8);
+  memcpy(WRITE_PTR(b), &i64, 8);
   b->write_position += 8;
 
   return self;
@@ -417,7 +457,7 @@ VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, length + 4);
-  memcpy(WRITE_PTR(b), (char*)&length_le, 4);
+  memcpy(WRITE_PTR(b), &length_le, 4);
   b->write_position += 4;
   memcpy(WRITE_PTR(b), str, length);
   b->write_position += length;
@@ -550,7 +590,7 @@ VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
   memcpy(&bytes, &t, 4);
   memcpy(&bytes[4], rb_bson_machine_id_hash, 3);
   memcpy(&bytes[7], &pid, 2);
-  memcpy(&bytes[9], (unsigned char*) &c, 3);
+  memcpy(&bytes[9], &c, 3);
   rb_bson_object_id_counter++;
   return rb_str_new(bytes, 12);
 }

@@ -37,6 +37,11 @@ def benchmark!
       count.times { BSON::Code.new("this.value = 1").to_bson }
     end
 
+    big_decimal = BigDecimal.new(123)
+    bench.report("Decimal128#to_bson ---->") do
+      count.times { BSON::Decimal128.new(big_decimal).to_bson }
+    end
+
     bench.report("FalseClass#to_bson ---->") do
       count.times { false.to_bson }
     end
@@ -116,6 +121,11 @@ def benchmark!
       count.times { BSON::Code.from_bson(BSON::ByteBuffer.new(code_bytes)) }
     end
 
+    decimal128_bytes = BSON::Decimal128.new(BigDecimal.new(123)).to_bson.to_s
+    bench.report("Decimal128#from_bson -->") do
+      count.times { BSON::Decimal128.from_bson(BSON::ByteBuffer.new(decimal128_bytes)) }
+    end
+
     false_bytes = false.to_bson.to_s
     bench.report("Boolean#from_bson ----->") do
       count.times { BSON::Boolean.from_bson(BSON::ByteBuffer.new(false_bytes)) }
@@ -159,6 +169,45 @@ def benchmark!
     doc_bytes = document.to_bson.to_s
     bench.report("Document#from_bson ---->") do
       count.times { BSON::Document.from_bson(BSON::ByteBuffer.new(doc_bytes)) }
+    end
+  end
+end
+
+def benchmark_decimal128_from_string!
+  test_helpers = Dir.glob(File.join(Dir.pwd, 'spec/support/common_driver.rb'))
+  test_helpers.each { |t| require t }
+
+  count = 100_000
+  test_files =  Dir.glob(File.join(Dir.pwd, 'spec/support/driver-spec-tests/**/*.json'))
+  tests = test_files.map { |file| BSON::CommonDriver::Spec.new(file) }
+
+  tests[4].valid_tests.each do |test|
+    puts test.string
+    Benchmark.bm do |bench|
+      bench.report("Decimal128#new from String ------>") do
+        count.times { BSON::Decimal128.from_string(test.string) }
+      end
+    end
+  end
+end
+
+def benchmark_decimal128_to_string!
+  test_helpers = Dir.glob(File.join(Dir.pwd, 'spec/support/common_driver.rb'))
+  test_helpers.each { |t| require t }
+
+  count = 100_000
+  test_files =  Dir.glob(File.join(Dir.pwd, 'spec/support/driver-spec-tests/**/*.json'))
+  test_groups = test_files.map { |file| BSON::CommonDriver::Spec.new(file) }
+
+  test_groups.each do |tests|
+    tests.valid_tests.each do |test|
+      decimal128 = BSON::Decimal128.from_string(test.string)
+      puts decimal128.to_s
+      Benchmark.bm do |bench|
+        bench.report("Decimal128#to_string ------>") do
+          count.times { BSON::Decimal128::Builder::ToString.new(decimal128).string }
+        end
+      end
     end
   end
 end

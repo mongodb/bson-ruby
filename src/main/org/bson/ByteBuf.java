@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 MongoDB, Inc.
+ * Copyright (C) 2015-2016 MongoDB, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.jruby.RubyInteger;
 import org.jruby.RubyNumeric;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
+import java.math.BigInteger;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
@@ -189,6 +190,18 @@ public class ByteBuf extends RubyObject {
   }
 
   /**
+   * Get the 16 bytes representing the decimal128 from the buffer.
+   *
+   * @author Emily Stolfo
+   * @since 2016.03.24
+   * @version 4.1.0
+   */
+  @JRubyMethod(name = "get_decimal128_bytes")
+  public RubyString getDecimal128Bytes() {
+    return getBytes(new RubyFixnum(getRuntime(), 16));
+  }
+
+  /**
    * Get a double from the buffer.
    *
    * @author Durran Jordan
@@ -301,6 +314,42 @@ public class ByteBuf extends RubyObject {
   public ByteBuf putCString(final IRubyObject value) throws UnsupportedEncodingException {
     String string = ((RubyString) value).asJavaString();
     this.writePosition += writeCharacters(string, true);
+    return this;
+  }
+
+  /**
+   * Put the decimal128 high and low bits on to the buffer.
+   *
+   * @param low The low 64 bits.
+   * @param high The high 64 bits.
+   *
+   * @author Emily Stolfo
+   * @since 2016.03.24
+   * @version 4.1.0
+   */
+  @JRubyMethod(name = "put_decimal128")
+  public ByteBuf putDecimal128(final IRubyObject low, final IRubyObject high) {
+    ensureBsonWrite(16);
+    BigInteger bigLow;
+    BigInteger bigHigh;
+
+    if (low instanceof RubyBignum) {
+      bigLow = ((RubyBignum) low).getBigIntegerValue();
+    } else {
+      bigLow = ((RubyFixnum) low).getBigIntegerValue();
+    }
+
+    if (high instanceof RubyBignum) {
+      bigHigh = ((RubyBignum) high).getBigIntegerValue();
+    } else {
+      bigHigh = ((RubyFixnum) high).getBigIntegerValue();
+    }
+
+    this.buffer.putLong(bigLow.longValue());
+    this.writePosition += 8;
+
+    this.buffer.putLong(bigHigh.longValue());
+    this.writePosition += 8;
     return this;
   }
 
