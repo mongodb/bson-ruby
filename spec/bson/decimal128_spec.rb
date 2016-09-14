@@ -169,18 +169,25 @@ describe BSON::Decimal128 do
     context 'when the object represents a positive integer' do
 
       let(:expected_high_bits) { 0x3040000000000000 }
-      let(:expected_low_bits) { 1 }
+      let(:expected_low_bits) { 12 }
 
       context 'when a BigDecimal is passed' do
 
-        let(:argument) { BigDecimal.new(1) }
+        let(:argument) { BigDecimal.new(12) }
+
+        it_behaves_like 'an initialized BSON::Decimal128'
+      end
+
+      context 'when an Integer is passed' do
+
+        let(:argument) { 12 }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
 
       context 'when a String is passed' do
 
-        let(:argument) { "1" }
+        let(:argument) { "12" }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
@@ -189,18 +196,25 @@ describe BSON::Decimal128 do
     context 'when the object represents a negative integer' do
 
       let(:expected_high_bits) { 0xb040000000000000 }
-      let(:expected_low_bits) { 1 }
+      let(:expected_low_bits) { 12 }
 
       context 'when a BigDecimal is passed' do
 
-        let(:argument) { BigDecimal.new(-1) }
+        let(:argument) { BigDecimal.new(-12) }
+
+        it_behaves_like 'an initialized BSON::Decimal128'
+      end
+
+      context 'when an Integer is passed' do
+
+        let(:argument) { -12 }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
 
       context 'when a String is passed' do
 
-        let(:argument) { "-1" }
+        let(:argument) { "-12" }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
@@ -214,6 +228,13 @@ describe BSON::Decimal128 do
       context 'when a BigDecimal is passed' do
 
         let(:argument) { BigDecimal.new(0.12345, 5) }
+
+        it_behaves_like 'an initialized BSON::Decimal128'
+      end
+
+      context 'when a Float is passed' do
+
+        let(:argument) { 0.12345 }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
@@ -238,6 +259,13 @@ describe BSON::Decimal128 do
         it_behaves_like 'an initialized BSON::Decimal128'
       end
 
+      context 'when a Float is passed' do
+
+        let(:argument) { -0.12345 }
+
+        it_behaves_like 'an initialized BSON::Decimal128'
+      end
+
       context 'when a String is passed' do
 
         let(:argument) { "-0.12345" }
@@ -258,6 +286,13 @@ describe BSON::Decimal128 do
         it_behaves_like 'an initialized BSON::Decimal128'
       end
 
+      context 'when an Integer is passed' do
+
+        let(:argument) { 1234567890123456789012345678901234 }
+
+        it_behaves_like 'an initialized BSON::Decimal128'
+      end
+
       context 'when a String is passed' do
 
         let(:argument) { "1234567890123456789012345678901234" }
@@ -274,6 +309,13 @@ describe BSON::Decimal128 do
       context 'when a BigDecimal is passed' do
 
         let(:argument) { BigDecimal.new(-1234567890123456789012345678901234) }
+
+        it_behaves_like 'an initialized BSON::Decimal128'
+      end
+
+      context 'when an Integer is passed' do
+
+        let(:argument) { -1234567890123456789012345678901234 }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'pry-nav'
 $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 require "benchmark"
 
@@ -204,9 +205,33 @@ def benchmark_decimal128_to_string!
       decimal128 = BSON::Decimal128.from_string(test.string)
       puts decimal128.to_s
       Benchmark.bm do |bench|
-        bench.report("decimal128#to_string ------>") do
+        bench.report("Decimal128#to_string ------>") do
           count.times { BSON::Decimal128::Builder::ToString.new(decimal128).string }
         end
+      end
+    end
+  end
+end
+
+def benchmark_decimal128_from_integer!
+  count = 1_000_000
+
+  Benchmark.bm do |bench|
+   bench.report("Decimal128#new with Integer------>") do
+      count.times do
+        BSON::Decimal128.new(rand(count))
+      end
+    end
+  end
+end
+
+def benchmark_decimal128_from_float!
+  count = 1_000_000
+
+  Benchmark.bm do |bench|
+    bench.report("Decimal128#new with Float------>") do
+      count.times do
+        BSON::Decimal128.new(1.234, count)
       end
     end
   end

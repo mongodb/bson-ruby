@@ -89,7 +89,7 @@ module BSON
     #   Decimal128.new(100)
     #
     # @example Create a Decimal128 from an Float.
-    #   Decimal128.new(1.45, 3)
+    #   Decimal128.new(1.45)
     #
     # @example Create a Decimal128 from an Rational.
     #   Decimal128.new(Rational(2, 3), 2)
@@ -107,11 +107,18 @@ module BSON
     #
     # @since 4.2.0
     def initialize(initial, digits = nil)
-      if initial.is_a?(String)
-        set_bits(*Builder::FromString.new(initial).bits)
-      else
-        big_decimal = BigDecimal.new(*[initial, digits].compact)
-        set_bits(*Builder::FromBigDecimal.new(big_decimal).bits)
+      case initial
+        when String
+          set_bits(*Builder::FromString.new(initial).bits)
+        when Integer
+          set_bits(*Builder::FromInteger.new(initial).bits)
+        when Float
+          set_bits(*Builder::FromFloat.new(initial).bits)
+        when BigDecimal
+          set_bits(*Builder::FromBigDecimal.new(initial).bits)
+        else
+          big_decimal = BigDecimal.new(*[initial, digits].compact)
+          set_bits(*Builder::FromBigDecimal.new(big_decimal).bits)
       end
     end
 

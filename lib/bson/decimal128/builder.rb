@@ -15,8 +15,8 @@
 module BSON
   class Decimal128
 
-    # Helper module for parsing string, big decimal, and decimal128 objects into
-    # other objects.
+    # Helper module for parsing String, Integer, Float, BigDecimal, and Decimal128
+    # objects into other objects.
     #
     # @since 4.2.0
     module Builder
@@ -95,6 +95,9 @@ module BSON
         exponent <= Decimal128::MAX_EXPONENT && exponent >= Decimal128::MIN_EXPONENT
       end
 
+      # Helper class for parsing a String into Decimal128 high and low bits.
+      #
+      # @since 4.2.0
       class FromString
 
         # Regex matching a string representing NaN.
@@ -254,6 +257,72 @@ module BSON
         end
       end
 
+      # Helper class for parsing a Float into Decimal128 high and low bits.
+      #
+      # @since 4.2.0
+      class FromFloat
+
+        # Initialize the FromFloat Builder object.
+        #
+        # @example Create the FromFloat builder.
+        #   Builder::FromFloat.new(float)
+        #
+        # @param [ Float ] float The float object to create a Decimal128 from.
+        #
+        # @since 4.2.0
+        def initialize(float)
+          @float = float
+        end
+
+        # Get the bits representing the Decimal128 that the float corresponds to.
+        #
+        # @example Get the bits for the Decimal128 object created from the float.
+        #   builder.bits
+        #
+        # @return [ Array ] Tuple of the low and high bits.
+        #
+        # @since 4.2.0
+        def bits
+          before_decimal, decimal, after_decimal = @float.to_s.partition('.')
+          Builder.parts_to_bits((@float.abs * (10**after_decimal.length)).to_i,
+                                -after_decimal.length,
+                                @float < 0)
+        end
+      end
+
+      # Helper class for parsing an Integer into Decimal128 high and low bits.
+      #
+      # @since 4.2.0
+      class FromInteger
+
+        # Initialize the FromInteger Builder object.
+        #
+        # @example Create the FromInteger builder.
+        #   Builder::FromInteger.new(integer)
+        #
+        # @param [ Integer ] integer The integer object to create a Decimal128 from.
+        #
+        # @since 4.2.0
+        def initialize(integer)
+          @integer = integer
+        end
+
+        # Get the bits representing the Decimal128 that the integer corresponds to.
+        #
+        # @example Get the bits for the Decimal128 object created from the integer.
+        #   builder.bits
+        #
+        # @return [ Array ] Tuple of the low and high bits.
+        #
+        # @since 4.2.0
+        def bits
+          Builder.parts_to_bits(@integer.abs, 0, @integer < 0)
+        end
+      end
+
+      # Helper class for parsing a BigDecimal into Decimal128 high and low bits.
+      #
+      # @since 4.2.0
       class FromBigDecimal
 
         # Initialize the FromBigDecimal Builder object.
@@ -312,6 +381,9 @@ module BSON
         end
       end
 
+      # Helper class for getting a String representation of a Decimal128 object.
+      #
+      # @since 4.2.0
       class ToString
 
         # String representing a NaN value.
