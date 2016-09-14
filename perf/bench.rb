@@ -185,8 +185,8 @@ def benchmark_decimal128_from_string!
   tests[4].valid_tests.each do |test|
     puts test.string
     Benchmark.bm do |bench|
-      bench.report("Decimal128#from_string ------>") do
-        count.times { BSON::Decimal128.from_string(test.string) }
+      bench.report("Decimal128#new from String ------>") do
+        count.times { BSON::Decimal128.new(test.string) }
       end
     end
   end
@@ -202,7 +202,7 @@ def benchmark_decimal128_to_string!
 
   test_groups.each do |tests|
     tests.valid_tests.each do |test|
-      decimal128 = BSON::Decimal128.from_string(test.string)
+      decimal128 = BSON::Decimal128.new(test.string)
       puts decimal128.to_s
       Benchmark.bm do |bench|
         bench.report("Decimal128#to_string ------>") do

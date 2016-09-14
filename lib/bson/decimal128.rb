@@ -237,21 +237,6 @@ module BSON
         from_bits(*Builder::FromString.new(string).bits)
       end
 
-      # Instantiate a Decimal128 from a BigDecimal.
-      #
-      # @example Create a Decimal128 object from a BigDecimal.
-      #   BSON::Decimal128.from_big_decimal(big_decimal)
-      #
-      # @param [ BigDecimal ] big_decimal The big decimal to instantiate the
-      #   Decimal128 from.
-      #
-      # @return [ BSON::Decimal128 ] The new decimal128.
-      #
-      # @since 4.2.0
-      def from_big_decimal(big_decimal)
-        new(big_decimal)
-      end
-
       # Instantiate a Decimal128 from high and low bits.
       #
       # @example Create a Decimal128 from high and low bits.

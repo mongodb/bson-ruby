@@ -349,8 +349,8 @@ describe BSON::Decimal128 do
         BSON::Document.from_bson(buffer)['d']
       end
 
-      let(:from_string) do
-        BSON::Decimal128.from_string('2.000')
+      let(:object_from_string) do
+        BSON::Decimal128.new('2.000')
       end
 
       it 'has the correct high order' do
@@ -362,7 +362,7 @@ describe BSON::Decimal128 do
       end
 
       it 'matches the object created from a string' do
-        expect(from_string).to eq(decimal128)
+        expect(object_from_string).to eq(decimal128)
       end
     end
   end
@@ -1158,11 +1158,11 @@ describe BSON::Decimal128 do
       end
 
       let(:decimal128) do
-        described_class.from_string(string)
+        described_class.new(string)
       end
 
       let(:other_decimal) do
-        described_class.from_string(string)
+        described_class.new(string)
       end
 
       it "returns true" do
@@ -1177,7 +1177,7 @@ describe BSON::Decimal128 do
       end
 
       let(:decimal128) do
-        described_class.from_string(string)
+        described_class.new(string)
       end
 
       it "returns false" do
@@ -1188,7 +1188,7 @@ describe BSON::Decimal128 do
     context "when other is not a decimal128" do
 
       it "returns false" do
-        expect(described_class.from_string('1')).to_not eq(nil)
+        expect(described_class.new('1')).to_not eq(nil)
       end
     end
   end
@@ -1204,7 +1204,7 @@ describe BSON::Decimal128 do
       context "when the high and low bits are equal" do
 
         let(:other) do
-          described_class.from_string(decimal128.to_s)
+          described_class.new(decimal128.to_s)
         end
 
         it "returns true" do
@@ -1284,11 +1284,11 @@ describe BSON::Decimal128 do
       end
 
       let(:decimal128) do
-        described_class.from_string(string)
+        described_class.new(string)
       end
 
       let(:other_decimal) do
-        described_class.from_string(string)
+        described_class.new(string)
       end
 
       it "returns true" do
@@ -1303,7 +1303,7 @@ describe BSON::Decimal128 do
       end
 
       let(:decimal128) do
-        described_class.from_string(string)
+        described_class.new(string)
       end
 
       it "returns false" do
@@ -1314,7 +1314,7 @@ describe BSON::Decimal128 do
     context "when other is not a Decimal128" do
 
       it "returns false" do
-        expect(described_class.from_string('2')).to_not eql(nil)
+        expect(described_class.new('2')).to_not eql(nil)
       end
     end
   end
