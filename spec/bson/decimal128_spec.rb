@@ -63,7 +63,7 @@ describe BSON::Decimal128 do
       it 'raises an exception' do
         expect {
           described_class.new(:invalid)
-        }.to raise_exception(TypeError)
+        }.to raise_exception(described_class::InvalidBigDecimal)
       end
     end
 
@@ -72,19 +72,9 @@ describe BSON::Decimal128 do
       let(:expected_high_bits) { 0x7800000000000000 }
       let(:expected_low_bits) { 0 }
 
-      context 'when a BigDecimal is passed' do
+      let(:argument) { BigDecimal.new("Infinity") }
 
-        let(:argument) { BigDecimal.new("Infinity") }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when a String is passed' do
-
-        let(:argument) { "Infinity" }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
+      it_behaves_like 'an initialized BSON::Decimal128'
     end
 
     context 'when the object represents negative infinity' do
@@ -92,19 +82,9 @@ describe BSON::Decimal128 do
       let(:expected_high_bits) { 0xf800000000000000 }
       let(:expected_low_bits) { 0 }
 
-      context 'when a BigDecimal is passed' do
+      let(:argument) { BigDecimal.new("-Infinity") }
 
-        let(:argument) { BigDecimal.new("-Infinity") }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when a String is passed' do
-
-        let(:argument) { "-Infinity" }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
+      it_behaves_like 'an initialized BSON::Decimal128'
     end
 
     context 'when the object represents NaN' do
@@ -112,58 +92,9 @@ describe BSON::Decimal128 do
       let(:expected_high_bits) { 0x7c00000000000000 }
       let(:expected_low_bits) { 0 }
 
-      context 'when a BigDecimal is passed' do
+      let(:argument) { BigDecimal.new("NaN") }
 
-        let(:argument) { BigDecimal.new("NaN") }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when a String is passed' do
-
-        let(:argument) { "NaN" }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-    end
-
-    context 'when the object represents -NaN' do
-
-      let(:expected_high_bits) { 0xfc00000000000000 }
-      let(:expected_low_bits) { 0 }
-
-      context 'when a String is passed' do
-
-        let(:argument) { "-NaN" }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-    end
-
-    context 'when the object represents SNaN' do
-
-      let(:expected_high_bits) { 0x7e00000000000000 }
-      let(:expected_low_bits) { 0 }
-
-      context 'when a String is passed' do
-
-        let(:argument) { "SNaN" }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-    end
-
-    context 'when the object represents -SNaN' do
-
-      let(:expected_high_bits) { 0xfe00000000000000 }
-      let(:expected_low_bits) { 0 }
-
-      context 'when a String is passed' do
-
-        let(:argument) { "-SNaN" }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
+      it_behaves_like 'an initialized BSON::Decimal128'
     end
 
     context 'when the object represents a positive integer' do
@@ -171,26 +102,9 @@ describe BSON::Decimal128 do
       let(:expected_high_bits) { 0x3040000000000000 }
       let(:expected_low_bits) { 12 }
 
-      context 'when a BigDecimal is passed' do
+      let(:argument) { BigDecimal.new(12) }
 
-        let(:argument) { BigDecimal.new(12) }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when an Integer is passed' do
-
-        let(:argument) { 12 }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when a String is passed' do
-
-        let(:argument) { "12" }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
+      it_behaves_like 'an initialized BSON::Decimal128'
     end
 
     context 'when the object represents a negative integer' do
@@ -198,26 +112,9 @@ describe BSON::Decimal128 do
       let(:expected_high_bits) { 0xb040000000000000 }
       let(:expected_low_bits) { 12 }
 
-      context 'when a BigDecimal is passed' do
+      let(:argument) { BigDecimal.new(-12) }
 
-        let(:argument) { BigDecimal.new(-12) }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when an Integer is passed' do
-
-        let(:argument) { -12 }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when a String is passed' do
-
-        let(:argument) { "-12" }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
+      it_behaves_like 'an initialized BSON::Decimal128'
     end
 
     context 'when the object represents a positive float' do
@@ -225,26 +122,9 @@ describe BSON::Decimal128 do
       let(:expected_high_bits) { 0x3036000000000000 }
       let(:expected_low_bits) { 0x0000000000003039 }
 
-      context 'when a BigDecimal is passed' do
+      let(:argument) { BigDecimal.new(0.12345, 5) }
 
-        let(:argument) { BigDecimal.new(0.12345, 5) }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when a Float is passed' do
-
-        let(:argument) { 0.12345 }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when a String is passed' do
-
-        let(:argument) { "0.12345" }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
+      it_behaves_like 'an initialized BSON::Decimal128'
     end
 
     context 'when the object represents a negative float' do
@@ -252,26 +132,9 @@ describe BSON::Decimal128 do
       let(:expected_high_bits) { 0xb036000000000000 }
       let(:expected_low_bits) { 0x0000000000003039 }
 
-      context 'when a BigDecimal is passed' do
+      let(:argument) { BigDecimal.new(-0.12345, 5) }
 
-        let(:argument) { BigDecimal.new(-0.12345, 5) }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when a Float is passed' do
-
-        let(:argument) { -0.12345 }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when a String is passed' do
-
-        let(:argument) { "-0.12345" }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
+      it_behaves_like 'an initialized BSON::Decimal128'
     end
 
     context 'when the object represents a large positive integer' do
@@ -279,26 +142,9 @@ describe BSON::Decimal128 do
       let(:expected_high_bits) { 0x30403cde6fff9732 }
       let(:expected_low_bits) { 0xde825cd07e96aff2 }
 
-      context 'when a BigDecimal is passed' do
+      let(:argument) { BigDecimal.new(1234567890123456789012345678901234) }
 
-        let(:argument) { BigDecimal.new(1234567890123456789012345678901234) }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when an Integer is passed' do
-
-        let(:argument) { 1234567890123456789012345678901234 }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when a String is passed' do
-
-        let(:argument) { "1234567890123456789012345678901234" }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
+      it_behaves_like 'an initialized BSON::Decimal128'
     end
 
     context 'when the object represents a large negative integer' do
@@ -306,26 +152,9 @@ describe BSON::Decimal128 do
       let(:expected_high_bits) { 0xb0403cde6fff9732 }
       let(:expected_low_bits) { 0xde825cd07e96aff2 }
 
-      context 'when a BigDecimal is passed' do
+      let(:argument) { BigDecimal.new(-1234567890123456789012345678901234) }
 
-        let(:argument) { BigDecimal.new(-1234567890123456789012345678901234) }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when an Integer is passed' do
-
-        let(:argument) { -1234567890123456789012345678901234 }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
-
-      context 'when a String is passed' do
-
-        let(:argument) { "-1234567890123456789012345678901234" }
-
-        it_behaves_like 'an initialized BSON::Decimal128'
-      end
+      it_behaves_like 'an initialized BSON::Decimal128'
     end
   end
 
@@ -350,7 +179,7 @@ describe BSON::Decimal128 do
       end
 
       let(:object_from_string) do
-        BSON::Decimal128.new('2.000')
+        BSON::Decimal128.from_string('2.000')
       end
 
       it 'has the correct high order' do
@@ -1158,11 +987,11 @@ describe BSON::Decimal128 do
       end
 
       let(:decimal128) do
-        described_class.new(string)
+        described_class.from_string(string)
       end
 
       let(:other_decimal) do
-        described_class.new(string)
+        described_class.from_string(string)
       end
 
       it "returns true" do
@@ -1177,7 +1006,7 @@ describe BSON::Decimal128 do
       end
 
       let(:decimal128) do
-        described_class.new(string)
+        described_class.from_string(string)
       end
 
       it "returns false" do
@@ -1188,7 +1017,7 @@ describe BSON::Decimal128 do
     context "when other is not a decimal128" do
 
       it "returns false" do
-        expect(described_class.new('1')).to_not eq(nil)
+        expect(described_class.from_string('1')).to_not eq(nil)
       end
     end
   end
@@ -1204,7 +1033,7 @@ describe BSON::Decimal128 do
       context "when the high and low bits are equal" do
 
         let(:other) do
-          described_class.new(decimal128.to_s)
+          described_class.from_string(decimal128.to_s)
         end
 
         it "returns true" do
@@ -1284,11 +1113,11 @@ describe BSON::Decimal128 do
       end
 
       let(:decimal128) do
-        described_class.new(string)
+        described_class.from_string(string)
       end
 
       let(:other_decimal) do
-        described_class.new(string)
+        described_class.from_string(string)
       end
 
       it "returns true" do
@@ -1303,7 +1132,7 @@ describe BSON::Decimal128 do
       end
 
       let(:decimal128) do
-        described_class.new(string)
+        described_class.from_string(string)
       end
 
       it "returns false" do
@@ -1314,7 +1143,7 @@ describe BSON::Decimal128 do
     context "when other is not a Decimal128" do
 
       it "returns false" do
-        expect(described_class.new('2')).to_not eql(nil)
+        expect(described_class.from_string('2')).to_not eql(nil)
       end
     end
   end
