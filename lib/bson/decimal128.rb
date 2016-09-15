@@ -57,7 +57,7 @@ module BSON
     # The error message if neither a String nor a BigDecimal are passed to #new.
     #
     # @since 4.2.0
-    INVALID_TYPE_MESSAGE = 'A Decimal128 can only be created from a String or BigDecimal.'
+    INVALID_TYPE_MESSAGE = 'A Decimal128 can only be created from a String or BigDecimal.'.freeze
 
     # Get the Decimal128 as JSON hash data.
     #
