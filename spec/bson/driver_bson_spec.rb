@@ -29,15 +29,15 @@ describe 'Driver common bson tests' do
           end
 
           it 'parses the string value to the same value as the decoded document', if: test.from_string? do
-            expect(BSON::Decimal128.from_string(test.string)).to eq(test.object)
+            expect(BSON::Decimal128.new(test.string)).to eq(test.object)
           end
 
           it 'parses the #to_s (match_string) value to the same value as the decoded document', if: test.match_string do
-            expect(BSON::Decimal128.from_string(test.match_string)).to eq(test.object)
+            expect(BSON::Decimal128.new(test.match_string)).to eq(test.object)
           end
 
           it 'creates the correct object from a non canonical string and then prints to the correct string', if: test.match_string do
-            expect(BSON::Decimal128.from_string(test.string).to_s).to eq(test.match_string)
+            expect(BSON::Decimal128.new(test.string).to_s).to eq(test.match_string)
           end
 
           it 'can be converted to a native type' do
