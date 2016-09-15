@@ -34,7 +34,7 @@ module BSON
     # @since 4.2.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       if Environment.ruby_1_9?
-        marshal_dump
+        marshal_dump.dup
       else
         to_h
       end.to_bson(buffer, validating_keys)
