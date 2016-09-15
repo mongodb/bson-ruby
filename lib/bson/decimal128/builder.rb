@@ -307,10 +307,11 @@ module BSON
 
         def to_bits
           sign, significand_str, base, exp = @big_decimal.split
-          exponent = exp - significand_str.length
+          exponent = @big_decimal.zero? ? 0 : exp - significand_str.length
+          is_negative = (sign == BigDecimal::SIGN_NEGATIVE_FINITE || sign == BigDecimal::SIGN_NEGATIVE_ZERO)
           Builder.parts_to_bits(significand_str.to_i,
                                 exponent,
-                                @big_decimal.sign == BigDecimal::SIGN_NEGATIVE_FINITE)
+                                is_negative)
         end
 
         def special?

@@ -54,6 +54,11 @@ module BSON
     # @since 4.2.0
     NATIVE_TYPE = BigDecimal.freeze
 
+    # The error message if neither a String nor a BigDecimal are passed to #new.
+    #
+    # @since 4.2.0
+    INVALID_TYPE_MESSAGE = 'A Decimal128 can only be created from a String or BigDecimal.'
+
     # Get the Decimal128 as JSON hash data.
     #
     # @example Get the Decimal128 as a JSON hash.
@@ -88,15 +93,20 @@ module BSON
     # @example Create a Decimal128 from a BigDecimal.
     #   Decimal128.new(big_decimal)
     #
-    # @param [ BigDecimal ] big_decimal The BigDecimal to use for
+    # @param [ String, BigDecimal ] object The BigDecimal or String to use for
     #   instantiating a Decimal128.
     #
     # @raise [ InvalidBigDecimal ] Raise error unless object argument is a BigDecimal.
     #
     # @since 4.2.0
-    def initialize(big_decimal)
-      raise InvalidBigDecimal.new unless big_decimal.is_a?(BigDecimal)
-      set_bits(*Builder::FromBigDecimal.new(big_decimal).bits)
+    def initialize(object)
+      if object.is_a?(String)
+        set_bits(*Builder::FromString.new(object).bits)
+      elsif object.is_a?(BigDecimal)
+        set_bits(*Builder::FromBigDecimal.new(object).bits)
+      else
+        raise ArgumentError.new(INVALID_TYPE_MESSAGE)
+      end
     end
 
     # Get the decimal128 as its raw BSON data.
@@ -231,11 +241,6 @@ module BSON
         decimal
       end
     end
-
-    # Raised when a Decimal128 is instantiated with a non-BigDecimal object.
-    #
-    # @since 4.2.0
-    class InvalidBigDecimal < RuntimeError; end
 
     # Raised when trying to create a Decimal128 from a string with
     #   an invalid format.
