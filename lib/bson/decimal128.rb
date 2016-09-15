@@ -88,15 +88,20 @@ module BSON
     # @example Create a Decimal128 from a BigDecimal.
     #   Decimal128.new(big_decimal)
     #
-    # @param [ BigDecimal ] big_decimal The BigDecimal to use for
+    # @param [ String, BigDecimal ] object The BigDecimal or String to use for
     #   instantiating a Decimal128.
     #
     # @raise [ InvalidBigDecimal ] Raise error unless object argument is a BigDecimal.
     #
     # @since 4.2.0
-    def initialize(big_decimal)
-      raise InvalidBigDecimal.new unless big_decimal.is_a?(BigDecimal)
-      set_bits(*Builder::FromBigDecimal.new(big_decimal).bits)
+    def initialize(object)
+      if object.is_a?(String)
+        set_bits(*Builder::FromString.new(object).bits)
+      elsif object.is_a?(BigDecimal)
+        set_bits(*Builder::FromBigDecimal.new(object).bits)
+      else
+        raise InvalidArgument.new
+      end
     end
 
     # Get the decimal128 as its raw BSON data.
@@ -232,13 +237,35 @@ module BSON
       end
     end
 
-    # Raised when a Decimal128 is instantiated with a non-BigDecimal object.
+    # Raised when trying to create a Decimal128 from an object that is neither a String nor a BigDecimal.
+    #
+    # @api private
     #
     # @since 4.2.0
-    class InvalidBigDecimal < RuntimeError; end
+    class InvalidArgument < ArgumentError
+
+      # The custom error message for this error.
+      #
+      # @since 4.2.0
+      MESSAGE = 'A Decimal128 can only be created from a String or BigDecimal.'.freeze
+
+      # Get the custom error message for the exception.
+      #
+      # @example Get the message.
+      #   error.message
+      #
+      # @return [ String ] The error message.
+      #
+      # @since 4.2.0
+      def message
+        MESSAGE
+      end
+    end
 
     # Raised when trying to create a Decimal128 from a string with
     #   an invalid format.
+    #
+    # @api private
     #
     # @since 4.2.0
     class InvalidString < RuntimeError
@@ -262,6 +289,8 @@ module BSON
     end
 
     # Raised when the exponent or significand provided is outside the valid range.
+    #
+    # @api private
     #
     # @since 4.2.0
     class InvalidRange < RuntimeError
