@@ -18,6 +18,8 @@ module BSON
     # Helper module for parsing String, Integer, Float, BigDecimal, and Decimal128
     # objects into other objects.
     #
+    # @api private
+    #
     # @since 4.2.0
     module Builder
 
@@ -96,6 +98,8 @@ module BSON
       end
 
       # Helper class for parsing a String into Decimal128 high and low bits.
+      #
+      # @api private
       #
       # @since 4.2.0
       class FromString
@@ -259,6 +263,8 @@ module BSON
 
       # Helper class for parsing a BigDecimal into Decimal128 high and low bits.
       #
+      # @api private
+      #
       # @since 4.2.0
       class FromBigDecimal
 
@@ -320,6 +326,8 @@ module BSON
       end
 
       # Helper class for getting a String representation of a Decimal128 object.
+      #
+      # @api private
       #
       # @since 4.2.0
       class ToString

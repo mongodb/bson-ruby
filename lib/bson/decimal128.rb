@@ -239,6 +239,8 @@ module BSON
 
     # Raised when trying to create a Decimal128 from an object that is neither a String nor a BigDecimal.
     #
+    # @api private
+    #
     # @since 4.2.0
     class InvalidArgument < ArgumentError
 
@@ -263,6 +265,8 @@ module BSON
     # Raised when trying to create a Decimal128 from a string with
     #   an invalid format.
     #
+    # @api private
+    #
     # @since 4.2.0
     class InvalidString < RuntimeError
 
@@ -285,6 +289,8 @@ module BSON
     end
 
     # Raised when the exponent or significand provided is outside the valid range.
+    #
+    # @api private
     #
     # @since 4.2.0
     class InvalidRange < RuntimeError
