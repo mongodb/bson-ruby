@@ -18,6 +18,7 @@ DRIVER_COMMON_BSON_TESTS = Dir.glob("#{CURRENT_PATH}/support/driver-spec-tests/*
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
 
+require "ostruct"
 require "bson"
 require "json"
 require "rspec"
