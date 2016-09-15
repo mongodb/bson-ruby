@@ -54,11 +54,6 @@ module BSON
     # @since 4.2.0
     NATIVE_TYPE = BigDecimal.freeze
 
-    # The error message if neither a String nor a BigDecimal are passed to #new.
-    #
-    # @since 4.2.0
-    INVALID_TYPE_MESSAGE = 'A Decimal128 can only be created from a String or BigDecimal.'.freeze
-
     # Get the Decimal128 as JSON hash data.
     #
     # @example Get the Decimal128 as a JSON hash.
@@ -105,7 +100,7 @@ module BSON
       elsif object.is_a?(BigDecimal)
         set_bits(*Builder::FromBigDecimal.new(object).bits)
       else
-        raise ArgumentError.new(INVALID_TYPE_MESSAGE)
+        raise InvalidArgument.new
       end
     end
 
@@ -239,6 +234,29 @@ module BSON
         decimal = allocate
         decimal.send(:set_bits, low, high)
         decimal
+      end
+    end
+
+    # Raised when trying to create a Decimal128 from an object that is neither a String nor a BigDecimal.
+    #
+    # @since 4.2.0
+    class InvalidArgument < ArgumentError
+
+      # The custom error message for this error.
+      #
+      # @since 4.2.0
+      MESSAGE = 'A Decimal128 can only be created from a String or BigDecimal.'.freeze
+
+      # Get the custom error message for the exception.
+      #
+      # @example Get the message.
+      #   error.message
+      #
+      # @return [ String ] The error message.
+      #
+      # @since 4.2.0
+      def message
+        MESSAGE
       end
     end
 
