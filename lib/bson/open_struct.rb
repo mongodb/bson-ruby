@@ -1,4 +1,4 @@
-# Copyright (C) 2009-2014 MongoDB Inc.
+# Copyright (C) 2016 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,35 +13,45 @@
 # limitations under the License.
 
 module BSON
+
   # Injects behaviour for encoding OpenStruct objects using hashes
-  # to # raw bytes as specified by the BSON spec.
+  # to raw bytes as specified by the BSON spec.
   #
   # @see http://bsonspec.org/#/specification
   #
-  # @since 2.0.0
+  # @since 4.2.0
   module OpenStruct
 
     # Get the OpenStruct as encoded BSON.
     #
-    # @example Get the hash as encoded BSON.
+    # @example Get the OpenStruct object as encoded BSON.
     #   OpenStruct.new({ "field" => "value" }).to_bson
     #
     # @return [ String ] The encoded string.
     #
     # @see http://bsonspec.org/#/specification
     #
-    # @since 2.0.0
+    # @since 4.2.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      if RUBY_VERSION < "2.0.0"
-        marshal_dump.dup
+      if Environment.ruby_1_9?
+        marshal_dump
       else
         to_h
       end.to_bson(buffer, validating_keys)
     end
 
+    # The BSON type for OpenStruct objects is the Hash type of 0x03.
+    #
+    # @example Get the bson type.
+    #   struct.bson_type
+    #
+    # @return [ String ] The character 0x03.
+    #
+    # @since 4.2.0
     def bson_type
       ::Hash::BSON_TYPE
     end
   end
+
   ::OpenStruct.send(:include, OpenStruct) if defined?(::OpenStruct)
 end
