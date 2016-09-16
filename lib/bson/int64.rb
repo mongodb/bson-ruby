@@ -45,6 +45,52 @@ module BSON
       buffer.get_int64
     end
 
+    # Instantiate a BSON Int64.
+    #
+    # @param [ Integer ] integer The 64-bit integer.
+    #
+    # @see http://bsonspec.org/#/specification
+    #
+    # @since 4.2.0
+    def initialize(integer)
+      out_of_range! unless integer.bson_int64?
+      @integer = integer.freeze
+    end
+
+    # Append the integer as encoded BSON to a ByteBuffer.
+    #
+    # @example Encoded the integer and append to a ByteBuffer.
+    #   int64.to_bson
+    #
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded integer.
+    #
+    # @see http://bsonspec.org/#/specification
+    #
+    # @since 4.2.0
+    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+      buffer.put_int64(@integer)
+    end
+
+    # Convert the integer to a BSON string key.
+    #
+    # @example Convert the integer to a BSON key string.
+    #   int.to_bson_key
+    #
+    # @param [ true, false ] validating_keys If BSON should validate the key.
+    #
+    # @return [ String ] The string key.
+    #
+    # @since 4.2.0
+    def to_bson_key(validating_keys = Config.validating_keys?)
+      @integer.to_bson_key(validating_keys)
+    end
+
+    private
+
+    def out_of_range!
+      raise RangeError.new("#{self} is not a valid 8 byte integer value.")
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
