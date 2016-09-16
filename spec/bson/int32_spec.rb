@@ -16,6 +16,42 @@ require "spec_helper"
 
 describe BSON::Int32 do
 
+  describe "#intiialize" do
+
+    let(:obj) { described_class.new(integer) }
+
+    context "when the integer is 32-bit" do
+
+      let(:integer) { Integer::MAX_32BIT }
+
+      it "wraps the integer" do
+        expect(obj.instance_variable_get(:@integer)).to be(integer)
+      end
+    end
+
+    context "when the integer is too large" do
+
+      let(:integer) { Integer::MAX_32BIT + 1 }
+
+      it "raises an out of range error" do
+        expect {
+          obj
+        }.to raise_error(RangeError)
+      end
+    end
+
+    context "when the integer is too small" do
+
+      let(:integer) { Integer::MIN_32BIT - 1 }
+
+      it "raises an out of range error" do
+        expect {
+          obj
+        }.to raise_error(RangeError)
+      end
+    end
+  end
+
   describe "#from_bson" do
 
     let(:type) { 16.chr }
@@ -39,6 +75,28 @@ describe BSON::Int32 do
 
     it "decodes a -50 correctly" do
       expect(BSON::Int32.from_bson(encoded_2)).to eq(decoded_2)
+    end
+  end
+
+  describe "#to_bson" do
+
+    context "when the integer is 32 bit" do
+
+      let(:type) { 16.chr }
+      let(:obj)  { BSON::Int32.new(Integer::MAX_32BIT - 1) }
+      let(:bson) { [ Integer::MAX_32BIT - 1 ].pack(BSON::Int32::PACK) }
+
+      it_behaves_like "a serializable bson element"
+    end
+  end
+
+  describe "#to_bson_key" do
+
+    let(:obj)  {  BSON::Int32.new(Integer::MAX_32BIT - 1) }
+    let(:encoded) { (Integer::MAX_32BIT - 1).to_s }
+
+    it "returns the key as a string" do
+      expect(obj.to_bson_key).to eq(encoded)
     end
   end
 end
