@@ -61,7 +61,7 @@ module BSON
     #
     # @since 2.0.0
     def as_json(*args)
-      { "t" => seconds, "i" => increment }
+      { "$timestamp" => { "t" => seconds, "i" => increment } }
     end
 
     # Instantiate the new timestamp.
