@@ -55,7 +55,7 @@ describe BSON::Timestamp do
     end
 
     it "returns the binary data plus type" do
-      expect(object.as_json).to eq({ "t" => 10, "i" => 50 })
+      expect(object.as_json).to eq({"$timestamp" => { "t" => 10, "i" => 50 } })
     end
 
     it_behaves_like "a JSON serializable object"
