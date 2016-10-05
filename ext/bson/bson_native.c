@@ -61,6 +61,8 @@ static VALUE rb_bson_byte_buffer_get_double(VALUE self);
 static VALUE rb_bson_byte_buffer_get_int32(VALUE self);
 static VALUE rb_bson_byte_buffer_get_int64(VALUE self);
 static VALUE rb_bson_byte_buffer_get_string(VALUE self);
+static VALUE rb_bson_byte_buffer_get_document(VALUE self);
+static VALUE rb_bson_byte_buffer_get_array(VALUE self);
 static VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte);
 static VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes);
 static VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string);
@@ -87,6 +89,12 @@ static const rb_data_type_t rb_byte_buffer_data_type = {
   { NULL, rb_bson_byte_buffer_free, rb_bson_byte_buffer_memsize }
 };
 
+static VALUE bson_byte_buffer_get_int32(byte_buffer_t *b);
+static VALUE bson_byte_buffer_get_double(byte_buffer_t *b);
+static VALUE bson_byte_buffer_read_field(uint8_t type, byte_buffer_t *b, VALUE rb_buffer);
+static void bson_byte_buffer_skip_cstring(byte_buffer_t *b);
+static VALUE bson_byte_buffer_get_cstring(byte_buffer_t *b);
+
 /**
  * Holds the machine id hash for object id generation.
  */
@@ -97,6 +105,8 @@ static char rb_bson_machine_id_hash[HOST_NAME_HASH_MAX];
  */
 static uint32_t rb_bson_object_id_counter;
 
+
+static VALUE rb_bson_registry;
 /**
  * Initialize the bson_native extension.
  */
@@ -119,6 +129,9 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "get_cstring", rb_bson_byte_buffer_get_cstring, 0);
   rb_define_method(rb_byte_buffer_class, "get_decimal128_bytes", rb_bson_byte_buffer_get_decimal128_bytes, 0);
   rb_define_method(rb_byte_buffer_class, "get_double", rb_bson_byte_buffer_get_double, 0);
+  rb_define_method(rb_byte_buffer_class, "get_document", rb_bson_byte_buffer_get_document, 0);
+  rb_define_method(rb_byte_buffer_class, "get_array", rb_bson_byte_buffer_get_array, 0);
+
   rb_define_method(rb_byte_buffer_class, "get_int32", rb_bson_byte_buffer_get_int32, 0);
   rb_define_method(rb_byte_buffer_class, "get_int64", rb_bson_byte_buffer_get_int64, 0);
   rb_define_method(rb_byte_buffer_class, "get_string", rb_bson_byte_buffer_get_string, 0);
@@ -145,6 +158,8 @@ void Init_bson_native()
 
   // Set the object id counter to a random number
   rb_bson_object_id_counter = FIX2INT(rb_funcall(rb_mKernel, rb_intern("rand"), 1, INT2FIX(0x1000000)));
+
+  rb_bson_registry = rb_const_get(rb_bson_module, rb_intern("Registry"));
 }
 
 void rb_bson_generate_machine_id(VALUE rb_md5_class, char *rb_bson_machine_id)
@@ -227,15 +242,36 @@ VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i)
 VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
 {
   byte_buffer_t *b;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  return bson_byte_buffer_get_cstring(b);
+}
+
+/**
+ * Get a cstring from the buffer.
+ */
+VALUE bson_byte_buffer_get_cstring(byte_buffer_t *b)
+{
   VALUE string;
   int length;
 
-  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   length = (int)strlen(READ_PTR(b));
   ENSURE_BSON_READ(b, length);
   string = rb_enc_str_new(READ_PTR(b), length, rb_utf8_encoding());
   b->read_position += length + 1;
+
   return string;
+}
+
+/**
+ * Reads but does not return a cstring from the buffer.
+ */
+void bson_byte_buffer_skip_cstring(byte_buffer_t *b)
+{
+  int length;
+  length = (int)strlen(READ_PTR(b));
+  ENSURE_BSON_READ(b, length);
+  b->read_position += length + 1;
 }
 
 /**
@@ -259,13 +295,20 @@ VALUE rb_bson_byte_buffer_get_decimal128_bytes(VALUE self)
 VALUE rb_bson_byte_buffer_get_double(VALUE self)
 {
   byte_buffer_t *b;
-  double d;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  return bson_byte_buffer_get_double(b);
+}
+
+VALUE bson_byte_buffer_get_double(byte_buffer_t *b)
+{
+  double d;
+
   ENSURE_BSON_READ(b, 8);
-  memcpy(&d, READ_PTR(b), 8);
+  d = *(double*)READ_PTR(b);
   b->read_position += 8;
   return DBL2NUM(BSON_DOUBLE_FROM_LE(d));
+
 }
 
 /**
@@ -274,11 +317,17 @@ VALUE rb_bson_byte_buffer_get_double(VALUE self)
 VALUE rb_bson_byte_buffer_get_int32(VALUE self)
 {
   byte_buffer_t *b;
-  int32_t i32;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  return bson_byte_buffer_get_int32(b);
+}
+
+VALUE bson_byte_buffer_get_int32(byte_buffer_t *b)
+{
+  int32_t i32;
+
   ENSURE_BSON_READ(b, 4);
-  memcpy(&i32, READ_PTR(b), 4);
+  i32 = *(int32_t*)READ_PTR(b);
   b->read_position += 4;
   return INT2NUM(BSON_UINT32_FROM_LE(i32));
 }
@@ -317,6 +366,63 @@ VALUE rb_bson_byte_buffer_get_string(VALUE self)
   string = rb_enc_str_new(READ_PTR(b), length_le - 1, rb_utf8_encoding());
   b->read_position += length_le;
   return string;
+}
+
+VALUE rb_bson_byte_buffer_get_document(VALUE self){
+  VALUE document = rb_const_get(rb_const_get(rb_cObject, rb_intern("BSON")), rb_intern("Document"));
+
+  byte_buffer_t *b;
+  char type;
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+
+  /* skip length */
+  ENSURE_BSON_READ(b, 4);
+  b->read_position += 4;
+  VALUE doc = rb_funcall(document, rb_intern("allocate"),0);
+
+  ENSURE_BSON_READ(b, 1);
+  while((type = (uint8_t)*READ_PTR(b)) != 0){
+    b->read_position += 1;
+    VALUE field = bson_byte_buffer_get_cstring(b);
+    rb_hash_aset(doc, field, bson_byte_buffer_read_field(type, b, self));
+
+    ENSURE_BSON_READ(b, 1);
+  }
+  return doc;
+}
+
+VALUE rb_bson_byte_buffer_get_array(VALUE self){
+  byte_buffer_t *b;
+
+  char type;
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+
+  ENSURE_BSON_READ(b, 4);
+  VALUE array = rb_ary_new_capa(bson_byte_buffer_get_int32(b));
+  ENSURE_BSON_READ(b, 1);
+  while((type = (uint8_t)*READ_PTR(b)) != 0){
+    b->read_position += 1;
+    bson_byte_buffer_skip_cstring(b);
+
+    rb_ary_push(array,  bson_byte_buffer_read_field(type, b, self));
+
+    ENSURE_BSON_READ(b, 1);
+  }
+  return array;
+}
+
+
+VALUE bson_byte_buffer_read_field(uint8_t type, byte_buffer_t *b, VALUE rb_buffer){
+  switch(type) {
+    case 16: return bson_byte_buffer_get_int32(b);
+    case 1: return bson_byte_buffer_get_double(b);
+    default:
+    {
+      VALUE klass = rb_funcall(rb_bson_registry,rb_intern("get"),1, INT2FIX(type));
+      VALUE value = rb_funcall(klass, rb_intern("from_bson"),1, rb_buffer);
+      return value;
+    }
+  }
 }
 
 /**
