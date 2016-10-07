@@ -369,8 +369,8 @@ VALUE rb_bson_byte_buffer_get_string(VALUE self)
 }
 
 VALUE rb_bson_byte_buffer_get_document(VALUE self){
-  VALUE document = rb_const_get(rb_const_get(rb_cObject, rb_intern("BSON")), rb_intern("Document"));
-
+  VALUE doc = Qnil;
+  VALUE cDocument = rb_const_get(rb_const_get(rb_cObject, rb_intern("BSON")), rb_intern("Document"));
   byte_buffer_t *b;
   char type;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
@@ -378,7 +378,7 @@ VALUE rb_bson_byte_buffer_get_document(VALUE self){
   /* skip length */
   ENSURE_BSON_READ(b, 4);
   b->read_position += 4;
-  VALUE doc = rb_funcall(document, rb_intern("allocate"),0);
+  doc = rb_funcall(cDocument, rb_intern("allocate"),0);
 
   ENSURE_BSON_READ(b, 1);
   while((type = (uint8_t)*READ_PTR(b)) != 0){
