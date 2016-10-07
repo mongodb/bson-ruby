@@ -393,12 +393,12 @@ VALUE rb_bson_byte_buffer_get_document(VALUE self){
 
 VALUE rb_bson_byte_buffer_get_array(VALUE self){
   byte_buffer_t *b;
-
+  VALUE array = Qnil;
   char type;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
   ENSURE_BSON_READ(b, 4);
-  VALUE array = rb_ary_new_capa(bson_byte_buffer_get_int32(b));
+  array = rb_ary_new2(bson_byte_buffer_get_int32(b));
   ENSURE_BSON_READ(b, 1);
   while((type = (uint8_t)*READ_PTR(b)) != 0){
     b->read_position += 1;
