@@ -91,8 +91,7 @@ require "bson/undefined"
 require "bson/version"
 
 # If we are using JRuby, attempt to load the Java extensions, if we are using
-# MRI or Rubinius, attempt to load the C extenstions. If either of these fail,
-# we revert back to a pure Ruby implementation of the Buffer class.
+# MRI or Rubinius, attempt to load the C extensions.
 #
 # @since 2.0.0
 begin
@@ -103,5 +102,6 @@ begin
     require "bson_native"
   end
 rescue LoadError
-  $stderr.puts("BSON is using the pure Ruby implementation.")
+  $stderr.puts("Failed to load the necessary extensions.")
+  raise
 end
