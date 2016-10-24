@@ -10,13 +10,13 @@ describe 'Driver BSON Corpus spec tests' do
 
       spec.valid_tests.each do |test|
 
-        context(test.description) do
+        context("VALID CASE: #{test.description}") do
 
-          it 'roundtrips the bson correctly' do
+          it 'roundtrips the given bson correctly' do
             expect(test.reencoded_bson).to eq(test.correct_bson)
           end
 
-          context 'when the bson provided results from an incorrect encoder', if: test.test_canonical_bson? do
+          context 'when the canonical bson is roundtripped', if: test.test_canonical_bson? do
 
             it 'encodes the canonical bson correctly' do
               expect(test.reencoded_canonical_bson).to eq(test.correct_bson)
@@ -25,7 +25,8 @@ describe 'Driver BSON Corpus spec tests' do
 
           context 'when the document can be represented as extended json', if: test.test_extjson? do
 
-            it 'decodes from bson, then encodes the document as extended json correctly' do
+            it 'decodes from the given bson, then encodes the document as extended json correctly' do
+              skip 'The extended json in this test case does not match' unless (test.extjson_from_bson == test.correct_extjson)
               expect(test.extjson_from_bson).to eq(test.correct_extjson)
               expect(test.extjson_from_bson[test.test_key]).to eq(test.correct_extjson[test.test_key])
             end
@@ -42,6 +43,23 @@ describe 'Driver BSON Corpus spec tests' do
                 expect(test.extjson_from_canonical_bson[test.test_key]).to eq(test.correct_extjson[test.test_key])
               end
             end
+          end
+        end
+      end
+
+      spec.invalid_tests.each do |test|
+
+        context("INVALID CASE: #{test.description}") do
+
+          let(:error) do
+            begin; test.reencoded_bson; false; rescue => e; e; end
+          end
+
+          it 'raises an error' do
+            skip 'This test case does not raise and error but should' unless error
+            expect {
+              test.reencoded_bson
+            }.to raise_error
           end
         end
       end

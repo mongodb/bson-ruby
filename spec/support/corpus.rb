@@ -47,6 +47,7 @@ module BSON
       def initialize(file)
         @spec = ::JSON.parse(File.read(file))
         @valid = @spec['valid'] || []
+        @invalid = @spec['decodeErrors'] || []
         @description = @spec['description']
         @test_key = @spec['test_key']
       end
@@ -61,9 +62,24 @@ module BSON
       # @since 4.2.0
       def valid_tests
         @valid_tests ||=
-            @valid.collect do |test|
-              BSON::Corpus::Test.new(self, test)
-            end
+          @valid.collect do |test|
+            BSON::Corpus::Test.new(self, test)
+          end
+      end
+
+      # Get a list of tests that raise exceptions.
+      #
+      # @example Get the list of valid tests.
+      #   spec.invalid_tests
+      #
+      # @return [ Array<BSON::Corpus::Test> ] The list of invalid Tests.
+      #
+      # @since 4.2.0
+      def invalid_tests
+        @invalid_tests ||=
+          @invalid.collect do |test|
+            BSON::Corpus::Test.new(self, test)
+          end
       end
 
       # The class of the bson object to test.
