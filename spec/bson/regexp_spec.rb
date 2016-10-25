@@ -24,7 +24,7 @@ describe Regexp do
 
     it "returns the binary data plus type" do
       expect(object.as_json).to eq(
-        { "$regex" => "\\W+", "$options" => "i" }
+        { "$regex" => "\\W+", "$options" => "im" }
       )
     end
 
@@ -55,9 +55,7 @@ describe Regexp do
         /\d+/
       end
 
-      let :bson do
-        [obj.source, BSON::NULL_BYTE, BSON::NULL_BYTE].join ''
-      end
+      let(:bson) { "#{obj.source}#{BSON::NULL_BYTE}m#{BSON::NULL_BYTE}" }
 
       it_behaves_like "a serializable bson element"
 
@@ -69,7 +67,9 @@ describe Regexp do
     context "when the regexp has no options" do
 
       let(:obj)  { /\d+/ }
-      let(:bson) { "#{obj.source}#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}" }
+      # Ruby always has a BSON regex's equivalent of multiline on
+      # http://www.regular-expressions.info/modifiers.html
+      let(:bson) { "#{obj.source}#{BSON::NULL_BYTE}m#{BSON::NULL_BYTE}" }
 
       it_behaves_like "a serializable bson element"
 
@@ -83,7 +83,7 @@ describe Regexp do
       context "when ignoring case" do
 
         let(:obj)  { /\W+/i }
-        let(:bson) { "#{obj.source}#{BSON::NULL_BYTE}i#{BSON::NULL_BYTE}" }
+        let(:bson) { "#{obj.source}#{BSON::NULL_BYTE}im#{BSON::NULL_BYTE}" }
 
         it_behaves_like "a serializable bson element"
 
@@ -107,7 +107,7 @@ describe Regexp do
       context "when matching extended" do
 
         let(:obj)  { /\W+/x }
-        let(:bson) { "#{obj.source}#{BSON::NULL_BYTE}x#{BSON::NULL_BYTE}" }
+        let(:bson) { "#{obj.source}#{BSON::NULL_BYTE}mx#{BSON::NULL_BYTE}" }
 
         it_behaves_like "a serializable bson element"
 

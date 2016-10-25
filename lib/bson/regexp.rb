@@ -51,6 +51,8 @@ module BSON
     # Ruby multiline constant.
     #
     # @since 3.2.6
+    #
+    # @deprecated Will be removed in 5.0
     RUBY_MULTILINE_VALUE = 'ms'.freeze
 
     # Get the regexp as JSON hash data.
@@ -92,7 +94,8 @@ module BSON
     private
 
     def bson_options
-      bson_ignorecase + bson_multiline + bson_extended
+      # Ruby's Regexp always has BSON's equivalent of 'm' on, so always add it
+      bson_ignorecase + MULTILINE_VALUE + bson_dotall + bson_extended
     end
 
     def bson_extended
@@ -103,8 +106,9 @@ module BSON
       (options & ::Regexp::IGNORECASE != 0) ? IGNORECASE_VALUE : NO_VALUE
     end
 
-    def bson_multiline
-      (options & ::Regexp::MULTILINE != 0) ? RUBY_MULTILINE_VALUE : NO_VALUE
+    def bson_dotall
+      # Ruby Regexp's MULTILINE is equivalent to BSON's dotall value
+      (options & ::Regexp::MULTILINE != 0) ? NEWLINE_VALUE : NO_VALUE
     end
 
     # Represents the raw values for the regular expression.
@@ -129,7 +133,7 @@ module BSON
       #
       # @since 3.0.0
       def compile
-        @compiled ||= ::Regexp.new(pattern, ruby_options)
+        @compiled ||= ::Regexp.new(pattern, options_to_int)
       end
 
       # Initialize the new raw regular expression.
@@ -187,7 +191,7 @@ module BSON
         compile.send(method, *arguments)
       end
 
-      def ruby_options
+      def options_to_int
         opts = 0
         opts |= ::Regexp::IGNORECASE if options.include?('i')
         opts |= ::Regexp::MULTILINE if options.include?('s')
