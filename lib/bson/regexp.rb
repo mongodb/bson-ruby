@@ -129,7 +129,7 @@ module BSON
       #
       # @since 3.0.0
       def compile
-        @compiled ||= ::Regexp.new(pattern, options)
+        @compiled ||= ::Regexp.new(pattern, ruby_options)
       end
 
       # Initialize the new raw regular expression.
@@ -138,7 +138,7 @@ module BSON
       #   Raw.new(pattern, options)
       #
       # @param [ String ] pattern The regular expression pattern.
-      # @param [ Integer ] options The options.
+      # @param [ String ] options The options.
       #
       # @since 3.0.0
       def initialize(pattern, options)
@@ -156,11 +156,43 @@ module BSON
         compile.respond_to?(method, include_private = false) || super
       end
 
+      # Encode the Raw Regexp object to BSON.
+      #
+      # @example Get the raw regular expression as encoded BSON.
+      #   raw_regexp.to_bson
+      #
+      # @note From the BSON spec: The first cstring is the regex pattern,
+      #   the second is the regex options string. Options are identified
+      #   by characters, which must be stored in alphabetical order.
+      #   Valid options are 'i' for case insensitive matching,
+      #   'm' for multiline matching, 'x' for verbose mode,
+      #   'l' to make \w, \W, etc. locale dependent,
+      #   's' for dotall mode ('.' matches everything),
+      #   and 'u' to make \w, \W, etc. match unicode.
+      #
+      # @return [ BSON::ByteBuffer ] The buffer.
+      #
+      # @see http://bsonspec.org/#/specification
+      #
+      # @since 4.2.0
+      def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+        buffer.put_cstring(source)
+        buffer.put_cstring(options.chars.sort.join)
+      end
+
       private
 
       def method_missing(method, *arguments)
         return super unless respond_to?(method)
         compile.send(method, *arguments)
+      end
+
+      def ruby_options
+        opts = 0
+        opts |= ::Regexp::IGNORECASE if options.include?('i')
+        opts |= ::Regexp::MULTILINE if options.include?('s')
+        opts |= ::Regexp::EXTENDED if options.include?('x')
+        opts
       end
     end
 
@@ -177,17 +209,7 @@ module BSON
       # @since 2.0.0
       def from_bson(buffer)
         pattern = buffer.get_cstring
-        options = 0
-        while (option = buffer.get_byte) != NULL_BYTE
-          case option
-          when IGNORECASE_VALUE
-            options |= ::Regexp::IGNORECASE
-          when MULTILINE_VALUE, NEWLINE_VALUE
-            options |= ::Regexp::MULTILINE
-          when EXTENDED_VALUE
-            options |= ::Regexp::EXTENDED
-          end
-        end
+        options = buffer.get_cstring
         Raw.new(pattern, options)
       end
     end
