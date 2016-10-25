@@ -117,6 +117,7 @@ module BSON
     #
     # @since 3.0.0
     class Raw
+      include JSON
 
       # @return [ String ] pattern The regex pattern.
       attr_reader :pattern
@@ -182,6 +183,18 @@ module BSON
       def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
         buffer.put_cstring(source)
         buffer.put_cstring(options.chars.sort.join)
+      end
+
+      # Get the raw BSON regexp as JSON hash data.
+      #
+      # @example Get the raw regexp as a JSON hash.
+      #   raw_regexp.as_json
+      #
+      # @return [ Hash ] The raw regexp as a JSON hash.
+      #
+      # @since 4.2.0
+      def as_json(*args)
+        { "$regex" => source, "$options" => options }
       end
 
       private

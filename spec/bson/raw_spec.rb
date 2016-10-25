@@ -2,6 +2,22 @@ require 'spec_helper'
 
 describe Regexp::Raw do
 
+
+  describe "#as_json" do
+
+    let(:object) do
+      described_class.new(pattern, 'im')
+    end
+
+    it "returns the binary data plus type" do
+      expect(object.as_json).to eq(
+                                    { "$regex" => "\\W+", "$options" => "im" }
+                                )
+    end
+
+    it_behaves_like "a JSON serializable object"
+  end
+
   let(:pattern) { '\W+' }
   let(:options) { '' }
   let(:bson) { "#{pattern}#{BSON::NULL_BYTE}#{options}#{BSON::NULL_BYTE}" }
