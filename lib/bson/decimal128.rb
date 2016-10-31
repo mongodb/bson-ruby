@@ -52,7 +52,7 @@ module BSON
     # The native type to which this object can be converted.
     #
     # @since 4.2.0
-    NATIVE_TYPE = BigDecimal.freeze
+    NATIVE_TYPE = BigDecimal
 
     # Get the Decimal128 as JSON hash data.
     #
