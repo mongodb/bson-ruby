@@ -52,7 +52,7 @@ module BSON
         @test_key = @spec['test_key']
       end
 
-      # Get a list of tests that don't raise exceptions.
+      # Get a list of tests that are expected to pass.
       #
       # @example Get the list of valid tests.
       #   spec.valid_tests
@@ -69,7 +69,7 @@ module BSON
 
       # Get a list of tests that raise exceptions.
       #
-      # @example Get the list of valid tests.
+      # @example Get the list of invalid tests.
       #   spec.invalid_tests
       #
       # @return [ Array<BSON::Corpus::Test> ] The list of invalid Tests.
