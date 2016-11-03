@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'base64'
+
 module BSON
 
   # Represents binary data.
@@ -89,7 +91,7 @@ module BSON
     #
     # @since 2.0.0
     def as_json(*args)
-      { "$binary" => data, "$type" => type }
+      { "$binary" => Base64.encode64(data), "$type" => type }
     end
 
     # Instantiate the new binary object.

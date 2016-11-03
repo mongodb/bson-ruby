@@ -13,6 +13,7 @@
 # limitations under the License.
 
 require "spec_helper"
+require "base64"
 
 describe BSON::Binary do
   let(:testing1)  { described_class.new("testing") }
@@ -62,7 +63,7 @@ describe BSON::Binary do
 
     it "returns the binary data plus type" do
       expect(object.as_json).to eq(
-        { "$binary" => "testing", "$type" => :user }
+        { "$binary" => Base64.encode64("testing"), "$type" => :user }
       )
     end
 
