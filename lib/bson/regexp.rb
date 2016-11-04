@@ -206,9 +206,9 @@ module BSON
 
       def options_to_int
         opts = 0
-        opts |= ::Regexp::IGNORECASE if options.include?('i')
-        opts |= ::Regexp::MULTILINE if options.include?('s')
-        opts |= ::Regexp::EXTENDED if options.include?('x')
+        opts |= ::Regexp::IGNORECASE if options.include?(IGNORECASE_VALUE)
+        opts |= ::Regexp::MULTILINE if options.include?(NEWLINE_VALUE)
+        opts |= ::Regexp::EXTENDED if options.include?(EXTENDED_VALUE)
         opts
       end
     end
