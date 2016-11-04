@@ -164,7 +164,7 @@ module BSON
     #   where the object was instantiated in a non-standard way. (Like a
     #   Marshal.load)
     #
-    # @return [ String ] The raw bytes.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     #

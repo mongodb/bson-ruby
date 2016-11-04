@@ -109,7 +109,7 @@ module BSON
     # @example Get the raw bson bytes in a buffer.
     #   decimal.to_bson
     #
-    # @return [ BSON::ByteBuffer ] The raw bytes in a buffer.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     #

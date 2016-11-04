@@ -126,7 +126,7 @@ module BSON
     # @example Encode the binary.
     #   binary.to_bson
     #
-    # @return [ String ] The encoded binary.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     #

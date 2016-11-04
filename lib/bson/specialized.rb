@@ -42,7 +42,7 @@ module BSON
     # @example Encode the min key value.
     #   min_key.to_bson
     #
-    # @return [ String ] An empty string.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @since 2.0.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)

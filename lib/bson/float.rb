@@ -37,7 +37,7 @@ module BSON
     # @example Get the floating point as encoded BSON.
     #   1.221311.to_bson
     #
-    # @return [ String ] The encoded string.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     #

@@ -79,7 +79,7 @@ module BSON
     #   's' for dotall mode ('.' matches everything),
     #   and 'u' to make \w, \W, etc. match unicode.
     #
-    # @return [ String ] The encoded string.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     #

@@ -29,7 +29,7 @@ module BSON
     # @example Get the date as encoded BSON.
     #   Date.new(2012, 1, 1).to_bson
     #
-    # @return [ String ] The encoded string.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     #

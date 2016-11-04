@@ -44,7 +44,7 @@ module BSON
     # @example Get the false boolean as encoded BSON.
     #   false.to_bson
     #
-    # @return [ String ] The encoded string.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     #

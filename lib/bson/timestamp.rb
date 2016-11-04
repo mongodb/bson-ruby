@@ -82,7 +82,7 @@ module BSON
     # @example Get the timestamp as BSON.
     #   timestamp.to_bson
     #
-    # @return [ String ] The raw BSON bytes.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     #

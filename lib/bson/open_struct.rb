@@ -27,7 +27,7 @@ module BSON
     # @example Get the OpenStruct object as encoded BSON.
     #   OpenStruct.new({ "field" => "value" }).to_bson
     #
-    # @return [ String ] The encoded string.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     #

@@ -51,7 +51,7 @@ module BSON
     # @example Get the symbol as encoded BSON.
     #   :test.to_bson
     #
-    # @return [ Symbol ] The encoded symbol.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     #

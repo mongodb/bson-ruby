@@ -40,7 +40,7 @@ module BSON
     #
     # @raise [ EncodingError ] If the string is not UTF-8.
     #
-    # @return [ String ] The encoded string.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     #

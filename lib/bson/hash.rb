@@ -32,7 +32,7 @@ module BSON
     # @example Get the hash as encoded BSON.
     #   { "field" => "value" }.to_bson
     #
-    # @return [ String ] The encoded string.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     #

@@ -98,7 +98,7 @@ module BSON
     # @example Get the integer as encoded BSON.
     #   1024.to_bson
     #
-    # @return [ String ] The encoded string.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     #
