@@ -81,6 +81,9 @@ module BSON
     #   's' for dotall mode ('.' matches everything),
     #   and 'u' to make \w, \W, etc. match unicode.
     #
+    # @param [ BSON::ByteBuffer ] buffer The byte buffer to append to.
+    # @param [ true, false ] validating_keys
+    #
     # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
@@ -158,7 +161,7 @@ module BSON
       #
       # @since 3.1.0
       def respond_to?(method, include_private = false)
-        compile.respond_to?(method, include_private = false) || super
+        compile.respond_to?(method, include_private) || super
       end
 
       # Encode the Raw Regexp object to BSON.
@@ -174,6 +177,9 @@ module BSON
       #   'l' to make \w, \W, etc. locale dependent,
       #   's' for dotall mode ('.' matches everything),
       #   and 'u' to make \w, \W, etc. match unicode.
+      #
+      # @param [ BSON::ByteBuffer ] buffer The byte buffer to append to.
+      # @param [ true, false ] validating_keys
       #
       # @return [ BSON::ByteBuffer ] The buffer.
       #
