@@ -2,17 +2,14 @@ require 'spec_helper'
 
 describe Regexp::Raw do
 
-
   describe "#as_json" do
 
     let(:object) do
       described_class.new(pattern, 'im')
     end
 
-    it "returns the binary data plus type" do
-      expect(object.as_json).to eq(
-                                    { "$regex" => "\\W+", "$options" => "im" }
-                                )
+    it "returns the regex pattern and options" do
+      expect(object.as_json).to eq({ "$regex" => "\\W+", "$options" => "im" })
     end
 
     it_behaves_like "a JSON serializable object"
@@ -144,6 +141,32 @@ describe Regexp::Raw do
 
     it "forwards the method call on to the compiled Ruby Regexp object" do
       expect(obj.source).to eq(pattern)
+    end
+  end
+
+  context "when respond_to? is called on the Raw Regexp object" do
+
+    let(:obj) { Regexp::Raw.new(pattern, options) }
+
+    context "when include_private is false" do
+
+      it "does not consider private methods" do
+        expect(obj.respond_to?(:initialize_copy)).to eq(false)
+      end
+    end
+
+    context "when include private is true" do
+
+      it "considers private methods" do
+        expect(obj.respond_to?(:initialize_copy, true)).to eq(true)
+      end
+    end
+
+    context "when include_private is not specified" do
+
+      it "does not consider private methods" do
+        expect(obj.respond_to?(:initialize_copy)).to eq(false)
+      end
     end
   end
 
