@@ -181,7 +181,7 @@ module BSON
       # @param [ BSON::ByteBuffer ] buffer The byte buffer to append to.
       # @param [ true, false ] validating_keys
       #
-      # @return [ BSON::ByteBuffer ] The buffer.
+      # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
       #
       # @see http://bsonspec.org/#/specification
       #
