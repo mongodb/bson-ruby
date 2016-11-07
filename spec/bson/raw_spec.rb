@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe Regexp::Raw do
 
+  let(:pattern) { '\W+' }
+  let(:options) { '' }
+  let(:bson) { "#{pattern}#{BSON::NULL_BYTE}#{options}#{BSON::NULL_BYTE}" }
+
   describe "#as_json" do
 
     let(:object) do
@@ -15,13 +19,91 @@ describe Regexp::Raw do
     it_behaves_like "a JSON serializable object"
   end
 
-  let(:pattern) { '\W+' }
-  let(:options) { '' }
-  let(:bson) { "#{pattern}#{BSON::NULL_BYTE}#{options}#{BSON::NULL_BYTE}" }
+  describe "#to_bson/#from_bson" do
+
+    let(:options) { 'ilmsux' }
+    let(:obj)  { described_class.new(pattern, options) }
+    let(:type) { 11.chr }
+    let(:bson) { "#{pattern}#{BSON::NULL_BYTE}#{options}#{BSON::NULL_BYTE}" }
+
+    let(:klass) { ::Regexp }
+
+    it_behaves_like "a bson element"
+    it_behaves_like "a serializable bson element"
+    it_behaves_like "a deserializable bson element"
+  end
+
+  describe "#initialize" do
+
+    let(:object) do
+      described_class.new(pattern, options)
+    end
+
+    context "when options are not passed" do
+
+      it "sets the options on the raw regex" do
+        expect(object.options). to eq(options)
+      end
+
+      context "When the raw regexp is compiled" do
+
+        let(:regexp) do
+          object.compile
+        end
+
+        it "sets the options on the compiled regexp object" do
+          expect(regexp.options).to eq(0)
+        end
+      end
+    end
+
+    context "when options are passed" do
+
+      context "when options are an Integer" do
+
+        let(:options) { ::Regexp::EXTENDED }
+
+        it "sets the options on the raw regex" do
+          expect(object.options). to eq(options)
+        end
+
+        context "When the raw regexp is compiled" do
+
+          let(:regexp) do
+            object.compile
+          end
+
+          it "sets the options on the compiled regexp object" do
+            expect(regexp.options).to eq(options)
+          end
+        end
+      end
+
+      context "when options are a String" do
+
+        let(:options) { 'x' }
+
+        it "sets the options on the raw regex" do
+          expect(object.options). to eq(options)
+        end
+
+        context "When the raw regexp is compiled" do
+
+          let(:regexp) do
+            object.compile
+          end
+
+          it "sets the options on the compiled regexp object" do
+            expect(regexp.options).to eq(::Regexp::EXTENDED)
+          end
+        end
+      end
+    end
+  end
 
   describe "#from_bson" do
 
-    let(:obj) { Regexp.from_bson(io) }
+    let(:obj) { ::Regexp.from_bson(io) }
     let(:io) { BSON::ByteBuffer.new(bson) }
 
     it "deserializes to a Regexp::Raw object" do
@@ -136,7 +218,7 @@ describe Regexp::Raw do
 
   context "when a method is called on a Raw regexp object" do
 
-    let(:obj) { Regexp.from_bson(io) }
+    let(:obj) { ::Regexp.from_bson(io) }
     let(:io) { BSON::ByteBuffer.new(bson) }
 
     it "forwards the method call on to the compiled Ruby Regexp object" do
@@ -177,10 +259,6 @@ describe Regexp::Raw do
     let(:bson) { "#{pattern}#{BSON::NULL_BYTE}#{options}#{BSON::NULL_BYTE}" }
     let(:serialized) { obj.to_bson.to_s }
 
-    it "has the correct single byte BSON type" do
-      expect(obj.bson_type).to eq(11.chr)
-    end
-
     it "serializes the pattern" do
       expect(serialized).to eq(bson)
     end
@@ -193,6 +271,16 @@ describe Regexp::Raw do
     end
 
     context "when there are options" do
+
+      context "when options are specified as an Integer" do
+
+        let(:options) { ::Regexp::EXTENDED }
+        let(:bson) { "#{pattern}#{BSON::NULL_BYTE}mx#{BSON::NULL_BYTE}" }
+
+        it "sets the option on the serialized bson object" do
+          expect(serialized).to eq(bson)
+        end
+      end
 
       context "when there is the i ignorecase option" do
 
@@ -327,7 +415,7 @@ describe Regexp::Raw do
 
       context "when there is the u match unicode option" do
 
-        let(:options) { 'm' }
+        let(:options) { 'u' }
 
         it "does not set an option on the Ruby Regexp object" do
           expect(ruby_regexp.options).to eq(0)

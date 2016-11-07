@@ -146,7 +146,11 @@ module BSON
       #   Raw.new(pattern, options)
       #
       # @param [ String ] pattern The regular expression pattern.
-      # @param [ String ] options The options.
+      # @param [ String, Integer ] options The options.
+      #
+      # @note The ability to specify options as an Integer is deprecated.
+      #  Please specify options as a String. The ability to pass options as
+      #  as Integer will be removed in version 5.0.0.
       #
       # @since 3.0.0
       def initialize(pattern, options)
@@ -187,6 +191,7 @@ module BSON
       #
       # @since 4.2.0
       def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+        return compile.to_bson(buffer, validating_keys) if options.is_a?(Integer)
         buffer.put_cstring(source)
         buffer.put_cstring(options.chars.sort.join)
       end
@@ -203,6 +208,23 @@ module BSON
         { "$regex" => source, "$options" => options }
       end
 
+      # Check equality of the raw bson regexp against another.
+      #
+      # @example Check if the raw bson regexp is equal to the other.
+      #   raw_regexp == other
+      #
+      # @param [ Object ] other The object to check against.
+      #
+      # @return [ true, false ] If the objects are equal.
+      #
+      # @since 4.2.0
+      def ==(other)
+        return false unless other.is_a?(::Regexp::Raw)
+        pattern == other.pattern &&
+          options == other.options
+      end
+      alias :eql? :==
+
       private
 
       def method_missing(method, *arguments)
@@ -211,6 +233,7 @@ module BSON
       end
 
       def options_to_int
+        return options unless options.is_a?(String)
         opts = 0
         opts |= ::Regexp::IGNORECASE if options.include?(IGNORECASE_VALUE)
         opts |= ::Regexp::MULTILINE if options.include?(NEWLINE_VALUE)
