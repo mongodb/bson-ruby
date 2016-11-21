@@ -50,7 +50,7 @@ shared_examples_for "a deserializable bson element" do
   end
 
   let(:result) do
-    described_class.from_bson(io)
+    (defined?(klass) ? klass : described_class).from_bson(io)
   end
 
   it "deserializes from bson" do

@@ -127,7 +127,7 @@ describe Array do
           end
 
           it "serializes the hash" do
-            expect(obj.to_bson.length).to eq(251)
+            expect(obj.to_bson.length).to eq(252)
           end
         end
       end
