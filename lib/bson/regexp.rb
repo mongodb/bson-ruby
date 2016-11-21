@@ -233,7 +233,7 @@ module BSON
       end
 
       def options_to_int
-        return options unless options.is_a?(String)
+        return options if options.is_a?(Integer)
         opts = 0
         opts |= ::Regexp::IGNORECASE if options.include?(IGNORECASE_VALUE)
         opts |= ::Regexp::MULTILINE if options.include?(NEWLINE_VALUE)
