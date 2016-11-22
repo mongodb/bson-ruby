@@ -6,8 +6,8 @@ functions:
       shell: bash
       script: |
         source ~/.rvm/scripts/rvm
-        rvm install ruby-2.3.0
-        rvm use 2.3.0
+        rvm install ruby-2.3.2
+        rvm use 2.3.2
         gem install bundler
         bundle install
         bundle exec rake clean
