@@ -3,27 +3,16 @@ functions:
     command: shell.exec
     params:
       working_dir: src
+      shell: bash
       script: |
-        if [ -s "$HOME/.rvm/scripts/rvm" ] ; then
-          export PATH="$PATH:$HOME/.rvm/bin"
-          bash -s source "$HOME/.rvm/scripts/rvm"
-        elif [ -s "/usr/local/rvm/scripts/rvm" ] ; then
-          export PATH="$PATH:/usr/local/rvm/bin"
-          bash -s source "/usr/local/rvm/scripts/rvm"
-        else
-          command curl -sSL https://rvm.io/mpapis.asc | gpg --import -
-          curl -sSL https://get.rvm.io | bash -s stable --auto-dotfiles
-          export PATH="$PATH:$HOME/.rvm/bin"
-          bash -s source "$HOME/.rvm/scripts/rvm"
-        fi
-        bash -l rvm install ruby-2.3.0
-        bash -l rvm use 2.3.0
-        bash -l gem install bundler
-        bash -l bundle install
-        bash -l bundle exec rake clean
-        bash -l bundle exec rake compile
-        bash -l bundle exec rake spec
-
+        source ~/.rvm/scripts/rvm
+        rvm install ruby-2.3.0
+        rvm use 2.3.0
+        gem install bundler
+        bundle install
+        bundle exec rake clean
+        bundle exec rake compile
+        bundle exec rake spec
 tasks:
   - name: 'build'
     commands:
