@@ -21,6 +21,7 @@ tasks:
           directory: src
       - func: 'test'
 
+#build variants
 buildvariants:
   - name: debian
     display_name: Debian 8.1 x86
