@@ -259,9 +259,9 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "get_int64")
-  public RubyBignum getInt64() {
+  public RubyFixnum getInt64() {
     ensureBsonRead();
-    RubyBignum int64 = new RubyBignum(getRuntime(), RubyBignum.long2big(this.buffer.getLong()));
+    RubyFixnum int64 = new RubyFixnum(getRuntime(), this.buffer.getLong());
     this.readPosition += 8;
     return int64;
   }

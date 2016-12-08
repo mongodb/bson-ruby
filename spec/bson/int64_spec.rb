@@ -60,6 +60,53 @@ describe BSON::Int64 do
 
     it_behaves_like "a bson element"
     it_behaves_like "a deserializable bson element"
+
+
+    context "when the integer is within the MRI Fixnum range" do
+
+      let(:integer) { BSON::Integer::MAX_32BIT + 1 }
+
+      let(:bson) do
+        BSON::ByteBuffer.new(integer.to_bson.to_s)
+      end
+
+      context "when on JRuby", if: BSON::Environment.jruby? do
+
+        it "deserializes to a Fixnum object" do
+          expect(described_class.from_bson(bson).class).to be(Fixnum)
+        end
+      end
+
+      context "when using MRI", unless: BSON::Environment.jruby? do
+
+        it "deserializes to a Fixnum object" do
+          expect(described_class.from_bson(bson).class).to be(Fixnum)
+        end
+      end
+    end
+
+    context "when the 64-bit integer is the BSON max and thus larger than the MRI Fixnum range" do
+
+      let(:integer) { Integer::MAX_64BIT }
+
+      let(:bson) do
+        BSON::ByteBuffer.new(integer.to_bson.to_s)
+      end
+
+      context "when on JRuby", if: BSON::Environment.jruby? do
+
+        it "deserializes to a Fixnum object" do
+          expect(described_class.from_bson(bson).class).to be(Fixnum)
+        end
+      end
+
+      context "when using MRI", unless: BSON::Environment.jruby? do
+
+        it "deserializes to a Bignum object" do
+          expect(described_class.from_bson(bson).class).to be(Bignum)
+        end
+      end
+    end
   end
 
   describe "#to_bson" do
