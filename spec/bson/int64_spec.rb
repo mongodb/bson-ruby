@@ -72,7 +72,7 @@ describe BSON::Int64 do
 
       context "when on JRuby", if: BSON::Environment.jruby? do
 
-        it "desserializes to a Fixnum object" do
+        it "deserializes to a Fixnum object" do
           expect(described_class.from_bson(bson).class).to be(Fixnum)
         end
       end
@@ -95,7 +95,7 @@ describe BSON::Int64 do
 
       context "when on JRuby", if: BSON::Environment.jruby? do
 
-        it "desserializes to a Fixnum object" do
+        it "deserializes to a Fixnum object" do
           expect(described_class.from_bson(bson).class).to be(Fixnum)
         end
       end
