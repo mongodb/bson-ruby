@@ -153,7 +153,7 @@ module BSON
       #  as Integer will be removed in version 5.0.0.
       #
       # @since 3.0.0
-      def initialize(pattern, options)
+      def initialize(pattern, options = '')
         @pattern = pattern
         @options = options
       end
