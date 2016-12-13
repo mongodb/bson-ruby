@@ -49,6 +49,10 @@ describe BSON::Decimal128 do
         described_class.from_bson(buffer)
       end
 
+      let(:expected_bson) do
+        [expected_low_bits].pack(BSON::Int64::PACK) + [expected_high_bits].pack(BSON::Int64::PACK)
+      end
+
       it 'sets the correct high order bits' do
         expect(high_bits).to eq(expected_high_bits)
       end
@@ -58,7 +62,7 @@ describe BSON::Decimal128 do
       end
 
       it 'serializes to bson' do
-        expect(buffer.length).to eq(16)
+        expect(buffer.to_s).to eq(expected_bson)
       end
 
       it 'deserializes to the correct bits' do

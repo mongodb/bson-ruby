@@ -200,7 +200,7 @@ module BSON
       #
       # @since 4.2.0
       def from_bson(buffer)
-        from_bits(*buffer.get_decimal128_bytes.unpack('Q*'))
+        from_bits(*buffer.get_decimal128_bytes.unpack('Q<*'))
       end
 
       # Instantiate a Decimal128 from a string.
