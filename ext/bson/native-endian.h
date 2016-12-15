@@ -26,19 +26,21 @@
 #define BSON_BIG_ENDIAN    4321
 #define BSON_LITTLE_ENDIAN 1234
 
+/* See a similar check in ruby's sha2.h */
+# ifndef BSON_BYTE_ORDER
+#  ifdef WORDS_BIGENDIAN
+#   define BSON_BYTE_ORDER	BSON_BIG_ENDIAN
+#  else
+#   define BSON_BYTE_ORDER	BSON_LITTLE_ENDIAN
+#  endif
+# endif /* BSON_BYTE_ORDER */
+
+
 #if defined(__sun)
 # include <sys/byteorder.h>
 # if defined(_LITTLE_ENDIAN)
 #  define BSON_BYTE_ORDER 1234
 # else
-#  define BSON_BYTE_ORDER 4321
-# endif
-#endif
-
-#ifndef BSON_BYTE_ORDER
-# if BYTE_ORDER == LITTLE_ENDIAN
-#  define BSON_BYTE_ORDER 1234
-# elif BYTE_ORDER == BIG_ENDIAN
 #  define BSON_BYTE_ORDER 4321
 # endif
 #endif
@@ -59,7 +61,7 @@
 #  define BSON_UINT64_SWAP_LE_BE(v) __builtin_bswap64(v)
 # endif
 #elif defined(__GNUC__) && (__GNUC__ >= 4)
-# if __GNUC__ >= 4 && defined (__GNUC_MINOR__) && __GNUC_MINOR__ >= 3
+# if __GNUC__ > 4 || (defined (__GNUC_MINOR__) && __GNUC_MINOR__ >= 3)
 #  define BSON_UINT32_SWAP_LE_BE(v) __builtin_bswap32 ((uint32_t)v)
 #  define BSON_UINT64_SWAP_LE_BE(v) __builtin_bswap64 ((uint64_t)v)
 # endif
