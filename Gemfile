@@ -1,7 +1,11 @@
 source 'https://rubygems.org'
 
 gemspec
-gem 'json', '~> 1.8'
+if RUBY_VERSION >= '2.4.0'
+  gem 'json'
+else
+  gem 'json', '~> 1.8'
+end
 gem 'rake'
 
 group :development, :test do

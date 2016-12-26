@@ -5,9 +5,10 @@ sudo: false
 rvm:
   - 1.9.3
   - 2.0.0
-  - 2.1
-  - 2.2
-  - 2.3.0
+  - 2.1.10
+  - 2.2.6
+  - 2.3.3
+  - 2.4.0
   - ruby-head
   - jruby-19mode
   - jruby-9.1.5.0
@@ -48,22 +49,28 @@ matrix:
     - rvm: 2.0.0
       jdk: oraclejdk8
       env: CI="travis"
-    - rvm: 2.1
+    - rvm: 2.1.10
       jdk: openjdk7
       env: CI="travis"
-    - rvm: 2.1
+    - rvm: 2.1.10
       jdk: oraclejdk8
       env: CI="travis"
-    - rvm: 2.2
+    - rvm: 2.2.6
       jdk: openjdk7
       env: CI="travis"
-    - rvm: 2.2
+    - rvm: 2.2.6
       jdk: oraclejdk8
       env: CI="travis"
-    - rvm: 2.3
+    - rvm: 2.3.3
       jdk: openjdk7
       env: CI="travis"
-    - rvm: 2.3
+    - rvm: 2.3.3
+      jdk: oraclejdk8
+      env: CI="travis"
+    - rvm: 2.4.0
+      jdk: openjdk7
+      env: CI="travis"
+    - rvm: 2.4.0
       jdk: oraclejdk8
       env: CI="travis"
     - rvm: ruby-head
