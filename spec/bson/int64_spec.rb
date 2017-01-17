@@ -64,10 +64,10 @@ describe BSON::Int64 do
 
     context "when the integer is within the MRI Fixnum range" do
 
-      let(:integer) { BSON::Integer::MAX_32BIT + 1 }
+      let(:integer) { 2**30 - 1 }
 
       let(:bson) do
-        BSON::ByteBuffer.new(integer.to_bson.to_s)
+        BSON::ByteBuffer.new(BSON::Int64.new(integer).to_bson.to_s)
       end
 
       context "when on JRuby", if: BSON::Environment.jruby? do
@@ -85,7 +85,7 @@ describe BSON::Int64 do
       end
     end
 
-    context "when the 64-bit integer is the BSON max and thus larger than the MRI Fixnum range" do
+    context "when the 64-bit integer is the BSON max and thus larger than the MRI Fixnum range on all architectures" do
 
       let(:integer) { Integer::MAX_64BIT }
 
