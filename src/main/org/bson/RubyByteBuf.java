@@ -46,7 +46,7 @@ import static java.lang.String.format;
  *
  * @since 4.0.0
  */
-public class ByteBuf extends RubyObject {
+public class RubyByteBuf extends RubyObject {
 
   /**
    * Constant for a null byte.
@@ -94,13 +94,13 @@ public class ByteBuf extends RubyObject {
   private int writePosition = 0;
 
   /**
-   * Instantiate the ByteBuf - this is #allocate in Ruby.
+   * Instantiate the RubyByteBuf - this is #allocate in Ruby.
    *
    * @author Durran Jordan
    * @since 2015.09.26
    * @version 4.0.0
    */
-  public ByteBuf(final Ruby runtime, final RubyClass rubyClass) {
+  public RubyByteBuf(final Ruby runtime, final RubyClass rubyClass) {
     super(runtime, rubyClass);
   }
 
@@ -276,7 +276,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_byte")
-  public ByteBuf putByte(final IRubyObject value) {
+  public RubyByteBuf putByte(final IRubyObject value) {
     ensureBsonWrite(1);
     this.buffer.put(((RubyString) value).getBytes()[0]);
     this.writePosition += 1;
@@ -293,7 +293,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_bytes")
-  public ByteBuf putBytes(final IRubyObject value) {
+  public RubyByteBuf putBytes(final IRubyObject value) {
     byte[] bytes = ((RubyString) value).getBytes();
     ensureBsonWrite(bytes.length);
     this.buffer.put(bytes);
@@ -311,7 +311,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_cstring")
-  public ByteBuf putCString(final IRubyObject value) throws UnsupportedEncodingException {
+  public RubyByteBuf putCString(final IRubyObject value) throws UnsupportedEncodingException {
     String string = ((RubyString) value).asJavaString();
     this.writePosition += writeCharacters(string, true);
     return this;
@@ -328,7 +328,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.1.0
    */
   @JRubyMethod(name = "put_decimal128")
-  public ByteBuf putDecimal128(final IRubyObject low, final IRubyObject high) {
+  public RubyByteBuf putDecimal128(final IRubyObject low, final IRubyObject high) {
     ensureBsonWrite(16);
     BigInteger bigLow;
     BigInteger bigHigh;
@@ -363,7 +363,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_double")
-  public ByteBuf putDouble(final IRubyObject value) {
+  public RubyByteBuf putDouble(final IRubyObject value) {
     ensureBsonWrite(8);
     this.buffer.putDouble(((RubyFloat) value).getDoubleValue());
     this.writePosition += 8;
@@ -380,7 +380,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_int32")
-  public ByteBuf putInt32(final IRubyObject value) {
+  public RubyByteBuf putInt32(final IRubyObject value) {
     ensureBsonWrite(4);
     this.buffer.putInt(RubyNumeric.fix2int((RubyFixnum) value));
     this.writePosition += 4;
@@ -397,7 +397,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_int64")
-  public ByteBuf putInt64(final IRubyObject value) {
+  public RubyByteBuf putInt64(final IRubyObject value) {
     ensureBsonWrite(8);
     this.buffer.putLong(((RubyInteger) value).getLongValue());
     this.writePosition += 8;
@@ -414,7 +414,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_string")
-  public ByteBuf putString(final IRubyObject value) throws UnsupportedEncodingException {
+  public RubyByteBuf putString(final IRubyObject value) throws UnsupportedEncodingException {
     String string = ((RubyString) value).asJavaString();
     ensureBsonWrite(4);
     this.buffer.putInt(0);
@@ -435,7 +435,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "replace_int32")
-  public ByteBuf replaceInt32(final IRubyObject index, final IRubyObject value) {
+  public RubyByteBuf replaceInt32(final IRubyObject index, final IRubyObject value) {
     int i = RubyNumeric.fix2int((RubyFixnum) index);
     int int32 = RubyNumeric.fix2int((RubyFixnum) value);
     this.buffer.putInt(i, int32);
@@ -450,7 +450,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.1
    */
   @JRubyMethod(name = "rewind!")
-  public ByteBuf rewind() {
+  public RubyByteBuf rewind() {
     this.buffer.rewind();
     this.mode = Mode.READ;
     this.readPosition = 0;
