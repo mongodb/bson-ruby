@@ -77,10 +77,17 @@ describe BSON::Int64 do
         end
       end
 
-      context "when using MRI", unless: BSON::Environment.jruby? do
+      context "when using MRI < 2.4", if: (!BSON::Environment.jruby? && RUBY_VERSION < '2.4') do
 
         it "deserializes to a Fixnum object" do
           expect(described_class.from_bson(bson).class).to be(Fixnum)
+        end
+      end
+
+      context "when using MRI >= 2.4", if: (!BSON::Environment.jruby? && RUBY_VERSION >= '2.4') do
+
+        it "deserializes to an Integer object" do
+          expect(described_class.from_bson(bson).class).to be(Integer)
         end
       end
     end
@@ -100,10 +107,17 @@ describe BSON::Int64 do
         end
       end
 
-      context "when using MRI", unless: BSON::Environment.jruby? do
+      context "when using MRI < 2.4", if: (!BSON::Environment.jruby? && RUBY_VERSION < '2.4') do
 
         it "deserializes to a Bignum object" do
           expect(described_class.from_bson(bson).class).to be(Bignum)
+        end
+      end
+
+      context "when using MRI >= 2.4", if: (!BSON::Environment.jruby? && RUBY_VERSION >= '2.4') do
+
+        it "deserializes to an Integer object" do
+          expect(described_class.from_bson(bson).class).to be(Integer)
         end
       end
     end
