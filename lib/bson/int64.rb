@@ -27,6 +27,11 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 18.chr.force_encoding(BINARY).freeze
 
+    # Key for this type when converted to extended json.
+    #
+    # @since 5.1.0
+    EXTENDED_JSON_KEY = '$numberLong'.freeze
+
     # Constant for the int 64 pack directive.
     #
     # @since 2.0.0
@@ -85,6 +90,47 @@ module BSON
       @integer.to_bson_key(validating_keys)
     end
 
+    # Get the object as JSON hash data, complying with the Extended JSON spec.
+    #
+    # @example Get the object as an Extended JSON hash.
+    #   int.as_extended_json
+    #
+    # @return [ Hash ] The integer as an Extended JSON hash.
+    #
+    # @since 5.1.0
+    def as_extended_json(*args)
+      { EXTENDED_JSON_KEY => @integer.to_s }
+    end
+
+    # Get the extended JSON representation of this object.
+    #
+    # @example Convert the object to extended JSON
+    #   int.to_extended_json
+    #
+    # @return [ String ] The object as extended JSON.
+    #
+    # @since 5.1.0
+    def to_extended_json(*args)
+      as_extended_json.to_json(*args)
+    end
+
+    class << self
+
+      # Create an integer from JSON data.
+      #
+      # @example Instantiate an integer from JSON hash data.
+      #   BSON::Int64.json_create(hash)
+      #
+      # @param [ Hash ] json The json data.
+      #
+      # @return [ Integer ] The integer.
+      #
+      # @since 5.1.0
+      def json_create(json)
+        json[EXTENDED_JSON_KEY].to_i
+      end
+    end
+
     private
 
     def out_of_range!
@@ -95,5 +141,6 @@ module BSON
     #
     # @since 2.0.0
     Registry.register(BSON_TYPE, self)
+    BSON::ExtendedJSON.register(self, EXTENDED_JSON_KEY)
   end
 end

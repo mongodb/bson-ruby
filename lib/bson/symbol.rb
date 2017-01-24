@@ -30,6 +30,11 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 14.chr.force_encoding(BINARY).freeze
 
+    # Key for this type when converted to extended json.
+    #
+    # @since 5.1.0
+    EXTENDED_JSON_KEY = '$symbol'.freeze
+
     # Symbols are serialized as strings as symbols are now removed from the
     # BSON specification. Therefore the bson_type when serializing must be a
     # string.
@@ -86,6 +91,30 @@ module BSON
       to_s
     end
 
+    # Get the symbol as JSON hash data, complying with the Extended JSON spec.
+    #
+    # @example Get the symbol as an Extended JSON hash.
+    #   symbol.as_extended_json
+    #
+    # @return [ Hash ] The symbol as an Extended JSON hash.
+    #
+    # @since 5.1.0
+    def as_extended_json
+      { EXTENDED_JSON_KEY => to_s }
+    end
+
+    # Get the extended JSON representation of this object.
+    #
+    # @example Convert the object to extended JSON
+    #   symbol.to_extended_json
+    #
+    # @return [ String ] The object as extended JSON.
+    #
+    # @since 5.1.0
+    def to_extended_json(*args)
+      as_extended_json.to_json(*args)
+    end
+
     module ClassMethods
 
       # Deserialize a symbol from BSON.
@@ -100,12 +129,27 @@ module BSON
       def from_bson(buffer)
         buffer.get_string.intern
       end
+
+      # Create a Symbol object from JSON data.
+      #
+      # @example Instantiate a symbol from JSON hash data.
+      #   ::Symbol.json_create(hash)
+      #
+      # @param [ Hash ] json The json data.
+      #
+      # @return [ Symbol ] The new Symbol object.
+      #
+      # @since 5.1.0
+      def json_create(json)
+        json[EXTENDED_JSON_KEY].to_sym
+      end
     end
 
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
     Registry::MAPPINGS.store(BSON_TYPE, ::Symbol)
+    ExtendedJSON.register(::Symbol, EXTENDED_JSON_KEY)
   end
 
   # Enrich the core Symbol class with this module.

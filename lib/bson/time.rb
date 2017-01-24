@@ -27,6 +27,11 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 9.chr.force_encoding(BINARY).freeze
 
+    # Key for this type when converted to extended json.
+    #
+    # @since 5.1.0
+    EXTENDED_JSON_KEY = '$date'.freeze
+
     # Get the time as encoded BSON.
     #
     # @example Get the time as encoded BSON.
@@ -39,6 +44,30 @@ module BSON
     # @since 2.0.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       buffer.put_int64((to_i * 1000) + (usec / 1000))
+    end
+
+    # Get the object as JSON hash data, complying with the Extended JSON spec.
+    #
+    # @example Get the object as an Extended JSON hash.
+    #   time.as_extended_json
+    #
+    # @return [ Hash ] The time as an Extended JSON hash.
+    #
+    # @since 5.1.0
+    def as_extended_json(*args)
+      { EXTENDED_JSON_KEY => Int64.new(to_i).as_extended_json(*args) }
+    end
+
+    # Get the extended JSON representation of this object.
+    #
+    # @example Convert the object to extended JSON
+    #   object.to_extended_json
+    #
+    # @return [ String ] The object as extended JSON.
+    #
+    # @since 5.1.0
+    def to_extended_json(*args)
+      as_extended_json.to_json(*args)
     end
 
     module ClassMethods
@@ -56,12 +85,31 @@ module BSON
         seconds, fragment = Int64.from_bson(buffer).divmod(1000)
         at(seconds, fragment * 1000).utc
       end
+
+      # Create a Time object from JSON data.
+      #
+      # @example Instantiate a time from JSON hash data.
+      #   ::Time.json_create(hash)
+      #
+      # @param [ Hash ] json The json data.
+      #
+      # @return [ Symbol ] The new Symbol object.
+      #
+      # @since 5.1.0
+      def json_create(json)
+        if json[EXTENDED_JSON_KEY]
+          ::Time.at(json[EXTENDED_JSON_KEY][Int64::EXTENDED_JSON_KEY].to_i)
+        else
+          super
+        end
+      end
     end
 
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
     Registry.register(BSON_TYPE, ::Time)
+    ExtendedJSON.register(::Time, EXTENDED_JSON_KEY)
   end
 
   # Enrich the core Time class with this module.

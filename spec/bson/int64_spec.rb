@@ -123,6 +123,72 @@ describe BSON::Int64 do
     end
   end
 
+  describe "#as_extended_json" do
+
+    let(:object) do
+      Integer::MAX_64BIT
+    end
+
+    it "returns the integer as Extended JSON" do
+      expect(object.as_extended_json).to eq({ described_class::EXTENDED_JSON_KEY => object.to_s })
+    end
+
+    context "when the Int32 is instantiated directly" do
+
+      let(:object) do
+        described_class.new(Integer::MAX_64BIT)
+      end
+
+      it "returns the integer as Extended JSON" do
+        expect(object.as_extended_json).to eq({ described_class::EXTENDED_JSON_KEY => Integer::MAX_64BIT.to_s })
+      end
+    end
+  end
+
+  describe "#to_extended_json" do
+
+    let(:object) do
+      Integer::MAX_64BIT
+    end
+
+    it "returns the integer as Extended JSON" do
+      expect(object.to_extended_json).to eq(object.as_extended_json.to_json)
+    end
+
+    context "when the Int32 is instantiated directly" do
+
+      let(:object) do
+        described_class.new(Integer::MAX_64BIT)
+      end
+
+      it "returns the integer as Extended JSON" do
+        expect(object.to_extended_json).to eq(object.as_extended_json.to_json)
+      end
+    end
+  end
+
+  describe "#to_json" do
+
+    let(:object) do
+      Integer::MAX_64BIT
+    end
+
+    it "returns the integer object as a string" do
+      expect(object.to_json).to eq(object.to_s)
+    end
+
+    context "when the Int32 is instantiated directly" do
+
+      let(:object) do
+        described_class.new(Integer::MAX_64BIT)
+      end
+
+      it "returns the integer as Extended JSON" do
+        expect(object.to_extended_json).to eq(object.as_extended_json.to_json)
+      end
+    end
+  end
+
   describe "#to_bson" do
 
     context "when the integer is 64 bit" do

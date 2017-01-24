@@ -16,6 +16,21 @@ require "spec_helper"
 
 describe BSON::Timestamp do
 
+  describe "ExtendedJSON.load" do
+
+    let(:key_set) do
+      [ described_class::EXTENDED_JSON_KEY ]
+    end
+
+    it "registers the extended JSON keys with the Loader" do
+      expect(BSON::ExtendedJSON::MAPPING.keys).to include(key_set)
+    end
+
+    it "maps the key set to the Timestamp class" do
+      expect(BSON::ExtendedJSON::MAPPING[key_set]).to be(described_class)
+    end
+  end
+
   describe "#==" do
 
     let(:timestamp) do
@@ -54,11 +69,29 @@ describe BSON::Timestamp do
       described_class.new(10, 50)
     end
 
-    it "returns the binary data plus type" do
-      expect(object.as_json).to eq({"$timestamp" => { "t" => 10, "i" => 50 } })
+    it_behaves_like "a JSON serializable object with a legacy format"
+  end
+
+  describe "#as_extended_json" do
+
+    let(:object) do
+      described_class.new(10, 50)
     end
 
-    it_behaves_like "a JSON serializable object"
+    it "returns the timestamp as a 64 bit unsigned integer" do
+      expect(object.as_extended_json).to eq({ described_class::EXTENDED_JSON_KEY =>  ((10 << 32) | 50).to_s })
+    end
+  end
+
+  describe "#to_extended_json" do
+
+    let(:object) do
+      described_class.new(10, 50)
+    end
+
+    it "returns the timestamp as a 64 bit unsigned integer" do
+      expect(object.to_extended_json).to eq(object.as_extended_json.to_json)
+    end
   end
 
   describe "#to_bson/#from_bson" do

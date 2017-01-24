@@ -48,7 +48,7 @@ module BSON
     # Key for this type when converted to extended json.
     #
     # @since 4.2.0
-    EXTENDED_JSON_KEY = "$numberDecimal".freeze
+    EXTENDED_JSON_KEY = '$numberDecimal'.freeze
 
     # The native type to which this object can be converted.
     #
@@ -62,10 +62,14 @@ module BSON
     #
     # @return [ Hash ] The number as a JSON hash.
     #
+    # @note The extended JSON representation is the same as the
+    #   normal JSON representation.
+    #
     # @since 4.2.0
     def as_json(*args)
       { EXTENDED_JSON_KEY => to_s }
     end
+    alias :as_extended_json :as_json
 
     # Check equality of the decimal128 object with another object.
     #
@@ -236,6 +240,20 @@ module BSON
         decimal.send(:set_bits, low, high)
         decimal
       end
+
+      # Create a Decimal128 object from JSON data.
+      #
+      # @example Instantiate a decimal128 from JSON hash data.
+      #   BSON::Decimal128.json_create(hash)
+      #
+      # @param [ Hash ] json The json data.
+      #
+      # @return [ Decimal128 ] The new Decimal128 object.
+      #
+      # @since 5.1.0
+      def json_create(json)
+        new(json[EXTENDED_JSON_KEY])
+      end
     end
 
     # Raised when trying to create a Decimal128 from an object that is neither a String nor a BigDecimal.
@@ -315,5 +333,6 @@ module BSON
     end
 
     Registry.register(BSON_TYPE, self)
+    ExtendedJSON.register(self, EXTENDED_JSON_KEY)
   end
 end

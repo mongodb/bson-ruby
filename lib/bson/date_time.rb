@@ -37,6 +37,30 @@ module BSON
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       to_time.to_bson(buffer)
     end
+
+    # Get the object as JSON hash data, complying with the Extended JSON spec.
+    #
+    # @example Get the object as an Extended JSON hash.
+    #   datetime.as_extended_json
+    #
+    # @return [ Hash ] The datetime as an Extended JSON hash.
+    #
+    # @since 5.1.0
+    def as_extended_json
+      to_time.as_extended_json
+    end
+
+    # Get the extended JSON representation of this object.
+    #
+    # @example Convert the object to extended JSON
+    #   object.to_extended_json
+    #
+    # @return [ String ] The object as extended JSON.
+    #
+    # @since 5.1.0
+    def to_extended_json(*args)
+      as_extended_json.to_json(*args)
+    end
   end
 
   # Enrich the core DateTime class with this module.

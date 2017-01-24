@@ -27,6 +27,11 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 6.chr.force_encoding(BINARY).freeze
 
+    # Key for this type when converted to extended json.
+    #
+    # @since 5.1.0
+    EXTENDED_JSON_KEY = '$undefined'.freeze
+
     # Determine if undefined is equal to another object.
     #
     # @example Check undefined equality.
@@ -41,9 +46,34 @@ module BSON
       self.class == other.class
     end
 
+    # Get the undefined object as JSON hash data, complying with the Extended JSON spec.
+    #
+    # @example Get the undefined object as an Extended JSON hash.
+    #   undefined.as_extended_json
+    #
+    # @return [ Hash ] The symbol as an Extended JSON hash.
+    #
+    # @since 5.1.0
+    def as_extended_json
+      { EXTENDED_JSON_KEY => true }
+    end
+
+    # Get the extended JSON representation of this object.
+    #
+    # @example Convert the object to extended JSON
+    #   undefined.to_extended_json
+    #
+    # @return [ String ] The object as extended JSON.
+    #
+    # @since 5.1.0
+    def to_extended_json(*args)
+      as_extended_json.to_json(*args)
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
     Registry.register(BSON_TYPE, self)
+    BSON::ExtendedJSON.register(self, EXTENDED_JSON_KEY)
   end
 end

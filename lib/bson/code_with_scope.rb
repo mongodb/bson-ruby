@@ -28,6 +28,16 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 15.chr.force_encoding(BINARY).freeze
 
+    # Key for the code when the object is converted to extended json.
+    #
+    # @since 5.1.0
+    CODE_EXTENDED_JSON_KEY = '$code'.freeze
+
+    # Key for the scope when the object is converted to extended json.
+    #
+    # @since 5.1.0
+    SCOPE_EXTENDED_JSON_KEY = '$scope'.freeze
+
     # @!attribute javascript
     #   @return [ String ] The javascript code.
     #   @since 2.0.0
@@ -58,10 +68,15 @@ module BSON
     #
     # @return [ Hash ] The code with scope as a JSON hash.
     #
+    # @note The extended JSON representation is the same as the
+    #   normal JSON representation.
+    #
     # @since 2.0.0
     def as_json(*args)
-      { "$code" => javascript, "$scope" => scope }
+      { CODE_EXTENDED_JSON_KEY => javascript,
+        SCOPE_EXTENDED_JSON_KEY => scope }
     end
+    alias :as_extended_json :as_json
 
     # Instantiate the new code with scope.
     #
@@ -95,23 +110,41 @@ module BSON
       buffer.replace_int32(position, buffer.length - position)
     end
 
-    # Deserialize a code with scope from BSON.
-    #
-    # @param [ ByteBuffer ] buffer The byte buffer.
-    #
-    # @return [ TrueClass, FalseClass ] The decoded code with scope.
-    #
-    # @see http://bsonspec.org/#/specification
-    #
-    # @since 2.0.0
-    def self.from_bson(buffer)
-      buffer.get_int32 # Throw away the total length.
-      new(buffer.get_string, ::Hash.from_bson(buffer))
+    class << self
+
+      # Deserialize a code with scope from BSON.
+      #
+      # @param [ ByteBuffer ] buffer The byte buffer.
+      #
+      # @return [ TrueClass, FalseClass ] The decoded code with scope.
+      #
+      # @see http://bsonspec.org/#/specification
+      #
+      # @since 2.0.0
+      def from_bson(buffer)
+        buffer.get_int32 # Throw away the total length.
+        new(buffer.get_string, ::Hash.from_bson(buffer))
+      end
+
+      # Create a CodeWithScope object from JSON data.
+      #
+      # @example Instantiate a code with scope from JSON hash data.
+      #   BSON::CodeWithScope.json_create(hash)
+      #
+      # @param [ Hash ] json The json data.
+      #
+      # @return [ CodeWithScope ] The new CodeWithScope object.
+      #
+      # @since 5.1.0
+      def json_create(json)
+        new(json[CODE_EXTENDED_JSON_KEY], json[SCOPE_EXTENDED_JSON_KEY])
+      end
     end
 
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
     Registry.register(BSON_TYPE, self)
+    BSON::ExtendedJSON.register(self, CODE_EXTENDED_JSON_KEY, SCOPE_EXTENDED_JSON_KEY)
   end
 end

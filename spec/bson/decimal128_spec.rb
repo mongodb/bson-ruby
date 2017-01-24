@@ -16,6 +16,21 @@ require "spec_helper"
 
 describe BSON::Decimal128 do
 
+  describe "ExtendedJSON.load" do
+
+    let(:key_set) do
+      [ described_class::EXTENDED_JSON_KEY ]
+    end
+
+    it "registers the extended JSON keys with the Loader" do
+      expect(BSON::ExtendedJSON::MAPPING.keys).to include(key_set)
+    end
+
+    it "maps the key set to the Decimal128 class" do
+      expect(BSON::ExtendedJSON::MAPPING[key_set]).to be(described_class)
+    end
+  end
+
   let(:low_bits) do
     decimal128.instance_variable_get(:@low)
   end

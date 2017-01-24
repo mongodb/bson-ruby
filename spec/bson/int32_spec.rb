@@ -16,7 +16,7 @@ require "spec_helper"
 
 describe BSON::Int32 do
 
-  describe "#intiialize" do
+  describe "#intialize" do
 
     let(:obj) { described_class.new(integer) }
 
@@ -48,6 +48,72 @@ describe BSON::Int32 do
         expect {
           obj
         }.to raise_error(RangeError)
+      end
+    end
+  end
+
+  describe "#as_extended_json" do
+
+    let(:object) do
+      Integer::MAX_32BIT
+    end
+
+    it "returns the integer as Extended JSON" do
+      expect(object.as_extended_json).to eq({ "$numberInt" => object.to_s })
+    end
+
+    context "when the Int32 is instantiated directly" do
+
+      let(:object) do
+        described_class.new(Integer::MAX_32BIT)
+      end
+
+      it "returns the integer as Extended JSON" do
+        expect(object.as_extended_json).to eq({ "$numberInt" => Integer::MAX_32BIT.to_s })
+      end
+    end
+  end
+
+  describe "#to_extended_json" do
+
+    let(:object) do
+      Integer::MAX_32BIT
+    end
+
+    it "returns the integer as Extended JSON" do
+      expect(object.to_extended_json).to eq(object.as_extended_json.to_json)
+    end
+
+    context "when the Int32 is instantiated directly" do
+
+      let(:object) do
+        described_class.new(Integer::MAX_32BIT)
+      end
+
+      it "returns the integer as Extended JSON" do
+        expect(object.to_extended_json).to eq(object.as_extended_json.to_json)
+      end
+    end
+  end
+
+  describe "#to_json" do
+
+    let(:object) do
+      Integer::MAX_32BIT
+    end
+
+    it "returns the integer object as a string" do
+      expect(object.to_json).to eq(object.to_s)
+    end
+
+    context "when the Int32 is instantiated directly" do
+
+      let(:object) do
+        described_class.new(Integer::MAX_32BIT)
+      end
+
+      it "returns the integer as Extended JSON" do
+        expect(object.to_extended_json).to eq(object.as_extended_json.to_json)
       end
     end
   end

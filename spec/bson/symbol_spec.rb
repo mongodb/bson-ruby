@@ -16,6 +16,21 @@ require "spec_helper"
 
 describe Symbol do
 
+  describe "ExtendedJSON.load" do
+
+    let(:key_set) do
+      [ described_class::EXTENDED_JSON_KEY ]
+    end
+
+    it "registers the extended JSON keys with the Loader" do
+      expect(BSON::ExtendedJSON::MAPPING.keys).to include(key_set)
+    end
+
+    it "maps the key set to the Symbol class" do
+      expect(BSON::ExtendedJSON::MAPPING[key_set]).to be(described_class)
+    end
+  end
+
   describe "#bson_type" do
 
     it "returns the type for a string" do
@@ -32,6 +47,39 @@ describe Symbol do
     it_behaves_like "a bson element"
     it_behaves_like "a serializable bson element"
     it_behaves_like "a deserializable bson element"
+  end
+
+  describe "#as_extended_json" do
+
+    let(:object) do
+      :test
+    end
+
+    it "returns the symbol as Extended JSON" do
+      expect(object.as_extended_json).to eq({ described_class::EXTENDED_JSON_KEY => object.to_s })
+    end
+  end
+
+  describe "#to_json" do
+
+    let(:object) do
+      :test
+    end
+
+    it "returns the symbol object as a string" do
+      expect(object.to_json).to eq(object.to_s.to_json)
+    end
+  end
+
+  describe "#to_extended_json" do
+
+    let(:object) do
+      :test
+    end
+
+    it "returns the symbol object as extended_json" do
+      expect(object.to_extended_json).to eq(object.as_extended_json.to_json)
+    end
   end
 
   describe "#to_bson_key" do

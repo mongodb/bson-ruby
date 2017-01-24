@@ -24,6 +24,7 @@ require "bson"
 require "json"
 require "rspec"
 require "yaml"
+require "pry-nav"
 
 Dir["./spec/support/**/*.rb"].each { |file| require file }
 

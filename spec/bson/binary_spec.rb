@@ -20,6 +20,22 @@ describe BSON::Binary do
   let(:testing2)  { described_class.new("testing") }
   let(:not_testing) { described_class.new("not testing") }
 
+  describe "ExtendedJSON.load" do
+
+    let(:key_set) do
+      [ described_class::BINARY_EXTENDED_JSON_KEY,
+        described_class::TYPE_EXTENDED_JSON_KEY ]
+    end
+
+    it "registers the extended JSON keys with the Loader" do
+      expect(BSON::ExtendedJSON::MAPPING.keys).to include(key_set)
+    end
+
+    it "maps the key set to the Binary class" do
+      expect(BSON::ExtendedJSON::MAPPING[key_set]).to be(described_class)
+    end
+  end
+
   describe "#eql?" do
     context "for two equal objects" do
       it "returns true" do
@@ -61,13 +77,22 @@ describe BSON::Binary do
       described_class.new("testing", :user)
     end
 
-    it "returns the binary data plus type" do
-      expect(object.as_json).to eq(
-        { "$binary" => Base64.encode64("testing"), "$type" => :user }
-      )
+    it_behaves_like "a JSON serializable object with a legacy format"
+  end
+
+  describe "#to_extended_json" do
+
+    let(:object) do
+      described_class.new("testing", :user)
     end
 
-    it_behaves_like "a JSON serializable object"
+    it "returns the binary data plus type as hex string" do
+
+      expect(object.to_extended_json).to eq(
+        { '$binary' => Base64.encode64("testing").chomp,
+          '$type' => described_class::SUBTYPES[:user].unpack("H*").first }.to_json
+      )
+    end
   end
 
   describe "#initialize" do

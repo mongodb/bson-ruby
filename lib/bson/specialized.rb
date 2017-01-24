@@ -69,6 +69,20 @@ module BSON
       def from_bson(buffer)
         new
       end
+
+      # Create a specialized object from JSON data.
+      #
+      # @example Instantiate an object from JSON hash data.
+      #   BSON::Specialized.json_create(hash)
+      #
+      # @param [ Hash ] json The json data.
+      #
+      # @return [ Object ] The new object.
+      #
+      # @since 5.1.0
+      def json_create(json)
+        new
+      end
     end
   end
 end

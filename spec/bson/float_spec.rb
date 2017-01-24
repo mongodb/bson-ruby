@@ -26,4 +26,28 @@ describe Float do
     it_behaves_like "a serializable bson element"
     it_behaves_like "a deserializable bson element"
   end
+
+  describe "#to_json" do
+    let(:obj)  { 1.2332 }
+
+    it "returns the float as a string" do
+      expect(obj.to_json).to eq("1.2332")
+    end
+  end
+
+  describe "#as_extended_json" do
+    let(:obj)  { 1.2332 }
+
+    it "returns an extended json representation of the float" do
+      expect(obj.as_extended_json).to eq({ Float::EXTENDED_JSON_KEY => obj.to_s })
+    end
+  end
+
+  describe "#to_extended_json" do
+    let(:obj)  { 1.2332 }
+
+    it "returns an extended json representation of the float" do
+      expect(obj.to_extended_json).to eq(obj.as_extended_json.to_json)
+    end
+  end
 end

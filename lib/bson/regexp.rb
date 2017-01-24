@@ -55,6 +55,16 @@ module BSON
     # @deprecated Will be removed in 5.0
     RUBY_MULTILINE_VALUE = 'ms'.freeze
 
+    # Key for the regexp pattern when converted to extended json.
+    #
+    # @since 5.1.0
+    REGEX_EXTENDED_JSON_KEY = '$regex'.freeze
+
+    # Key for the regexp options when converted to extended json.
+    #
+    # @since 5.1.0
+    OPTIONS_EXTENDED_JSON_KEY = '$options'.freeze
+
     # Get the regexp as JSON hash data.
     #
     # @example Get the regexp as a JSON hash.
@@ -62,10 +72,15 @@ module BSON
     #
     # @return [ Hash ] The regexp as a JSON hash.
     #
+    # @note The extended JSON representation is the same as the
+    #   normal JSON representation.
+    #
     # @since 2.0.0
     def as_json(*args)
-      { "$regex" => source, "$options" => bson_options }
+      { REGEX_EXTENDED_JSON_KEY => source,
+        OPTIONS_EXTENDED_JSON_KEY => bson_options }
     end
+    alias :as_extended_json :as_json
 
     # Get the regular expression as encoded BSON.
     #
@@ -98,7 +113,7 @@ module BSON
 
     def bson_options
       # Ruby's Regexp always has BSON's equivalent of 'm' on, so always add it
-      bson_ignorecase + MULTILINE_VALUE + bson_dotall + bson_extended
+      @bson_options ||= bson_ignorecase + MULTILINE_VALUE + bson_dotall + bson_extended
     end
 
     def bson_extended
@@ -155,7 +170,7 @@ module BSON
       # @since 3.0.0
       def initialize(pattern, options = '')
         @pattern = pattern
-        @options = options
+        @options = options.is_a?(String) ? options.chars.sort.join : options
       end
 
       # Allow automatic delegation of methods to the Regexp object
@@ -193,7 +208,7 @@ module BSON
       def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
         return compile.to_bson(buffer, validating_keys) if options.is_a?(Integer)
         buffer.put_cstring(source)
-        buffer.put_cstring(options.chars.sort.join)
+        buffer.put_cstring(options)
       end
 
       # Get the raw BSON regexp as JSON hash data.
@@ -203,10 +218,15 @@ module BSON
       #
       # @return [ Hash ] The raw regexp as a JSON hash.
       #
+      # @note The extended JSON representation is the same as the
+      #   normal JSON representation.
+      #
       # @since 4.2.0
       def as_json(*args)
-        { "$regex" => source, "$options" => options }
+        { BSON::Regexp::REGEX_EXTENDED_JSON_KEY => source,
+          BSON::Regexp::OPTIONS_EXTENDED_JSON_KEY => options }
       end
+      alias :as_extended_json :as_json
 
       # Check equality of the raw bson regexp against another.
       #
@@ -225,6 +245,21 @@ module BSON
       end
       alias :eql? :==
 
+      # Create a Regexp::Raw from JSON data.
+      #
+      # @example Instantiate a raw regexp from JSON hash data.
+      #   BSON::Regexp::Raw.json_create(hash)
+      #
+      # @param [ Hash ] json The json data.
+      #
+      # @return [ Regexp::Raw ] The new Regexp::Raw object.
+      #
+      # @since 5.1.0
+      def self.json_create(json)
+        new(json[BSON::Regexp::REGEX_EXTENDED_JSON_KEY],
+            json[BSON::Regexp::OPTIONS_EXTENDED_JSON_KEY])
+      end
+
       private
 
       def method_missing(method, *arguments)
@@ -240,6 +275,9 @@ module BSON
         opts |= ::Regexp::EXTENDED if options.include?(EXTENDED_VALUE)
         opts
       end
+
+      BSON::ExtendedJSON.register(self, BSON::Regexp::REGEX_EXTENDED_JSON_KEY,
+                                        BSON::Regexp::OPTIONS_EXTENDED_JSON_KEY)
     end
 
     module ClassMethods

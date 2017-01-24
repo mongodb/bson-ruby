@@ -16,6 +16,21 @@ require "spec_helper"
 
 describe BSON::MaxKey do
 
+  describe "ExtendedJSON.load" do
+
+    let(:key_set) do
+      [ described_class::EXTENDED_JSON_KEY ]
+    end
+
+    it "registers the extended JSON keys with the Loader" do
+      expect(BSON::ExtendedJSON::MAPPING.keys).to include(key_set)
+    end
+
+    it "maps the key set to the MaxKey class" do
+      expect(BSON::ExtendedJSON::MAPPING[key_set]).to be(described_class)
+    end
+  end
+
   describe "#==" do
 
     context "when the objects are equal" do
@@ -60,6 +75,28 @@ describe BSON::MaxKey do
     end
 
     it_behaves_like "a JSON serializable object"
+  end
+
+  describe "#to_extended_json" do
+
+    let(:object) do
+      described_class.new
+    end
+
+    it "returns the object as extended_json" do
+      expect(object.to_extended_json).to eq(object.as_extended_json.to_json)
+    end
+  end
+
+  describe "#as_extended_json" do
+
+    let(:object) do
+      described_class.new
+    end
+
+    it "returns the object as extended_json" do
+      expect(object.as_extended_json).to eq({ described_class::EXTENDED_JSON_KEY => 1})
+    end
   end
 
   describe "#to_bson/#from_bson" do
