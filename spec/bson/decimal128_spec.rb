@@ -1257,6 +1257,8 @@ describe BSON::Decimal128 do
     it "returns the decimal128 with $numberDecimal key" do
       expect(object.as_json).to eq({ "$numberDecimal" => object.to_s })
     end
+
+    it_behaves_like "a JSON serializable object"
   end
 
   describe "::BSON_TYPE" do

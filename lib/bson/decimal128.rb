@@ -18,6 +18,7 @@ require 'bson/decimal128/builder'
 module BSON
 
   class Decimal128
+    include JSON
 
     # A Decimal128 is type 0x13 in the BSON spec.
     #
