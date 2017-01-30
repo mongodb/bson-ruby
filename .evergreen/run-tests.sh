@@ -11,6 +11,7 @@ RVM_RUBY=${RVM_RUBY:-}
 
 source ~/.rvm/scripts/rvm
 rvm use $RVM_RUBY
+gem install bundler
 
 echo "Installing all gem dependencies"
 bundle install
