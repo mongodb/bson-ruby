@@ -528,6 +528,6 @@ buildvariants:
      - name: "test"
 - matrix_name: "tests-special-os"
   matrix_spec: { latest-rubies: "*", special-os: "*" }
-  display_name: "${latest-rubies} ${special-os}"
+  display_name: "${latest-rubies}, ${special-os}"
   tasks:
      - name: "test"
