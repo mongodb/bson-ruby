@@ -527,7 +527,7 @@ axes:
 buildvariants:
 - matrix_name: "tests-all-rubies-all-os"
   matrix_spec: { all-rubies: "*", all-os: "*" }
-  display_name: "${all-rubies} ${all-os}"
+  display_name: "${all-rubies}, ${all-os}"
   tasks:
      - name: "test"
 - matrix_name: "tests-special-os"
