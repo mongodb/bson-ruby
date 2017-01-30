@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gemspec
-if RUBY_VERSION >= '2.4.0'
+if RUBY_VERSION >= '2.3.0'
   gem 'json'
 else
   gem 'json', '~> 1.8'
