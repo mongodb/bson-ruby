@@ -10,6 +10,11 @@ set -o errexit  # Exit the script with error if any of the commands fail
 RVM_RUBY=${RVM_RUBY:-}
 
 source ~/.rvm/scripts/rvm
+
+if [ "$RVM_RUBY" == "ruby-head" ]; then
+  rvm reinstall $RVM_RUBY
+fi
+
 rvm use $RVM_RUBY
 gem install bundler
 
