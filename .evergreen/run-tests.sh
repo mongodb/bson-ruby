@@ -15,10 +15,6 @@ if [ "$RVM_RUBY" == "ruby-head" ]; then
   rvm reinstall $RVM_RUBY
 fi
 
-if [ "$RVM_RUBY" == "ruby-2.3" ]; then
-  sudo apt-get install libgmp3-dev
-fi
-
 rvm use $RVM_RUBY
 gem install bundler
 
