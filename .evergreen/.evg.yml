@@ -536,6 +536,8 @@ buildvariants:
      - name: "test"
 - matrix_name: "tests-special-os"
   matrix_spec: { latest-stable-rubies: "*", special-os: "*" }
+  exclude_spec: { latest-stable-rubies: "jruby-1.7", special-os: "*" }
+  exclude_spec: { latest-stable-rubies: "jruby-9.1", special-os: "*" }
   display_name: "${latest-stable-rubies}, ${special-os}"
   tasks:
      - name: "test"
