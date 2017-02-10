@@ -77,7 +77,7 @@ describe BSON::Binary do
       described_class.new("testing", :user)
     end
 
-    it_behaves_like "a JSON serializable object with a legacy format"
+    it_behaves_like "a JSON serializable object"
   end
 
   describe "#to_extended_json" do

@@ -58,7 +58,7 @@ shared_examples_for "a deserializable bson element" do
   end
 end
 
-shared_examples_for "a JSON serializable object with a legacy format" do
+shared_examples_for "a JSON serializable object" do
 
   context "when #to_json is called on the object" do
 

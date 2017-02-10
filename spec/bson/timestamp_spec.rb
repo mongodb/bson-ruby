@@ -69,7 +69,7 @@ describe BSON::Timestamp do
       described_class.new(10, 50)
     end
 
-    it_behaves_like "a JSON serializable object with a legacy format"
+    it_behaves_like "a JSON serializable object"
   end
 
   describe "#as_extended_json" do
