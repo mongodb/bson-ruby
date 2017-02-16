@@ -11,6 +11,9 @@ RVM_RUBY=${RVM_RUBY:-}
 
 source ~/.rvm/scripts/rvm
 
+# Necessary for jruby
+export JAVACMD=/opt/java/jdk8/bin/java
+
 if [ "$RVM_RUBY" == "ruby-head" ]; then
   rvm reinstall $RVM_RUBY
 fi
