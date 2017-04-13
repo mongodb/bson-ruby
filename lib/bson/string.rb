@@ -87,6 +87,13 @@ module BSON
     def to_bson_object_id
       ObjectId.repair(self)
     end
+    
+    # A shortcut to BSON::ObjectId.from_string('048fec556265664f5b110000')
+    # @example Convert the string to an object id.
+    #   '048fec556265664f5b110000'.to_object_id
+    def to_object_id
+      BSON::ObjectId.from_string(self)
+    end
 
     # Convert the string to a hexidecimal representation.
     #
