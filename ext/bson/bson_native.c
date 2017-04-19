@@ -68,7 +68,9 @@ static VALUE rb_bson_byte_buffer_put_decimal128(VALUE self, VALUE low, VALUE hig
 static VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f);
 static VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i);
 static VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i);
+static VALUE rb_bson_byte_buffer_put_chars(VALUE self, char *str, int32_t length);
 static VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string);
+static VALUE rb_bson_byte_buffer_put_symbol(VALUE self, VALUE symbol);
 static VALUE rb_bson_byte_buffer_read_position(VALUE self);
 static VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i);
 static VALUE rb_bson_byte_buffer_rewind(VALUE self);
@@ -130,6 +132,7 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "put_int32", rb_bson_byte_buffer_put_int32, 1);
   rb_define_method(rb_byte_buffer_class, "put_int64", rb_bson_byte_buffer_put_int64, 1);
   rb_define_method(rb_byte_buffer_class, "put_string", rb_bson_byte_buffer_put_string, 1);
+  rb_define_method(rb_byte_buffer_class, "put_symbol", rb_bson_byte_buffer_put_symbol, 1);
   rb_define_method(rb_byte_buffer_class, "read_position", rb_bson_byte_buffer_read_position, 0);
   rb_define_method(rb_byte_buffer_class, "replace_int32", rb_bson_byte_buffer_replace_int32, 2);
   rb_define_method(rb_byte_buffer_class, "rewind!", rb_bson_byte_buffer_rewind, 0);
@@ -440,15 +443,13 @@ VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i)
 }
 
 /**
- * Writes a string to the byte buffer.
+ * Write C array of chars to byte buffer
  */
-VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
+static VALUE rb_bson_byte_buffer_put_chars(VALUE self, char *str, int32_t length)
 {
   byte_buffer_t *b;
   int32_t length_le;
 
-  char *str = RSTRING_PTR(string);
-  const int32_t length = RSTRING_LEN(string) + 1;
   length_le = BSON_UINT32_TO_LE(length);
 
   if (!rb_bson_utf8_validate(str, length - 1, true)) {
@@ -463,6 +464,28 @@ VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
   b->write_position += length;
 
   return self;
+}
+
+/**
+ * Writes a string to the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
+{
+  const char *str = RSTRING_PTR(string);
+  const int32_t length = RSTRING_LEN(string) + 1;
+
+  return rb_bson_byte_buffer_put_chars(self, str, length);
+}
+
+/**
+ * Writes a symbol to the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_put_symbol(VALUE self, VALUE symbol)
+{
+  const char *sym = rb_id2name(SYM2ID(symbol));
+  const int32_t length = strlen(sym) + 1;
+
+  return rb_bson_byte_buffer_put_chars(self, sym, length);
 }
 
 /**
