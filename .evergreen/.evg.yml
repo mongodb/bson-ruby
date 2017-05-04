@@ -489,6 +489,9 @@ axes:
       - id: "rhelpower"
         display_name: "RHEL 7.1 PowerPC"
         run_on: rhel71-power8-test
+      - id: "rhel55-32"
+        display_name: "RHEL 5.5 32-bit"
+        run_on: rhel55-32
   - id: "all-rubies"
     display_name: Ruby Version
     values:
@@ -527,10 +530,6 @@ axes:
         display_name: ruby-2.4.1
         variables:
            RVM_RUBY: "ruby-2.4.1"
-      - id: "jruby-9.1"
-        display_name: jruby-9.1
-        variables:
-           RVM_RUBY: "jruby-9.1"
 
 buildvariants:
 - matrix_name: "tests-all-rubies-all-os"
@@ -540,8 +539,6 @@ buildvariants:
      - name: "test"
 - matrix_name: "tests-special-os"
   matrix_spec: { latest-stable-rubies: "*", special-os: "*" }
-  exclude_spec: { latest-stable-rubies: "jruby-1.7", special-os: "*" }
-  exclude_spec: { latest-stable-rubies: "jruby-9.1", special-os: "*" }
   display_name: "${latest-stable-rubies}, ${special-os}"
   tasks:
      - name: "test"
