@@ -15,9 +15,9 @@ source ~/.rvm/scripts/rvm
 export JAVACMD=/opt/java/jdk8/bin/java
 export PATH=$PATH:/opt/java/jdk8/bin
 
-#if [ "$RVM_RUBY" == "ruby-head" ]; then
+if [ "$RVM_RUBY" == "ruby-head" ]; then
   rvm reinstall $RVM_RUBY
-#fi
+fi
 
 rvm use $RVM_RUBY
 gem install bundler
