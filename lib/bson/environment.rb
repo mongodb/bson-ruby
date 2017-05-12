@@ -44,5 +44,16 @@ module BSON
     def ruby_1_9?
       @ruby_1_9 ||= RUBY_VERSION < '2.0.0'
     end
+
+    # Determine if we are using Rubinius or not.
+    #
+    # @example Are we running with Rubinius?
+    #   Environment.rubinius?
+    #
+    # @return [ true, false ] If Rubinius is our vm.
+    #
+    def rubinius?
+      (defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'ruby') == 'rbx'
+    end
   end
 end

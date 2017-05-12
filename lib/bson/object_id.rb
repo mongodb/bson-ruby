@@ -375,7 +375,7 @@ module BSON
 
       private
 
-      if Environment.jruby?
+      if Environment.jruby? || Environment.rubinius?
         def process_id
           "#{Process.pid}#{Thread.current.object_id}".hash % 0xFFFF
         end
