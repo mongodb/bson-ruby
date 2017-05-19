@@ -492,6 +492,9 @@ axes:
       - id: "rhel55-32"
         display_name: "RHEL 5.5 32-bit"
         run_on: rhel55-32
+      - id: "ubuntu1604-arm64-small"
+        display_name: "Ubuntu 16.04 ARM64"
+        run_on: ubuntu1604-arm64-small
   - id: "all-rubies"
     display_name: Ruby Version
     values:
