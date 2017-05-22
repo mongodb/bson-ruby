@@ -19,7 +19,19 @@ if [ "$RVM_RUBY" == "ruby-head" ]; then
   rvm reinstall $RVM_RUBY
 fi
 
+# Don't errexit because this may call scripts which error
+set +o errexit
 rvm use $RVM_RUBY
+set -o errexit
+
+# Ensure we're using the right ruby
+python - <<EOH
+ruby = "${RVM_RUBY}".split("-")[0]
+version = "${RVM_RUBY}".split("-")[1]
+assert(ruby in "`ruby --version`")
+assert(version in "`ruby --version`")
+EOH
+
 gem install bundler
 
 echo "Installing all gem dependencies"
