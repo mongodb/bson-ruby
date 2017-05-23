@@ -2,6 +2,22 @@ require 'spec_helper'
 
 describe Regexp::Raw do
 
+  describe "ExtendedJSON.load" do
+
+    let(:key_set) do
+      [ BSON::Regexp::REGEX_EXTENDED_JSON_KEY,
+        BSON::Regexp::OPTIONS_EXTENDED_JSON_KEY ].sort
+    end
+
+    it "registers the extended JSON keys with the Loader" do
+      expect(BSON::ExtendedJSON::MAPPING.keys).to include(key_set)
+    end
+
+    it "maps the key set to the Regexp::Raw class" do
+      expect(BSON::ExtendedJSON::MAPPING[key_set]).to be(described_class)
+    end
+  end
+
   let(:pattern) { '\W+' }
   let(:options) { '' }
   let(:bson) { "#{pattern}#{BSON::NULL_BYTE}#{options}#{BSON::NULL_BYTE}" }
@@ -17,6 +33,28 @@ describe Regexp::Raw do
     end
 
     it_behaves_like "a JSON serializable object"
+  end
+
+  describe "#as_extended_json" do
+
+    let(:object) do
+      described_class.new(pattern, 'im')
+    end
+
+    it "returns the regex pattern and options" do
+      expect(object.as_extended_json).to eq({ "$regex" => "\\W+", "$options" => "im" })
+    end
+  end
+
+  describe "#to_extended_json" do
+
+    let(:object) do
+      described_class.new(pattern, 'im')
+    end
+
+    it "returns the regex pattern and options" do
+      expect(object.to_extended_json).to eq(object.as_extended_json.to_json)
+    end
   end
 
   describe "#to_bson/#from_bson" do

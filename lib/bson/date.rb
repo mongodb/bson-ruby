@@ -44,6 +44,30 @@ module BSON
     def bson_type
       ::Time::BSON_TYPE
     end
+
+    # Get the object as JSON hash data, complying with the Extended JSON spec.
+    #
+    # @example Get the object as an Extended JSON hash.
+    #   date.as_extended_json
+    #
+    # @return [ Hash ] The date as an Extended JSON hash.
+    #
+    # @since 5.1.0
+    def as_extended_json
+      ::Time.utc(year, month, day).as_extended_json
+    end
+
+    # Get the extended JSON representation of this object.
+    #
+    # @example Convert the object to extended JSON
+    #   object.to_extended_json
+    #
+    # @return [ String ] The object as extended JSON.
+    #
+    # @since 5.1.0
+    def to_extended_json(*args)
+      as_extended_json.to_json(*args)
+    end
   end
 
   # Enrich the core Date class with this module.

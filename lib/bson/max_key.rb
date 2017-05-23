@@ -35,6 +35,11 @@ module BSON
     # @since 2.0.0
     GREATER = 1.freeze
 
+    # Key for this type when converted to extended json.
+    #
+    # @since 5.1.0
+    EXTENDED_JSON_KEY = '$maxKey'.freeze
+
     # When comparing a max key with any other object, the max key will always
     # be greater.
     #
@@ -57,14 +62,19 @@ module BSON
     #
     # @return [ Hash ] The max key as a JSON hash.
     #
+    # @note The extended JSON representation is the same as the
+    #   normal JSON representation.
+    #
     # @since 2.0.0
     def as_json(*args)
-      { "$maxKey" => 1 }
+      { EXTENDED_JSON_KEY => 1 }
     end
+    alias :as_extended_json :as_json
 
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
     Registry.register(BSON_TYPE, self)
+    BSON::ExtendedJSON.register(self, EXTENDED_JSON_KEY)
   end
 end

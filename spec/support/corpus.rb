@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'json'
-
 module BSON
   module Corpus
 
@@ -129,6 +127,7 @@ module BSON
         @description = test['description']
         @canonical_bson = test['canonical_bson']
         @extjson = ::JSON.parse(test['extjson']) if test['extjson']
+        @canonical_extjson = ::JSON.parse(test['canonical_extjson']) if test['canonical_extjson']
         @bson = test['bson']
         @test_key = spec.test_key
       end
@@ -157,7 +156,9 @@ module BSON
       def reencoded_bson
         bson_bytes = decode_hex(@bson)
         buffer = BSON::ByteBuffer.new(bson_bytes)
-        BSON::Document.from_bson(buffer).to_bson.to_s
+        doc = BSON::Document.from_bson(buffer)
+        force_int64_from_bytes(bson_bytes, doc)
+        doc.to_bson.to_s
       end
 
       # Given the hex representation of the canonical bson, decode it into a Document,
@@ -208,7 +209,7 @@ module BSON
       #
       # @since 4.2.0
       def test_extjson?
-        !!@extjson
+        !!correct_extjson
       end
 
       # Get the extended json representation of the decoded doc from the provided
@@ -223,7 +224,9 @@ module BSON
       def extjson_from_bson
         subject = decode_hex(@bson)
         buffer = BSON::ByteBuffer.new(subject)
-        ::JSON.parse(BSON::Document.from_bson(buffer).to_json)
+        doc = BSON::Document.from_bson(buffer)
+        force_int64_from_bytes(subject, doc)
+        ::JSON.parse(doc.to_extended_json)
       end
 
       # Get the extended json representation of the decoded doc from the provided
@@ -238,7 +241,7 @@ module BSON
       def extjson_from_canonical_bson
         subject = decode_hex(@canonical_bson)
         buffer = BSON::ByteBuffer.new(subject)
-        ::JSON.parse(BSON::Document.from_bson(buffer).to_json)
+        ::JSON.parse(BSON::Document.from_bson(buffer).to_extended_json)
       end
 
       # Get the extended json representation of the decoded doc from the provided
@@ -252,13 +255,23 @@ module BSON
       # @since 4.2.0
       def extjson_from_encoded_extjson
         doc = BSON::Document.new(@extjson)
-        ::JSON.parse(doc.to_json)
+        ::JSON.parse(doc.to_extended_json)
       end
 
       private
 
       def decode_hex(obj)
         [ obj ].pack('H*')
+      end
+
+      # Account for the fact that integers are serialized into int64 or int32
+      # depending on which range they fit into.
+      def force_int64_from_bytes(bytes, doc)
+        if doc[@test_key].is_a?(Integer) &&
+            doc[@test_key].bson_int32? &&
+            bytes[4] == BSON::Int64::BSON_TYPE
+          doc[@test_key] = BSON::Int64.new(doc[@test_key])
+        end
       end
     end
   end

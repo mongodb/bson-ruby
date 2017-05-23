@@ -27,6 +27,11 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 13.chr.force_encoding(BINARY).freeze
 
+    # Key for the code object when converted to extended json.
+    #
+    # @since 5.1.0
+    EXTENDED_JSON_KEY = '$code'.freeze
+
     # @!attribute javascript
     #   @return [ String ] The javascript code.
     #   @since 2.0.0
@@ -54,10 +59,14 @@ module BSON
     #
     # @return [ Hash ] The code as a JSON hash.
     #
+    # @note The extended JSON representation is the same as the
+    #   normal JSON representation.
+    #
     # @since 2.0.0
     def as_json(*args)
-      { "$code" => javascript }
+      { EXTENDED_JSON_KEY => javascript }
     end
+    alias :as_extended_json :as_json
 
     # Instantiate the new code.
     #
@@ -85,22 +94,40 @@ module BSON
       buffer.put_string(javascript) # @todo: was formerly to_bson_string
     end
 
-    # Deserialize code from BSON.
-    #
-    # @param [ ByteBuffer ] buffer The byte buffer.
-    #
-    # @return [ TrueClass, FalseClass ] The decoded code.
-    #
-    # @see http://bsonspec.org/#/specification
-    #
-    # @since 2.0.0
-    def self.from_bson(buffer)
-      new(buffer.get_string)
+    class << self
+
+      # Deserialize code from BSON.
+      #
+      # @param [ ByteBuffer ] buffer The byte buffer.
+      #
+      # @return [ TrueClass, FalseClass ] The decoded code.
+      #
+      # @see http://bsonspec.org/#/specification
+      #
+      # @since 2.0.0
+      def from_bson(buffer)
+        new(buffer.get_string)
+      end
+
+      # Create a Code object from JSON data.
+      #
+      # @example Instantiate a code from JSON hash data.
+      #   BSON::Code.json_create(hash)
+      #
+      # @param [ Hash ] json The json data.
+      #
+      # @return [ Code ] The new Code object.
+      #
+      # @since 5.1.0
+      def json_create(json)
+        new(json[EXTENDED_JSON_KEY])
+      end
     end
 
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
     Registry.register(BSON_TYPE, self)
+    ExtendedJSON.register(self, EXTENDED_JSON_KEY)
   end
 end

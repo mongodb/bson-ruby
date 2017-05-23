@@ -16,6 +16,21 @@ require "spec_helper"
 
 describe BSON::Undefined do
 
+  describe "ExtendedJSON.load" do
+
+    let(:key_set) do
+      [ described_class::EXTENDED_JSON_KEY ]
+    end
+
+    it "registers the extended JSON keys with the Loader" do
+      expect(BSON::ExtendedJSON::MAPPING.keys).to include(key_set)
+    end
+
+    it "maps the key set to the Binary class" do
+      expect(BSON::ExtendedJSON::MAPPING[key_set]).to be(described_class)
+    end
+  end
+
   describe "#to_bson/#from_bson" do
 
     let(:type) { 6.chr }
@@ -25,5 +40,38 @@ describe BSON::Undefined do
     it_behaves_like "a bson element"
     it_behaves_like "a serializable bson element"
     it_behaves_like "a deserializable bson element"
+  end
+
+  describe "#to_json" do
+
+    let(:object) do
+      described_class.new
+    end
+
+    it "returns the undefined object as the result of calling #inspect" do
+      expect(object.to_json).to eq(object.inspect.to_json)
+    end
+  end
+
+  describe "#as_extended_json" do
+
+    let(:object) do
+      described_class.new
+    end
+
+    it "returns the undefined object as the result of calling #inspect" do
+      expect(object.as_extended_json).to eq({ described_class::EXTENDED_JSON_KEY => true })
+    end
+  end
+
+  describe "#to_extended_json" do
+
+    let(:object) do
+      described_class.new
+    end
+
+    it "returns the object as extended JSON" do
+      expect(object.to_extended_json).to eq(object.as_extended_json.to_json)
+    end
   end
 end

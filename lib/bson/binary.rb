@@ -29,6 +29,16 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 5.chr.force_encoding(BINARY).freeze
 
+    # Key for the binary object data when converted to extended json.
+    #
+    # @since 5.1.0
+    BINARY_EXTENDED_JSON_KEY = '$binary'.freeze
+
+    # Key for the binary object type when converted to extended json.
+    #
+    # @since 5.1.0
+    TYPE_EXTENDED_JSON_KEY = '$type'.freeze
+
     # The mappings of subtypes to their single byte identifiers.
     #
     # @since 2.0.0
@@ -91,7 +101,21 @@ module BSON
     #
     # @since 2.0.0
     def as_json(*args)
-      { "$binary" => Base64.encode64(data), "$type" => type }
+      { BINARY_EXTENDED_JSON_KEY => Base64.encode64(data).chomp,
+        TYPE_EXTENDED_JSON_KEY => type.to_s }
+    end
+
+    # Get the binary as JSON hash data, complying with the Extended JSON spec.
+    #
+    # @example Get the binary as an Extended JSON hash.
+    #   binary.as_extended_json
+    #
+    # @return [ Hash ] The binary as an Extended JSON hash.
+    #
+    # @since 5.1.0
+    def as_extended_json(*args)
+      { BINARY_EXTENDED_JSON_KEY => Base64.encode64(data).chomp,
+        TYPE_EXTENDED_JSON_KEY => SUBTYPES[type].unpack('H*').first }
     end
 
     # Instantiate the new binary object.
@@ -140,21 +164,40 @@ module BSON
       buffer.replace_int32(position, buffer.length - position - 5)
     end
 
-    # Deserialize the binary data from BSON.
-    #
-    # @param [ ByteBuffer ] buffer The byte buffer.
-    #
-    # @return [ Binary ] The decoded binary data.
-    #
-    # @see http://bsonspec.org/#/specification
-    #
-    # @since 2.0.0
-    def self.from_bson(buffer)
-      length = buffer.get_int32
-      type = TYPES[buffer.get_byte]
-      length = buffer.get_int32 if type == :old
-      data = buffer.get_bytes(length)
-      new(data, type)
+    class << self
+
+      # Deserialize the binary data from BSON.
+      #
+      # @param [ ByteBuffer ] buffer The byte buffer.
+      #
+      # @return [ Binary ] The decoded binary data.
+      #
+      # @see http://bsonspec.org/#/specification
+      #
+      # @since 2.0.0
+      def from_bson(buffer)
+        length = buffer.get_int32
+        type = TYPES[buffer.get_byte]
+        length = buffer.get_int32 if type == :old
+        data = buffer.get_bytes(length)
+        new(data, type)
+      end
+
+      # Create a Binary object from JSON data.
+      #
+      # @example Instantiate a binary from JSON hash data.
+      #   BSON::Binary.json_create(hash)
+      #
+      # @param [ Hash ] json The json data.
+      #
+      # @return [ Binary ] The new Binary object.
+      #
+      # @since 5.1.0
+      def json_create(json)
+        type = SUBTYPES.invert[[json[TYPE_EXTENDED_JSON_KEY]].pack("H*")] || json[TYPE_EXTENDED_JSON_KEY].to_sym
+        data = json[BINARY_EXTENDED_JSON_KEY]
+        new(Base64.decode64(data), type)
+      end
     end
 
     # Raised when providing an invalid type to the Binary.
@@ -215,5 +258,6 @@ module BSON
     #
     # @since 2.0.0
     Registry.register(BSON_TYPE, self)
+    BSON::ExtendedJSON.register(self, BINARY_EXTENDED_JSON_KEY, TYPE_EXTENDED_JSON_KEY)
   end
 end

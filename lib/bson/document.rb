@@ -169,8 +169,43 @@ module BSON
       end
       self
     end
-
     alias :update :merge!
+
+    # Get the extended JSON representation of this document.
+    #
+    # @example Convert the document to extended JSON
+    #   object.to_extended_json
+    #
+    # @return [ String ] The object as extended JSON.
+    #
+    # @since 5.1.0
+    def to_extended_json(*args)
+      as_extended_json.to_json(*args)
+    end
+
+    # Get the document as JSON hash data, complying with the Extended JSON spec.
+    #
+    # @example Get the document as an Extended JSON hash.
+    #   document.as_extended_json
+    #
+    # @return [ Hash ] The document as an Extended JSON hash.
+    #
+    # @since 5.1.0
+    def as_extended_json
+      each.inject({}) do |doc, (key, value)|
+        if value.respond_to?(:keys) && ExtendedJSON::MAPPING.keys.include?(value.keys)
+          doc.merge!(key => value)
+        elsif value.respond_to?(:map)
+          doc.merge!(key => value.map do |value|
+            value.respond_to?(:as_extended_json) ? value.as_extended_json : value
+          end)
+        elsif value.respond_to?(:as_extended_json)
+          doc.merge!(key => value.as_extended_json)
+        else
+          doc.merge!(key => value)
+        end
+      end
+    end
 
     private
 

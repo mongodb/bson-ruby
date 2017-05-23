@@ -60,6 +60,23 @@ end
 
 shared_examples_for "a JSON serializable object" do
 
+  context "when #to_json is called on the object" do
+
+    it "uses the legacy json format" do
+      expect(object.to_json).to eq(object.as_json.to_json)
+    end
+  end
+
+  context "when the #to_extended_json method is called on the object" do
+
+    it "uses the extended json format" do
+      expect(object.to_extended_json).to eq(object.as_extended_json.to_json)
+    end
+  end
+end
+
+shared_examples_for "a JSON serializable object" do
+
   it "serializes the JSON from #as_json" do
     expect(object.to_json).to eq(object.as_json.to_json)
   end

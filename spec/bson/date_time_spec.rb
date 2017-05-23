@@ -36,4 +36,22 @@ describe DateTime do
       it_behaves_like "a serializable bson element"
     end
   end
+
+  describe "#as_extended_json" do
+
+    let(:object)  { DateTime.new(2012, 1, 1, 0, 0, 0) }
+
+    it "returns the corresponding Time object as an Extended JSON hash" do
+      expect(object.as_extended_json).to eq(object.to_time.as_extended_json)
+    end
+  end
+
+  describe "#to_extended_json" do
+
+    let(:object) { DateTime.new(2012, 1, 1, 0, 0, 0) }
+
+    it "returns the corresponding Time object's extended json representation" do
+      expect(object.to_extended_json).to eq(object.to_time.to_extended_json)
+    end
+  end
 end

@@ -32,6 +32,11 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 7.chr.force_encoding(BINARY).freeze
 
+    # Key for the object data when converted to extended json.
+    #
+    # @since 5.1.0
+    EXTENDED_JSON_KEY = '$oid'.freeze
+
     # Check equality of the object id with another object.
     #
     # @example Check if the object id is equal to the other.
@@ -70,10 +75,14 @@ module BSON
     #
     # @return [ Hash ] The object id as a JSON hash.
     #
+    # @note The extended JSON representation is the same as the
+    #   normal JSON representation.
+    #
     # @since 2.0.0
     def as_json(*args)
-      { "$oid" => to_s }
+      { EXTENDED_JSON_KEY => to_s }
     end
+    alias :as_extended_json :as_json
 
     # Compare this object id with another object for use in sorting.
     #
@@ -309,6 +318,20 @@ module BSON
           raise Invalid.new("#{object.inspect} is not a valid object id.")
         end
       end
+
+      # Create a ObjectId from JSON data.
+      #
+      # @example Instantiate a object id from JSON hash data.
+      #   BSON::ObjectId.json_create(hash)
+      #
+      # @param [ Hash ] json The json data.
+      #
+      # @return [ ObjectId ] The new ObjectId object.
+      #
+      # @since 5.1.0
+      def json_create(json)
+        from_string(json[EXTENDED_JSON_KEY])
+      end
     end
 
     # Inner class that encapsulates the behaviour of actually generating each
@@ -395,5 +418,6 @@ module BSON
     #
     # @since 2.0.0
     Registry.register(BSON_TYPE, self)
+    BSON::ExtendedJSON.register(self, EXTENDED_JSON_KEY)
   end
 end

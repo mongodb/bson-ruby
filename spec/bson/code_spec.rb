@@ -16,13 +16,28 @@ require "spec_helper"
 
 describe BSON::Code do
 
+  describe "ExtendedJSON.load" do
+
+    let(:key_set) do
+      [ described_class::EXTENDED_JSON_KEY ]
+    end
+
+    it "registers the extended JSON keys with the Loader" do
+      expect(BSON::ExtendedJSON::MAPPING.keys).to include(key_set)
+    end
+
+    it "maps the key set to the Code class" do
+      expect(BSON::ExtendedJSON::MAPPING[key_set]).to be(described_class)
+    end
+  end
+
   describe "#as_json" do
 
     let(:object) do
       described_class.new("this.value = 5")
     end
 
-    it "returns the binary data plus type" do
+    it "returns a hash with the javascript code" do
       expect(object.as_json).to eq({ "$code" => "this.value = 5" })
     end
 

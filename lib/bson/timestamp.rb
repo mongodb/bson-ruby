@@ -27,6 +27,21 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = 17.chr.force_encoding(BINARY).freeze
 
+    # Key for this type when converted to extended json.
+    #
+    # @since 5.1.0
+    EXTENDED_JSON_KEY = '$timestamp'.freeze
+
+    # Key for the timestamp's seconds when converted to extended json.
+    #
+    # @since 5.1.0
+    T_EXTENDED_JSON_KEY = 't'.freeze
+
+    # Key for the timestamp's increment when converted to extended json.
+    #
+    # @since 5.1.0
+    I_EXTENDED_JSON_KEY = 'i'.freeze
+
     # @!attribute seconds
     #   @return [ Integer ] The number of seconds.
     #   @since 2.0.0
@@ -61,7 +76,20 @@ module BSON
     #
     # @since 2.0.0
     def as_json(*args)
-      { "$timestamp" => { "t" => seconds, "i" => increment } }
+      { EXTENDED_JSON_KEY => { T_EXTENDED_JSON_KEY => seconds,
+                               I_EXTENDED_JSON_KEY => increment } }
+    end
+
+    # Get the timestamp as JSON hash data, complying with the Extended JSON spec.
+    #
+    # @example Get the timestamp as an Extended JSON hash.
+    #   timestamp.as_extended_json
+    #
+    # @return [ Hash ] The timestamp as an Extended JSON hash.
+    #
+    # @since 5.1.0
+    def as_extended_json
+      { EXTENDED_JSON_KEY => ((seconds << 32) | increment).to_s }
     end
 
     # Instantiate the new timestamp.
@@ -92,24 +120,49 @@ module BSON
       buffer.put_int32(seconds)
     end
 
-    # Deserialize timestamp from BSON.
-    #
-    # @param [ ByteBuffer ] buffer The byte buffer.
-    #
-    # @return [ Timestamp ] The decoded timestamp.
-    #
-    # @see http://bsonspec.org/#/specification
-    #
-    # @since 2.0.0
-    def self.from_bson(buffer)
-      increment = buffer.get_int32
-      seconds = buffer.get_int32
-      new(seconds, increment)
+    class << self
+
+      # Deserialize timestamp from BSON.
+      #
+      # @param [ ByteBuffer ] buffer The byte buffer.
+      #
+      # @return [ Timestamp ] The decoded timestamp.
+      #
+      # @see http://bsonspec.org/#/specification
+      #
+      # @since 2.0.0
+      def from_bson(buffer)
+        increment = buffer.get_int32
+        seconds = buffer.get_int32
+        new(seconds, increment)
+      end
+
+      # Create a Timestamp object from JSON data.
+      #
+      # @example Instantiate a timestamp from JSON hash data.
+      #   BSON::Timestamp.json_create(hash)
+      #
+      # @param [ Hash ] json The json data.
+      #
+      # @return [ Symbol ] The new Symbol object.
+      #
+      # @since 5.1.0
+      def json_create(json)
+        if json[EXTENDED_JSON_KEY].is_a?(Hash)
+            new(json[EXTENDED_JSON_KEY][T_EXTENDED_JSON_KEY],
+                json[EXTENDED_JSON_KEY][I_EXTENDED_JSON_KEY])
+        else
+          seconds = json[EXTENDED_JSON_KEY] >> 32
+          increment = ((1 << 32) - 1) & json[EXTENDED_JSON_KEY]
+          new(seconds, increment)
+        end
+      end
     end
 
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
     Registry.register(BSON_TYPE, self)
+    ExtendedJSON.register(self, EXTENDED_JSON_KEY)
   end
 end

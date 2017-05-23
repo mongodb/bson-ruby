@@ -16,6 +16,22 @@ require "spec_helper"
 
 describe BSON::CodeWithScope do
 
+  describe "ExtendedJSON.load" do
+
+    let(:key_set) do
+      [ described_class::CODE_EXTENDED_JSON_KEY,
+        described_class::SCOPE_EXTENDED_JSON_KEY ]
+    end
+
+    it "registers the extended JSON keys with the Loader" do
+      expect(BSON::ExtendedJSON::MAPPING.keys).to include(key_set)
+    end
+
+    it "maps the key set to the CodeWithScope class" do
+      expect(BSON::ExtendedJSON::MAPPING[key_set]).to be(described_class)
+    end
+  end
+
   describe "#==" do
 
     let(:object) do

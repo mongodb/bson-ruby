@@ -915,4 +915,61 @@ describe BSON::Document do
       end
     end
   end
+
+  describe "#to_extended_json" do
+
+    context "when the document has special BSON objects" do
+
+      let(:document) do
+        BSON::Document.new({ 'a' => BSON::MinKey.new })
+      end
+
+      let(:expected_string) do
+        "{\"a\" : {\"$minKey\" : 1}}"
+      end
+
+      it "converts the special objects to extended json" do
+        expect(JSON.parse(document.to_extended_json)).to eq(JSON.parse(expected_string))
+      end
+
+      it "parses the string to the original document via the ExtendedJSON parser" do
+        expect(BSON::ExtendedJSON.load(document.to_extended_json)).to eq(document)
+      end
+    end
+
+    context "when the document has the representation of a special BSON object as json" do
+
+      let(:document) do
+        BSON::Document.new({ a: { '$minKey' => 1 } })
+      end
+
+      let(:expected_string) do
+        "{\"a\":{\"$minKey\":1}}"
+      end
+
+      it "converts the document to extended json without changing the special object" do
+        expect(JSON.parse(document.to_extended_json)).to eq(JSON.parse(expected_string))
+      end
+    end
+
+
+    context "when the document has core objects that are represented in a special way in extended json" do
+
+      let(:document) do
+        BSON::Document.new({ a: 1 })
+      end
+
+      let(:expected_string) do
+        "{\"a\":{\"$numberInt\":\"1\"}}"
+      end
+
+      it "represents the objects as extended json" do
+        expect(JSON.parse(document.to_extended_json)).to eq(JSON.parse(expected_string))
+      end
+
+      it "parses the string to the original document via the ExtendedJSON parser" do
+        expect(BSON::ExtendedJSON.load(document.to_extended_json)).to eq(document)
+      end
+    end
+  end
 end

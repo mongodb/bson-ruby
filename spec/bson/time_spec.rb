@@ -16,6 +16,21 @@ require "spec_helper"
 
 describe Time do
 
+  describe "ExtendedJSON.load" do
+
+    let(:key_set) do
+      [ described_class::EXTENDED_JSON_KEY ]
+    end
+
+    it "registers the extended JSON keys with the Loader" do
+      expect(BSON::ExtendedJSON::MAPPING.keys).to include(key_set)
+    end
+
+    it "maps the key set to the Time class" do
+      expect(BSON::ExtendedJSON::MAPPING[key_set]).to be(described_class)
+    end
+  end
+
   describe "#to_bson/#from_bson" do
 
     let(:type) { 9.chr }
@@ -45,11 +60,29 @@ describe Time do
 
     context "when the time is pre epoch" do
 
-      let(:obj)  { Time.utc(1969, 1, 1, 0, 0, 0) }
-      let(:bson) { [ (obj.to_f * 1000).to_i ].pack(BSON::Int64::PACK) }
+      let(:obj) { Time.utc(1969, 1, 1, 0, 0, 0) }
+      let(:bson) { [(obj.to_f * 1000).to_i].pack(BSON::Int64::PACK) }
 
       it_behaves_like "a serializable bson element"
       it_behaves_like "a deserializable bson element"
+    end
+  end
+
+  describe "#as_extended_json" do
+
+    let(:object) { Time.utc(2012, 1, 1, 0, 0, 0) }
+
+    it "returns the Time as Extended JSON" do
+      expect(object.as_extended_json).to eq({"$date" => {"$numberLong" => object.to_i.to_s}})
+    end
+  end
+
+  describe "#to_extended_json" do
+
+    let(:object) { Time.utc(2012, 1, 1, 0, 0, 0) }
+
+    it "returns the Time as Extended JSON" do
+      expect(object.to_extended_json).to eq(object.as_extended_json.to_json)
     end
   end
 end
