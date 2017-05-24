@@ -34,6 +34,7 @@ import org.jruby.RubyInteger;
 import org.jruby.RubyNumeric;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
+import org.jruby.RubySymbol;
 import java.math.BigInteger;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -311,8 +312,8 @@ public class RubyByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_cstring")
-  public RubyByteBuf putCString(final IRubyObject value) throws UnsupportedEncodingException {
-    String string = ((RubyString) value).asJavaString();
+  	public RubyByteBuf putCString(final IRubyObject value) throws UnsupportedEncodingException {
+    String string = value.asJavaString();
     this.writePosition += writeCharacters(string, true);
     return this;
   }
@@ -405,6 +406,39 @@ public class RubyByteBuf extends RubyObject {
   }
 
   /**
+   * Put a Java string onto the buffer.
+   * 
+   * @param string
+   * 
+   * @author Ben Lewis
+   * @since 2017.04.19
+   * @version 4.2.2
+   */
+  ByteBuf putJavaString(final String string) {
+    ensureBsonWrite(4);
+    this.buffer.putInt(0);
+    int length = writeCharacters(string, false);
+    this.buffer.putInt(this.buffer.position() - length - 4, length);
+    this.writePosition += (length + 4);
+    return this;
+  }
+
+  /**
+   * Put a symbol onto the buffer.
+   *
+   * @param value The UTF-8 string to write.
+   *
+   * @author Ben Lewis
+   * @since 2017.04.19
+   * @version 4.2.2
+   */
+  @JRubyMethod(name = "put_symbol")
+  public ByteBuf putSymbol(final IRubyObject value) throws UnsupportedEncodingException {
+    String string = ((RubySymbol) value).asJavaString();
+    return putJavaString(string);
+  }
+
+  /**
    * Put a UTF-8 string onto the buffer.
    *
    * @param value The UTF-8 string to write.
@@ -416,12 +450,7 @@ public class RubyByteBuf extends RubyObject {
   @JRubyMethod(name = "put_string")
   public RubyByteBuf putString(final IRubyObject value) throws UnsupportedEncodingException {
     String string = ((RubyString) value).asJavaString();
-    ensureBsonWrite(4);
-    this.buffer.putInt(0);
-    int length = writeCharacters(string, false);
-    this.buffer.putInt(this.buffer.position() - length - 4, length);
-    this.writePosition += (length + 4);
-    return this;
+    return putJavaString(string);
   }
 
   /**
