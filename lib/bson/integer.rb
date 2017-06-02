@@ -156,7 +156,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson_key(validating_keys = Config.validating_keys?)
-      to_s.to_bson_key(validating_keys)
+      self
     end
 
     private

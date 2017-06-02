@@ -313,9 +313,18 @@ public class RubyByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "put_cstring")
   public RubyByteBuf putCString(final IRubyObject value) throws UnsupportedEncodingException {
+
+   if (value instanceof RubyFixnum) {
+     RubyString str = ((RubyFixnum) value).to_s();
+     String string = str.asJavaString();
+     this.writePosition += writeCharacters(string, true);
+   }
+   else {
     String string = value.asJavaString();
     this.writePosition += writeCharacters(string, true);
-    return this;
+   }
+
+   return this;
   }
 
   /**

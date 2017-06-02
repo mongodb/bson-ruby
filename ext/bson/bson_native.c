@@ -391,6 +391,11 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string)
     length = RSTRING_LEN(string) + 1;
 
     return rb_bson_byte_buffer_put_bson_partial_string(self, str, length);
+  } else if (TYPE(string) == T_FIXNUM) {
+    char *str = RSTRING_PTR(rb_fix2str(string, 10));
+    length = strlen(str) + 1;
+
+    return rb_bson_byte_buffer_put_bson_partial_string(self, str, length);
   } else {
     rb_raise(rb_eTypeError, "Invalid type for string");
   }
