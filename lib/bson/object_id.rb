@@ -194,6 +194,11 @@ module BSON
 
     private
 
+    def initialize_copy(other)
+      generate_data
+      other.instance_variable_set(:@raw_data, @raw_data)
+    end
+
     def repair
       @raw_data = @data.to_bson_object_id
       remove_instance_variable(:@data)
