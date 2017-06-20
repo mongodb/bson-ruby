@@ -195,7 +195,7 @@ module BSON
     private
 
     def initialize_copy(other)
-      generate_data
+      to_bson
       other.instance_variable_set(:@raw_data, @raw_data)
     end
 
