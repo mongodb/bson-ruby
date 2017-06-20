@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bson;
+package org.rubybson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -34,6 +34,7 @@ import org.jruby.RubyInteger;
 import org.jruby.RubyNumeric;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
+import org.jruby.RubySymbol;
 import java.math.BigInteger;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -46,7 +47,7 @@ import static java.lang.String.format;
  *
  * @since 4.0.0
  */
-public class ByteBuf extends RubyObject {
+public class RubyByteBuf extends RubyObject {
 
   /**
    * Constant for a null byte.
@@ -94,13 +95,13 @@ public class ByteBuf extends RubyObject {
   private int writePosition = 0;
 
   /**
-   * Instantiate the ByteBuf - this is #allocate in Ruby.
+   * Instantiate the RubyByteBuf - this is #allocate in Ruby.
    *
    * @author Durran Jordan
    * @since 2015.09.26
    * @version 4.0.0
    */
-  public ByteBuf(final Ruby runtime, final RubyClass rubyClass) {
+  public RubyByteBuf(final Ruby runtime, final RubyClass rubyClass) {
     super(runtime, rubyClass);
   }
 
@@ -276,7 +277,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_byte")
-  public ByteBuf putByte(final IRubyObject value) {
+  public RubyByteBuf putByte(final IRubyObject value) {
     ensureBsonWrite(1);
     this.buffer.put(((RubyString) value).getBytes()[0]);
     this.writePosition += 1;
@@ -293,7 +294,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_bytes")
-  public ByteBuf putBytes(final IRubyObject value) {
+  public RubyByteBuf putBytes(final IRubyObject value) {
     byte[] bytes = ((RubyString) value).getBytes();
     ensureBsonWrite(bytes.length);
     this.buffer.put(bytes);
@@ -311,10 +312,19 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_cstring")
-  public ByteBuf putCString(final IRubyObject value) throws UnsupportedEncodingException {
-    String string = ((RubyString) value).asJavaString();
+  public RubyByteBuf putCString(final IRubyObject value) throws UnsupportedEncodingException {
+
+   if (value instanceof RubyFixnum) {
+     RubyString str = ((RubyFixnum) value).to_s();
+     String string = str.asJavaString();
+     this.writePosition += writeCharacters(string, true);
+   }
+   else {
+    String string = value.asJavaString();
     this.writePosition += writeCharacters(string, true);
-    return this;
+   }
+
+   return this;
   }
 
   /**
@@ -328,7 +338,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.1.0
    */
   @JRubyMethod(name = "put_decimal128")
-  public ByteBuf putDecimal128(final IRubyObject low, final IRubyObject high) {
+  public RubyByteBuf putDecimal128(final IRubyObject low, final IRubyObject high) {
     ensureBsonWrite(16);
     BigInteger bigLow;
     BigInteger bigHigh;
@@ -363,7 +373,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_double")
-  public ByteBuf putDouble(final IRubyObject value) {
+  public RubyByteBuf putDouble(final IRubyObject value) {
     ensureBsonWrite(8);
     this.buffer.putDouble(((RubyFloat) value).getDoubleValue());
     this.writePosition += 8;
@@ -380,7 +390,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_int32")
-  public ByteBuf putInt32(final IRubyObject value) {
+  public RubyByteBuf putInt32(final IRubyObject value) {
     ensureBsonWrite(4);
     this.buffer.putInt(RubyNumeric.fix2int((RubyFixnum) value));
     this.writePosition += 4;
@@ -397,11 +407,26 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_int64")
-  public ByteBuf putInt64(final IRubyObject value) {
+  public RubyByteBuf putInt64(final IRubyObject value) {
     ensureBsonWrite(8);
     this.buffer.putLong(((RubyInteger) value).getLongValue());
     this.writePosition += 8;
     return this;
+  }
+
+  /**
+   * Put a symbol onto the buffer.
+   *
+   * @param value The UTF-8 string to write.
+   *
+   * @author Ben Lewis
+   * @since 2017.04.19
+   * @version 4.2.2
+   */
+  @JRubyMethod(name = "put_symbol")
+  public RubyByteBuf putSymbol(final IRubyObject value) throws UnsupportedEncodingException {
+    String string = ((RubySymbol) value).asJavaString();
+    return putJavaString(string);
   }
 
   /**
@@ -414,14 +439,9 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_string")
-  public ByteBuf putString(final IRubyObject value) throws UnsupportedEncodingException {
+  public RubyByteBuf putString(final IRubyObject value) throws UnsupportedEncodingException {
     String string = ((RubyString) value).asJavaString();
-    ensureBsonWrite(4);
-    this.buffer.putInt(0);
-    int length = writeCharacters(string, false);
-    this.buffer.putInt(this.buffer.position() - length - 4, length);
-    this.writePosition += (length + 4);
-    return this;
+    return putJavaString(string);
   }
 
   /**
@@ -435,7 +455,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "replace_int32")
-  public ByteBuf replaceInt32(final IRubyObject index, final IRubyObject value) {
+  public RubyByteBuf replaceInt32(final IRubyObject index, final IRubyObject value) {
     int i = RubyNumeric.fix2int((RubyFixnum) index);
     int int32 = RubyNumeric.fix2int((RubyFixnum) value);
     this.buffer.putInt(i, int32);
@@ -450,7 +470,7 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.1
    */
   @JRubyMethod(name = "rewind!")
-  public ByteBuf rewind() {
+  public RubyByteBuf rewind() {
     this.buffer.rewind();
     this.mode = Mode.READ;
     this.readPosition = 0;
@@ -577,5 +597,14 @@ public class ByteBuf extends RubyObject {
     write((byte) 0);
     total++;
     return total;
+  }
+
+  private RubyByteBuf putJavaString(final String string) {
+    ensureBsonWrite(4);
+    this.buffer.putInt(0);
+    int length = writeCharacters(string, false);
+    this.buffer.putInt(this.buffer.position() - length - 4, length);
+    this.writePosition += (length + 4);
+    return this;
   }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bson;
+package org.rubybson;
 
 import java.io.IOException;
 
@@ -44,7 +44,7 @@ public class NativeService implements BasicLibraryService {
    *
    * @since 2.0.0
    */
-  private final String BYTE_BUF = "ByteBuff".intern();
+  private final String BYTE_BUF = "RubyByteBuf".intern();
 
   /**
    * Loads the native extension into the JRuby runtime.
@@ -61,11 +61,11 @@ public class NativeService implements BasicLibraryService {
 
     RubyClass byteBuffer = bson.defineClassUnder("ByteBuffer", runtime.getObject(), new ObjectAllocator() {
       public IRubyObject allocate(Ruby runtime, RubyClass rubyClass) {
-        return new ByteBuf(runtime, rubyClass);
+        return new RubyByteBuf(runtime, rubyClass);
       }
     });
 
-    byteBuffer.defineAnnotatedMethods(ByteBuf.class);
+    byteBuffer.defineAnnotatedMethods(RubyByteBuf.class);
     return true;
   }
 }

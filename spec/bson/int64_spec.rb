@@ -138,9 +138,9 @@ describe BSON::Int64 do
   describe "#to_bson_key" do
 
     let(:obj)  {  BSON::Int64.new(Integer::MAX_64BIT - 1) }
-    let(:encoded) { (Integer::MAX_64BIT - 1).to_s }
+    let(:encoded) { (Integer::MAX_64BIT - 1) }
 
-    it "returns the key as a string" do
+    it "returns the key as an integer" do
       expect(obj.to_bson_key).to eq(encoded)
     end
   end

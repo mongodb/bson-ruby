@@ -13,5 +13,5 @@
 # limitations under the License.
 
 module BSON
-  VERSION = "4.2.1".freeze
+  VERSION = "5.0.0.rc0".freeze
 end
