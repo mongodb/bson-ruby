@@ -193,6 +193,11 @@ module BSON
 
     private
 
+    def initialize_copy(other)
+      generate_data
+      other.instance_variable_set(:@raw_data, @raw_data)
+    end
+
     def generate_data
       repair if defined?(@data)
       @raw_data ||= @@generator.next_object_id

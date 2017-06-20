@@ -392,6 +392,43 @@ describe BSON::ObjectId do
     end
   end
 
+  describe "#clone" do
+
+    context "when the data has not been generated yet" do
+
+      let!(:object_id) do
+        described_class.new
+      end
+
+      let!(:clone) do
+        object_id.clone
+      end
+
+      it "generates and copies the data" do
+        expect(clone).to eq(object_id)
+      end
+    end
+
+    context "when the data has been generated" do
+
+      let!(:object_id) do
+        described_class.new
+      end
+
+      let(:clone) do
+        object_id.clone
+      end
+
+      before do
+        object_id.to_s
+      end
+
+      it "copies the data" do
+        expect(clone).to eq(object_id)
+      end
+    end
+  end
+
   describe "#inspect" do
 
     let(:object_id) do
