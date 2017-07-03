@@ -6,8 +6,8 @@ rvm:
   - 1.9.3
   - 2.0.0
   - 2.1.10
-  - 2.2.6
-  - 2.3.3
+  - 2.2.7
+  - 2.3.4
   - 2.4.1
   - ruby-head
   - jruby-19mode
@@ -55,16 +55,16 @@ matrix:
     - rvm: 2.1.10
       jdk: oraclejdk8
       env: CI="travis"
-    - rvm: 2.2.6
+    - rvm: 2.2.7
       jdk: openjdk7
       env: CI="travis"
-    - rvm: 2.2.6
+    - rvm: 2.2.7
       jdk: oraclejdk8
       env: CI="travis"
-    - rvm: 2.3.3
+    - rvm: 2.3.4
       jdk: openjdk7
       env: CI="travis"
-    - rvm: 2.3.3
+    - rvm: 2.3.4
       jdk: oraclejdk8
       env: CI="travis"
     - rvm: 2.4.1
