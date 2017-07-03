@@ -29,6 +29,7 @@ notifications:
 branches:
   only:
     - master
+    - 3.2.-stable
     - 5.0-dev
 
 matrix:
