@@ -40,3 +40,14 @@ bundle exec rake clean
 
 echo "Running specs"
 bundle exec rake spec
+test_status=$?
+echo "TEST STATUS"
+echo ${test_status}
+
+jruby_running=`ps -ef | grep 'jruby' | grep -v grep | awk '{print $2}'`
+if [ -n "$jruby_running" ];then
+  echo "terminating remaining jruby processes"
+  for pid in $(ps -ef | grep "jruby" | grep -v grep | awk '{print $2}'); do kill -9 $pid; done
+fi
+
+exit ${test_status}
