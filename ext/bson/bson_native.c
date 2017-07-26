@@ -316,7 +316,7 @@ VALUE bson_byte_buffer_get_double(byte_buffer_t *b)
   double d;
 
   ENSURE_BSON_READ(b, 8);
-  d = *(double*)READ_PTR(b);
+  memcpy(&d, READ_PTR(b), 8);
   b->read_position += 8;
   return DBL2NUM(BSON_DOUBLE_FROM_LE(d));
 
@@ -338,7 +338,7 @@ VALUE bson_byte_buffer_get_int32(byte_buffer_t *b)
   int32_t i32;
 
   ENSURE_BSON_READ(b, 4);
-  i32 = *(int32_t*)READ_PTR(b);
+  memcpy(&i32, READ_PTR(b), 4);
   b->read_position += 4;
   return INT2NUM(BSON_UINT32_FROM_LE(i32));
 }
