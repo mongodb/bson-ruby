@@ -26,6 +26,14 @@
 #define HOST_NAME_HASH_MAX 256
 #endif
 
+#define BSON_TYPE_DOUBLE 1
+#define BSON_TYPE_STRING 2
+#define BSON_TYPE_OBJECT 3
+#define BSON_TYPE_ARRAY 4
+#define BSON_TYPE_INT32 16
+#define BSON_TYPE_INT64 18
+
+
 typedef struct {
   size_t size;
   size_t write_position;
@@ -90,10 +98,13 @@ static const rb_data_type_t rb_byte_buffer_data_type = {
 };
 
 static VALUE bson_byte_buffer_get_int32(byte_buffer_t *b);
+static VALUE bson_byte_buffer_get_int64(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_double(byte_buffer_t *b);
 static VALUE bson_byte_buffer_read_field(uint8_t type, byte_buffer_t *b, VALUE rb_buffer);
 static void bson_byte_buffer_skip_cstring(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_cstring(byte_buffer_t *b);
+static VALUE bson_byte_buffer_get_string(byte_buffer_t *b);
+
 
 /**
  * Holds the machine id hash for object id generation.
@@ -338,9 +349,14 @@ VALUE bson_byte_buffer_get_int32(byte_buffer_t *b)
 VALUE rb_bson_byte_buffer_get_int64(VALUE self)
 {
   byte_buffer_t *b;
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  return bson_byte_buffer_get_int64(b);
+}
+
+VALUE bson_byte_buffer_get_int64(byte_buffer_t *b)
+{
   int64_t i64;
 
-  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_READ(b, 8);
   memcpy(&i64, READ_PTR(b), 8);
   b->read_position += 8;
@@ -353,11 +369,17 @@ VALUE rb_bson_byte_buffer_get_int64(VALUE self)
 VALUE rb_bson_byte_buffer_get_string(VALUE self)
 {
   byte_buffer_t *b;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  return bson_byte_buffer_get_string(b);
+}
+
+VALUE bson_byte_buffer_get_string(byte_buffer_t *b)
+{
   int32_t length;
   int32_t length_le;
   VALUE string;
 
-  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_READ(b, 4);
   memcpy(&length, READ_PTR(b), 4);
   length_le = BSON_UINT32_FROM_LE(length);
@@ -367,6 +389,7 @@ VALUE rb_bson_byte_buffer_get_string(VALUE self)
   b->read_position += length_le;
   return string;
 }
+
 
 VALUE rb_bson_byte_buffer_get_document(VALUE self){
   VALUE doc = Qnil;
@@ -412,10 +435,14 @@ VALUE rb_bson_byte_buffer_get_array(VALUE self){
 }
 
 
+
 VALUE bson_byte_buffer_read_field(uint8_t type, byte_buffer_t *b, VALUE rb_buffer){
   switch(type) {
-    case 16: return bson_byte_buffer_get_int32(b);
-    case 1: return bson_byte_buffer_get_double(b);
+    case BSON_TYPE_INT32: return bson_byte_buffer_get_int32(b);
+    case BSON_TYPE_INT64: return bson_byte_buffer_get_int64(b);
+    case BSON_TYPE_DOUBLE: return bson_byte_buffer_get_double(b);
+    case BSON_TYPE_STRING: return bson_byte_buffer_get_string(b);
+    case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(rb_buffer);
     default:
     {
       VALUE klass = rb_funcall(rb_bson_registry,rb_intern("get"),1, INT2FIX(type));
