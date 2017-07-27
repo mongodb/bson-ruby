@@ -224,8 +224,34 @@ VALUE rb_bson_byte_buffer_initialize(int argc, VALUE *argv, VALUE self)
   return self;
 }
 
+static char is_int32(int64_t i64){
+  return i64 >= INT32_MIN && i64 <= INT32_MAX;
+}
+
+/* write the byte denoting the BSON type for the passed object*/
 void bson_byte_buffer_put_type_byte(byte_buffer_t *b, VALUE val){
   switch(TYPE(val)){
+    case T_BIGNUM:
+    case T_FIXNUM:
+      if(is_int32(NUM2LL(val))){
+        bson_byte_buffer_put_byte(b, BSON_TYPE_INT32);
+      }else{        
+        bson_byte_buffer_put_byte(b, BSON_TYPE_INT64);
+      }
+      break;
+    case T_STRING:
+      bson_byte_buffer_put_byte(b, BSON_TYPE_STRING);
+      break;
+    case T_ARRAY:
+      bson_byte_buffer_put_byte(b, BSON_TYPE_ARRAY);
+      break;
+    case T_TRUE:
+    case T_FALSE:
+      bson_byte_buffer_put_byte(b, BSON_TYPE_BOOLEAN);
+      break;
+    case T_HASH:
+      bson_byte_buffer_put_byte(b, BSON_TYPE_OBJECT);
+      break;
     case T_FLOAT:
       bson_byte_buffer_put_byte(b, BSON_TYPE_DOUBLE);
       break;
@@ -242,7 +268,7 @@ void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val, VA
     case T_BIGNUM:
     case T_FIXNUM:{
       int64_t i64= NUM2LL(val);
-      if(i64 >= INT32_MIN && i64 <= INT32_MAX){
+      if(is_int32(i64)){
         bson_byte_buffer_put_int32(b, (int32_t)i64);
       }else{        
         bson_byte_buffer_put_int64(b, i64);
