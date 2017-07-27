@@ -285,6 +285,9 @@ static int put_hash_callback(VALUE key, VALUE val, VALUE context){
     case T_STRING:
       bson_byte_buffer_put_bson_key(b, key, validating_keys);
       break;
+    case T_SYMBOL:
+      bson_byte_buffer_put_bson_key(b, rb_sym_to_s(key), validating_keys);
+      break;
     default:
       rb_bson_byte_buffer_put_cstring(buffer, rb_funcall(key, rb_intern("to_bson_key"),1,validating_keys));
   }
