@@ -251,6 +251,12 @@ void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val, VA
     case T_FLOAT:
       bson_byte_buffer_put_double(b, val);
       break;
+    case T_ARRAY:
+      rb_bson_byte_buffer_put_array(rb_buffer, val, validating_keys);
+      break;
+    case T_HASH:
+      rb_bson_byte_buffer_put_hash(rb_buffer, val, validating_keys);
+      break;
     default:{
       rb_funcall(val, rb_intern("to_bson"), 2, rb_buffer,validating_keys);
       break;
@@ -570,6 +576,7 @@ VALUE bson_byte_buffer_read_field(uint8_t type, byte_buffer_t *b, VALUE rb_buffe
     case BSON_TYPE_DOUBLE: return bson_byte_buffer_get_double(b);
     case BSON_TYPE_STRING: return bson_byte_buffer_get_string(b);
     case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(rb_buffer);
+    case BSON_TYPE_OBJECT: return rb_bson_byte_buffer_get_document(rb_buffer);
     default:
     {
       VALUE klass = rb_funcall(rb_bson_registry,rb_intern("get"),1, INT2FIX(type));
