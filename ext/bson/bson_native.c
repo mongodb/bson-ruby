@@ -32,7 +32,7 @@
 #define BSON_TYPE_ARRAY 4
 #define BSON_TYPE_INT32 16
 #define BSON_TYPE_INT64 18
-
+#define BSON_TYPE_BOOLEAN 8
 
 typedef struct {
   size_t size;
@@ -104,7 +104,7 @@ static VALUE bson_byte_buffer_read_field(uint8_t type, byte_buffer_t *b, VALUE r
 static void bson_byte_buffer_skip_cstring(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_cstring(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_string(byte_buffer_t *b);
-
+static VALUE bson_byte_buffer_get_boolean(byte_buffer_t *b);
 static VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys);
 static VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_keys);
 static void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val, VALUE validating_keys);
@@ -254,6 +254,12 @@ void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val, VA
     case T_ARRAY:
       rb_bson_byte_buffer_put_array(rb_buffer, val, validating_keys);
       break;
+    case T_TRUE:
+      bson_byte_buffer_put_byte(b, 1);
+      break;
+    case T_FALSE:
+      bson_byte_buffer_put_byte(b, 0);
+      break;
     case T_HASH:
       rb_bson_byte_buffer_put_hash(rb_buffer, val, validating_keys);
       break;
@@ -378,6 +384,13 @@ VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i)
   bytes = rb_str_new(READ_PTR(b), length);
   b->read_position += length;
   return bytes;
+}
+
+VALUE bson_byte_buffer_get_boolean(byte_buffer_t *b){
+  ENSURE_BSON_READ(b, 1);
+  VALUE result = *READ_PTR(b) == 1 ? Qtrue: Qfalse;
+  b->read_position += 1;
+  return result;
 }
 
 /**
@@ -577,6 +590,7 @@ VALUE bson_byte_buffer_read_field(uint8_t type, byte_buffer_t *b, VALUE rb_buffe
     case BSON_TYPE_STRING: return bson_byte_buffer_get_string(b);
     case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(rb_buffer);
     case BSON_TYPE_OBJECT: return rb_bson_byte_buffer_get_document(rb_buffer);
+    case BSON_TYPE_BOOLEAN: return bson_byte_buffer_get_boolean(b);
     default:
     {
       VALUE klass = rb_funcall(rb_bson_registry,rb_intern("get"),1, INT2FIX(type));
