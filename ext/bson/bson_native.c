@@ -297,13 +297,16 @@ void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val, VA
   }
 }
 
+typedef struct{
+  byte_buffer_t *b;
+  VALUE buffer;
+  VALUE validating_keys;
+} put_hash_context;
 
 static int put_hash_callback(VALUE key, VALUE val, VALUE context){
-  VALUE buffer = RARRAY_PTR(context)[0];
-  VALUE validating_keys = RARRAY_PTR(context)[1];
-
-  byte_buffer_t *b;
-  TypedData_Get_Struct(buffer, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  VALUE buffer = ((put_hash_context*)context)->buffer;
+  VALUE validating_keys = ((put_hash_context*)context)->validating_keys;
+  byte_buffer_t *b = ((put_hash_context*)context)->b;
 
   bson_byte_buffer_put_type_byte(b, val);
 
@@ -327,7 +330,7 @@ static int put_hash_callback(VALUE key, VALUE val, VALUE context){
  */
 VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys){
   byte_buffer_t *b = NULL;
-  VALUE context = 0;
+  put_hash_context context = {0};
   size_t position = 0;
   size_t new_position = 0;
   int32_t new_length = 0;
@@ -338,12 +341,11 @@ VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys
   position = READ_SIZE(b);
   
   bson_byte_buffer_put_int32(b, 0);
+  context.buffer = self;
+  context.validating_keys = validating_keys;
+  context.b = b;
 
-  context = rb_ary_new2(2);
-  rb_ary_push(context, self);
-  rb_ary_push(context, validating_keys);
-
-  rb_hash_foreach(hash, put_hash_callback, context);
+  rb_hash_foreach(hash, put_hash_callback, (VALUE)&context);
   bson_byte_buffer_put_byte(b, 0);
 
   new_position = READ_SIZE(b);
