@@ -570,8 +570,9 @@ VALUE rb_bson_byte_buffer_get_document(VALUE self){
 
   ENSURE_BSON_READ(b, 1);
   while((type = (uint8_t)*READ_PTR(b)) != 0){
+    VALUE field;
     b->read_position += 1;
-    VALUE field = bson_byte_buffer_get_cstring(b);
+    field = bson_byte_buffer_get_cstring(b);
     rb_hash_aset(doc, field, bson_byte_buffer_read_field(type, b, self));
 
     ENSURE_BSON_READ(b, 1);
