@@ -107,6 +107,7 @@ static VALUE bson_byte_buffer_get_string(byte_buffer_t *b);
 
 static VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys);
 static VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_keys);
+static void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val, VALUE validating_keys);
 
 static void bson_byte_buffer_put_int32(byte_buffer_t *b, const int32_t i32);
 static void bson_byte_buffer_put_byte(byte_buffer_t *b, const char byte);
@@ -114,6 +115,7 @@ static void bson_byte_buffer_put_cstring(byte_buffer_t *b, VALUE string);
 static void bson_byte_buffer_put_double(byte_buffer_t *b, VALUE f);
 static void bson_byte_buffer_put_raw_cstring(byte_buffer_t *b, char *c_str);
 static void bson_byte_buffer_put_int64(byte_buffer_t *b, const int64_t i);
+static void bson_byte_buffer_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys);
 
 /**
  * Holds the machine id hash for object id generation.
@@ -127,6 +129,8 @@ static uint32_t rb_bson_object_id_counter;
 
 
 static VALUE rb_bson_registry;
+
+static VALUE rb_bson_illegal_key;
 /**
  * Initialize the bson_native extension.
  */
@@ -135,6 +139,7 @@ void Init_bson_native()
   char rb_bson_machine_id[256];
 
   VALUE rb_bson_module = rb_define_module("BSON");
+  rb_bson_illegal_key = rb_const_get(rb_const_get(rb_bson_module, rb_intern("String")),rb_intern("IllegalKey"));
   VALUE rb_byte_buffer_class = rb_define_class_under(rb_bson_module, "ByteBuffer", rb_cObject);
   VALUE rb_bson_object_id_class = rb_const_get(rb_bson_module, rb_intern("ObjectId"));
   VALUE rb_bson_object_id_generator_class = rb_const_get(rb_bson_object_id_class, rb_intern("Generator"));
@@ -231,7 +236,7 @@ void bson_byte_buffer_put_type_byte(byte_buffer_t *b, VALUE val){
   }
 }
 
-void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val){
+void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val, VALUE validating_keys){
   switch(TYPE(val)){
     case T_BIGNUM:
     case T_FIXNUM:{
@@ -247,7 +252,7 @@ void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val){
       bson_byte_buffer_put_double(b, val);
       break;
     default:{
-      rb_funcall(val, rb_intern("to_bson"), 2, rb_buffer, Qfalse);
+      rb_funcall(val, rb_intern("to_bson"), 2, rb_buffer,validating_keys);
       break;
     }
   }
@@ -255,34 +260,41 @@ void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val){
 
 /* encode a BSON::Hash into a byte buffer */
 
-int into_buffer_callback(VALUE key, VALUE val, VALUE in){
+int into_buffer_callback(VALUE key, VALUE val, VALUE context){
+  VALUE buffer = RARRAY_PTR(context)[0];
+  VALUE validating_keys = RARRAY_PTR(context)[1];
+
   byte_buffer_t *b;
-  TypedData_Get_Struct(in, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  TypedData_Get_Struct(buffer, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
   bson_byte_buffer_put_type_byte(b, val);
 
   switch(TYPE(key)){
     case T_STRING:
-      bson_byte_buffer_put_cstring(b, key);
+      bson_byte_buffer_put_bson_key(b, key, validating_keys);
       break;
     default:
-      rb_bson_byte_buffer_put_cstring(in, rb_funcall(key, rb_intern("to_bson_key"),1,Qfalse));
+      rb_bson_byte_buffer_put_cstring(buffer, rb_funcall(key, rb_intern("to_bson_key"),1,validating_keys));
   }
 
-  bson_byte_buffer_put_field(in, b, val);
+  bson_byte_buffer_put_field(buffer, b, val,validating_keys);
   return ST_CONTINUE;
 }
 
+
 VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys){
+  Check_Type(hash, T_HASH);
 
   byte_buffer_t *b;
+  VALUE context = rb_ary_new2(2);
+  rb_ary_push(context, self);
+  rb_ary_push(context, validating_keys);
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  Check_Type(hash, T_HASH);
   size_t position = READ_SIZE(b);
 
   bson_byte_buffer_put_int32(b, 0);
 
-  rb_hash_foreach(hash, into_buffer_callback, self);
+  rb_hash_foreach(hash, into_buffer_callback, context);
   bson_byte_buffer_put_byte(b, 0);
 
   size_t new_position = READ_SIZE(b);
@@ -310,7 +322,7 @@ VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_ke
     snprintf(key_string, sizeof(key_string), "%zu", index);
     bson_byte_buffer_put_type_byte(b, *array_element);
     bson_byte_buffer_put_raw_cstring(b, key_string);
-    bson_byte_buffer_put_field(self, b, *array_element);
+    bson_byte_buffer_put_field(self, b, *array_element, validating_keys);
   }
   bson_byte_buffer_put_byte(b, 0);
 
@@ -630,6 +642,19 @@ void bson_byte_buffer_put_cstring(byte_buffer_t *b, VALUE string)
   b->write_position += length;
 }
 
+
+void bson_byte_buffer_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys){
+  if(RTEST(validating_keys)){
+    char *c_str = RSTRING_PTR(string);
+    size_t length = RSTRING_LEN(string);
+    if(length > 0 && (c_str[0] == '$' || memchr(c_str, '.', length))){
+      rb_exc_raise(rb_funcall(rb_bson_illegal_key, rb_intern("new"),1, string));
+    }
+  }
+
+
+  bson_byte_buffer_put_cstring(b, string);
+}
 /**
  * Writes a null terminated cstring to the byte buffer.
  */
