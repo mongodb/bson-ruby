@@ -105,6 +105,15 @@ static void bson_byte_buffer_skip_cstring(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_cstring(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_string(byte_buffer_t *b);
 
+static VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys);
+static VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_keys);
+
+static void bson_byte_buffer_put_int32(byte_buffer_t *b, const int32_t i32);
+static void bson_byte_buffer_put_byte(byte_buffer_t *b, const char byte);
+static void bson_byte_buffer_put_cstring(byte_buffer_t *b, VALUE string);
+static void bson_byte_buffer_put_double(byte_buffer_t *b, VALUE f);
+static void bson_byte_buffer_put_raw_cstring(byte_buffer_t *b, char *c_str);
+static void bson_byte_buffer_put_int64(byte_buffer_t *b, const int64_t i);
 
 /**
  * Holds the machine id hash for object id generation.
@@ -161,6 +170,9 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "to_s", rb_bson_byte_buffer_to_s, 0);
   rb_define_method(rb_bson_object_id_generator_class, "next_object_id", rb_bson_object_id_generator_next, -1);
 
+  rb_define_method(rb_byte_buffer_class, "put_hash", rb_bson_byte_buffer_put_hash, 2);
+  rb_define_method(rb_byte_buffer_class, "put_array", rb_bson_byte_buffer_put_array, 2);
+
   // Get the object id machine id and hash it.
   rb_require("digest/md5");
   gethostname(rb_bson_machine_id, sizeof(rb_bson_machine_id));
@@ -202,6 +214,109 @@ VALUE rb_bson_byte_buffer_initialize(int argc, VALUE *argv, VALUE self)
   if (!NIL_P(bytes)) {
     rb_bson_byte_buffer_put_bytes(self, bytes);
   }
+
+  return self;
+}
+
+void bson_byte_buffer_put_type_byte(byte_buffer_t *b, VALUE val){
+  switch(TYPE(val)){
+    case T_FLOAT:
+      bson_byte_buffer_put_byte(b, BSON_TYPE_DOUBLE);
+      break;
+    default:{
+      VALUE type = rb_funcall(val, rb_intern("bson_type"),0);
+      bson_byte_buffer_put_byte(b, *RSTRING_PTR(type));
+      break;
+    }
+  }
+}
+
+void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val){
+  switch(TYPE(val)){
+    case T_BIGNUM:
+    case T_FIXNUM:{
+      int64_t i64= NUM2LL(val);
+      if(i64 >= INT32_MIN && i64 <= INT32_MAX){
+        bson_byte_buffer_put_int32(b, (int32_t)i64);
+      }else{        
+        bson_byte_buffer_put_int64(b, i64);
+      }
+      break;
+    }
+    case T_FLOAT:
+      bson_byte_buffer_put_double(b, val);
+      break;
+    default:{
+      rb_funcall(val, rb_intern("to_bson"), 2, rb_buffer, Qfalse);
+      break;
+    }
+  }
+}
+
+/* encode a BSON::Hash into a byte buffer */
+
+int into_buffer_callback(VALUE key, VALUE val, VALUE in){
+  byte_buffer_t *b;
+  TypedData_Get_Struct(in, byte_buffer_t, &rb_byte_buffer_data_type, b);
+
+  bson_byte_buffer_put_type_byte(b, val);
+
+  switch(TYPE(key)){
+    case T_STRING:
+      bson_byte_buffer_put_cstring(b, key);
+      break;
+    default:
+      rb_bson_byte_buffer_put_cstring(in, rb_funcall(key, rb_intern("to_bson_key"),1,Qfalse));
+  }
+
+  bson_byte_buffer_put_field(in, b, val);
+  return ST_CONTINUE;
+}
+
+VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys){
+
+  byte_buffer_t *b;
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  Check_Type(hash, T_HASH);
+  size_t position = READ_SIZE(b);
+
+  bson_byte_buffer_put_int32(b, 0);
+
+  rb_hash_foreach(hash, into_buffer_callback, self);
+  bson_byte_buffer_put_byte(b, 0);
+
+  size_t new_position = READ_SIZE(b);
+  int32_t length = new_position - position;
+  memcpy(READ_PTR(b) + position, &length, 4);
+
+  return self;
+}
+
+
+VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_keys){
+
+  byte_buffer_t *b;
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  Check_Type(array, T_ARRAY);
+
+  size_t position = READ_SIZE(b);
+
+  bson_byte_buffer_put_int32(b, 0);
+
+  VALUE *array_element = RARRAY_PTR(array);
+
+  for(size_t index=0; index < RARRAY_LEN(array); index++, array_element++){
+    char key_string[16];
+    snprintf(key_string, sizeof(key_string), "%zu", index);
+    bson_byte_buffer_put_type_byte(b, *array_element);
+    bson_byte_buffer_put_raw_cstring(b, key_string);
+    bson_byte_buffer_put_field(self, b, *array_element);
+  }
+  bson_byte_buffer_put_byte(b, 0);
+
+  size_t new_position = READ_SIZE(b);
+  int32_t length = new_position - position;
+  memcpy(READ_PTR(b) + position, &length, 4);
 
   return self;
 }
@@ -468,6 +583,13 @@ VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte)
   return self;
 }
 
+void bson_byte_buffer_put_byte( byte_buffer_t *b, const char byte)
+{
+  ENSURE_BSON_WRITE(b, 1);
+  *WRITE_PTR(b) = byte;
+  b->write_position += 1;
+
+}
 /**
  * Writes bytes to the byte buffer.
  */
@@ -490,18 +612,33 @@ VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes)
 VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string)
 {
   byte_buffer_t *b;
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  bson_byte_buffer_put_cstring(b, string);
+  return self;
+}
+
+void bson_byte_buffer_put_cstring(byte_buffer_t *b, VALUE string)
+{
   char *c_str = RSTRING_PTR(string);
   size_t length = RSTRING_LEN(string) + 1;
 
   if (!rb_bson_utf8_validate(c_str, length - 1, false)) {
     rb_raise(rb_eArgError, "String %s is not a valid UTF-8 CString.", c_str);
   }
-
-  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, length);
   memcpy(WRITE_PTR(b), c_str, length);
   b->write_position += length;
-  return self;
+}
+
+/**
+ * Writes a null terminated cstring to the byte buffer.
+ */
+void bson_byte_buffer_put_raw_cstring(byte_buffer_t *b, char *c_str)
+{
+  size_t length = strlen(c_str) + 1;
+  ENSURE_BSON_WRITE(b, length);
+  memcpy(WRITE_PTR(b), c_str, length);
+  b->write_position += length;
 }
 
 /**
@@ -531,13 +668,18 @@ VALUE rb_bson_byte_buffer_put_decimal128(VALUE self, VALUE low, VALUE high)
 VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
 {
   byte_buffer_t *b;
-  const double d = BSON_DOUBLE_TO_LE(NUM2DBL(f));
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  bson_byte_buffer_put_double(b,f);
+
+  return self;
+}
+
+void bson_byte_buffer_put_double(byte_buffer_t *b, VALUE f)
+{
+  const double d = BSON_DOUBLE_TO_LE(NUM2DBL(f));
   ENSURE_BSON_WRITE(b, 8);
   memcpy(WRITE_PTR(b), &d, 8);
   b->write_position += 8;
-
-  return self;
 }
 
 /**
@@ -546,15 +688,21 @@ VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
 VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i)
 {
   byte_buffer_t *b;
-  const int32_t i32 = BSON_UINT32_TO_LE(NUM2INT(i));
+  const int32_t i32 = NUM2INT(i);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  bson_byte_buffer_put_int32(b, i32);
+  return self;
+}
+
+void bson_byte_buffer_put_int32(byte_buffer_t *b, const int32_t i)
+{
+  const int64_t i32 = BSON_UINT32_TO_LE(i);
   ENSURE_BSON_WRITE(b, 4);
   memcpy(WRITE_PTR(b), &i32, 4);
   b->write_position += 4;
-
-  return self;
 }
+
 
 /**
  * Writes a 64 bit integer to the byte buffer.
@@ -562,14 +710,22 @@ VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i)
 VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i)
 {
   byte_buffer_t *b;
-  const int64_t i64 = BSON_UINT64_TO_LE(NUM2LL(i));
+  const int64_t i64 = NUM2LL(i);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  bson_byte_buffer_put_int64(b, i64);
+
+  return self;
+}
+
+void bson_byte_buffer_put_int64(byte_buffer_t *b, const int64_t i)
+{
+  const int64_t i64 = BSON_UINT64_TO_LE(i);
+
   ENSURE_BSON_WRITE(b, 8);
   memcpy(WRITE_PTR(b), &i64, 8);
   b->write_position += 8;
 
-  return self;
 }
 
 /**
