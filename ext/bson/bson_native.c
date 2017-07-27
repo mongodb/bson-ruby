@@ -139,12 +139,13 @@ void Init_bson_native()
   char rb_bson_machine_id[256];
 
   VALUE rb_bson_module = rb_define_module("BSON");
-  rb_bson_illegal_key = rb_const_get(rb_const_get(rb_bson_module, rb_intern("String")),rb_intern("IllegalKey"));
   VALUE rb_byte_buffer_class = rb_define_class_under(rb_bson_module, "ByteBuffer", rb_cObject);
   VALUE rb_bson_object_id_class = rb_const_get(rb_bson_module, rb_intern("ObjectId"));
   VALUE rb_bson_object_id_generator_class = rb_const_get(rb_bson_object_id_class, rb_intern("Generator"));
   VALUE rb_digest_class = rb_const_get(rb_cObject, rb_intern("Digest"));
   VALUE rb_md5_class = rb_const_get(rb_digest_class, rb_intern("MD5"));
+
+  rb_bson_illegal_key = rb_const_get(rb_const_get(rb_bson_module, rb_intern("String")),rb_intern("IllegalKey"));
 
   rb_define_alloc_func(rb_byte_buffer_class, rb_bson_byte_buffer_allocate);
   rb_define_method(rb_byte_buffer_class, "initialize", rb_bson_byte_buffer_initialize, -1);
@@ -295,52 +296,61 @@ int into_buffer_callback(VALUE key, VALUE val, VALUE context){
 
 
 VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys){
+  byte_buffer_t *b = NULL;
+  VALUE context = 0;
+  size_t position = 0;
+  size_t new_position = 0;
+  int32_t new_length = 0;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   Check_Type(hash, T_HASH);
 
-  byte_buffer_t *b;
-  VALUE context = rb_ary_new2(2);
+  position = READ_SIZE(b);
+  
+  bson_byte_buffer_put_int32(b, 0);
+
+  context = rb_ary_new2(2);
   rb_ary_push(context, self);
   rb_ary_push(context, validating_keys);
-  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  size_t position = READ_SIZE(b);
-
-  bson_byte_buffer_put_int32(b, 0);
 
   rb_hash_foreach(hash, into_buffer_callback, context);
   bson_byte_buffer_put_byte(b, 0);
 
-  size_t new_position = READ_SIZE(b);
-  int32_t length = new_position - position;
-  memcpy(READ_PTR(b) + position, &length, 4);
+  new_position = READ_SIZE(b);
+  new_length = new_position - position;
+  memcpy(READ_PTR(b) + position, &new_length, 4);
 
   return self;
 }
 
 
 VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_keys){
-
-  byte_buffer_t *b;
+  byte_buffer_t *b = NULL;
+  size_t new_position = 0;
+  int32_t new_length = 0;
+  size_t position = 0;
+  VALUE *array_element = NULL;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   Check_Type(array, T_ARRAY);
 
-  size_t position = READ_SIZE(b);
-
+  position = READ_SIZE(b);
   bson_byte_buffer_put_int32(b, 0);
 
-  VALUE *array_element = RARRAY_PTR(array);
 
-  for(size_t index=0; index < RARRAY_LEN(array); index++, array_element++){
+  array_element = RARRAY_PTR(array);
+
+  for(int32_t index=0; index < RARRAY_LEN(array); index++, array_element++){
     char key_string[16];
-    snprintf(key_string, sizeof(key_string), "%zu", index);
+    snprintf(key_string, sizeof(key_string), "%d", index);
     bson_byte_buffer_put_type_byte(b, *array_element);
     bson_byte_buffer_put_raw_cstring(b, key_string);
     bson_byte_buffer_put_field(self, b, *array_element, validating_keys);
   }
   bson_byte_buffer_put_byte(b, 0);
 
-  size_t new_position = READ_SIZE(b);
-  int32_t length = new_position - position;
-  memcpy(READ_PTR(b) + position, &length, 4);
+  new_position = READ_SIZE(b);
+  new_length = new_position - position;
+  memcpy(READ_PTR(b) + position, &new_length, 4);
 
   return self;
 }
@@ -387,8 +397,9 @@ VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i)
 }
 
 VALUE bson_byte_buffer_get_boolean(byte_buffer_t *b){
+  VALUE result = Qnil;
   ENSURE_BSON_READ(b, 1);
-  VALUE result = *READ_PTR(b) == 1 ? Qtrue: Qfalse;
+  result = *READ_PTR(b) == 1 ? Qtrue: Qfalse;
   b->read_position += 1;
   return result;
 }
@@ -539,9 +550,9 @@ VALUE bson_byte_buffer_get_string(byte_buffer_t *b)
 
 VALUE rb_bson_byte_buffer_get_document(VALUE self){
   VALUE doc = Qnil;
-  VALUE cDocument = rb_const_get(rb_const_get(rb_cObject, rb_intern("BSON")), rb_intern("Document"));
   byte_buffer_t *b;
   char type;
+  VALUE cDocument = rb_const_get(rb_const_get(rb_cObject, rb_intern("BSON")), rb_intern("Document"));
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
   /* skip length */
