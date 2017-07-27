@@ -271,9 +271,8 @@ void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val, VA
   }
 }
 
-/* encode a BSON::Hash into a byte buffer */
 
-int into_buffer_callback(VALUE key, VALUE val, VALUE context){
+static int put_hash_callback(VALUE key, VALUE val, VALUE context){
   VALUE buffer = RARRAY_PTR(context)[0];
   VALUE validating_keys = RARRAY_PTR(context)[1];
 
@@ -294,7 +293,9 @@ int into_buffer_callback(VALUE key, VALUE val, VALUE context){
   return ST_CONTINUE;
 }
 
-
+/**
+ * serializes a hash into the byte buffer
+ */
 VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys){
   byte_buffer_t *b = NULL;
   VALUE context = 0;
@@ -313,7 +314,7 @@ VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys
   rb_ary_push(context, self);
   rb_ary_push(context, validating_keys);
 
-  rb_hash_foreach(hash, into_buffer_callback, context);
+  rb_hash_foreach(hash, put_hash_callback, context);
   bson_byte_buffer_put_byte(b, 0);
 
   new_position = READ_SIZE(b);
@@ -323,6 +324,10 @@ VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys
   return self;
 }
 
+
+/**
+ * serializes an array into the byte buffer
+ */
 
 VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_keys){
   byte_buffer_t *b = NULL;
