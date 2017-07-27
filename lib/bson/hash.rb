@@ -77,7 +77,17 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(buffer)
-        buffer.get_document
+        if buffer.respond_to?(:get_document)
+          buffer.get_document
+        else
+          hash = Document.allocate
+          buffer.get_int32 # Throw away the size.
+          while (type = buffer.get_byte) != NULL_BYTE
+            field = buffer.get_cstring
+            hash.store(field, BSON::Registry.get(type, field).from_bson(buffer))
+          end
+          hash
+        end
       end
     end
 
