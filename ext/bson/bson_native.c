@@ -101,6 +101,7 @@ static VALUE bson_byte_buffer_get_int32(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_int64(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_double(byte_buffer_t *b);
 static VALUE bson_byte_buffer_read_field(uint8_t type, byte_buffer_t *b, VALUE rb_buffer);
+static void bson_byte_buffer_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval);
 static void bson_byte_buffer_skip_cstring(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_cstring(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_string(byte_buffer_t *b);
@@ -350,7 +351,7 @@ VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys
 
   new_position = READ_SIZE(b);
   new_length = new_position - position;
-  memcpy(READ_PTR(b) + position, &new_length, 4);
+  bson_byte_buffer_replace_int32(b, position, new_length);
 
   return self;
 }
@@ -386,7 +387,7 @@ VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_ke
 
   new_position = READ_SIZE(b);
   new_length = new_position - position;
-  memcpy(READ_PTR(b) + position, &new_length, 4);
+  bson_byte_buffer_replace_int32(b, position, new_length);
 
   return self;
 }
@@ -864,14 +865,17 @@ VALUE rb_bson_byte_buffer_read_position(VALUE self)
 VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i)
 {
   byte_buffer_t *b;
-  const int32_t position = NUM2LONG(index);
-  const int32_t i32 = BSON_UINT32_TO_LE(NUM2LONG(i));
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-
-  memcpy(READ_PTR(b) + position, &i32, 4);
+  bson_byte_buffer_replace_int32(b, NUM2LONG(index), NUM2LONG(i));
 
   return self;
+}
+
+void bson_byte_buffer_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval)
+{
+  const int32_t i32 = BSON_UINT32_TO_LE(newval);
+  memcpy(READ_PTR(b) + position, &i32, 4);
 }
 
 /**
