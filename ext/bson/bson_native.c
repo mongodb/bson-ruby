@@ -792,7 +792,7 @@ VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i)
 
 void bson_byte_buffer_put_int32(byte_buffer_t *b, const int32_t i)
 {
-  const int64_t i32 = BSON_UINT32_TO_LE(i);
+  const int32_t i32 = BSON_UINT32_TO_LE(i);
   ENSURE_BSON_WRITE(b, 4);
   memcpy(WRITE_PTR(b), &i32, 4);
   b->write_position += 4;
