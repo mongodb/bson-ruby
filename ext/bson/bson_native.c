@@ -225,7 +225,7 @@ VALUE rb_bson_byte_buffer_initialize(int argc, VALUE *argv, VALUE self)
   return self;
 }
 
-static char is_int32(int64_t i64){
+static int is_int32(int64_t i64){
   return i64 >= INT32_MIN && i64 <= INT32_MAX;
 }
 
