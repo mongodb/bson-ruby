@@ -69,7 +69,7 @@ static VALUE rb_bson_byte_buffer_get_double(VALUE self);
 static VALUE rb_bson_byte_buffer_get_int32(VALUE self);
 static VALUE rb_bson_byte_buffer_get_int64(VALUE self);
 static VALUE rb_bson_byte_buffer_get_string(VALUE self);
-static VALUE rb_bson_byte_buffer_get_document(VALUE self);
+static VALUE rb_bson_byte_buffer_get_hash(VALUE self);
 static VALUE rb_bson_byte_buffer_get_array(VALUE self);
 static VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte);
 static VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes);
@@ -156,7 +156,7 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "get_cstring", rb_bson_byte_buffer_get_cstring, 0);
   rb_define_method(rb_byte_buffer_class, "get_decimal128_bytes", rb_bson_byte_buffer_get_decimal128_bytes, 0);
   rb_define_method(rb_byte_buffer_class, "get_double", rb_bson_byte_buffer_get_double, 0);
-  rb_define_method(rb_byte_buffer_class, "get_document", rb_bson_byte_buffer_get_document, 0);
+  rb_define_method(rb_byte_buffer_class, "get_hash", rb_bson_byte_buffer_get_hash, 0);
   rb_define_method(rb_byte_buffer_class, "get_array", rb_bson_byte_buffer_get_array, 0);
 
   rb_define_method(rb_byte_buffer_class, "get_int32", rb_bson_byte_buffer_get_int32, 0);
@@ -585,7 +585,7 @@ VALUE bson_byte_buffer_get_string(byte_buffer_t *b)
 }
 
 
-VALUE rb_bson_byte_buffer_get_document(VALUE self){
+VALUE rb_bson_byte_buffer_get_hash(VALUE self){
   VALUE doc = Qnil;
   byte_buffer_t *b;
   char type;
@@ -638,7 +638,7 @@ VALUE bson_byte_buffer_read_field(uint8_t type, byte_buffer_t *b, VALUE rb_buffe
     case BSON_TYPE_DOUBLE: return bson_byte_buffer_get_double(b);
     case BSON_TYPE_STRING: return bson_byte_buffer_get_string(b);
     case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(rb_buffer);
-    case BSON_TYPE_OBJECT: return rb_bson_byte_buffer_get_document(rb_buffer);
+    case BSON_TYPE_OBJECT: return rb_bson_byte_buffer_get_hash(rb_buffer);
     case BSON_TYPE_BOOLEAN: return bson_byte_buffer_get_boolean(b);
     default:
     {
