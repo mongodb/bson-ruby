@@ -100,24 +100,24 @@ static const rb_data_type_t rb_byte_buffer_data_type = {
   { NULL, rb_bson_byte_buffer_free, rb_bson_byte_buffer_memsize }
 };
 
-static VALUE bson_byte_buffer_get_int32(byte_buffer_t *b);
-static VALUE bson_byte_buffer_get_int64(byte_buffer_t *b);
-static VALUE bson_byte_buffer_get_double(byte_buffer_t *b);
-static VALUE bson_byte_buffer_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type);
-static void bson_byte_buffer_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval);
-static void bson_byte_buffer_skip_cstring(byte_buffer_t *b);
-static VALUE bson_byte_buffer_get_cstring(byte_buffer_t *b);
-static VALUE bson_byte_buffer_get_string(byte_buffer_t *b);
-static VALUE bson_byte_buffer_get_boolean(byte_buffer_t *b);
-static void bson_byte_buffer_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validating_keys);
+static VALUE pvt_get_int32(byte_buffer_t *b);
+static VALUE pvt_get_int64(byte_buffer_t *b);
+static VALUE pvt_get_double(byte_buffer_t *b);
+static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type);
+static void pvt_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval);
+static void pvt_skip_cstring(byte_buffer_t *b);
+static VALUE pvt_get_cstring(byte_buffer_t *b);
+static VALUE pvt_get_string(byte_buffer_t *b);
+static VALUE pvt_get_boolean(byte_buffer_t *b);
+static void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validating_keys);
 
-static void bson_byte_buffer_put_int32(byte_buffer_t *b, const int32_t i32);
-static void bson_byte_buffer_put_byte(byte_buffer_t *b, const char byte);
-static void bson_byte_buffer_put_cstring(byte_buffer_t *b, VALUE string);
-static void bson_byte_buffer_put_double(byte_buffer_t *b, VALUE f);
-static void bson_byte_buffer_put_raw_cstring(byte_buffer_t *b, char *c_str);
-static void bson_byte_buffer_put_int64(byte_buffer_t *b, const int64_t i);
-static void bson_byte_buffer_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys);
+static void pvt_put_int32(byte_buffer_t *b, const int32_t i32);
+static void pvt_put_byte(byte_buffer_t *b, const char byte);
+static void pvt_put_cstring(byte_buffer_t *b, VALUE string);
+static void pvt_put_double(byte_buffer_t *b, VALUE f);
+static void pvt_put_raw_cstring(byte_buffer_t *b, const char *c_str);
+static void pvt_put_int64(byte_buffer_t *b, const int64_t i);
+static void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys);
 
 /**
  * Holds the machine id hash for object id generation.
@@ -231,63 +231,63 @@ static int fits_int32(int64_t i64){
 }
 
 /* write the byte denoting the BSON type for the passed object*/
-void bson_byte_buffer_put_type_byte(byte_buffer_t *b, VALUE val){
+void pvt_put_type_byte(byte_buffer_t *b, VALUE val){
   switch(TYPE(val)){
     case T_BIGNUM:
     case T_FIXNUM:
       if(fits_int32(NUM2LL(val))){
-        bson_byte_buffer_put_byte(b, BSON_TYPE_INT32);
+        pvt_put_byte(b, BSON_TYPE_INT32);
       }else{        
-        bson_byte_buffer_put_byte(b, BSON_TYPE_INT64);
+        pvt_put_byte(b, BSON_TYPE_INT64);
       }
       break;
     case T_STRING:
-      bson_byte_buffer_put_byte(b, BSON_TYPE_STRING);
+      pvt_put_byte(b, BSON_TYPE_STRING);
       break;
     case T_ARRAY:
-      bson_byte_buffer_put_byte(b, BSON_TYPE_ARRAY);
+      pvt_put_byte(b, BSON_TYPE_ARRAY);
       break;
     case T_TRUE:
     case T_FALSE:
-      bson_byte_buffer_put_byte(b, BSON_TYPE_BOOLEAN);
+      pvt_put_byte(b, BSON_TYPE_BOOLEAN);
       break;
     case T_HASH:
-      bson_byte_buffer_put_byte(b, BSON_TYPE_OBJECT);
+      pvt_put_byte(b, BSON_TYPE_OBJECT);
       break;
     case T_FLOAT:
-      bson_byte_buffer_put_byte(b, BSON_TYPE_DOUBLE);
+      pvt_put_byte(b, BSON_TYPE_DOUBLE);
       break;
     default:{
       VALUE type = rb_funcall(val, rb_intern("bson_type"),0);
-      bson_byte_buffer_put_byte(b, *RSTRING_PTR(type));
+      pvt_put_byte(b, *RSTRING_PTR(type));
       break;
     }
   }
 }
 
-void bson_byte_buffer_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validating_keys){
+void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validating_keys){
   switch(TYPE(val)){
     case T_BIGNUM:
     case T_FIXNUM:{
       int64_t i64= NUM2LL(val);
       if(fits_int32(i64)){
-        bson_byte_buffer_put_int32(b, (int32_t)i64);
+        pvt_put_int32(b, (int32_t)i64);
       }else{        
-        bson_byte_buffer_put_int64(b, i64);
+        pvt_put_int64(b, i64);
       }
       break;
     }
     case T_FLOAT:
-      bson_byte_buffer_put_double(b, val);
+      pvt_put_double(b, val);
       break;
     case T_ARRAY:
       rb_bson_byte_buffer_put_array(rb_buffer, val, validating_keys);
       break;
     case T_TRUE:
-      bson_byte_buffer_put_byte(b, 1);
+      pvt_put_byte(b, 1);
       break;
     case T_FALSE:
-      bson_byte_buffer_put_byte(b, 0);
+      pvt_put_byte(b, 0);
       break;
     case T_HASH:
       rb_bson_byte_buffer_put_hash(rb_buffer, val, validating_keys);
@@ -310,20 +310,20 @@ static int put_hash_callback(VALUE key, VALUE val, VALUE context){
   VALUE validating_keys = ((put_hash_context*)context)->validating_keys;
   byte_buffer_t *b = ((put_hash_context*)context)->b;
 
-  bson_byte_buffer_put_type_byte(b, val);
+  pvt_put_type_byte(b, val);
 
   switch(TYPE(key)){
     case T_STRING:
-      bson_byte_buffer_put_bson_key(b, key, validating_keys);
+      pvt_put_bson_key(b, key, validating_keys);
       break;
     case T_SYMBOL:
-      bson_byte_buffer_put_bson_key(b, rb_sym_to_s(key), validating_keys);
+      pvt_put_bson_key(b, rb_sym_to_s(key), validating_keys);
       break;
     default:
       rb_bson_byte_buffer_put_cstring(buffer, rb_funcall(key, rb_intern("to_bson_key"),1,validating_keys));
   }
 
-  bson_byte_buffer_put_field(b, buffer, val,validating_keys);
+  pvt_put_field(b, buffer, val,validating_keys);
   return ST_CONTINUE;
 }
 
@@ -342,17 +342,17 @@ VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys
 
   position = READ_SIZE(b);
   
-  bson_byte_buffer_put_int32(b, 0);
+  pvt_put_int32(b, 0);
   context.buffer = self;
   context.validating_keys = validating_keys;
   context.b = b;
 
   rb_hash_foreach(hash, put_hash_callback, (VALUE)&context);
-  bson_byte_buffer_put_byte(b, 0);
+  pvt_put_byte(b, 0);
 
   new_position = READ_SIZE(b);
   new_length = new_position - position;
-  bson_byte_buffer_replace_int32(b, position, new_length);
+  pvt_replace_int32(b, position, new_length);
 
   return self;
 }
@@ -372,7 +372,7 @@ VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_ke
   Check_Type(array, T_ARRAY);
 
   position = READ_SIZE(b);
-  bson_byte_buffer_put_int32(b, 0);
+  pvt_put_int32(b, 0);
 
 
   array_element = RARRAY_PTR(array);
@@ -380,15 +380,15 @@ VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_ke
   for(int32_t index=0; index < RARRAY_LEN(array); index++, array_element++){
     char key_string[16];
     snprintf(key_string, sizeof(key_string), "%d", index);
-    bson_byte_buffer_put_type_byte(b, *array_element);
-    bson_byte_buffer_put_raw_cstring(b, key_string);
-    bson_byte_buffer_put_field(b, self, *array_element, validating_keys);
+    pvt_put_type_byte(b, *array_element);
+    pvt_put_raw_cstring(b, key_string);
+    pvt_put_field(b, self, *array_element, validating_keys);
   }
-  bson_byte_buffer_put_byte(b, 0);
+  pvt_put_byte(b, 0);
 
   new_position = READ_SIZE(b);
   new_length = new_position - position;
-  bson_byte_buffer_replace_int32(b, position, new_length);
+  pvt_replace_int32(b, position, new_length);
 
   return self;
 }
@@ -434,7 +434,7 @@ VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i)
   return bytes;
 }
 
-VALUE bson_byte_buffer_get_boolean(byte_buffer_t *b){
+VALUE pvt_get_boolean(byte_buffer_t *b){
   VALUE result = Qnil;
   ENSURE_BSON_READ(b, 1);
   result = *READ_PTR(b) == 1 ? Qtrue: Qfalse;
@@ -450,13 +450,13 @@ VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
   byte_buffer_t *b;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  return bson_byte_buffer_get_cstring(b);
+  return pvt_get_cstring(b);
 }
 
 /**
  * Get a cstring from the buffer.
  */
-VALUE bson_byte_buffer_get_cstring(byte_buffer_t *b)
+VALUE pvt_get_cstring(byte_buffer_t *b)
 {
   VALUE string;
   int length;
@@ -472,7 +472,7 @@ VALUE bson_byte_buffer_get_cstring(byte_buffer_t *b)
 /**
  * Reads but does not return a cstring from the buffer.
  */
-void bson_byte_buffer_skip_cstring(byte_buffer_t *b)
+void pvt_skip_cstring(byte_buffer_t *b)
 {
   int length;
   length = (int)strlen(READ_PTR(b));
@@ -503,10 +503,10 @@ VALUE rb_bson_byte_buffer_get_double(VALUE self)
   byte_buffer_t *b;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  return bson_byte_buffer_get_double(b);
+  return pvt_get_double(b);
 }
 
-VALUE bson_byte_buffer_get_double(byte_buffer_t *b)
+VALUE pvt_get_double(byte_buffer_t *b)
 {
   double d;
 
@@ -525,10 +525,10 @@ VALUE rb_bson_byte_buffer_get_int32(VALUE self)
   byte_buffer_t *b;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  return bson_byte_buffer_get_int32(b);
+  return pvt_get_int32(b);
 }
 
-VALUE bson_byte_buffer_get_int32(byte_buffer_t *b)
+VALUE pvt_get_int32(byte_buffer_t *b)
 {
   int32_t i32;
 
@@ -545,10 +545,10 @@ VALUE rb_bson_byte_buffer_get_int64(VALUE self)
 {
   byte_buffer_t *b;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  return bson_byte_buffer_get_int64(b);
+  return pvt_get_int64(b);
 }
 
-VALUE bson_byte_buffer_get_int64(byte_buffer_t *b)
+VALUE pvt_get_int64(byte_buffer_t *b)
 {
   int64_t i64;
 
@@ -566,10 +566,10 @@ VALUE rb_bson_byte_buffer_get_string(VALUE self)
   byte_buffer_t *b;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  return bson_byte_buffer_get_string(b);
+  return pvt_get_string(b);
 }
 
-VALUE bson_byte_buffer_get_string(byte_buffer_t *b)
+VALUE pvt_get_string(byte_buffer_t *b)
 {
   int32_t length;
   int32_t length_le;
@@ -602,8 +602,8 @@ VALUE rb_bson_byte_buffer_get_hash(VALUE self){
   while((type = (uint8_t)*READ_PTR(b)) != 0){
     VALUE field;
     b->read_position += 1;
-    field = bson_byte_buffer_get_cstring(b);
-    rb_hash_aset(doc, field, bson_byte_buffer_read_field(b, self, type));
+    field = pvt_get_cstring(b);
+    rb_hash_aset(doc, field, pvt_read_field(b, self, type));
 
     ENSURE_BSON_READ(b, 1);
   }
@@ -617,13 +617,13 @@ VALUE rb_bson_byte_buffer_get_array(VALUE self){
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
   ENSURE_BSON_READ(b, 4);
-  array = rb_ary_new2(bson_byte_buffer_get_int32(b));
+  array = rb_ary_new2(pvt_get_int32(b));
   ENSURE_BSON_READ(b, 1);
   while((type = (uint8_t)*READ_PTR(b)) != 0){
     b->read_position += 1;
-    bson_byte_buffer_skip_cstring(b);
+    pvt_skip_cstring(b);
 
-    rb_ary_push(array,  bson_byte_buffer_read_field(b, self, type));
+    rb_ary_push(array,  pvt_read_field(b, self, type));
 
     ENSURE_BSON_READ(b, 1);
   }
@@ -632,15 +632,15 @@ VALUE rb_bson_byte_buffer_get_array(VALUE self){
 
 
 
-VALUE bson_byte_buffer_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type){
+VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type){
   switch(type) {
-    case BSON_TYPE_INT32: return bson_byte_buffer_get_int32(b);
-    case BSON_TYPE_INT64: return bson_byte_buffer_get_int64(b);
-    case BSON_TYPE_DOUBLE: return bson_byte_buffer_get_double(b);
-    case BSON_TYPE_STRING: return bson_byte_buffer_get_string(b);
+    case BSON_TYPE_INT32: return pvt_get_int32(b);
+    case BSON_TYPE_INT64: return pvt_get_int64(b);
+    case BSON_TYPE_DOUBLE: return pvt_get_double(b);
+    case BSON_TYPE_STRING: return pvt_get_string(b);
     case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(rb_buffer);
     case BSON_TYPE_OBJECT: return rb_bson_byte_buffer_get_hash(rb_buffer);
-    case BSON_TYPE_BOOLEAN: return bson_byte_buffer_get_boolean(b);
+    case BSON_TYPE_BOOLEAN: return pvt_get_boolean(b);
     default:
     {
       VALUE klass = rb_funcall(rb_bson_registry,rb_intern("get"),1, INT2FIX(type));
@@ -666,7 +666,7 @@ VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte)
   return self;
 }
 
-void bson_byte_buffer_put_byte( byte_buffer_t *b, const char byte)
+void pvt_put_byte( byte_buffer_t *b, const char byte)
 {
   ENSURE_BSON_WRITE(b, 1);
   *WRITE_PTR(b) = byte;
@@ -696,11 +696,11 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string)
 {
   byte_buffer_t *b;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  bson_byte_buffer_put_cstring(b, string);
+  pvt_put_cstring(b, string);
   return self;
 }
 
-void bson_byte_buffer_put_cstring(byte_buffer_t *b, VALUE string)
+void pvt_put_cstring(byte_buffer_t *b, VALUE string)
 {
   char *c_str = RSTRING_PTR(string);
   size_t length = RSTRING_LEN(string) + 1;
@@ -714,7 +714,7 @@ void bson_byte_buffer_put_cstring(byte_buffer_t *b, VALUE string)
 }
 
 
-void bson_byte_buffer_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys){
+void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys){
   if(RTEST(validating_keys)){
     char *c_str = RSTRING_PTR(string);
     size_t length = RSTRING_LEN(string);
@@ -724,12 +724,12 @@ void bson_byte_buffer_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validat
   }
 
 
-  bson_byte_buffer_put_cstring(b, string);
+  pvt_put_cstring(b, string);
 }
 /**
  * Writes a null terminated cstring to the byte buffer.
  */
-void bson_byte_buffer_put_raw_cstring(byte_buffer_t *b, char *c_str)
+void pvt_put_raw_cstring(byte_buffer_t *b, const char *c_str)
 {
   size_t length = strlen(c_str) + 1;
   ENSURE_BSON_WRITE(b, length);
@@ -765,12 +765,12 @@ VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
 {
   byte_buffer_t *b;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  bson_byte_buffer_put_double(b,f);
+  pvt_put_double(b,f);
 
   return self;
 }
 
-void bson_byte_buffer_put_double(byte_buffer_t *b, VALUE f)
+void pvt_put_double(byte_buffer_t *b, VALUE f)
 {
   const double d = BSON_DOUBLE_TO_LE(NUM2DBL(f));
   ENSURE_BSON_WRITE(b, 8);
@@ -787,11 +787,11 @@ VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i)
   const int32_t i32 = NUM2INT(i);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  bson_byte_buffer_put_int32(b, i32);
+  pvt_put_int32(b, i32);
   return self;
 }
 
-void bson_byte_buffer_put_int32(byte_buffer_t *b, const int32_t i)
+void pvt_put_int32(byte_buffer_t *b, const int32_t i)
 {
   const int32_t i32 = BSON_UINT32_TO_LE(i);
   ENSURE_BSON_WRITE(b, 4);
@@ -809,12 +809,12 @@ VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i)
   const int64_t i64 = NUM2LL(i);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  bson_byte_buffer_put_int64(b, i64);
+  pvt_put_int64(b, i64);
 
   return self;
 }
 
-void bson_byte_buffer_put_int64(byte_buffer_t *b, const int64_t i)
+void pvt_put_int64(byte_buffer_t *b, const int64_t i)
 {
   const int64_t i64 = BSON_UINT64_TO_LE(i);
 
@@ -868,12 +868,12 @@ VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i)
   byte_buffer_t *b;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  bson_byte_buffer_replace_int32(b, NUM2LONG(index), NUM2LONG(i));
+  pvt_replace_int32(b, NUM2LONG(index), NUM2LONG(i));
 
   return self;
 }
 
-void bson_byte_buffer_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval)
+void pvt_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval)
 {
   const int32_t i32 = BSON_UINT32_TO_LE(newval);
   memcpy(READ_PTR(b) + position, &i32, 4);
