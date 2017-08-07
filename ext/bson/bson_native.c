@@ -103,13 +103,13 @@ static const rb_data_type_t rb_byte_buffer_data_type = {
 static VALUE bson_byte_buffer_get_int32(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_int64(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_double(byte_buffer_t *b);
-static VALUE bson_byte_buffer_read_field(uint8_t type, byte_buffer_t *b, VALUE rb_buffer);
+static VALUE bson_byte_buffer_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type);
 static void bson_byte_buffer_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval);
 static void bson_byte_buffer_skip_cstring(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_cstring(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_string(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_boolean(byte_buffer_t *b);
-static void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val, VALUE validating_keys);
+static void bson_byte_buffer_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validating_keys);
 
 static void bson_byte_buffer_put_int32(byte_buffer_t *b, const int32_t i32);
 static void bson_byte_buffer_put_byte(byte_buffer_t *b, const char byte);
@@ -265,7 +265,7 @@ void bson_byte_buffer_put_type_byte(byte_buffer_t *b, VALUE val){
   }
 }
 
-void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val, VALUE validating_keys){
+void bson_byte_buffer_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validating_keys){
   switch(TYPE(val)){
     case T_BIGNUM:
     case T_FIXNUM:{
@@ -323,7 +323,7 @@ static int put_hash_callback(VALUE key, VALUE val, VALUE context){
       rb_bson_byte_buffer_put_cstring(buffer, rb_funcall(key, rb_intern("to_bson_key"),1,validating_keys));
   }
 
-  bson_byte_buffer_put_field(buffer, b, val,validating_keys);
+  bson_byte_buffer_put_field(b, buffer, val,validating_keys);
   return ST_CONTINUE;
 }
 
@@ -382,7 +382,7 @@ VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_ke
     snprintf(key_string, sizeof(key_string), "%d", index);
     bson_byte_buffer_put_type_byte(b, *array_element);
     bson_byte_buffer_put_raw_cstring(b, key_string);
-    bson_byte_buffer_put_field(self, b, *array_element, validating_keys);
+    bson_byte_buffer_put_field(b, self, *array_element, validating_keys);
   }
   bson_byte_buffer_put_byte(b, 0);
 
@@ -603,7 +603,7 @@ VALUE rb_bson_byte_buffer_get_hash(VALUE self){
     VALUE field;
     b->read_position += 1;
     field = bson_byte_buffer_get_cstring(b);
-    rb_hash_aset(doc, field, bson_byte_buffer_read_field(type, b, self));
+    rb_hash_aset(doc, field, bson_byte_buffer_read_field(b, self, type));
 
     ENSURE_BSON_READ(b, 1);
   }
@@ -623,7 +623,7 @@ VALUE rb_bson_byte_buffer_get_array(VALUE self){
     b->read_position += 1;
     bson_byte_buffer_skip_cstring(b);
 
-    rb_ary_push(array,  bson_byte_buffer_read_field(type, b, self));
+    rb_ary_push(array,  bson_byte_buffer_read_field(b, self, type));
 
     ENSURE_BSON_READ(b, 1);
   }
@@ -632,7 +632,7 @@ VALUE rb_bson_byte_buffer_get_array(VALUE self){
 
 
 
-VALUE bson_byte_buffer_read_field(uint8_t type, byte_buffer_t *b, VALUE rb_buffer){
+VALUE bson_byte_buffer_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type){
   switch(type) {
     case BSON_TYPE_INT32: return bson_byte_buffer_get_int32(b);
     case BSON_TYPE_INT64: return bson_byte_buffer_get_int64(b);
