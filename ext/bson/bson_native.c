@@ -79,11 +79,14 @@ static VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f);
 static VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i);
 static VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i);
 static VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string);
+static VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys);
+static VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_keys);
 static VALUE rb_bson_byte_buffer_read_position(VALUE self);
 static VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i);
 static VALUE rb_bson_byte_buffer_rewind(VALUE self);
 static VALUE rb_bson_byte_buffer_write_position(VALUE self);
 static VALUE rb_bson_byte_buffer_to_s(VALUE self);
+
 static VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self);
 
 static size_t rb_bson_byte_buffer_memsize(const void *ptr);
@@ -106,8 +109,6 @@ static void bson_byte_buffer_skip_cstring(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_cstring(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_string(byte_buffer_t *b);
 static VALUE bson_byte_buffer_get_boolean(byte_buffer_t *b);
-static VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys);
-static VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_keys);
 static void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val, VALUE validating_keys);
 
 static void bson_byte_buffer_put_int32(byte_buffer_t *b, const int32_t i32);
