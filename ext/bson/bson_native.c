@@ -225,7 +225,7 @@ VALUE rb_bson_byte_buffer_initialize(int argc, VALUE *argv, VALUE self)
   return self;
 }
 
-static int is_int32(int64_t i64){
+static int fits_int32(int64_t i64){
   return i64 >= INT32_MIN && i64 <= INT32_MAX;
 }
 
@@ -234,7 +234,7 @@ void bson_byte_buffer_put_type_byte(byte_buffer_t *b, VALUE val){
   switch(TYPE(val)){
     case T_BIGNUM:
     case T_FIXNUM:
-      if(is_int32(NUM2LL(val))){
+      if(fits_int32(NUM2LL(val))){
         bson_byte_buffer_put_byte(b, BSON_TYPE_INT32);
       }else{        
         bson_byte_buffer_put_byte(b, BSON_TYPE_INT64);
@@ -269,7 +269,7 @@ void bson_byte_buffer_put_field(VALUE rb_buffer, byte_buffer_t *b, VALUE val, VA
     case T_BIGNUM:
     case T_FIXNUM:{
       int64_t i64= NUM2LL(val);
-      if(is_int32(i64)){
+      if(fits_int32(i64)){
         bson_byte_buffer_put_int32(b, (int32_t)i64);
       }else{        
         bson_byte_buffer_put_int64(b, i64);
