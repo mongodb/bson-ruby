@@ -106,7 +106,6 @@ static VALUE pvt_get_double(byte_buffer_t *b);
 static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type);
 static void pvt_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval);
 static void pvt_skip_cstring(byte_buffer_t *b);
-static VALUE pvt_get_cstring(byte_buffer_t *b);
 static VALUE pvt_get_string(byte_buffer_t *b);
 static VALUE pvt_get_boolean(byte_buffer_t *b);
 static void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validating_keys);
@@ -545,19 +544,10 @@ VALUE pvt_get_boolean(byte_buffer_t *b){
 VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
 {
   byte_buffer_t *b;
-
-  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  return pvt_get_cstring(b);
-}
-
-/**
- * Get a cstring from the buffer.
- */
-VALUE pvt_get_cstring(byte_buffer_t *b)
-{
   VALUE string;
   int length;
 
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   length = (int)strlen(READ_PTR(b));
   ENSURE_BSON_READ(b, length);
   string = rb_enc_str_new(READ_PTR(b), length, rb_utf8_encoding());
@@ -699,7 +689,7 @@ VALUE rb_bson_byte_buffer_get_hash(VALUE self){
   while((type = (uint8_t)*READ_PTR(b)) != 0){
     VALUE field;
     b->read_position += 1;
-    field = pvt_get_cstring(b);
+    field = rb_bson_byte_buffer_get_cstring(self);
     rb_hash_aset(doc, field, pvt_read_field(b, self, type));
 
     ENSURE_BSON_READ(b, 1);
