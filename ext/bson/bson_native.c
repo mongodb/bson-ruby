@@ -239,7 +239,7 @@ void pvt_put_type_byte(byte_buffer_t *b, VALUE val){
     case T_FIXNUM:
       if(fits_int32(NUM2LL(val))){
         pvt_put_byte(b, BSON_TYPE_INT32);
-      }else{        
+      }else{
         pvt_put_byte(b, BSON_TYPE_INT64);
       }
       break;
@@ -274,7 +274,7 @@ void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validatin
       int64_t i64= NUM2LL(val);
       if(fits_int32(i64)){
         pvt_put_int32(b, (int32_t)i64);
-      }else{        
+      }else{
         pvt_put_int64(b, i64);
       }
       break;
@@ -343,7 +343,7 @@ VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys
   Check_Type(hash, T_HASH);
 
   position = READ_SIZE(b);
-  
+
   pvt_put_int32(b, 0);
   context.buffer = self;
   context.validating_keys = validating_keys;
