@@ -118,7 +118,6 @@ static void pvt_put_int32(byte_buffer_t *b, const int32_t i32);
 static void pvt_put_int64(byte_buffer_t *b, const int64_t i);
 static void pvt_put_double(byte_buffer_t *b, double f);
 static void pvt_put_cstring(byte_buffer_t *b, VALUE string);
-static void pvt_put_raw_cstring(byte_buffer_t *b, const char *c_str);
 static void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys);
 
 /**
@@ -359,7 +358,7 @@ VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys
   return self;
 }
 
-static const char *indexStrings[] = {
+static const char *index_strings[] = {
    "0",   "1",   "2",   "3",   "4",   "5",   "6",   "7",   "8",   "9",   "10",
    "11",  "12",  "13",  "14",  "15",  "16",  "17",  "18",  "19",  "20",  "21",
    "22",  "23",  "24",  "25",  "26",  "27",  "28",  "29",  "30",  "31",  "32",
@@ -453,6 +452,26 @@ static const char *indexStrings[] = {
    "990", "991", "992", "993", "994", "995", "996", "997", "998", "999"};
 
 /**
+ * Writes an array index to the byte buffer.
+ */
+void pvt_put_array_index(byte_buffer_t *b, int32_t index)
+{
+  char buffer[16];
+  const char *c_str = NULL;
+
+  if (index < 1000) {
+    c_str = index_strings[index];
+  } else {
+    c_str = buffer;
+    snprintf(buffer, sizeof(buffer), "%d", index);
+  }
+  size_t length = strlen(c_str) + 1;
+  ENSURE_BSON_WRITE(b, length);
+  memcpy(WRITE_PTR(b), c_str, length);
+  b->write_position += length;
+}
+
+/**
  * serializes an array into the byte buffer
  */
 
@@ -473,14 +492,7 @@ VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_ke
 
   for(int32_t index=0; index < RARRAY_LEN(array); index++, array_element++){
     pvt_put_type_byte(b, *array_element);
-    if(index < 1000){
-      pvt_put_raw_cstring(b, indexStrings[index]);
-    }else{
-      char key_string[16];
-      snprintf(key_string, sizeof(key_string), "%d", index);
-      pvt_put_raw_cstring(b, key_string);
-    }
-
+    pvt_put_array_index(b,index);
     pvt_put_field(b, self, *array_element, validating_keys);
   }
   pvt_put_byte(b, 0);
@@ -815,16 +827,6 @@ void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys){
 
 
   pvt_put_cstring(b, string);
-}
-/**
- * Writes a null terminated cstring to the byte buffer.
- */
-void pvt_put_raw_cstring(byte_buffer_t *b, const char *c_str)
-{
-  size_t length = strlen(c_str) + 1;
-  ENSURE_BSON_WRITE(b, length);
-  memcpy(WRITE_PTR(b), c_str, length);
-  b->write_position += length;
 }
 
 /**
