@@ -114,7 +114,7 @@ static void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE va
 static void pvt_put_int32(byte_buffer_t *b, const int32_t i32);
 static void pvt_put_byte(byte_buffer_t *b, const char byte);
 static void pvt_put_cstring(byte_buffer_t *b, VALUE string);
-static void pvt_put_double(byte_buffer_t *b, VALUE f);
+static void pvt_put_double(byte_buffer_t *b, double f);
 static void pvt_put_raw_cstring(byte_buffer_t *b, const char *c_str);
 static void pvt_put_int64(byte_buffer_t *b, const int64_t i);
 static void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys);
@@ -278,7 +278,7 @@ void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validatin
       break;
     }
     case T_FLOAT:
-      pvt_put_double(b, val);
+      pvt_put_double(b, NUM2DBL(val));
       break;
     case T_ARRAY:
       rb_bson_byte_buffer_put_array(rb_buffer, val, validating_keys);
@@ -862,14 +862,14 @@ VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
 {
   byte_buffer_t *b;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  pvt_put_double(b,f);
+  pvt_put_double(b,NUM2DBL(f));
 
   return self;
 }
 
-void pvt_put_double(byte_buffer_t *b, VALUE f)
+void pvt_put_double(byte_buffer_t *b, double f)
 {
-  const double d = BSON_DOUBLE_TO_LE(NUM2DBL(f));
+  const double d = BSON_DOUBLE_TO_LE(f);
   ENSURE_BSON_WRITE(b, 8);
   memcpy(WRITE_PTR(b), &d, 8);
   b->write_position += 8;
