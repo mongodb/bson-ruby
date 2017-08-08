@@ -103,19 +103,22 @@ static const rb_data_type_t rb_byte_buffer_data_type = {
 static VALUE pvt_get_int32(byte_buffer_t *b);
 static VALUE pvt_get_int64(byte_buffer_t *b);
 static VALUE pvt_get_double(byte_buffer_t *b);
+static VALUE pvt_get_string(byte_buffer_t *b);
+static VALUE pvt_get_boolean(byte_buffer_t *b);
+
+
 static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type);
 static void pvt_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval);
 static void pvt_skip_cstring(byte_buffer_t *b);
-static VALUE pvt_get_string(byte_buffer_t *b);
-static VALUE pvt_get_boolean(byte_buffer_t *b);
-static void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validating_keys);
 
-static void pvt_put_int32(byte_buffer_t *b, const int32_t i32);
+
+static void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validating_keys);
 static void pvt_put_byte(byte_buffer_t *b, const char byte);
-static void pvt_put_cstring(byte_buffer_t *b, VALUE string);
-static void pvt_put_double(byte_buffer_t *b, double f);
-static void pvt_put_raw_cstring(byte_buffer_t *b, const char *c_str);
+static void pvt_put_int32(byte_buffer_t *b, const int32_t i32);
 static void pvt_put_int64(byte_buffer_t *b, const int64_t i);
+static void pvt_put_double(byte_buffer_t *b, double f);
+static void pvt_put_cstring(byte_buffer_t *b, VALUE string);
+static void pvt_put_raw_cstring(byte_buffer_t *b, const char *c_str);
 static void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys);
 
 /**
