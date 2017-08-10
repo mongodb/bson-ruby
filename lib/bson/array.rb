@@ -101,13 +101,7 @@ module BSON
           buffer.get_array
         else
           array = new
-          max_length = buffer.length
-          length = buffer.get_int32
-
-          if length > max_length
-            raise "Attempted to read #{length} bytes, but only #{max_length} remain"
-          end
-
+          buffer.get_int32 # throw away the length
           while (type = buffer.get_byte) != NULL_BYTE
             buffer.get_cstring
             array << BSON::Registry.get(type).from_bson(buffer)
