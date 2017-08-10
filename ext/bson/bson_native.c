@@ -934,8 +934,9 @@ void pvt_validate_length(byte_buffer_t *b)
   if(length >= 5){
     ENSURE_BSON_READ(b, length);
 
-    if( *(READ_PTR(b) + length) != 0 ){
-      rb_raise(rb_eRangeError, "Buffer should have contained null terminator at %zu but contained %c", b->read_position + (size_t)length, *(READ_PTR(b) + length));
+    /* The last byte should be a null byte: it should be at length - 1 */
+    if( *(READ_PTR(b) + length - 1) != 0 ){
+      rb_raise(rb_eRangeError, "Buffer should have contained null terminator at %zu but contained %d", b->read_position + (size_t)length, (int)*(READ_PTR(b) + length));
     }
     b->read_position += 4;
   }
