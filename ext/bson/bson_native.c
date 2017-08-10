@@ -708,6 +708,7 @@ VALUE rb_bson_byte_buffer_get_hash(VALUE self){
 
     ENSURE_BSON_READ(b, 1);
   }
+  b->read_position += 1; /* consume the null byte terminator */
   return doc;
 }
 
@@ -730,6 +731,7 @@ VALUE rb_bson_byte_buffer_get_array(VALUE self){
 
     ENSURE_BSON_READ(b, 1);
   }
+  b->read_position += 1; /* consume the null byte terminator */
   return array;
 }
 
