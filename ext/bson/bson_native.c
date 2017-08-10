@@ -109,6 +109,7 @@ static VALUE pvt_get_boolean(byte_buffer_t *b);
 static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type);
 static void pvt_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval);
 static void pvt_skip_cstring(byte_buffer_t *b);
+static void pvt_validate_length(byte_buffer_t *b);
 
 
 static void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validating_keys);
@@ -694,9 +695,8 @@ VALUE rb_bson_byte_buffer_get_hash(VALUE self){
   VALUE cDocument = rb_const_get(rb_const_get(rb_cObject, rb_intern("BSON")), rb_intern("Document"));
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
-  /* skip length */
-  ENSURE_BSON_READ(b, 4);
-  b->read_position += 4;
+  pvt_validate_length(b);
+
   doc = rb_funcall(cDocument, rb_intern("allocate"),0);
 
   ENSURE_BSON_READ(b, 1);
@@ -715,12 +715,12 @@ VALUE rb_bson_byte_buffer_get_array(VALUE self){
   byte_buffer_t *b;
   VALUE array = Qnil;
   char type;
-  int32_t length_in_bytes;
+
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
-  ENSURE_BSON_READ(b, 4);
+  pvt_validate_length(b);
+
   array = rb_ary_new();
-  length_in_bytes = pvt_get_int32(b);
   ENSURE_BSON_READ(b, 1);
   while((type = (uint8_t)*READ_PTR(b)) != 0){
     b->read_position += 1;
@@ -916,6 +916,26 @@ void pvt_put_int64(byte_buffer_t *b, const int64_t i)
   memcpy(WRITE_PTR(b), &i64, 8);
   b->write_position += 8;
 
+}
+
+/**
+ * validate the buffer contains the amount of bytes the array / hash claimns
+ * and that it is null terminated
+ */
+void pvt_validate_length(byte_buffer_t *b)
+{
+  int32_t length;
+  
+  ENSURE_BSON_READ(b, 4);
+  memcpy(&length, READ_PTR(b), 4);
+  length = BSON_UINT32_TO_LE(length);
+
+  ENSURE_BSON_READ(b, length);
+
+  if( *(READ_PTR(b) + length) != 0 ){
+    rb_raise(rb_eRangeError, "Buffer should have contained null terminator at %zu but contained %c", b->read_position + (size_t)length, *(READ_PTR(b) + length));
+  }
+  b->read_position += 4;
 }
 
 /**
