@@ -81,7 +81,14 @@ module BSON
           buffer.get_hash
         else
           hash = Document.allocate
-          buffer.get_int32 # Throw away the size.
+
+          max_length = buffer.length
+          length = buffer.get_int32
+
+          if length > max_length
+            raise "Attempted to read #{length} bytes, but only #{max_length} remain"
+          end
+
           while (type = buffer.get_byte) != NULL_BYTE
             field = buffer.get_cstring
             hash.store(field, BSON::Registry.get(type, field).from_bson(buffer))
