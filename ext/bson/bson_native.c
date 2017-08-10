@@ -930,12 +930,18 @@ void pvt_validate_length(byte_buffer_t *b)
   memcpy(&length, READ_PTR(b), 4);
   length = BSON_UINT32_TO_LE(length);
 
-  ENSURE_BSON_READ(b, length);
+  /* minimum valid length is 4 (byte count) + 1 (terminating byte) */ 
+  if(length >= 5){
+    ENSURE_BSON_READ(b, length);
 
-  if( *(READ_PTR(b) + length) != 0 ){
-    rb_raise(rb_eRangeError, "Buffer should have contained null terminator at %zu but contained %c", b->read_position + (size_t)length, *(READ_PTR(b) + length));
+    if( *(READ_PTR(b) + length) != 0 ){
+      rb_raise(rb_eRangeError, "Buffer should have contained null terminator at %zu but contained %c", b->read_position + (size_t)length, *(READ_PTR(b) + length));
+    }
+    b->read_position += 4;
   }
-  b->read_position += 4;
+  else{
+    rb_raise(rb_eRangeError, "Buffer contained invalid length %d at %zu", length, b->read_position);
+  }
 }
 
 /**
