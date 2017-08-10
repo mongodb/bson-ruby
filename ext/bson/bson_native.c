@@ -99,6 +99,7 @@ static const rb_data_type_t rb_byte_buffer_data_type = {
   { NULL, rb_bson_byte_buffer_free, rb_bson_byte_buffer_memsize }
 };
 
+static uint8_t pvt_get_type_byte(byte_buffer_t *b);
 static VALUE pvt_get_int32(byte_buffer_t *b);
 static VALUE pvt_get_int64(byte_buffer_t *b);
 static VALUE pvt_get_double(byte_buffer_t *b);
@@ -531,6 +532,13 @@ VALUE rb_bson_byte_buffer_get_byte(VALUE self)
   return byte;
 }
 
+uint8_t pvt_get_type_byte(byte_buffer_t *b){
+  ENSURE_BSON_READ(b, 1);
+  int8_t byte = *READ_PTR(b);
+  b->read_position += 1;
+  return (uint8_t)byte;
+}
+
 /**
  * Get bytes from the buffer.
  */
@@ -690,48 +698,37 @@ VALUE pvt_get_string(byte_buffer_t *b)
 
 VALUE rb_bson_byte_buffer_get_hash(VALUE self){
   VALUE doc = Qnil;
-  byte_buffer_t *b;
-  char type;
+  byte_buffer_t *b=NULL;
+  uint8_t type;
   VALUE cDocument = rb_const_get(rb_const_get(rb_cObject, rb_intern("BSON")), rb_intern("Document"));
+
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
   pvt_validate_length(b);
 
   doc = rb_funcall(cDocument, rb_intern("allocate"),0);
 
-  ENSURE_BSON_READ(b, 1);
-  while((type = (uint8_t)*READ_PTR(b)) != 0){
-    VALUE field;
-    b->read_position += 1;
-    field = rb_bson_byte_buffer_get_cstring(self);
+  while((type = pvt_get_type_byte(b)) != 0){
+    VALUE field = rb_bson_byte_buffer_get_cstring(self);
     rb_hash_aset(doc, field, pvt_read_field(b, self, type));
-
-    ENSURE_BSON_READ(b, 1);
   }
-  b->read_position += 1; /* consume the null byte terminator */
   return doc;
 }
 
 VALUE rb_bson_byte_buffer_get_array(VALUE self){
   byte_buffer_t *b;
   VALUE array = Qnil;
-  char type;
+  uint8_t type;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
   pvt_validate_length(b);
 
   array = rb_ary_new();
-  ENSURE_BSON_READ(b, 1);
-  while((type = (uint8_t)*READ_PTR(b)) != 0){
-    b->read_position += 1;
+  while((type = pvt_get_type_byte(b)) != 0){
     pvt_skip_cstring(b);
-
     rb_ary_push(array,  pvt_read_field(b, self, type));
-
-    ENSURE_BSON_READ(b, 1);
   }
-  b->read_position += 1; /* consume the null byte terminator */
   return array;
 }
 
