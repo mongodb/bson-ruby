@@ -86,7 +86,6 @@ static VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i)
 static VALUE rb_bson_byte_buffer_rewind(VALUE self);
 static VALUE rb_bson_byte_buffer_write_position(VALUE self);
 static VALUE rb_bson_byte_buffer_to_s(VALUE self);
-
 static VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self);
 
 static size_t rb_bson_byte_buffer_memsize(const void *ptr);
@@ -294,7 +293,7 @@ void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validatin
       rb_bson_byte_buffer_put_hash(rb_buffer, val, validating_keys);
       break;
     default:{
-      rb_funcall(val, rb_intern("to_bson"), 2, rb_buffer,validating_keys);
+      rb_funcall(val, rb_intern("to_bson"), 2, rb_buffer, validating_keys);
       break;
     }
   }
@@ -321,10 +320,10 @@ static int put_hash_callback(VALUE key, VALUE val, VALUE context){
       pvt_put_bson_key(b, rb_sym_to_s(key), validating_keys);
       break;
     default:
-      rb_bson_byte_buffer_put_cstring(buffer, rb_funcall(key, rb_intern("to_bson_key"),1,validating_keys));
+      rb_bson_byte_buffer_put_cstring(buffer, rb_funcall(key, rb_intern("to_bson_key"), 1, validating_keys));
   }
 
-  pvt_put_field(b, buffer, val,validating_keys);
+  pvt_put_field(b, buffer, val, validating_keys);
   return ST_CONTINUE;
 }
 
@@ -567,7 +566,6 @@ VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
   ENSURE_BSON_READ(b, length);
   string = rb_enc_str_new(READ_PTR(b), length, rb_utf8_encoding());
   b->read_position += length + 1;
-
   return string;
 }
 
@@ -616,7 +614,6 @@ VALUE pvt_get_double(byte_buffer_t *b)
   memcpy(&d, READ_PTR(b), 8);
   b->read_position += 8;
   return DBL2NUM(BSON_DOUBLE_FROM_LE(d));
-
 }
 
 /**
@@ -827,7 +824,6 @@ void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys){
     }
   }
 
-
   pvt_put_cstring(b, string);
 }
 
@@ -892,7 +888,6 @@ void pvt_put_int32(byte_buffer_t *b, const int32_t i)
   memcpy(WRITE_PTR(b), &i32, 4);
   b->write_position += 4;
 }
-
 
 /**
  * Writes a 64 bit integer to the byte buffer.
