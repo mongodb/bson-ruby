@@ -342,6 +342,7 @@ VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys
 
   position = READ_SIZE(b);
 
+  /* insert length placeholder */
   pvt_put_int32(b, 0);
   context.buffer = self;
   context.validating_keys = validating_keys;
@@ -350,6 +351,7 @@ VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys
   rb_hash_foreach(hash, put_hash_callback, (VALUE)&context);
   pvt_put_byte(b, 0);
 
+  /* update length placeholder with actual value */
   new_position = READ_SIZE(b);
   new_length = new_position - position;
   pvt_replace_int32(b, position, new_length);
@@ -473,7 +475,6 @@ void pvt_put_array_index(byte_buffer_t *b, int32_t index)
 /**
  * serializes an array into the byte buffer
  */
-
 VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_keys){
   byte_buffer_t *b = NULL;
   size_t new_position = 0;
@@ -484,8 +485,8 @@ VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_ke
   Check_Type(array, T_ARRAY);
 
   position = READ_SIZE(b);
+  /* insert length placeholder */
   pvt_put_int32(b, 0);
-
 
   array_element = RARRAY_PTR(array);
 
@@ -496,6 +497,7 @@ VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_ke
   }
   pvt_put_byte(b, 0);
 
+  /* update length placeholder */
   new_position = READ_SIZE(b);
   new_length = new_position - position;
   pvt_replace_int32(b, position, new_length);
@@ -731,8 +733,9 @@ VALUE rb_bson_byte_buffer_get_array(VALUE self){
   return array;
 }
 
-
-
+/**
+ * Read a single field from a hash or array
+ */
 VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type){
   switch(type) {
     case BSON_TYPE_INT32: return pvt_get_int32(b);
@@ -814,7 +817,9 @@ void pvt_put_cstring(byte_buffer_t *b, VALUE string)
   b->write_position += length;
 }
 
-
+/**
+ * Write a hash key to the byte buffer, validating it if requested
+ */
 void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys){
   if(RTEST(validating_keys)){
     char *c_str = RSTRING_PTR(string);
