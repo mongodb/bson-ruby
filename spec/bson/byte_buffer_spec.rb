@@ -152,16 +152,30 @@ describe BSON::ByteBuffer do
 
   describe '#length' do
 
-    let(:buffer) do
-      described_class.new
+    context 'when the byte buffer is initialized with no bytes' do
+
+      let(:buffer) do
+        described_class.new
+      end
+
+      before do
+        buffer.put_int32(5)
+      end
+
+      it 'returns the length of the buffer' do
+        expect(buffer.length).to eq(4)
+      end
     end
 
-    before do
-      buffer.put_int32(5)
-    end
+    context 'when the byte buffer is initialized with some bytes' do
 
-    it 'returns the length of the buffer' do
-      expect(buffer.length).to eq(4)
+      let(:buffer) do
+        described_class.new("#{BSON::Int32::BSON_TYPE}#{BSON::Int32::BSON_TYPE}")
+      end
+
+      it 'returns the length' do
+        expect(buffer.length).to eq(2)
+      end
     end
   end
 
