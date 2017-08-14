@@ -466,7 +466,11 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "length")
   public RubyFixnum getLength() {
-    return getWritePosition();
+    if (this.mode == Mode.WRITE) {
+      return getWritePosition();
+    } else {
+      return new RubyFixnum(getRuntime(), this.buffer.remaining());
+    }
   }
 
   /**
