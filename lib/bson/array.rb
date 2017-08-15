@@ -41,15 +41,19 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      position = buffer.length
-      buffer.put_int32(0)
-      each_with_index do |value, index|
-        buffer.put_byte(value.bson_type)
-        buffer.put_cstring(index.to_s)
-        value.to_bson(buffer, validating_keys)
+      if buffer.respond_to?(:put_array)
+        buffer.put_array(self, validating_keys)
+      else
+        position = buffer.length
+        buffer.put_int32(0)
+        each_with_index do |value, index|
+          buffer.put_byte(value.bson_type)
+          buffer.put_cstring(index.to_s)
+          value.to_bson(buffer, validating_keys)
+        end
+        buffer.put_byte(NULL_BYTE)
+        buffer.replace_int32(position, buffer.length - position)
       end
-      buffer.put_byte(NULL_BYTE)
-      buffer.replace_int32(position, buffer.length - position)
     end
 
     # Convert the array to an object id. This will only work for arrays of size
@@ -93,13 +97,17 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(buffer)
-        array = new
-        buffer.get_int32 # throw away the length
-        while (type = buffer.get_byte) != NULL_BYTE
-          buffer.get_cstring
-          array << BSON::Registry.get(type).from_bson(buffer)
+        if buffer.respond_to?(:get_array)
+          buffer.get_array
+        else
+          array = new
+          buffer.get_int32 # throw away the length
+          while (type = buffer.get_byte) != NULL_BYTE
+            buffer.get_cstring
+            array << BSON::Registry.get(type).from_bson(buffer)
+          end
+          array
         end
-        array
       end
     end
 

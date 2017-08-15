@@ -756,6 +756,24 @@ describe BSON::Document do
       end
     end
 
+    context "when the hash contains an array of hashes" do
+      let(:obj) do
+        described_class["key",[{"a" => 1}, {"b" => 2}]]
+      end
+
+      let(:bson) do
+        "#{45.to_bson}#{Array::BSON_TYPE}key#{BSON::NULL_BYTE}" +
+        "#{35.to_bson}"+
+        "#{BSON::Document::BSON_TYPE}0#{BSON::NULL_BYTE}#{12.to_bson}#{BSON::Int32::BSON_TYPE}a#{BSON::NULL_BYTE}#{1.to_bson}#{BSON::NULL_BYTE}" +
+        "#{BSON::Document::BSON_TYPE}1#{BSON::NULL_BYTE}#{12.to_bson}#{BSON::Int32::BSON_TYPE}b#{BSON::NULL_BYTE}#{2.to_bson}#{BSON::NULL_BYTE}" +
+        "#{BSON::NULL_BYTE}" + 
+        "#{BSON::NULL_BYTE}"
+      end
+
+      it_behaves_like "a serializable bson element"
+      it_behaves_like "a deserializable bson element"
+    end
+
     context "when the hash is a single level" do
 
       let(:obj) do
