@@ -70,15 +70,10 @@ module BSON
     # @since 4.3.0
     def <=>(other)
       raise ArgumentError.new(COMPARISON_ERROR_MESSAGE % other.class) unless other.is_a?(Timestamp)
-      time = seconds + increment
-      other_time = other.seconds + other.increment
-      if time < other_time
-        -1
-      elsif time > other_time
-        1
-      else
-        0
-      end
+      return 0 if self == other
+      a = [ seconds, increment ]
+      b = [ other.seconds, other.increment ]
+      [ a, b ].sort[0] == a ? -1 : 1
     end
 
     # Get the timestamp as JSON hash data.
