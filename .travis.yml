@@ -12,10 +12,6 @@ rvm:
   - jruby-19mode
   - jruby-9.1.12.0
 
-jdk:
-  - openjdk7
-  - oraclejdk8
-
 env: CI="travis"
 
 notifications:
