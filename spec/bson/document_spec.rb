@@ -96,6 +96,28 @@ describe BSON::Document do
     end
   end
 
+  if described_class.instance_methods.include?(:dig)
+    describe "#dig" do
+      let(:document) do
+        described_class.new("key1" => { :key2 => "value" })
+      end
+
+      context "when provided string keys" do
+
+        it "returns the value" do
+          expect(document.dig("key1", "key2")).to eq("value")
+        end
+      end
+
+      context "when provided symbol keys" do
+
+        it "returns the value" do
+          expect(document.dig(:key1, :key2)).to eq("value")
+        end
+      end
+    end
+  end
+
   describe "#delete" do
 
     shared_examples_for "a document with deletable pairs" do
@@ -766,7 +788,7 @@ describe BSON::Document do
         "#{35.to_bson}"+
         "#{BSON::Document::BSON_TYPE}0#{BSON::NULL_BYTE}#{12.to_bson}#{BSON::Int32::BSON_TYPE}a#{BSON::NULL_BYTE}#{1.to_bson}#{BSON::NULL_BYTE}" +
         "#{BSON::Document::BSON_TYPE}1#{BSON::NULL_BYTE}#{12.to_bson}#{BSON::Int32::BSON_TYPE}b#{BSON::NULL_BYTE}#{2.to_bson}#{BSON::NULL_BYTE}" +
-        "#{BSON::NULL_BYTE}" + 
+        "#{BSON::NULL_BYTE}" +
         "#{BSON::NULL_BYTE}"
       end
 
