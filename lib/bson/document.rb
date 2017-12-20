@@ -172,6 +172,26 @@ module BSON
 
     alias :update :merge!
 
+    if instance_methods.include?(:dig)
+      # Retrieves the value object corresponding to the each key objects repeatedly.
+      # Will normalize symbol keys into strings.
+      #
+      # @example Get value from nested sub-documents, handling missing levels.
+      #   document # => { :key1 => { "key2" => "value"}}
+      #   document.dig(:key1, :key2) # => "value"
+      #   document.dig("key1", "key2") # => "value"
+      #   document.dig("foo", "key2") # => nil
+      #
+      # @param [ Array<String, Symbol> ] *keys Keys, which constitute a "path" to the nested value.
+      #
+      # @return [ Object, NilClass ] The requested value or nil.
+      #
+      # @since 3.0.0
+      def dig(*keys)
+        super(*keys.map{|key| convert_key(key)})
+      end
+    end
+
     private
 
     def convert_key(key)
