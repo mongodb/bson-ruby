@@ -540,11 +540,11 @@ buildvariants:
   display_name: "${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
-- matrix_name: "tests-all-jruby-rubies-rhel70"
-  matrix_spec: { jruby-rubies: "*", all-os: "rhel70" }
-  display_name: "${jruby-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
+#- matrix_name: "tests-all-jruby-rubies-rhel70"
+#  matrix_spec: { jruby-rubies: "*", all-os: "rhel70" }
+#  display_name: "${jruby-rubies}, ${all-os}"
+#  tasks:
+#     - name: "test"
 - matrix_name: "tests-special-os"
   matrix_spec: { latest-stable-rubies: "*", special-os: "*" }
   display_name: "${latest-stable-rubies}, ${special-os}"
