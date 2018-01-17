@@ -6,7 +6,12 @@ if RUBY_VERSION >= '2.3.0'
 else
   gem 'json', '~> 1.8'
 end
-gem 'rake'
+
+if RUBY_VERSION < '2.0.0'
+  gem 'rake', '~> 12.2.0'
+else
+  gem 'rake'
+end
 
 group :development, :test do
   gem 'rspec', '~> 3.2'
