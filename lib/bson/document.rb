@@ -192,6 +192,29 @@ module BSON
       end
     end
 
+
+
+    if instance_methods.include?(:slice)
+      # Slices a document to include only the given keys.
+      # Will normalize symbol keys into strings.
+      # (this method is backported from ActiveSupport::Hash)
+      #
+      # @example Get a document/hash with only the `name` and `age` fields present
+      #   document # => { _id: <ObjectId>, :name => 'John', :age => 30, :location => 'Earth' }
+      #   document.slice(:name, 'age') # => { name: 'John', age: 30 }
+      #   document.slice('name') # => { name: 'John' }
+      #   document.slice(:foo) # => nil
+      #
+      # @param [ Array<String, Symbol> ] *keys Keys, that will be kept in the resulting document
+      #
+      # @return [ BSON::Document ] The document with only the selected keys
+      #
+      # @since 4.3.1
+      def slice(*keys)
+        super(*keys.map{|key| convert_key(key)})
+      end
+    end
+
     private
 
     def convert_key(key)
