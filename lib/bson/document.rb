@@ -192,8 +192,6 @@ module BSON
       end
     end
 
-
-
     if instance_methods.include?(:slice)
       # Slices a document to include only the given keys.
       # Will normalize symbol keys into strings.
