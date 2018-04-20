@@ -760,6 +760,9 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type){
  */
 VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte)
 {
+  if (!RB_TYPE_P(byte, T_STRING))
+    rb_raise(rb_eArgError, "Invalid input");
+
   byte_buffer_t *b;
   const char *str = RSTRING_PTR(byte);
 
@@ -783,6 +786,9 @@ void pvt_put_byte( byte_buffer_t *b, const char byte)
  */
 VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes)
 {
+  if (!RB_TYPE_P(bytes, T_STRING) && !RB_TYPE_P(bytes, RUBY_T_DATA))
+    rb_raise(rb_eArgError, "Invalid input");
+
   byte_buffer_t *b;
   const char *str = RSTRING_PTR(bytes);
   const size_t length = RSTRING_LEN(bytes);
