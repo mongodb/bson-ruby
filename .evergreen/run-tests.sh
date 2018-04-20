@@ -32,6 +32,9 @@ assert(ruby in "`ruby --version`")
 assert(version in "`ruby --version`")
 EOH
 
+echo 'updating rubygems'
+gem update --system
+
 gem install bundler
 
 echo "Installing all gem dependencies"
