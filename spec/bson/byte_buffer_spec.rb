@@ -202,6 +202,7 @@ describe BSON::ByteBuffer do
         expect{buffer.put_byte(1)}.to raise_error(ArgumentError)
       end
     end
+
     context 'when it receives a nil value' do
       it 'raises the ArgumentError exception' do
         expect{buffer.put_byte(nil)}.to raise_error(ArgumentError)
@@ -533,6 +534,7 @@ describe BSON::ByteBuffer do
         expect{buffer.put_bytes(1)}.to raise_error(ArgumentError)
       end
     end
+    
     context 'when it receives a nil value' do
       it 'raises the ArgumentError exception' do
         expect{buffer.put_bytes(nil)}.to raise_error(ArgumentError)
