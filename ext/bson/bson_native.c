@@ -461,6 +461,7 @@ void pvt_put_array_index(byte_buffer_t *b, int32_t index)
 {
   char buffer[16];
   const char *c_str = NULL;
+  size_t length;
 
   if (index < 1000) {
     c_str = index_strings[index];
@@ -468,7 +469,7 @@ void pvt_put_array_index(byte_buffer_t *b, int32_t index)
     c_str = buffer;
     snprintf(buffer, sizeof(buffer), "%d", index);
   }
-  size_t length = strlen(c_str) + 1;
+  length = strlen(c_str) + 1;
   ENSURE_BSON_WRITE(b, length);
   memcpy(WRITE_PTR(b), c_str, length);
   b->write_position += length;
@@ -533,8 +534,9 @@ VALUE rb_bson_byte_buffer_get_byte(VALUE self)
 }
 
 uint8_t pvt_get_type_byte(byte_buffer_t *b){
+  int8_t byte;
   ENSURE_BSON_READ(b, 1);
-  int8_t byte = *READ_PTR(b);
+  byte = *READ_PTR(b);
   b->read_position += 1;
   return (uint8_t)byte;
 }
