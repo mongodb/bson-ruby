@@ -471,10 +471,10 @@ axes:
   - id: "all-os"
     display_name: OS
     values:
-      - id: "debian"
+      - id: "debian81"
         display_name: "Debian 8.1 x86"
         run_on: debian81-test
-      - id: "ubuntu-14.04"
+      - id: "ubuntu1404"
         display_name: "Ubuntu 14.04"
         run_on: ubuntu1404-test
       - id: "rhel70"
@@ -529,6 +529,13 @@ axes:
         display_name: ruby-2.5.0
         variables:
            RVM_RUBY: "ruby-2.5.0"
+  - id: "ruby-head"
+    display_name: Ruby Head
+    values:
+      - id: "ruby-head"
+        display_name: ruby-head
+        variables:
+           RVM_RUBY: "ruby-head"
 
 buildvariants:
 - matrix_name: "tests-all-mri-rubies-all-os"
@@ -543,6 +550,11 @@ buildvariants:
 #     - name: "test"
 - matrix_name: "tests-special-os"
   matrix_spec: { latest-stable-rubies: "*", special-os: "*" }
+  display_name: "${latest-stable-rubies}, ${special-os}"
+  tasks:
+     - name: "test"
+- matrix_name: "ruby-head"
+  matrix_spec: { ruby-head: "*", all-os: ["ubuntu1404"] }
   display_name: "${latest-stable-rubies}, ${special-os}"
   tasks:
      - name: "test"
