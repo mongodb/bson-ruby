@@ -555,6 +555,6 @@ buildvariants:
      - name: "test"
 - matrix_name: "ruby-head"
   matrix_spec: { ruby-head: "*", all-os: ["ubuntu1404"] }
-  display_name: "${latest-stable-rubies}, ${special-os}"
+  display_name: "${latest-stable-rubies}, ${all-os}"
   tasks:
      - name: "test"
