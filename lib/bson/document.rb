@@ -35,8 +35,7 @@ module BSON
   class Document < ::Hash
 
     # Get a value from the document for the provided key. Can use string or
-    # symbol access, but the fastest will be to always provide a key that is of
-    # the same type as the stored keys.
+    # symbol access, with string access being the faster of the two.
     #
     # @example Get an element for the key.
     #   document.fetch("field")
@@ -54,8 +53,7 @@ module BSON
     end
 
     # Get a value from the document for the provided key. Can use string or
-    # symbol access, but the fastest will be to always provide a key that is of
-    # the same type as the stored keys.
+    # symbol access, with string access being the faster of the two.
     #
     # @example Get an element for the key.
     #   document["field"]
