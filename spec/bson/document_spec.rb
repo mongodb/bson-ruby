@@ -49,6 +49,36 @@ describe BSON::Document do
     end
   end
 
+  describe "#fetch" do
+
+    let(:document) do
+      described_class["key", "value", "key2", "value"]
+    end
+
+    context "when provided string keys" do
+
+      it "returns the value" do
+        expect(document.fetch("key")).to eq("value")
+      end
+    end
+
+    context "when provided symbol keys" do
+
+      it "returns the value" do
+        expect(document.fetch(:key)).to eq("value")
+      end
+    end
+
+    context "when key does not exist" do
+
+      it "raises KeyError" do
+        expect do
+          document.fetch(:non_existent_key)
+        end.to raise_exception(KeyError)
+      end
+    end
+  end
+
   describe "#[]" do
 
     let(:document) do
@@ -66,6 +96,13 @@ describe BSON::Document do
 
       it "returns the value" do
         expect(document[:key]).to eq("value")
+      end
+    end
+
+    context "when key does not exist" do
+
+      it "returns nil" do
+        expect(document[:non_existent_key]).to be nil
       end
     end
   end
