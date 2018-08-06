@@ -21,7 +21,7 @@ if [ "$RVM_RUBY" == "ruby-head" ]; then
   ruby --version
   ruby --version |grep dev
   
-  #rvm reinstall $RVM_RUBY
+  # With rvm we reinstall ruby-head every run: rvm reinstall $RVM_RUBY
 else
   . ~/.rvm/scripts/rvm
 
