@@ -39,12 +39,31 @@ module BSON
     # the same type as the stored keys.
     #
     # @example Get an element for the key.
+    #   document.fetch("field")
+    #
+    # @example Get an element for the key by symbol.
+    #   document.fetch(:field)
+    #
+    # @param [ String, Symbol ] key The key to look up.
+    #
+    # @return [ Object ] The found value. Raises KeyError if none found.
+    #
+    # @since 4.4.0
+    def fetch(key)
+      super(convert_key(key))
+    end
+
+    # Get a value from the document for the provided key. Can use string or
+    # symbol access, but the fastest will be to always provide a key that is of
+    # the same type as the stored keys.
+    #
+    # @example Get an element for the key.
     #   document["field"]
     #
     # @example Get an element for the key by symbol.
     #   document[:field]
     #
-    # @param [ String, Symbol ] key The key to lookup.
+    # @param [ String, Symbol ] key The key to look up.
     #
     # @return [ Object ] The found value, or nil if none found.
     #
