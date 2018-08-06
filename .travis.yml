@@ -9,7 +9,6 @@ rvm:
   - 1.9.3
   - 2.4.2
   - 2.5
-  - ruby-head
   - jruby-19mode
   - jruby-9.1.15.0
 
@@ -23,7 +22,3 @@ branches:
   only:
     - master
     - 5.0-dev
-
-matrix:
-  allow_failures:
-    - rvm: ruby-head
