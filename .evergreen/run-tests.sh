@@ -32,10 +32,13 @@ if [ "$RVM_RUBY" == "ruby-head" ]; then
   
   # With rvm we reinstall ruby-head every run: rvm reinstall $RVM_RUBY
 else
-  toolchain_url=https://s3.amazonaws.com//mciuploads/mongo-ruby-toolchain/rhel70/07f2c6cf44624721cfc614547de3b2db8fb29919/mongo_ruby_driver_toolchain_rhel70_07f2c6cf44624721cfc614547de3b2db8fb29919_18_07_27_19_35_52.tar.gz
-  curl -fL $toolchain_url |tar zxf -
+  # Testing toolchain
+  #toolchain_url=https://s3.amazonaws.com//mciuploads/mongo-ruby-toolchain/rhel70/07f2c6cf44624721cfc614547de3b2db8fb29919/mongo_ruby_driver_toolchain_rhel70_07f2c6cf44624721cfc614547de3b2db8fb29919_18_07_27_19_35_52.tar.gz
+  #curl -fL $toolchain_url |tar zxf -
+  #export PATH=`pwd`/rubies/$RVM_RUBY/bin:$PATH
   
-  export PATH=`pwd`/rubies/$RVM_RUBY/bin:$PATH
+  # Normal operation
+  export PATH=$HOME/.rubies/$RVM_RUBY/bin:$PATH
 
   # Ensure we're using the right ruby
   python - <<EOH
