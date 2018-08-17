@@ -45,8 +45,8 @@ assert(ruby in "`ruby --version`")
 assert(version in "`ruby --version`")
 EOH
 
-  echo 'updating rubygems'
-  gem update --system
+  #echo 'updating rubygems'
+  #gem update --system
 
   # ruby-head comes with bundler and gem complains
   # because installing bundler would overwrite the bundler binary
