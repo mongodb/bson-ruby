@@ -482,7 +482,7 @@ axes:
         run_on: rhel70-small
   - id: "special-os"
     display_name: OS
-    values:
+    values: []
       # broken due to https://jira.mongodb.org/browse/BUILD-6014
       #- id: "rhelzseries"
       #  display_name: "RHEL 7.2 Z-Series"
