@@ -38,6 +38,14 @@ else
   #export PATH=`pwd`/rubies/$RVM_RUBY/bin:$PATH
   
   # Normal operation
+  if ! test -d $HOME/.rubies/$RVM_RUBY/bin; then
+    echo "Ruby directory does not exist: $HOME/.rubies/$RVM_RUBY/bin" 1>&2
+    echo "Contents of /opt:" 1>&2
+    ls /opt 1>&2
+    echo ".rubies symlink:" 1>&2
+    ls -d $HOME/.rubies 1>&2
+    exit 2
+  fi
   export PATH=$HOME/.rubies/$RVM_RUBY/bin:$PATH
 
   # Ensure we're using the right ruby
