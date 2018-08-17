@@ -486,14 +486,17 @@ axes:
       - id: "rhelzseries"
         display_name: "RHEL 7.2 Z-Series"
         run_on: rhel72-zseries-test
+      
       # removed due to toolchain not getting deployed to this OS for 2 weeks.
       # https://jira.mongodb.org/browse/BUILD-5928
       #- id: "rhelpower"
       #  display_name: "RHEL 7.1 PowerPC"
       #  run_on: rhel71-power8-test
-      - id: "ubuntu1604-arm64-small"
-        display_name: "Ubuntu 16.04 ARM64"
-        run_on: ubuntu1604-arm64-small
+      
+      # broken due to https://jira.mongodb.org/browse/BUILD-6013
+      #- id: "ubuntu1604-arm64-small"
+      #  display_name: "Ubuntu 16.04 ARM64"
+      #  run_on: ubuntu1604-arm64-small
   - id: "mri-rubies"
     display_name: Ruby Version
     values:
