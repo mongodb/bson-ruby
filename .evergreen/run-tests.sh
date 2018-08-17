@@ -41,9 +41,11 @@ else
   if ! test -d $HOME/.rubies/$RVM_RUBY/bin; then
     echo "Ruby directory does not exist: $HOME/.rubies/$RVM_RUBY/bin" 1>&2
     echo "Contents of /opt:" 1>&2
-    ls /opt 1>&2
+    ls /opt 1>&2 || true
     echo ".rubies symlink:" 1>&2
-    ls -ld $HOME/.rubies 1>&2
+    ls -ld $HOME/.rubies 1>&2 || true
+    echo "Our rubies:" 1>&2
+    ls $HOME/.rubies 1>&2 || true
     exit 2
   fi
   export PATH=$HOME/.rubies/$RVM_RUBY/bin:$PATH
