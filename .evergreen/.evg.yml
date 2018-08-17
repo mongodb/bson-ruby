@@ -480,9 +480,9 @@ axes:
       - id: "rhel70"
         display_name: "RHEL 7.0"
         run_on: rhel70-small
-  - id: "special-os"
-    display_name: OS
-    values: []
+  #- id: "special-os"
+  #  display_name: OS
+  #  values:
       # broken due to https://jira.mongodb.org/browse/BUILD-6014
       #- id: "rhelzseries"
       #  display_name: "RHEL 7.2 Z-Series"
@@ -558,11 +558,14 @@ buildvariants:
 #  display_name: "${jruby-rubies}, ${all-os}"
 #  tasks:
 #     - name: "test"
-- matrix_name: "special-os"
-  matrix_spec: { latest-stable-rubies: "*", special-os: "*" }
-  display_name: "${latest-stable-rubies}, ${special-os}"
-  tasks:
-     - name: "test"
+
+# these are all broken
+#- matrix_name: "special-os"
+#  matrix_spec: { latest-stable-rubies: "*", special-os: "*" }
+#  display_name: "${latest-stable-rubies}, ${special-os}"
+#  tasks:
+#     - name: "test"
+
 - matrix_name: "ruby-head"
   matrix_spec: { ruby-head: "*", all-os: ["ubuntu1404"] }
   display_name: "${ruby-head}, ${all-os}"
