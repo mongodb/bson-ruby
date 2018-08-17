@@ -43,7 +43,7 @@ else
     echo "Contents of /opt:" 1>&2
     ls /opt 1>&2
     echo ".rubies symlink:" 1>&2
-    ls -d $HOME/.rubies 1>&2
+    ls -ld $HOME/.rubies 1>&2
     exit 2
   fi
   export PATH=$HOME/.rubies/$RVM_RUBY/bin:$PATH
