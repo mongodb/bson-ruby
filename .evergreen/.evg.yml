@@ -483,9 +483,10 @@ axes:
   - id: "special-os"
     display_name: OS
     values:
-      - id: "rhelzseries"
-        display_name: "RHEL 7.2 Z-Series"
-        run_on: rhel72-zseries-test
+      # broken due to https://jira.mongodb.org/browse/BUILD-6014
+      #- id: "rhelzseries"
+      #  display_name: "RHEL 7.2 Z-Series"
+      #  run_on: rhel72-zseries-test
       
       # removed due to toolchain not getting deployed to this OS for 2 weeks.
       # https://jira.mongodb.org/browse/BUILD-5928
