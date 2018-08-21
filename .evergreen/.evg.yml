@@ -480,18 +480,24 @@ axes:
       - id: "rhel70"
         display_name: "RHEL 7.0"
         run_on: rhel70-small
-  - id: "special-os"
-    display_name: OS
-    values:
-      - id: "rhelzseries"
-        display_name: "RHEL 7.2 Z-Series"
-        run_on: rhel72-zseries-test
-      - id: "rhelpower"
-        display_name: "RHEL 7.1 PowerPC"
-        run_on: rhel71-power8-test
-      - id: "ubuntu1604-arm64-small"
-        display_name: "Ubuntu 16.04 ARM64"
-        run_on: ubuntu1604-arm64-small
+  #- id: "special-os"
+  #  display_name: OS
+  #  values:
+      # broken due to https://jira.mongodb.org/browse/BUILD-6014
+      #- id: "rhelzseries"
+      #  display_name: "RHEL 7.2 Z-Series"
+      #  run_on: rhel72-zseries-test
+      
+      # removed due to toolchain not getting deployed to this OS for 2 weeks.
+      # https://jira.mongodb.org/browse/BUILD-5928
+      #- id: "rhelpower"
+      #  display_name: "RHEL 7.1 PowerPC"
+      #  run_on: rhel71-power8-test
+      
+      # broken due to https://jira.mongodb.org/browse/BUILD-6013
+      #- id: "ubuntu1604-arm64-small"
+      #  display_name: "Ubuntu 16.04 ARM64"
+      #  run_on: ubuntu1604-arm64-small
   - id: "mri-rubies"
     display_name: Ruby Version
     values:
@@ -503,10 +509,10 @@ axes:
         display_name: ruby-2.4
         variables:
            RVM_RUBY: "ruby-2.4"
-      - id: "ruby-2.5.0"
-        display_name: ruby-2.5.0
+      - id: "ruby-2.5"
+        display_name: ruby-2.5
         variables:
-           RVM_RUBY: "ruby-2.5.0"
+           RVM_RUBY: "ruby-2.5"
 #      - id: "ruby-head"
 #        display_name: ruby-head
 #        variables:
@@ -514,21 +520,25 @@ axes:
   - id: "jruby-rubies"
     display_name: Ruby Version
     values:
-      - id: "jruby-1.7"
-        display_name: jruby-1.7
-        variables:
-           RVM_RUBY: "jruby-1.7"
+      #- id: "jruby-1.7"
+        #display_name: jruby-1.7
+        #variables:
+           #RVM_RUBY: "jruby-1.7"
       - id: "jruby-9.1"
         display_name: jruby-9.1
         variables:
            RVM_RUBY: "jruby-9.1"
+      - id: "jruby-9.2"
+        display_name: jruby-9.2
+        variables:
+           RVM_RUBY: "jruby-9.2"
   - id: "latest-stable-rubies"
     display_name: Ruby Version
     values:
-      - id: "ruby-2.5.0"
-        display_name: ruby-2.5.0
+      - id: "ruby-2.5"
+        display_name: ruby-2.5
         variables:
-           RVM_RUBY: "ruby-2.5.0"
+           RVM_RUBY: "ruby-2.5"
   - id: "ruby-head"
     display_name: Ruby Head
     values:
@@ -538,7 +548,7 @@ axes:
            RVM_RUBY: "ruby-head"
 
 buildvariants:
-- matrix_name: "tests-all-mri-rubies-all-os"
+- matrix_name: "mri"
   matrix_spec: { mri-rubies: "*", all-os: "*" }
   display_name: "${mri-rubies}, ${all-os}"
   tasks:
@@ -548,13 +558,21 @@ buildvariants:
 #  display_name: "${jruby-rubies}, ${all-os}"
 #  tasks:
 #     - name: "test"
-- matrix_name: "tests-special-os"
-  matrix_spec: { latest-stable-rubies: "*", special-os: "*" }
-  display_name: "${latest-stable-rubies}, ${special-os}"
-  tasks:
-     - name: "test"
+
+# these are all broken
+#- matrix_name: "special-os"
+#  matrix_spec: { latest-stable-rubies: "*", special-os: "*" }
+#  display_name: "${latest-stable-rubies}, ${special-os}"
+#  tasks:
+#     - name: "test"
+
 - matrix_name: "ruby-head"
   matrix_spec: { ruby-head: "*", all-os: ["ubuntu1404"] }
-  display_name: "${latest-stable-rubies}, ${all-os}"
+  display_name: "${ruby-head}, ${all-os}"
+  tasks:
+     - name: "test"
+- matrix_name: "jruby"
+  matrix_spec: { jruby-rubies: "*", all-os: ["rhel70"] }
+  display_name: "${jruby-rubies}, ${all-os}"
   tasks:
      - name: "test"
