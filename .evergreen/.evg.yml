@@ -299,7 +299,8 @@ functions:
   "upload test results":
     - command: attach.xunit_results
       params:
-        files: /doesntexist
+        files:
+          - /doesntexist
 
   "bootstrap mongo-orchestration":
     - command: shell.exec
