@@ -63,6 +63,7 @@ functions:
            MONGODB_BINARIES: "$MONGODB_BINARIES"
            UPLOAD_BUCKET: "$UPLOAD_BUCKET"
            PROJECT_DIRECTORY: "$PROJECT_DIRECTORY"
+           MACHINE: "$MACHINE"
            PREPARE_SHELL: |
               set -o errexit
               set -o xtrace
@@ -75,6 +76,7 @@ functions:
               export TMPDIR="$MONGO_ORCHESTRATION_HOME/db"
               export PATH="$MONGODB_BINARIES:$PATH"
               export PROJECT="${project}"
+              export MACHINE="${MACHINE}"
            EOT
            # See what we've done
            cat expansion.yml
@@ -474,30 +476,38 @@ axes:
       - id: "debian81"
         display_name: "Debian 8.1 x86"
         run_on: debian81-test
+        variables:
+          MACHINE: "debian81"
       - id: "ubuntu1404"
         display_name: "Ubuntu 14.04"
         run_on: ubuntu1404-test
+        variables:
+          MACHINE: "ubuntu1404"
       - id: "rhel70"
         display_name: "RHEL 7.0"
         run_on: rhel70-small
-  #- id: "special-os"
-  #  display_name: OS
-  #  values:
-      # broken due to https://jira.mongodb.org/browse/BUILD-6014
-      #- id: "rhelzseries"
-      #  display_name: "RHEL 7.2 Z-Series"
-      #  run_on: rhel72-zseries-test
+        variables:
+          MACHINE: "rhel70"
+  - id: "special-os"
+    display_name: OS
+    values:
+      - id: "rhel72-s390x"
+        display_name: "RHEL 7.2 Z-Series"
+        run_on: rhel72-zseries-test
+        variables:
+          MACHINE: "rhel72-s390x"
       
-      # removed due to toolchain not getting deployed to this OS for 2 weeks.
-      # https://jira.mongodb.org/browse/BUILD-5928
-      #- id: "rhelpower"
-      #  display_name: "RHEL 7.1 PowerPC"
-      #  run_on: rhel71-power8-test
+      - id: "rhel71-ppc"
+        display_name: "RHEL 7.1 PowerPC"
+        run_on: rhel71-power8-test
+        variables:
+          MACHINE: "rhel71-ppc"
       
-      # broken due to https://jira.mongodb.org/browse/BUILD-6013
-      #- id: "ubuntu1604-arm64-small"
-      #  display_name: "Ubuntu 16.04 ARM64"
-      #  run_on: ubuntu1604-arm64-small
+      - id: "ubuntu1604-arm"
+        display_name: "Ubuntu 16.04 ARM64"
+        run_on: ubuntu1604-arm64-small
+        variables:
+          MACHINE: "ubuntu1604-arm"
   - id: "mri-rubies"
     display_name: Ruby Version
     values:
@@ -545,7 +555,7 @@ axes:
       - id: "ruby-head"
         display_name: ruby-head
         variables:
-           RVM_RUBY: "ruby-head"
+          RVM_RUBY: "ruby-head"
 
 buildvariants:
 - matrix_name: "mri"
@@ -559,12 +569,11 @@ buildvariants:
 #  tasks:
 #     - name: "test"
 
-# these are all broken
-#- matrix_name: "special-os"
-#  matrix_spec: { latest-stable-rubies: "*", special-os: "*" }
-#  display_name: "${latest-stable-rubies}, ${special-os}"
-#  tasks:
-#     - name: "test"
+- matrix_name: "special-os"
+  matrix_spec: { latest-stable-rubies: "*", special-os: "*" }
+  display_name: "${latest-stable-rubies}, ${special-os}"
+  tasks:
+     - name: "test"
 
 - matrix_name: "ruby-head"
   matrix_spec: { ruby-head: "*", all-os: ["ubuntu1404"] }
