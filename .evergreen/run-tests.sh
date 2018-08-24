@@ -39,7 +39,7 @@ else
     echo "MACHINE not set in environment" 1>&2
     exit 2
   fi
-  toolchain_url=https://s3.amazonaws.com//mciuploads/mongo-ruby-toolchain/$MACHINE/8cd47ac2cf636710740a6d79167f055e4c0a0154/mongo_ruby_driver_toolchain_`echo MACHINE |tr - _`_8cd47ac2cf636710740a6d79167f055e4c0a0154_18_08_24_03_45_11.tar.gz
+  toolchain_url=https://s3.amazonaws.com//mciuploads/mongo-ruby-toolchain/$MACHINE/8cd47ac2cf636710740a6d79167f055e4c0a0154/mongo_ruby_driver_toolchain_`echo $MACHINE |tr - _`_8cd47ac2cf636710740a6d79167f055e4c0a0154_18_08_24_03_45_11.tar.gz
   curl -fL $toolchain_url |tar zxf -
   export PATH=`pwd`/rubies/$RVM_RUBY/bin:$PATH
   
