@@ -93,7 +93,13 @@ end
 shared_examples_for "a class which converts to Time" do
 
   it "shares BSON type with Time" do
-    expect(described_class.new.bson_type).to eq(Time::BSON_TYPE)
+    if described_class == ActiveSupport::TimeWithZone
+      # ActiveSupport::TimeWithZone#new has no 0-argument version
+      obj = Time.now.in_time_zone("UTC")
+      expect(obj.bson_type).to eq(Time::BSON_TYPE)
+    else
+      expect(described_class.new.bson_type).to eq(Time::BSON_TYPE)
+    end
   end
 end
 

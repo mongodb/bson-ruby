@@ -18,6 +18,7 @@ group :development, :test do
   gem 'rake-compiler'
   gem 'ruby-prof', :platforms => :mri
   gem 'yard'
+  gem 'activesupport'
 
   if ENV['CI']
     gem 'mime-types', '1.25' # v2.0+ does not support ruby 1.8
