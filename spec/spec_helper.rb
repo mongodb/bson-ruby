@@ -32,6 +32,10 @@ if SpecConfig.instance.active_support?
   require 'bson/active_support'
 end
 
+unless ENV['CI']
+  require 'byebug'
+end
+
 Dir["./spec/support/**/*.rb"].each { |file| require file }
 
 # Alternate IO class that returns a String from #readbyte.

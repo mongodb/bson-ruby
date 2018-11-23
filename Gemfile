@@ -23,6 +23,7 @@ group :development, :test do
   if ENV['CI']
     gem 'mime-types', '1.25' # v2.0+ does not support ruby 1.8
   else
-    gem 'pry'
+    gem 'byebug', platforms: :mri
+    gem 'pry', platforms: :jruby
   end
 end
