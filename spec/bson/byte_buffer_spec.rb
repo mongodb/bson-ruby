@@ -152,16 +152,30 @@ describe BSON::ByteBuffer do
 
   describe '#length' do
 
-    let(:buffer) do
-      described_class.new
+    context 'when the byte buffer is initialized with no bytes' do
+
+      let(:buffer) do
+        described_class.new
+      end
+
+      before do
+        buffer.put_int32(5)
+      end
+
+      it 'returns the length of the buffer' do
+        expect(buffer.length).to eq(4)
+      end
     end
 
-    before do
-      buffer.put_int32(5)
-    end
+    context 'when the byte buffer is initialized with some bytes' do
 
-    it 'returns the length of the buffer' do
-      expect(buffer.length).to eq(4)
+      let(:buffer) do
+        described_class.new("#{BSON::Int32::BSON_TYPE}#{BSON::Int32::BSON_TYPE}")
+      end
+
+      it 'returns the length' do
+        expect(buffer.length).to eq(2)
+      end
     end
   end
 
@@ -181,6 +195,18 @@ describe BSON::ByteBuffer do
 
     it 'increments the write position by 1' do
       expect(modified.write_position).to eq(1)
+    end
+
+    context 'when it receives a numeric value' do
+      it 'raises the ArgumentError exception' do
+        expect{buffer.put_byte(1)}.to raise_error(ArgumentError)
+      end
+    end
+
+    context 'when it receives a nil value' do
+      it 'raises the ArgumentError exception' do
+        expect{buffer.put_byte(nil)}.to raise_error(ArgumentError)
+      end
     end
   end
 
@@ -485,6 +511,34 @@ describe BSON::ByteBuffer do
       end
 
       it_behaves_like 'a rewindable buffer'
+    end
+  end
+
+  describe '#put_bytes' do
+
+    let(:buffer) do
+      described_class.new
+    end
+
+    let!(:modified) do
+      buffer.put_bytes(BSON::Int32::BSON_TYPE)
+      buffer
+    end
+
+    it 'increments the write position by 1' do
+      expect(modified.write_position).to eq(1)
+    end
+
+    context 'when it receives a numeric value' do
+      it 'raises the ArgumentError exception' do
+        expect{buffer.put_bytes(1)}.to raise_error(ArgumentError)
+      end
+    end
+    
+    context 'when it receives a nil value' do
+      it 'raises the ArgumentError exception' do
+        expect{buffer.put_bytes(nil)}.to raise_error(ArgumentError)
+      end
     end
   end
 end

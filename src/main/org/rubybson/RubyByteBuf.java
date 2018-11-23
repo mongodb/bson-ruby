@@ -37,6 +37,7 @@ import org.jruby.RubyString;
 import org.jruby.RubySymbol;
 import java.math.BigInteger;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 
@@ -277,9 +278,15 @@ public class RubyByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_byte")
-  public RubyByteBuf putByte(final IRubyObject value) {
+  public RubyByteBuf putByte(ThreadContext context, final IRubyObject value) {
+    RubyString string;
+    try {
+      string = (RubyString) value;
+    } catch (ClassCastException e) {
+      throw context.runtime.newArgumentError(e.toString());
+    }
     ensureBsonWrite(1);
-    this.buffer.put(((RubyString) value).getBytes()[0]);
+    this.buffer.put(string.getBytes()[0]);
     this.writePosition += 1;
     return this;
   }
@@ -294,8 +301,14 @@ public class RubyByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_bytes")
-  public RubyByteBuf putBytes(final IRubyObject value) {
-    byte[] bytes = ((RubyString) value).getBytes();
+  public RubyByteBuf putBytes(ThreadContext context, final IRubyObject value) {
+    RubyString string;
+    try {
+      string = (RubyString) value;
+    } catch (ClassCastException e) {
+      throw context.runtime.newArgumentError(e.toString());
+    }
+    byte[] bytes = string.getBytes();
     ensureBsonWrite(bytes.length);
     this.buffer.put(bytes);
     this.writePosition += bytes.length;
@@ -486,7 +499,11 @@ public class RubyByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "length")
   public RubyFixnum getLength() {
-    return getWritePosition();
+    if (this.mode == Mode.WRITE) {
+      return getWritePosition();
+    } else {
+      return new RubyFixnum(getRuntime(), this.buffer.remaining());
+    }
   }
 
   /**

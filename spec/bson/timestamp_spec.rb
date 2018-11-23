@@ -48,6 +48,61 @@ describe BSON::Timestamp do
     end
   end
 
+  describe "#<=>" do
+
+    let(:timestamp) do
+      described_class.new(1, 10)
+    end
+
+    context "when the objects are equal" do
+
+      let(:other) { described_class.new(1, 10) }
+
+      it "returns 0" do
+        expect(timestamp).to eq(other)
+        expect(timestamp < other).to be(false)
+        expect(timestamp > other).to be(false)
+        expect(timestamp >= other).to be(true)
+        expect(timestamp <= other).to be(true)
+      end
+    end
+
+    context "when the first object is less than the second" do
+
+      let(:other) { described_class.new(1, 15) }
+
+      it "returns -1" do
+        expect(timestamp <=> other).to be(-1)
+        expect(timestamp < other).to be(true)
+        expect(timestamp > other).to be(false)
+        expect(timestamp >= other).to be(false)
+        expect(timestamp <= other).to be(true)
+      end
+    end
+
+    context "when the first object is greater than the second" do
+
+      let(:other) { described_class.new(1, 5) }
+
+      it "returns 1" do
+        expect(timestamp <=> other).to be(1)
+        expect(timestamp < other).to be(false)
+        expect(timestamp > other).to be(true)
+        expect(timestamp >= other).to be(true)
+        expect(timestamp <= other).to be(false)
+      end
+    end
+
+    context "when the other object is not a timestamp" do
+
+      it "raises an ArgumentError" do
+        expect {
+          timestamp < 1
+        }.to raise_exception(ArgumentError)
+      end
+    end
+  end
+
   describe "#as_json" do
 
     let(:object) do

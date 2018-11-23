@@ -108,7 +108,7 @@ module BSON
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
-    Registry::MAPPINGS.store(BSON_TYPE, ::Symbol)
+    Registry::MAPPINGS[BSON_TYPE.ord] = ::Symbol
   end
 
   # Enrich the core Symbol class with this module.

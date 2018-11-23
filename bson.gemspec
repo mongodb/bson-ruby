@@ -5,7 +5,10 @@ require 'bson/version'
 Gem::Specification.new do |s|
   s.name              = 'bson'
   s.rubyforge_project = 'bson'
-  s.version           = BSON::VERSION
+  # The dup call makes `bundle install` work on ruby 1.9.3.
+  # Without it rubygems tries to modify version which fails because
+  # BSON::VERSION is frozen.
+  s.version           = BSON::VERSION.dup
   s.authors           = ['Tyler Brock', 'Durran Jordan', 'Brandon Black', 'Emily Stolfo', 'Gary Murakami']
   s.email             = ['mongodb-dev@googlegroups.com']
   s.homepage          = 'http://bsonspec.org'
@@ -36,5 +39,4 @@ Gem::Specification.new do |s|
   s.require_path              = 'lib'
   s.required_ruby_version     = '>= 1.9.3'
   s.required_rubygems_version = '>= 1.3.6'
-  s.has_rdoc                  = 'yard'
 end

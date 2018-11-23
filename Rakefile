@@ -20,6 +20,7 @@ $LOAD_PATH.unshift(File.expand_path("../lib", __FILE__))
 require "rake"
 require "rake/extensiontask"
 require "rspec/core/rake_task"
+require 'fileutils'
 
 def jruby?
   defined?(JRUBY_VERSION)
@@ -62,15 +63,9 @@ else
 end
 
 task :clean_all => :clean do
-  begin
-    Dir.chdir(Pathname(__FILE__).dirname + "lib") do
-      `rm bson_native.#{extension}`
-      `rm bson_native.o`
-      `rm bson-ruby.jar`
-    end
-  rescue Exception => e
-    puts e.message
-  end
+  FileUtils.rm_f(File.join(File.dirname(__FILE__), 'lib', "bson_native.#{extension}"))
+  FileUtils.rm_f(File.join(File.dirname(__FILE__), 'lib', "bson_native.o"))
+  FileUtils.rm_f(File.join(File.dirname(__FILE__), 'lib', "bson-ruby.jar"))
 end
 
 task :spec => :compile do
@@ -126,3 +121,15 @@ namespace :benchmark do
 end
 
 task :default => [ :clean_all, :spec ]
+
+desc "Generate all documentation"
+task :docs => 'docs:yard'
+
+namespace :docs do
+  desc "Generate yard documention"
+  task :yard do
+    out = File.join('yard-docs', BSON::VERSION)
+    FileUtils.rm_rf(out)
+    system "yardoc -o #{out} --title bson-#{BSON::VERSION}"
+  end
+end

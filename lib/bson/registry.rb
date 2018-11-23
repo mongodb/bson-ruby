@@ -40,7 +40,7 @@ module BSON
     #
     # @since 2.0.0
     def get(byte, field = nil)
-      if type = MAPPINGS[byte]
+      if type = MAPPINGS[byte] || (byte.is_a?(String) && type = MAPPINGS[byte.ord])
         type
       else
         handle_unsupported_type!(byte, field)
@@ -59,7 +59,7 @@ module BSON
     #
     # @since 2.0.0
     def register(byte, type)
-      MAPPINGS.store(byte, type)
+      MAPPINGS[byte.ord] = type
       define_type_reader(type)
     end
 

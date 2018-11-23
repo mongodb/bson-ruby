@@ -63,6 +63,7 @@ functions:
            MONGODB_BINARIES: "$MONGODB_BINARIES"
            UPLOAD_BUCKET: "$UPLOAD_BUCKET"
            PROJECT_DIRECTORY: "$PROJECT_DIRECTORY"
+           MACHINE: "$MACHINE"
            PREPARE_SHELL: |
               set -o errexit
               set -o xtrace
@@ -75,6 +76,7 @@ functions:
               export TMPDIR="$MONGO_ORCHESTRATION_HOME/db"
               export PATH="$MONGODB_BINARIES:$PATH"
               export PROJECT="${project}"
+              export MACHINE="${MACHINE}"
            EOT
            # See what we've done
            cat expansion.yml
@@ -471,77 +473,115 @@ axes:
   - id: "all-os"
     display_name: OS
     values:
-      - id: "debian"
+      - id: "debian81"
         display_name: "Debian 8.1 x86"
         run_on: debian81-test
-      - id: "ubuntu-14.04"
+        variables:
+          MACHINE: "debian81"
+      - id: "ubuntu1404"
         display_name: "Ubuntu 14.04"
         run_on: ubuntu1404-test
+        variables:
+          MACHINE: "ubuntu1404"
       - id: "rhel70"
         display_name: "RHEL 7.0"
         run_on: rhel70-small
+        variables:
+          MACHINE: "rhel70"
   - id: "special-os"
     display_name: OS
     values:
-      - id: "rhelzseries"
+      - id: "rhel72-s390x"
         display_name: "RHEL 7.2 Z-Series"
         run_on: rhel72-zseries-test
-      - id: "rhelpower"
+        variables:
+          MACHINE: "rhel72-s390x"
+      
+      - id: "rhel71-ppc"
         display_name: "RHEL 7.1 PowerPC"
         run_on: rhel71-power8-test
-      - id: "rhel55-32"
-        display_name: "RHEL 5.5 32-bit"
-        run_on: rhel55-32
-      - id: "ubuntu1604-arm64-small"
+        variables:
+          MACHINE: "rhel71-ppc"
+      
+      - id: "ubuntu1604-arm"
         display_name: "Ubuntu 16.04 ARM64"
         run_on: ubuntu1604-arm64-small
-  - id: "all-rubies"
+        variables:
+          MACHINE: "ubuntu1604-arm"
+  - id: "mri-rubies"
     display_name: Ruby Version
     values:
       - id: "ruby-1.9"
         display_name: ruby-1.9
         variables:
            RVM_RUBY: "ruby-1.9"
-      - id: "ruby-2.2"
-        display_name: ruby-2.2
+      - id: "ruby-2.4"
+        display_name: ruby-2.4
         variables:
-           RVM_RUBY: "ruby-2.2"
-      - id: "ruby-2.3"
-        display_name: ruby-2.3
+           RVM_RUBY: "ruby-2.4"
+      - id: "ruby-2.5"
+        display_name: ruby-2.5
         variables:
-           RVM_RUBY: "ruby-2.3"
-      - id: "ruby-2.4.1"
-        display_name: ruby-2.4.1
-        variables:
-           RVM_RUBY: "ruby-2.4.1"
+           RVM_RUBY: "ruby-2.5"
 #      - id: "ruby-head"
 #        display_name: ruby-head
 #        variables:
 #           RVM_RUBY: "ruby-head"
-      - id: "jruby-1.7"
-        display_name: jruby-1.7
-        variables:
-           RVM_RUBY: "jruby-1.7"
+  - id: "jruby-rubies"
+    display_name: Ruby Version
+    values:
+      #- id: "jruby-1.7"
+        #display_name: jruby-1.7
+        #variables:
+           #RVM_RUBY: "jruby-1.7"
       - id: "jruby-9.1"
         display_name: jruby-9.1
         variables:
            RVM_RUBY: "jruby-9.1"
+      - id: "jruby-9.2"
+        display_name: jruby-9.2
+        variables:
+           RVM_RUBY: "jruby-9.2"
   - id: "latest-stable-rubies"
     display_name: Ruby Version
     values:
-      - id: "ruby-2.4.1"
-        display_name: ruby-2.4.1
+      - id: "ruby-2.5"
+        display_name: ruby-2.5
         variables:
-           RVM_RUBY: "ruby-2.4.1"
+           RVM_RUBY: "ruby-2.5"
+  - id: "ruby-head"
+    display_name: Ruby Head
+    values:
+      - id: "ruby-head"
+        display_name: ruby-head
+        variables:
+          RVM_RUBY: "ruby-head"
 
 buildvariants:
-- matrix_name: "tests-all-rubies-all-os"
-  matrix_spec: { all-rubies: "*", all-os: "*" }
-  display_name: "${all-rubies}, ${all-os}"
+- matrix_name: "mri"
+  matrix_spec: { mri-rubies: "*", all-os: "*" }
+  display_name: "${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
-- matrix_name: "tests-special-os"
+#- matrix_name: "tests-all-jruby-rubies-rhel70"
+#  matrix_spec: { jruby-rubies: "*", all-os: "rhel70" }
+#  display_name: "${jruby-rubies}, ${all-os}"
+#  tasks:
+#     - name: "test"
+
+- matrix_name: "special-os"
   matrix_spec: { latest-stable-rubies: "*", special-os: "*" }
   display_name: "${latest-stable-rubies}, ${special-os}"
+  tasks:
+     - name: "test"
+
+- matrix_name: "ruby-head"
+  matrix_spec: { ruby-head: "*", all-os: ["ubuntu1404"] }
+  display_name: "${ruby-head}, ${all-os}"
+  tasks:
+     - name: "test"
+- matrix_name: "jruby"
+  matrix_spec: { jruby-rubies: "*", all-os: ["rhel70"] }
+  display_name: "${jruby-rubies}, ${all-os}"
   tasks:
      - name: "test"
