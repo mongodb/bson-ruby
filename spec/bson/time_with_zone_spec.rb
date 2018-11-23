@@ -23,7 +23,11 @@ context 'when ActiveSupport support is enabled' do
 
   describe 'ActiveSupport::TimeWithZone' do
 
-    it_behaves_like "a class which converts to Time"
+    it "shares BSON type with Time" do
+      # ActiveSupport::TimeWithZone#new has no 0-argument version
+      obj = Time.now.in_time_zone("UTC")
+      expect(obj.bson_type).to eq(Time::BSON_TYPE)
+    end
 
     describe "#to_bson" do
 
