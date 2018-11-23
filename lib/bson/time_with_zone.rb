@@ -1,4 +1,4 @@
-# Copyright (C) 2009-2014 MongoDB Inc.
+# Copyright (C) 2018 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require "time"
+require "active_support/time_with_zone"
 
 module BSON
 
-  # Injects behaviour for encoding ActiveSupport::TimeWithZone values to raw bytes as specified by
-  # the BSON spec for time.
+  # Injects behaviour for encoding ActiveSupport::TimeWithZone values to
+  # raw bytes as specified by the BSON spec for time.
   #
   # @see http://bsonspec.org/#/specification
   #
@@ -40,7 +40,8 @@ module BSON
 
     # Get the BSON type for the ActiveSupport::TimeWithZone.
     #
-    # As the ActiveSupport::TimeWithZone is converted to a time, this returns the BSON type for time.
+    # As the ActiveSupport::TimeWithZone is converted to a time, this returns
+    # the BSON type for time.
     def bson_type
       ::Time::BSON_TYPE
     end
@@ -49,5 +50,5 @@ module BSON
   # Enrich the ActiveSupport::TimeWithZone class with this module.
   #
   # @since 4.4.0
-  ActiveSupport::TimeWithZone.send(:include, TimeWithZone) if defined?(ActiveSupport::TimeWithZone)
+  ActiveSupport::TimeWithZone.send(:include, TimeWithZone)
 end

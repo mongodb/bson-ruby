@@ -20,11 +20,17 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
 
 require "ostruct"
-require "active_support/time"
 require "bson"
 require "json"
 require "rspec"
 require "yaml"
+
+require 'support/spec_config'
+
+if SpecConfig.instance.active_support?
+  require "active_support/time"
+  require 'bson/active_support'
+end
 
 Dir["./spec/support/**/*.rb"].each { |file| require file }
 
