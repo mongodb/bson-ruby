@@ -33,7 +33,10 @@ if SpecConfig.instance.active_support?
 end
 
 unless ENV['CI']
-  require 'byebug'
+  begin
+    require 'byebug'
+  rescue
+  end
 end
 
 Dir["./spec/support/**/*.rb"].each { |file| require file }

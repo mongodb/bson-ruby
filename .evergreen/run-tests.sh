@@ -15,7 +15,7 @@ if [ -f /opt/java/jdk8/bin/java ]; then
   export JAVACMD=/opt/java/jdk8/bin/java
   export PATH=$PATH:/opt/java/jdk8/bin
 fi
-  
+
 # ppc64le has it in a different place
 if test -z "$JAVACMD" && [ -f /usr/lib/jvm/java-1.8.0/bin/java ]; then
   export JAVACMD=/usr/lib/jvm/java-1.8.0/bin/java
