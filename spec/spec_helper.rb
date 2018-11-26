@@ -25,6 +25,20 @@ require "json"
 require "rspec"
 require "yaml"
 
+require 'support/spec_config'
+
+if SpecConfig.instance.active_support?
+  require "active_support/time"
+  require 'bson/active_support'
+end
+
+unless ENV['CI']
+  begin
+    require 'byebug'
+  rescue
+  end
+end
+
 Dir["./spec/support/**/*.rb"].each { |file| require file }
 
 # Alternate IO class that returns a String from #readbyte.
