@@ -21,11 +21,17 @@ module BSON
   # @since 2.0.0
   class Timestamp
     include JSON
+    include Comparable
 
     # A timestamp is type 0x11 in the BSON spec.
     #
     # @since 2.0.0
     BSON_TYPE = 17.chr.force_encoding(BINARY).freeze
+
+    # Error message if an object other than a Timestamp is compared with this object.
+    #
+    # @since 4.3.0
+    COMPARISON_ERROR_MESSAGE = 'comparison of %s with Timestamp failed'.freeze
 
     # @!attribute seconds
     #   @return [ Integer ] The number of seconds.
@@ -50,6 +56,24 @@ module BSON
     def ==(other)
       return false unless other.is_a?(Timestamp)
       seconds == other.seconds && increment == other.increment
+    end
+
+    # Determine if this timestamp is greater or less than another object.
+    #
+    # @example Compare the timestamp.
+    #   timestamp < other
+    #
+    # @param [ Object ] other The object to compare against.
+    #
+    # @return [ true, false ] The result of the comparison.
+    #
+    # @since 4.3.0
+    def <=>(other)
+      raise ArgumentError.new(COMPARISON_ERROR_MESSAGE % other.class) unless other.is_a?(Timestamp)
+      return 0 if self == other
+      a = [ seconds, increment ]
+      b = [ other.seconds, other.increment ]
+      [ a, b ].sort[0] == a ? -1 : 1
     end
 
     # Get the timestamp as JSON hash data.

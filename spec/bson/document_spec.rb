@@ -49,6 +49,36 @@ describe BSON::Document do
     end
   end
 
+  describe "#fetch" do
+
+    let(:document) do
+      described_class["key", "value", "key2", "value"]
+    end
+
+    context "when provided string keys" do
+
+      it "returns the value" do
+        expect(document.fetch("key")).to eq("value")
+      end
+    end
+
+    context "when provided symbol keys" do
+
+      it "returns the value" do
+        expect(document.fetch(:key)).to eq("value")
+      end
+    end
+
+    context "when key does not exist" do
+
+      it "raises KeyError" do
+        expect do
+          document.fetch(:non_existent_key)
+        end.to raise_exception(KeyError)
+      end
+    end
+  end
+
   describe "#[]" do
 
     let(:document) do
@@ -66,6 +96,13 @@ describe BSON::Document do
 
       it "returns the value" do
         expect(document[:key]).to eq("value")
+      end
+    end
+
+    context "when key does not exist" do
+
+      it "returns nil" do
+        expect(document[:non_existent_key]).to be nil
       end
     end
   end
@@ -93,6 +130,50 @@ describe BSON::Document do
 
     it "sets the value" do
       expect(doc[key]).to eq(val)
+    end
+  end
+
+  if described_class.instance_methods.include?(:dig)
+    describe "#dig" do
+      let(:document) do
+        described_class.new("key1" => { :key2 => "value" })
+      end
+
+      context "when provided string keys" do
+
+        it "returns the value" do
+          expect(document.dig("key1", "key2")).to eq("value")
+        end
+      end
+
+      context "when provided symbol keys" do
+
+        it "returns the value" do
+          expect(document.dig(:key1, :key2)).to eq("value")
+        end
+      end
+    end
+  end
+
+  if described_class.instance_methods.include?(:slice)
+    describe "#slice" do
+      let(:document) do
+        described_class.new("key1" => "value1", key2: "value2")
+      end
+
+      context "when provided string keys" do
+
+        it "returns the partial document" do
+          expect(document.slice("key1")).to contain_exactly(['key1', 'value1'])
+        end
+      end
+
+      context "when provided symbol keys" do
+
+        it "returns the partial document" do
+          expect(document.slice(:key1)).to contain_exactly(['key1', 'value1'])
+        end
+      end
     end
   end
 
@@ -754,6 +835,24 @@ describe BSON::Document do
       it "properly serializes the symbol" do
         expect(obj.to_bson.to_s).to eq(bson)
       end
+    end
+
+    context "when the hash contains an array of hashes" do
+      let(:obj) do
+        described_class["key",[{"a" => 1}, {"b" => 2}]]
+      end
+
+      let(:bson) do
+        "#{45.to_bson}#{Array::BSON_TYPE}key#{BSON::NULL_BYTE}" +
+        "#{35.to_bson}"+
+        "#{BSON::Document::BSON_TYPE}0#{BSON::NULL_BYTE}#{12.to_bson}#{BSON::Int32::BSON_TYPE}a#{BSON::NULL_BYTE}#{1.to_bson}#{BSON::NULL_BYTE}" +
+        "#{BSON::Document::BSON_TYPE}1#{BSON::NULL_BYTE}#{12.to_bson}#{BSON::Int32::BSON_TYPE}b#{BSON::NULL_BYTE}#{2.to_bson}#{BSON::NULL_BYTE}" +
+        "#{BSON::NULL_BYTE}" +
+        "#{BSON::NULL_BYTE}"
+      end
+
+      it_behaves_like "a serializable bson element"
+      it_behaves_like "a deserializable bson element"
     end
 
     context "when the hash is a single level" do

@@ -35,8 +35,25 @@ module BSON
   class Document < ::Hash
 
     # Get a value from the document for the provided key. Can use string or
-    # symbol access, but the fastest will be to always provide a key that is of
-    # the same type as the stored keys.
+    # symbol access, with string access being the faster of the two.
+    #
+    # @example Get an element for the key.
+    #   document.fetch("field")
+    #
+    # @example Get an element for the key by symbol.
+    #   document.fetch(:field)
+    #
+    # @param [ String, Symbol ] key The key to look up.
+    #
+    # @return [ Object ] The found value. Raises KeyError if none found.
+    #
+    # @since 4.4.0
+    def fetch(key)
+      super(convert_key(key))
+    end
+
+    # Get a value from the document for the provided key. Can use string or
+    # symbol access, with string access being the faster of the two.
     #
     # @example Get an element for the key.
     #   document["field"]
@@ -44,7 +61,7 @@ module BSON
     # @example Get an element for the key by symbol.
     #   document[:field]
     #
-    # @param [ String, Symbol ] key The key to lookup.
+    # @param [ String, Symbol ] key The key to look up.
     #
     # @return [ Object ] The found value, or nil if none found.
     #
@@ -171,6 +188,47 @@ module BSON
     end
 
     alias :update :merge!
+
+    if instance_methods.include?(:dig)
+      # Retrieves the value object corresponding to the each key objects repeatedly.
+      # Will normalize symbol keys into strings.
+      #
+      # @example Get value from nested sub-documents, handling missing levels.
+      #   document # => { :key1 => { "key2" => "value"}}
+      #   document.dig(:key1, :key2) # => "value"
+      #   document.dig("key1", "key2") # => "value"
+      #   document.dig("foo", "key2") # => nil
+      #
+      # @param [ Array<String, Symbol> ] *keys Keys, which constitute a "path" to the nested value.
+      #
+      # @return [ Object, NilClass ] The requested value or nil.
+      #
+      # @since 3.0.0
+      def dig(*keys)
+        super(*keys.map{|key| convert_key(key)})
+      end
+    end
+
+    if instance_methods.include?(:slice)
+      # Slices a document to include only the given keys.
+      # Will normalize symbol keys into strings.
+      # (this method is backported from ActiveSupport::Hash)
+      #
+      # @example Get a document/hash with only the `name` and `age` fields present
+      #   document # => { _id: <ObjectId>, :name => 'John', :age => 30, :location => 'Earth' }
+      #   document.slice(:name, 'age') # => { name: 'John', age: 30 }
+      #   document.slice('name') # => { name: 'John' }
+      #   document.slice(:foo) # => nil
+      #
+      # @param [ Array<String, Symbol> ] *keys Keys, that will be kept in the resulting document
+      #
+      # @return [ BSON::Document ] The document with only the selected keys
+      #
+      # @since 4.3.1
+      def slice(*keys)
+        super(*keys.map{|key| convert_key(key)})
+      end
+    end
 
     private
 

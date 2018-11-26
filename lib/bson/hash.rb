@@ -38,15 +38,19 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      position = buffer.length
-      buffer.put_int32(0)
-      each do |field, value|
-        buffer.put_byte(value.bson_type)
-        buffer.put_cstring(field.to_bson_key(validating_keys))
-        value.to_bson(buffer, validating_keys)
+      if buffer.respond_to?(:put_hash)
+        buffer.put_hash(self, validating_keys)
+      else
+        position = buffer.length
+        buffer.put_int32(0)
+        each do |field, value|
+          buffer.put_byte(value.bson_type)
+          buffer.put_cstring(field.to_bson_key(validating_keys))
+          value.to_bson(buffer, validating_keys)
+        end
+        buffer.put_byte(NULL_BYTE)
+        buffer.replace_int32(position, buffer.length - position)
       end
-      buffer.put_byte(NULL_BYTE)
-      buffer.replace_int32(position, buffer.length - position)
     end
 
     # Converts the hash to a normalized value in a BSON document.
@@ -73,13 +77,17 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(buffer)
-        hash = Document.allocate
-        buffer.get_int32 # Throw away the size.
-        while (type = buffer.get_byte) != NULL_BYTE
-          field = buffer.get_cstring
-          hash.store(field, BSON::Registry.get(type, field).from_bson(buffer))
+        if buffer.respond_to?(:get_hash)
+          buffer.get_hash
+        else
+          hash = Document.allocate
+          buffer.get_int32 # Throw away the size.
+          while (type = buffer.get_byte) != NULL_BYTE
+            field = buffer.get_cstring
+            hash.store(field, BSON::Registry.get(type, field).from_bson(buffer))
+          end
+          hash
         end
-        hash
       end
     end
 
