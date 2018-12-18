@@ -77,6 +77,7 @@ functions:
               export PATH="$MONGODB_BINARIES:$PATH"
               export PROJECT="${project}"
               export MACHINE="${MACHINE}"
+              export CI=1
            EOT
            # See what we've done
            cat expansion.yml
@@ -568,6 +569,12 @@ buildvariants:
 #  display_name: "${jruby-rubies}, ${all-os}"
 #  tasks:
 #     - name: "test"
+
+- matrix_name: "activesupport"
+  matrix_spec: { mri-rubies: "ruby-2.5", all-os: "ubuntu1404" }
+  display_name: "AS ${mri-rubies}, ${all-os}"
+  tasks:
+     - name: "test"
 
 - matrix_name: "special-os"
   matrix_spec: { latest-stable-rubies: "*", special-os: "*" }

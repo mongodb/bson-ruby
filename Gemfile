@@ -18,10 +18,14 @@ group :development, :test do
   gem 'rake-compiler'
   gem 'ruby-prof', :platforms => :mri
   gem 'yard'
+  gem 'activesupport'
 
   if ENV['CI']
     gem 'mime-types', '1.25' # v2.0+ does not support ruby 1.8
   else
-    gem 'pry'
+    if RUBY_VERSION >= '2.0.0'
+      gem 'byebug', platforms: :mri
+    end
+    gem 'pry', platforms: :jruby
   end
 end
