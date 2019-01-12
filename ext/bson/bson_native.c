@@ -73,12 +73,15 @@ static VALUE rb_bson_byte_buffer_get_hash(VALUE self);
 static VALUE rb_bson_byte_buffer_get_array(VALUE self);
 static VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte);
 static VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes);
+static VALUE rb_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length);
 static VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string);
 static VALUE rb_bson_byte_buffer_put_decimal128(VALUE self, VALUE low, VALUE high);
 static VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f);
 static VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i);
 static VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i);
+static VALUE rb_bson_byte_buffer_put_bson_string(VALUE self, const char *str, int32_t length);
 static VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string);
+static VALUE rb_bson_byte_buffer_put_symbol(VALUE self, VALUE symbol);
 static VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys);
 static VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_keys);
 static VALUE rb_bson_byte_buffer_read_position(VALUE self);
@@ -118,7 +121,7 @@ static void pvt_put_byte(byte_buffer_t *b, const char byte);
 static void pvt_put_int32(byte_buffer_t *b, const int32_t i32);
 static void pvt_put_int64(byte_buffer_t *b, const int64_t i);
 static void pvt_put_double(byte_buffer_t *b, double f);
-static void pvt_put_cstring(byte_buffer_t *b, VALUE string);
+static void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length);
 static void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys);
 
 /**
@@ -173,6 +176,7 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "put_int32", rb_bson_byte_buffer_put_int32, 1);
   rb_define_method(rb_byte_buffer_class, "put_int64", rb_bson_byte_buffer_put_int64, 1);
   rb_define_method(rb_byte_buffer_class, "put_string", rb_bson_byte_buffer_put_string, 1);
+  rb_define_method(rb_byte_buffer_class, "put_symbol", rb_bson_byte_buffer_put_symbol, 1);
   rb_define_method(rb_byte_buffer_class, "read_position", rb_bson_byte_buffer_read_position, 0);
   rb_define_method(rb_byte_buffer_class, "replace_int32", rb_bson_byte_buffer_replace_int32, 2);
   rb_define_method(rb_byte_buffer_class, "rewind!", rb_bson_byte_buffer_rewind, 0);
@@ -806,42 +810,74 @@ VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes)
 }
 
 /**
- * Writes a cstring to the byte buffer.
+ * Writes a string (which may form part of a BSON object) to the byte buffer.
+ * length does not include the null terminator.
  */
-VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string)
+VALUE rb_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length)
 {
   byte_buffer_t *b;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  pvt_put_cstring(b, string);
+  pvt_put_cstring(b, str, length);
   return self;
 }
 
-void pvt_put_cstring(byte_buffer_t *b, VALUE string)
+/**
+ * length does not include the null terminator.
+ */
+void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length)
 {
-  char *c_str = RSTRING_PTR(string);
-  size_t length = RSTRING_LEN(string) + 1;
-
-  if (!rb_bson_utf8_validate(c_str, length - 1, false)) {
-    rb_raise(rb_eArgError, "String %s is not a valid UTF-8 CString.", c_str);
+  int bytes_to_write;
+  if (!rb_bson_utf8_validate(str, length, false)) {
+    rb_raise(rb_eArgError, "String %s is not a valid UTF-8 CString.", str);
   }
-  ENSURE_BSON_WRITE(b, length);
-  memcpy(WRITE_PTR(b), c_str, length);
-  b->write_position += length;
+  bytes_to_write = length + 1;
+  ENSURE_BSON_WRITE(b, bytes_to_write);
+  memcpy(WRITE_PTR(b), str, bytes_to_write);
+  b->write_position += bytes_to_write;
 }
 
 /**
  * Write a hash key to the byte buffer, validating it if requested
  */
 void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys){
-  if(RTEST(validating_keys)){
-    char *c_str = RSTRING_PTR(string);
-    size_t length = RSTRING_LEN(string);
-    if(length > 0 && (c_str[0] == '$' || memchr(c_str, '.', length))){
-      rb_exc_raise(rb_funcall(rb_bson_illegal_key, rb_intern("new"),1, string));
+  char *c_str = RSTRING_PTR(string);
+  size_t length = RSTRING_LEN(string);
+  
+  if (RTEST(validating_keys)) {
+    if (length > 0 && (c_str[0] == '$' || memchr(c_str, '.', length))) {
+      rb_exc_raise(rb_funcall(rb_bson_illegal_key, rb_intern("new"), 1, string));
     }
   }
 
-  pvt_put_cstring(b, string);
+  pvt_put_cstring(b, c_str, length);
+}
+
+/**
+ * Writes a cstring to the byte buffer.
+ * This magically supports both Ruby symbols and strings.
+ */
+VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string)
+{
+  int32_t length;
+
+  if (TYPE(string) == T_SYMBOL) {
+    const char *sym = rb_id2name(SYM2ID(string));
+    length = strlen(sym);
+
+    return rb_bson_byte_buffer_put_bson_partial_string(self, sym, length);
+  } else if (TYPE(string) == T_STRING) {
+    const char *str = RSTRING_PTR(string);
+    length = RSTRING_LEN(string);
+
+    return rb_bson_byte_buffer_put_bson_partial_string(self, str, length);
+  } else if (TYPE(string) == T_FIXNUM) {
+    const char *str = RSTRING_PTR(rb_fix2str(string, 10));
+    length = strlen(str);
+
+    return rb_bson_byte_buffer_put_bson_partial_string(self, str, length);
+  } else {
+    rb_raise(rb_eTypeError, "Invalid type for string");
+  }
 }
 
 /**
@@ -958,15 +994,18 @@ void pvt_validate_length(byte_buffer_t *b)
 }
 
 /**
- * Writes a string to the byte buffer.
+ * Write BSON string to byte buffer given a C string.
+ * length is inclusive of the NULL terminator in the C string.
  */
-VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
+static VALUE rb_bson_byte_buffer_put_bson_string(VALUE self, const char *str, int32_t length)
 {
   byte_buffer_t *b;
   int32_t length_le;
 
-  char *str = RSTRING_PTR(string);
-  const int32_t length = RSTRING_LEN(string) + 1;
+  if (length <= 0) {
+    rb_raise(rb_eArgError, "The length must include the NULL terminator, and thus be at least 1");
+  }
+
   length_le = BSON_UINT32_TO_LE(length);
 
   if (!rb_bson_utf8_validate(str, length - 1, true)) {
@@ -981,6 +1020,28 @@ VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
   b->write_position += length;
 
   return self;
+}
+
+/**
+ * Writes a string to the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
+{
+  const char *str = RSTRING_PTR(string);
+  const int32_t length = RSTRING_LEN(string) + 1;
+
+  return rb_bson_byte_buffer_put_bson_string(self, str, length);
+}
+
+/**
+ * Writes a symbol to the byte buffer.
+ */
+VALUE rb_bson_byte_buffer_put_symbol(VALUE self, VALUE symbol)
+{
+  const char *sym = rb_id2name(SYM2ID(symbol));
+  const int32_t length = strlen(sym) + 1;
+
+  return rb_bson_byte_buffer_put_bson_string(self, sym, length);
 }
 
 /**

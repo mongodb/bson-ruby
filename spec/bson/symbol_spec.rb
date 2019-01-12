@@ -37,7 +37,7 @@ describe Symbol do
   describe "#to_bson_key" do
 
     let(:symbol) { :test }
-    let(:encoded) { symbol.to_s }
+    let(:encoded) { symbol }
 
     it "returns the encoded string" do
       expect(symbol.to_bson_key).to eq(encoded)
@@ -66,7 +66,7 @@ describe Symbol do
       end
 
       it "allows invalid keys" do
-        expect(symbol.to_bson_key).to eq(symbol.to_s)
+        expect(symbol.to_bson_key).to eq(symbol)
       end
     end
   end

@@ -57,7 +57,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      to_s.to_bson(buffer)
+      buffer.put_symbol(self)
     end
 
     # Get the symbol as a BSON key name encoded C symbol.
@@ -71,7 +71,10 @@ module BSON
     #
     # @since 2.0.0
     def to_bson_key(validating_keys = Config.validating_keys?)
-      to_s.to_bson_key(validating_keys)
+      if validating_keys
+        raise BSON::String::IllegalKey.new(self) if BSON::String::ILLEGAL_KEY =~ self
+      end
+      self
     end
 
     # Converts the symbol to a normalized key in a BSON document.
