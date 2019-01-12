@@ -73,7 +73,7 @@ EOH
 
   # ruby-head comes with bundler and gem complains
   # because installing bundler would overwrite the bundler binary
-  gem install bundler
+  gem install bundler -v '<2'
 fi
 
 echo "Installing all gem dependencies"
