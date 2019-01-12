@@ -14,8 +14,7 @@
 
 module BSON
 
-  # Represents a $maxKey type, which compares less than any other value in the
-  # specification.
+  # Represents int64 type.
   #
   # @see http://bsonspec.org/#/specification
   #
@@ -84,6 +83,20 @@ module BSON
     def to_bson_key(validating_keys = Config.validating_keys?)
       @integer.to_bson_key(validating_keys)
     end
+
+    # Check equality of the int64 with another object.
+    #
+    # @param [ Object ] other The object to check against.
+    #
+    # @return [ true, false ] If the objects are equal.
+    #
+    # @since 4.4.0
+    def ==(other)
+      return false unless other.is_a?(Int64)
+      @integer == other.instance_variable_get('@integer')
+    end
+    alias :eql? :==
+    alias :=== :==
 
     private
 
