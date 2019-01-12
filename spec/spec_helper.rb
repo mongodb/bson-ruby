@@ -35,7 +35,7 @@ end
 unless ENV['CI'] || BSON::Environment.jruby?
   begin
     require 'byebug'
-  rescue
+  rescue Exception
   end
 end
 
