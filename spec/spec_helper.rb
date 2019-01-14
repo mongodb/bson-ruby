@@ -32,10 +32,10 @@ if SpecConfig.instance.active_support?
   require 'bson/active_support'
 end
 
-unless ENV['CI']
+unless ENV['CI'] || BSON::Environment.jruby?
   begin
     require 'byebug'
-  rescue
+  rescue Exception
   end
 end
 
