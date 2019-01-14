@@ -99,4 +99,140 @@ describe BSON::Int32 do
       expect(obj.to_bson_key).to eq(encoded)
     end
   end
+
+  describe "#==" do
+
+    let(:object) do
+      described_class.new(1)
+    end
+
+    context "when data is identical" do
+
+      let(:other_object) do
+        described_class.new(1)
+      end
+
+      it "returns true" do
+        expect(object).to eq(other_object)
+      end
+
+      context "other object is of another integer type" do
+
+        let(:other_object) do
+          BSON::Int64.new(1)
+        end
+
+        it "returns false" do
+          expect(object).not_to eq(other_object)
+        end
+      end
+    end
+
+    context "when the data is different" do
+
+      let(:other_object) do
+        described_class.new(2)
+      end
+
+      it "returns false" do
+        expect(object).not_to eq(other_object)
+      end
+    end
+
+    context "when other is not a BSON integer" do
+
+      it "returns false" do
+        expect(described_class.new(1)).to_not eq('1')
+      end
+    end
+  end
+
+  describe "#===" do
+
+    let(:object) do
+      described_class.new(1)
+    end
+
+    context "when comparing with another BSON int32" do
+
+      context "when the data is equal" do
+
+        let(:other_object) do
+          described_class.new(1)
+        end
+
+        it "returns true" do
+          expect(object === other_object).to be true
+        end
+
+        context "other object is of another integer type" do
+
+          let(:other_object) do
+            BSON::Int64.new(1)
+          end
+
+          it "returns false" do
+            expect(object === other_object).to be false
+          end
+        end
+      end
+
+      context "when the data is not equal" do
+
+        let(:other_object) do
+          described_class.new(2)
+        end
+
+        it "returns false" do
+          expect(object === other_object).to be false
+        end
+      end
+    end
+
+    context "when comparing to an object id class" do
+
+      it "returns false" do
+        expect(described_class.new(1) === described_class).to be false
+      end
+    end
+
+    context "when comparing with a string" do
+
+      context "when the data is equal" do
+
+        let(:other) do
+          '1'
+        end
+
+        it "returns false" do
+          expect(object === other).to be false
+        end
+      end
+
+      context "when the data is not equal" do
+
+        let(:other) do
+          '2'
+        end
+
+        it "returns false" do
+          expect(object === other).to be false
+        end
+      end
+    end
+
+    context "when comparing with a non-bson integer object" do
+
+      it "returns false" do
+        expect(object === []).to be false
+      end
+    end
+
+    context "when comparing with a non int64 class" do
+
+      it "returns false" do
+        expect(object === String).to be false
+      end
+    end
+  end
 end
