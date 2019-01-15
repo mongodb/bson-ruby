@@ -86,7 +86,7 @@ module BSON
     #
     # @since 4.2.0
     def to_bson_key(validating_keys = Config.validating_keys?)
-      @integer.to_bson_key(validating_keys)
+      @integer
     end
 
     # Check equality of the int32 with another object.

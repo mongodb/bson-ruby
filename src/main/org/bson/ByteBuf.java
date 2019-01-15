@@ -34,6 +34,7 @@ import org.jruby.RubyInteger;
 import org.jruby.RubyNumeric;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
+import org.jruby.RubySymbol;
 import java.math.BigInteger;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
@@ -325,9 +326,18 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "put_cstring")
   public ByteBuf putCString(final IRubyObject value) throws UnsupportedEncodingException {
-    String string = ((RubyString) value).asJavaString();
+
+   if (value instanceof RubyFixnum) {
+     RubyString str = ((RubyFixnum) value).to_s();
+     String string = str.asJavaString();
+     this.writePosition += writeCharacters(string, true);
+   }
+   else {
+    String string = value.asJavaString();
     this.writePosition += writeCharacters(string, true);
-    return this;
+   }
+
+   return this;
   }
 
   /**
@@ -418,6 +428,21 @@ public class ByteBuf extends RubyObject {
   }
 
   /**
+   * Put a symbol onto the buffer.
+   *
+   * @param value The UTF-8 string to write.
+   *
+   * @author Ben Lewis
+   * @since 2017.04.19
+   * @version 4.2.2
+   */
+  @JRubyMethod(name = "put_symbol")
+  public ByteBuf putSymbol(final IRubyObject value) throws UnsupportedEncodingException {
+    String string = ((RubySymbol) value).asJavaString();
+    return putJavaString(string);
+  }
+
+  /**
    * Put a UTF-8 string onto the buffer.
    *
    * @param value The UTF-8 string to write.
@@ -429,12 +454,7 @@ public class ByteBuf extends RubyObject {
   @JRubyMethod(name = "put_string")
   public ByteBuf putString(final IRubyObject value) throws UnsupportedEncodingException {
     String string = ((RubyString) value).asJavaString();
-    ensureBsonWrite(4);
-    this.buffer.putInt(0);
-    int length = writeCharacters(string, false);
-    this.buffer.putInt(this.buffer.position() - length - 4, length);
-    this.writePosition += (length + 4);
-    return this;
+    return putJavaString(string);
   }
 
   /**
@@ -594,5 +614,14 @@ public class ByteBuf extends RubyObject {
     write((byte) 0);
     total++;
     return total;
+  }
+
+  private ByteBuf putJavaString(final String string) {
+    ensureBsonWrite(4);
+    this.buffer.putInt(0);
+    int length = writeCharacters(string, false);
+    this.buffer.putInt(this.buffer.position() - length - 4, length);
+    this.writePosition += (length + 4);
+    return this;
   }
 }
