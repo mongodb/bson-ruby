@@ -76,6 +76,31 @@ describe BSON::Document do
           document.fetch(:non_existent_key)
         end.to raise_exception(KeyError)
       end
+
+      context "and default value was provided" do
+
+        it "returns default value" do
+          expect(document.fetch(:non_existent_key, false)).to eq(false)
+        end
+      end
+
+      context "and block was passed" do
+
+        it "returns result of the block" do
+          expect(document.fetch(:non_existent_key, &:to_s))
+            .to eq("non_existent_key")
+        end
+      end
+    end
+
+    context "when key exists" do
+
+      context "and default value is provided" do
+
+        it "returns the value" do
+          expect(document.fetch(:key, "other")).to eq("value")
+        end
+      end
     end
   end
 

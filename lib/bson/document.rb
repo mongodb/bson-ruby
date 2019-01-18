@@ -44,12 +44,15 @@ module BSON
     #   document.fetch(:field)
     #
     # @param [ String, Symbol ] key The key to look up.
+    # @param [ Object ] default Returned value if key does not exist
+    # @yield [key] Block returning default value for given key
     #
     # @return [ Object ] The found value. Raises KeyError if none found.
     #
     # @since 4.4.0
-    def fetch(key)
-      super(convert_key(key))
+    def fetch(key, *args, &block)
+      key = convert_key(key)
+      super(key, *args, &block)
     end
 
     # Get a value from the document for the provided key. Can use string or
