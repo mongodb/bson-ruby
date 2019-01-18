@@ -78,6 +78,7 @@ functions:
               export PROJECT="${project}"
               export MACHINE="${MACHINE}"
               export CI=1
+              export WITH_ACTIVE_SUPPORT="${WITH_ACTIVE_SUPPORT}"
            EOT
            # See what we've done
            cat expansion.yml
@@ -557,6 +558,13 @@ axes:
         display_name: ruby-head
         variables:
           RVM_RUBY: "ruby-head"
+  - id: "as"
+    display_name: ActiveSupport
+    values:
+      - id: "as"
+        display_name: AS
+        variables:
+          WITH_ACTIVE_SUPPORT: true
 
 buildvariants:
 - matrix_name: "mri"
@@ -571,7 +579,7 @@ buildvariants:
 #     - name: "test"
 
 - matrix_name: "activesupport"
-  matrix_spec: { mri-rubies: "ruby-2.5", all-os: "ubuntu1404" }
+  matrix_spec: { mri-rubies: "ruby-2.5", all-os: "ubuntu1404", as: as }
   display_name: "AS ${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
