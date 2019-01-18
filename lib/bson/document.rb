@@ -37,15 +37,30 @@ module BSON
     # Get a value from the document for the provided key. Can use string or
     # symbol access, with string access being the faster of the two.
     #
+    # @overload fetch(key)
+    #   Returns a value from the hash for the given key. If the key does
+    #   not exist, raises KeyError exception.
+    #
+    # @overload fetch(key, default)
+    #   Returns a value from the hash for the given key. If the key does not
+    #   exist, returns *default*.
+    #
+    # @overload fetch(key, &block)
+    #   Returns a value from the hash for the given key. If the key does not
+    #   exist, returns the value of the block called with the key.
+    #
     # @example Get an element for the key.
     #   document.fetch("field")
     #
-    # @example Get an element for the key by symbol.
-    #   document.fetch(:field)
+    # @example Get an element for the key by symbol with a default.
+    #   document.fetch(:field, 'foo')
+    #
+    # @example Get an element for the key by symbol with a block default.
+    #   document.fetch(:field) { |key| key.upcase }
     #
     # @param [ String, Symbol ] key The key to look up.
-    # @param [ Object ] default Returned value if key does not exist
-    # @yield [key] Block returning default value for given key
+    # @param [ Object ] default Returned value if key does not exist.
+    # @yield [key] Block returning default value for the given key.
     #
     # @return [ Object ] The found value. Raises KeyError if none found.
     #
