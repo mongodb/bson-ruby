@@ -39,7 +39,14 @@ else
     echo "MACHINE not set in environment" 1>&2
     exit 2
   fi
-  toolchain_url=https://s3.amazonaws.com//mciuploads/mongo-ruby-toolchain/$MACHINE/8cd47ac2cf636710740a6d79167f055e4c0a0154/mongo_ruby_driver_toolchain_`echo $MACHINE |tr - _`_8cd47ac2cf636710740a6d79167f055e4c0a0154_18_08_24_03_45_11.tar.gz
+  if test $MACHINE = rhel71-ppc || test $MACHINE = rhel72-s390x || test $MACHINE = ubuntu1604-arm; then
+    # Use older toolchain, and test on ruby 2.5 instead of 2.6,
+    # until the various build tickets get resolved.
+    toolchain_url=https://s3.amazonaws.com//mciuploads/mongo-ruby-toolchain/$MACHINE/8cd47ac2cf636710740a6d79167f055e4c0a0154/mongo_ruby_driver_toolchain_`echo $MACHINE |tr - _`_8cd47ac2cf636710740a6d79167f055e4c0a0154_18_08_24_03_45_11.tar.gz
+    #toolchain_url=https://s3.amazonaws.com/mongo-ruby-toolchain/71b0db9edb54ded6260b32cd73d8ea1699af1279/$MACHINE/ruby-toolchain.tar.gz
+  else
+    toolchain_url=https://s3.amazonaws.com//mciuploads/mongo-ruby-toolchain/$MACHINE/8cd47ac2cf636710740a6d79167f055e4c0a0154/mongo_ruby_driver_toolchain_`echo $MACHINE |tr - _`_patch_8cd47ac2cf636710740a6d79167f055e4c0a0154_5c452b76e3c3312273591db4_19_01_21_02_16_23.tar.gz
+  fi
   curl -fL $toolchain_url |tar zxf -
   export PATH=`pwd`/rubies/$RVM_RUBY/bin:$PATH
   
