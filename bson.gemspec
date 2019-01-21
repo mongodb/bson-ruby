@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.homepage          = 'http://bsonspec.org'
   s.summary           = 'Ruby Implementation of the BSON specification'
   s.description       = 'A full featured BSON specification implementation, in Ruby'
-  s.license           = 'Apache License Version 2.0'
+  s.license           = 'Apache-2.0'
 
   if File.exists?('gem-private_key.pem')
     s.signing_key = 'gem-private_key.pem'
