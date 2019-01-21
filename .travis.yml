@@ -7,7 +7,7 @@ before_install:
 
 rvm:
   - 1.9.3
-  - 2.5
+  - 2.6
 
 env: CI="travis"
 

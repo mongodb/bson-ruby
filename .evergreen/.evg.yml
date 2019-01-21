@@ -525,6 +525,10 @@ axes:
         display_name: ruby-2.5
         variables:
            RVM_RUBY: "ruby-2.5"
+      - id: "ruby-2.6"
+        display_name: ruby-2.6
+        variables:
+           RVM_RUBY: "ruby-2.6"
 #      - id: "ruby-head"
 #        display_name: ruby-head
 #        variables:
@@ -579,7 +583,7 @@ buildvariants:
 #     - name: "test"
 
 - matrix_name: "activesupport"
-  matrix_spec: { mri-rubies: "ruby-2.5", all-os: "ubuntu1404", as: as }
+  matrix_spec: { mri-rubies: "ruby-2.6", all-os: "ubuntu1404", as: as }
   display_name: "AS ${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
