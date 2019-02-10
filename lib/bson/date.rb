@@ -24,6 +24,13 @@ module BSON
   # @since 2.1.0
   module Date
 
+    # Julian day of Date 1970-01-01 - UNIX timestamp reference
+    # Equivalent of ::Date.new(1970, 1, 1).jd
+    REFERENCE = 2440588
+
+    # Amount of miliseconds in a day
+    MILISECONDS_IN_DAY = 60 * 60 * 24 * 1_000
+
     # Get the date as encoded BSON.
     #
     # @example Get the date as encoded BSON.
@@ -35,7 +42,7 @@ module BSON
     #
     # @since 2.1.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      ::Time.utc(year, month, day).to_bson(buffer)
+      buffer.put_int64((jd - REFERENCE) * MILISECONDS_IN_DAY)
     end
 
     # Get the BSON type for the date.
