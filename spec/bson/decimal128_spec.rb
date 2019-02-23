@@ -78,7 +78,7 @@ describe BSON::Decimal128 do
 
       context 'when a BigDecimal is passed' do
 
-        let(:argument) { BigDecimal.new("Infinity") }
+        let(:argument) { BigDecimal("Infinity") }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
@@ -98,7 +98,7 @@ describe BSON::Decimal128 do
 
       context 'when a BigDecimal is passed' do
 
-        let(:argument) { BigDecimal.new("-Infinity") }
+        let(:argument) { BigDecimal("-Infinity") }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
@@ -118,7 +118,7 @@ describe BSON::Decimal128 do
 
       context 'when a BigDecimal is passed' do
 
-        let(:argument) { BigDecimal.new("NaN") }
+        let(:argument) { BigDecimal("NaN") }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
@@ -177,7 +177,7 @@ describe BSON::Decimal128 do
 
       context 'when a BigDecimal is passed' do
 
-        let(:argument) { BigDecimal.new("-0") }
+        let(:argument) { BigDecimal("-0") }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
@@ -197,7 +197,7 @@ describe BSON::Decimal128 do
 
       context 'when a BigDecimal is passed' do
 
-        let(:argument) { BigDecimal.new(12) }
+        let(:argument) { BigDecimal(12) }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
@@ -217,7 +217,7 @@ describe BSON::Decimal128 do
 
       context 'when a BigDecimal is passed' do
 
-        let(:argument) { BigDecimal.new(-12) }
+        let(:argument) { BigDecimal(-12) }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
@@ -237,7 +237,7 @@ describe BSON::Decimal128 do
 
       context 'when a BigDecimal is passed' do
 
-        let(:argument) { BigDecimal.new(0.12345, 5) }
+        let(:argument) { BigDecimal(0.12345, 5) }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
@@ -257,7 +257,7 @@ describe BSON::Decimal128 do
 
       context 'when a BigDecimal is passed' do
 
-        let(:argument) { BigDecimal.new(-0.12345, 5) }
+        let(:argument) { BigDecimal(-0.12345, 5) }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
@@ -277,7 +277,7 @@ describe BSON::Decimal128 do
 
       context 'when a BigDecimal is passed' do
 
-        let(:argument) { BigDecimal.new(1234567890123456789012345678901234) }
+        let(:argument) { BigDecimal(1234567890123456789012345678901234) }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
@@ -297,7 +297,7 @@ describe BSON::Decimal128 do
 
       context 'when a BigDecimal is passed' do
 
-        let(:argument) { BigDecimal.new(-1234567890123456789012345678901234) }
+        let(:argument) { BigDecimal(-1234567890123456789012345678901234) }
 
         it_behaves_like 'an initialized BSON::Decimal128'
       end
@@ -1183,7 +1183,7 @@ describe BSON::Decimal128 do
       end
 
       it "returns false" do
-        expect(decimal128).to_not eq(described_class.new(BigDecimal.new('2.00')))
+        expect(decimal128).to_not eq(described_class.new(BigDecimal('2.00')))
       end
     end
 
@@ -1198,7 +1198,7 @@ describe BSON::Decimal128 do
   describe "#===" do
 
     let(:decimal128) do
-      described_class.new(BigDecimal.new('1.23'))
+      described_class.new(BigDecimal('1.23'))
     end
 
     context "when comparing with another decimal128" do
@@ -1217,7 +1217,7 @@ describe BSON::Decimal128 do
       context "when the high and low bits are not equal" do
 
         let(:other) do
-          described_class.new(BigDecimal.new('1000.003'))
+          described_class.new(BigDecimal('1000.003'))
         end
 
         it "returns false" do
@@ -1251,7 +1251,7 @@ describe BSON::Decimal128 do
   describe "#as_json" do
 
     let(:object) do
-      described_class.new(BigDecimal.new('1.23'))
+      described_class.new(BigDecimal('1.23'))
     end
 
     it "returns the decimal128 with $numberDecimal key" do
@@ -1271,7 +1271,7 @@ describe BSON::Decimal128 do
   describe "#bson_type" do
 
     let(:code) do
-      described_class.new(BigDecimal.new('1.23'))
+      described_class.new(BigDecimal('1.23'))
     end
 
     it "returns 0x13" do
@@ -1311,7 +1311,7 @@ describe BSON::Decimal128 do
       end
 
       it "returns false" do
-        expect(decimal128).to_not eql(described_class.new(BigDecimal.new('2')))
+        expect(decimal128).to_not eql(described_class.new(BigDecimal('2')))
       end
     end
 
@@ -1326,7 +1326,7 @@ describe BSON::Decimal128 do
   describe "#hash" do
 
     let(:decimal128) do
-      described_class.new(BigDecimal.new('-1234E+33'))
+      described_class.new(BigDecimal('-1234E+33'))
     end
 
     it "returns a hash of the high and low bits" do
@@ -1337,7 +1337,7 @@ describe BSON::Decimal128 do
   describe "#inspect" do
 
     let(:decimal128) do
-      described_class.new(BigDecimal.new('1.23'))
+      described_class.new(BigDecimal('1.23'))
     end
 
     it "returns the inspection with the decimal128 to_s" do
@@ -1363,7 +1363,7 @@ describe BSON::Decimal128 do
       context 'when the value is Infinity' do
 
         let(:big_decimal) do
-          BigDecimal.new('Infinity')
+          BigDecimal('Infinity')
         end
 
         let(:expected_big_decimal) do
@@ -1376,7 +1376,7 @@ describe BSON::Decimal128 do
       context 'when the value is -Infinity' do
 
         let(:big_decimal) do
-          BigDecimal.new('-Infinity')
+          BigDecimal('-Infinity')
         end
 
         let(:expected_big_decimal) do
@@ -1392,7 +1392,7 @@ describe BSON::Decimal128 do
       context 'when the value is 1' do
 
         let(:big_decimal) do
-          BigDecimal.new(1)
+          BigDecimal(1)
         end
 
         let(:expected_big_decimal) do
@@ -1405,7 +1405,7 @@ describe BSON::Decimal128 do
       context 'when the value is -1' do
 
         let(:big_decimal) do
-          BigDecimal.new(-1)
+          BigDecimal(-1)
         end
 
         let(:expected_big_decimal) do
@@ -1418,7 +1418,7 @@ describe BSON::Decimal128 do
       context 'when the value is 20' do
 
         let(:big_decimal) do
-          BigDecimal.new(20)
+          BigDecimal(20)
         end
 
         let(:expected_big_decimal) do
@@ -1431,7 +1431,7 @@ describe BSON::Decimal128 do
       context 'when the value is -20' do
 
         let(:big_decimal) do
-          BigDecimal.new(-20)
+          BigDecimal(-20)
         end
 
         let(:expected_big_decimal) do
@@ -1444,7 +1444,7 @@ describe BSON::Decimal128 do
       context 'when the value is 12345678901234567' do
 
         let(:big_decimal) do
-          BigDecimal.new(12345678901234567)
+          BigDecimal(12345678901234567)
         end
 
         let(:expected_big_decimal) do
@@ -1457,7 +1457,7 @@ describe BSON::Decimal128 do
       context 'when the value is -12345678901234567' do
 
         let(:big_decimal) do
-          BigDecimal.new(-12345678901234567)
+          BigDecimal(-12345678901234567)
         end
 
         let(:expected_big_decimal) do
@@ -1470,7 +1470,7 @@ describe BSON::Decimal128 do
       context 'when the value is 12345689012345789012345' do
 
         let(:big_decimal) do
-          BigDecimal.new(12345689012345789012345)
+          BigDecimal(12345689012345789012345)
         end
 
         let(:expected_big_decimal) do
@@ -1483,7 +1483,7 @@ describe BSON::Decimal128 do
       context 'when the value is -12345689012345789012345' do
 
         let(:big_decimal) do
-          BigDecimal.new(-12345689012345789012345)
+          BigDecimal(-12345689012345789012345)
         end
 
         let(:expected_big_decimal) do
@@ -1499,7 +1499,7 @@ describe BSON::Decimal128 do
       context 'when the value is 0.1' do
 
         let(:big_decimal) do
-          BigDecimal.new(0.1, 1)
+          BigDecimal(0.1, 1)
         end
 
         let(:expected_big_decimal) do
@@ -1512,7 +1512,7 @@ describe BSON::Decimal128 do
       context 'when the value is -0.1' do
 
         let(:big_decimal) do
-          BigDecimal.new(-0.1, 1)
+          BigDecimal(-0.1, 1)
         end
 
         let(:expected_big_decimal) do
@@ -1525,7 +1525,7 @@ describe BSON::Decimal128 do
       context 'when the value is 0.123' do
 
         let(:big_decimal) do
-          BigDecimal.new(0.123, 3)
+          BigDecimal(0.123, 3)
         end
 
         let(:expected_big_decimal) do
@@ -1538,7 +1538,7 @@ describe BSON::Decimal128 do
       context 'when the value is -0.123' do
 
         let(:big_decimal) do
-          BigDecimal.new(-0.123, 3)
+          BigDecimal(-0.123, 3)
         end
 
         let(:expected_big_decimal) do
@@ -1552,7 +1552,7 @@ describe BSON::Decimal128 do
     context 'when the value has leading zeros' do
 
       let(:big_decimal) do
-        BigDecimal.new(0.001234, 4)
+        BigDecimal(0.001234, 4)
       end
 
       let(:expected_big_decimal) do
@@ -1565,7 +1565,7 @@ describe BSON::Decimal128 do
     context 'when the value has trailing zeros' do
 
       let(:big_decimal) do
-        BigDecimal.new(2.000, 4)
+        BigDecimal(2.000, 4)
       end
 
       let(:expected_big_decimal) do
