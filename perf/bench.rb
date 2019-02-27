@@ -37,7 +37,7 @@ def benchmark!
       count.times { BSON::Code.new("this.value = 1").to_bson }
     end
 
-    big_decimal = BigDecimal.new(123)
+    big_decimal = BigDecimal(123)
     bench.report("Decimal128#to_bson ---->") do
       count.times { BSON::Decimal128.new(big_decimal).to_bson }
     end
@@ -121,7 +121,7 @@ def benchmark!
       count.times { BSON::Code.from_bson(BSON::ByteBuffer.new(code_bytes)) }
     end
 
-    decimal128_bytes = BSON::Decimal128.new(BigDecimal.new(123)).to_bson.to_s
+    decimal128_bytes = BSON::Decimal128.new(BigDecimal(123)).to_bson.to_s
     bench.report("Decimal128#from_bson -->") do
       count.times { BSON::Decimal128.from_bson(BSON::ByteBuffer.new(decimal128_bytes)) }
     end

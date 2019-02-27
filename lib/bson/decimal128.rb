@@ -178,7 +178,7 @@ module BSON
     #
     # @since 4.2.0
     def to_big_decimal
-      @big_decimal ||= BigDecimal.new(to_s)
+      @big_decimal ||= BigDecimal(to_s)
     end
 
     private
