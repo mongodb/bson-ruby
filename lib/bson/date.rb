@@ -16,6 +16,16 @@ require 'date'
 
 module BSON
 
+  # Julian day of Date 1970-01-01 - UNIX timestamp reference.
+  #
+  # @api private
+  DATE_REFERENCE = ::Date.new(1970, 1, 1).jd
+
+  # Number of miliseconds in a day.
+  #
+  # @api private
+  MILLISECONDS_IN_DAY = 60 * 60 * 24 * 1_000
+
   # Injects behaviour for encoding date values to raw bytes as specified by
   # the BSON spec for time.
   #
@@ -23,17 +33,6 @@ module BSON
   #
   # @since 2.1.0
   module Date
-
-    # Julian day of Date 1970-01-01 - UNIX timestamp reference.
-    # Equivalent of ::Date.new(1970, 1, 1).jd
-    #
-    # @api private
-    REFERENCE = 2440588
-
-    # Number of miliseconds in a day.
-    #
-    # @api private
-    MILLISECONDS_IN_DAY = 60 * 60 * 24 * 1_000
 
     # Get the date as encoded BSON.
     #
@@ -46,7 +45,7 @@ module BSON
     #
     # @since 2.1.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      buffer.put_int64((jd - REFERENCE) * MILLISECONDS_IN_DAY)
+      buffer.put_int64((jd - DATE_REFERENCE) * MILLISECONDS_IN_DAY)
     end
 
     # Get the BSON type for the date.
