@@ -207,6 +207,17 @@ module BSON
 
     alias :update :merge!
 
+    # Returns a normalized BSON value, which is the original document.
+    #
+    # @example Return the valid BSON document
+    #   document.to_bson_normalized_value
+    #
+    # @return [ BSON::Document ] The original document.
+    #
+    def to_bson_normalized_value
+      self
+    end
+
     if instance_methods.include?(:dig)
       # Retrieves the value object corresponding to the each key objects repeatedly.
       # Will normalize symbol keys into strings.

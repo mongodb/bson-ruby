@@ -163,6 +163,14 @@ describe BSON::Document do
     it "sets the value" do
       expect(doc[key]).to eq(val)
     end
+
+    context "the value is a BSON::Document" do
+      let(:val) { described_class.new }
+
+      it "returns the same object" do
+        expect(doc[key].object_id).to eq(val.object_id)
+      end
+    end
   end
 
   if described_class.instance_methods.include?(:dig)
@@ -280,6 +288,13 @@ describe BSON::Document do
 
     it "returns the key/value pairs as an array" do
       expect(doc.to_a).to eq(keys.zip(vals))
+    end
+  end
+
+  describe "#to_bson_normalized_value" do
+
+    it "returns itself" do
+      expect(doc.to_bson_normalized_value.object_id).to eq(doc.object_id)
     end
   end
 
