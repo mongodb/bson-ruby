@@ -89,7 +89,7 @@ setup_ruby() {
     if true; then
     
     # For testing toolchains:
-    toolchain_url=https://s3.amazonaws.com//mciuploads/mongo-ruby-toolchain/`host_arch`/741a9eba5788e6d5254a09319d7d237b40a9f4d6/mongo_ruby_driver_toolchain_`host_arch`_patch_741a9eba5788e6d5254a09319d7d237b40a9f4d6_5cfa8ad0d6d80a02bbb45be7_19_06_07_16_03_30.tar.gz
+    toolchain_url=https://s3.amazonaws.com//mciuploads/mongo-ruby-toolchain/`host_arch`/ce62fbb005213564a3da1041854da54df6615b2a/mongo_ruby_driver_toolchain_`host_arch`_patch_ce62fbb005213564a3da1041854da54df6615b2a_5cfacdc857e85a3ef6647ad9_19_06_07_20_49_15.tar.gz
     curl -fL $toolchain_url |tar zxf -
     export PATH=`pwd`/rubies/$RVM_RUBY/bin:$PATH
     
