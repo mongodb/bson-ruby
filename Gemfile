@@ -29,3 +29,8 @@ group :development, :test do
     gem 'pry', platforms: :jruby
   end
 end
+
+group :test do
+  gem 'fuubar'
+  gem 'rfc'
+end
