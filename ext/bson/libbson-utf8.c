@@ -101,7 +101,7 @@ _bson_utf8_get_sequence (const char *utf8,    /* IN */
  *--------------------------------------------------------------------------
  */
 
-bool
+void
 rb_bson_utf8_validate (const char *utf8, /* IN */
                     size_t utf8_len,  /* IN */
                     bool allow_null)  /* IN */
@@ -111,6 +111,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
    uint8_t seq_length;
    unsigned i;
    unsigned j;
+   bool not_shortest_form;
 
    BSON_ASSERT (utf8);
 
@@ -121,14 +122,14 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
        * Ensure we have a valid multi-byte sequence length.
        */
       if (!seq_length) {
-         return false;
+         rb_raise(rb_eArgError, "String %s is not valid UTF-8: bogus initial bits", utf8);
       }
 
       /*
        * Ensure we have enough bytes left.
        */
       if ((utf8_len - i) < seq_length) {
-         return false;
+         rb_raise(rb_eArgError, "String %s is not valid UTF-8: truncated multi-byte sequence", utf8);
       }
 
       /*
@@ -143,7 +144,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
       for (j = i + 1; j < (i + seq_length); j++) {
          c = (c << 6) | (utf8[j] & 0x3F);
          if ((utf8[j] & 0xC0) != 0x80) {
-            return false;
+            rb_raise(rb_eArgError, "String %s is not valid UTF-8: bogus high bits for continuation byte", utf8);
          }
       }
 
@@ -158,7 +159,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
       if (!allow_null) {
          for (j = 0; j < seq_length; j++) {
             if (((i + j) > utf8_len) || !utf8[i + j]) {
-               return false;
+               rb_raise(rb_eArgError, "String %s contains NULL bytes", utf8);
             }
          }
       }
@@ -167,7 +168,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
        * Code point won't fit in utf-16, not allowed.
        */
       if (c > 0x0010FFFF) {
-         return false;
+         rb_raise(rb_eArgError, "String %s is not valid UTF-8: code point %"PRIu32" does not fit in UTF-16", utf8, c);
       }
 
       /*
@@ -175,18 +176,19 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
        * for surrogate pairs.
        */
       if ((c & 0xFFFFF800) == 0xD800) {
-         return false;
+         rb_raise(rb_eArgError, "String %s is not valid UTF-8: byte is in surrogate pair reserved range", utf8);
       }
 
       /*
        * Check non-shortest form unicode.
        */
+      not_shortest_form = false;
       switch (seq_length) {
       case 1:
          if (c <= 0x007F) {
             continue;
          }
-         return false;
+         not_shortest_form = true;
 
       case 2:
          if ((c >= 0x0080) && (c <= 0x07FF)) {
@@ -194,18 +196,18 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
          } else if (c == 0) {
             /* Two-byte representation for NULL. */
             if (!allow_null) {
-               return false;
+               rb_raise(rb_eArgError, "String %s contains NULL bytes", utf8);
             }
             continue;
          }
-         return false;
+         not_shortest_form = true;
 
       case 3:
          if (((c >= 0x0800) && (c <= 0x0FFF)) ||
              ((c >= 0x1000) && (c <= 0xFFFF))) {
             continue;
          }
-         return false;
+         not_shortest_form = true;
 
       case 4:
          if (((c >= 0x10000) && (c <= 0x3FFFF)) ||
@@ -213,12 +215,14 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
              ((c >= 0x100000) && (c <= 0x10FFFF))) {
             continue;
          }
-         return false;
+         not_shortest_form = true;
 
       default:
-         return false;
+         not_shortest_form = true;
+      }
+      
+      if (not_shortest_form) {
+        rb_raise(rb_eArgError, "String %s is not valid UTF-8: not in shortest form", utf8);
       }
    }
-
-   return true;
 }

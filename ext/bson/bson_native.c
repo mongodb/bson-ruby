@@ -827,9 +827,7 @@ VALUE rb_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, i
 void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length)
 {
   int bytes_to_write;
-  if (!rb_bson_utf8_validate(str, length, false)) {
-    rb_raise(rb_eArgError, "String %s is not a valid UTF-8 CString.", str);
-  }
+  rb_bson_utf8_validate(str, length, false);
   bytes_to_write = length + 1;
   ENSURE_BSON_WRITE(b, bytes_to_write);
   memcpy(WRITE_PTR(b), str, bytes_to_write);
@@ -1008,9 +1006,7 @@ static VALUE rb_bson_byte_buffer_put_bson_string(VALUE self, const char *str, in
 
   length_le = BSON_UINT32_TO_LE(length);
 
-  if (!rb_bson_utf8_validate(str, length - 1, true)) {
-    rb_raise(rb_eArgError, "String %s is not valid UTF-8.", str);
-  }
+  rb_bson_utf8_validate(str, length - 1, true);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, length + 4);
