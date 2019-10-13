@@ -16,9 +16,12 @@ Gem::Specification.new do |s|
   s.description       = 'A full featured BSON specification implementation, in Ruby'
   s.license           = 'Apache-2.0'
 
-  s.metadata = {
-    'source_code_uri' => 'https://github.com/mongodb/bson-ruby'
-  }
+  # Ruby 1.9 does not support metadata
+  if s.respond_to?(:metadata=)
+    s.metadata = {
+      'source_code_uri' => 'https://github.com/mongodb/bson-ruby'
+    }
+  end
 
   if File.exists?('gem-private_key.pem')
     s.signing_key = 'gem-private_key.pem'
