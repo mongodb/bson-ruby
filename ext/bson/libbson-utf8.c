@@ -159,7 +159,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
       if (!allow_null) {
          for (j = 0; j < seq_length; j++) {
             if (((i + j) > utf8_len) || !utf8[i + j]) {
-               rb_raise(rb_eArgError, "String %s contains NULL bytes", utf8);
+               rb_raise(rb_eArgError, "String %s contains null bytes", utf8);
             }
          }
       }
@@ -196,7 +196,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
          } else if (c == 0) {
             /* Two-byte representation for NULL. */
             if (!allow_null) {
-               rb_raise(rb_eArgError, "String %s contains NULL bytes", utf8);
+               rb_raise(rb_eArgError, "String %s contains null bytes", utf8);
             }
             continue;
          }
