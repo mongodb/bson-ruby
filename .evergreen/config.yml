@@ -571,16 +571,21 @@ axes:
           WITH_ACTIVE_SUPPORT: true
 
 buildvariants:
-- matrix_name: "mri"
-  matrix_spec: { mri-rubies: "*", all-os: "*" }
+- matrix_name: "mri-rhel"
+  matrix_spec: { mri-rubies: ["ruby-2.3", "ruby-2.6"], all-os: "rhel70" }
   display_name: "${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
-#- matrix_name: "tests-all-jruby-rubies-rhel70"
-#  matrix_spec: { jruby-rubies: "*", all-os: "rhel70" }
-#  display_name: "${jruby-rubies}, ${all-os}"
-#  tasks:
-#     - name: "test"
+- matrix_name: "mri-debian"
+  matrix_spec: { mri-rubies: ["ruby-2.4"], all-os: "debian81" }
+  display_name: "${mri-rubies}, ${all-os}"
+  tasks:
+     - name: "test"
+- matrix_name: "mri-ubuntu"
+  matrix_spec: { mri-rubies: ["ruby-2.5"], all-os: "ubuntu1404" }
+  display_name: "${mri-rubies}, ${all-os}"
+  tasks:
+     - name: "test"
 
 - matrix_name: "activesupport"
   matrix_spec: { mri-rubies: "ruby-2.6", all-os: "ubuntu1404", as: as }
