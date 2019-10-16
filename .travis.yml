@@ -6,7 +6,7 @@ before_install:
   - gem install bundler -v '<2'
 
 rvm:
-  - 1.9.3
+  - 2.3
   - 2.6
 
 env: CI="travis"

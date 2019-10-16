@@ -6,18 +6,19 @@ An implementation of the BSON specification in Ruby.
 Compatibility
 -------------
 
-BSON is tested against MRI (1.9.2+), JRuby (1.7.0+) and Rubinius (2.0.0+).
+BSON is tested against MRI (2.3+) and JRuby (9.1+).
 
 Documentation
 -------------
 
-Current documentation can be found [here](http://docs.mongodb.org/ecosystem/tutorial/ruby-bson-tutorial/#ruby-bson-tutorial)
+Current documentation can be found
+[here](http://docs.mongodb.org/ecosystem/tutorial/ruby-bson-tutorial/#ruby-bson-tutorial).
 
 API Documentation
 -----------------
 
-The [API Documentation](http://rdoc.info/github/mongodb/bson-ruby/master/frames) is
-located at rdoc.info.
+The [API Documentation](https://api.mongodb.com/bson-ruby/current/) is
+located at api.mongodb.com.
 
 BSON Specification
 ------------------
@@ -27,7 +28,8 @@ The [BSON specification](http://bsonspec.org) is at bsonspec.org.
 Versioning
 ----------
 
-As of 2.0.0, this project adheres to the [Semantic Versioning Specification](http://semver.org/).
+As of 2.0.0, this project adheres to the
+[Semantic Versioning Specification](http://semver.org/).
 
 License
 -------
