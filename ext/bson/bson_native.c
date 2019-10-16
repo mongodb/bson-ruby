@@ -888,11 +888,10 @@ VALUE rb_bson_byte_buffer_put_decimal128(VALUE self, VALUE low, VALUE high)
   const int64_t high64 = BSON_UINT64_TO_LE(NUM2ULL(high));
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  ENSURE_BSON_WRITE(b, 8);
+  ENSURE_BSON_WRITE(b, 16);
   memcpy(WRITE_PTR(b), &low64, 8);
   b->write_position += 8;
 
-  ENSURE_BSON_WRITE(b, 8);
   memcpy(WRITE_PTR(b), &high64, 8);
   b->write_position += 8;
 
