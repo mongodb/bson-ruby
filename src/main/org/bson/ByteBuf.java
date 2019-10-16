@@ -331,10 +331,11 @@ public class ByteBuf extends RubyObject {
      RubyString str = ((RubyFixnum) value).to_s();
      String string = str.asJavaString();
      this.writePosition += writeCharacters(string, true);
-   }
-   else {
+   } else if (value instanceof RubyString || value instanceof RubySymbol) {
     String string = value.asJavaString();
     this.writePosition += writeCharacters(string, true);
+   } else {
+    throw getRuntime().newTypeError(format("Invalid type for put_cstring: %s", value));
    }
 
    return this;
@@ -585,7 +586,7 @@ public class ByteBuf extends RubyObject {
       int c = Character.codePointAt(string, i);
 
       if (checkForNull && c == 0x0) {
-        throw getRuntime().newArgumentError(format("String %s is not a valid UTF-8 CString.", string));
+        throw getRuntime().newArgumentError(format("String %s contains null bytes", string));
       }
 
       if (c < 0x80) {

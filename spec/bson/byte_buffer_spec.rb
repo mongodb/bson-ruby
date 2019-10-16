@@ -216,31 +216,113 @@ describe BSON::ByteBuffer do
       described_class.new
     end
 
-    context 'when the string is valid' do
+    context 'when argument is a string' do
+      context 'when the string is valid' do
 
-      let!(:modified) do
-        buffer.put_cstring('testing')
+        let!(:modified) do
+          buffer.put_cstring('testing')
+        end
+
+        it 'appends the string plus null byte to the byte buffer' do
+          expect(modified.to_s).to eq("testing#{BSON::NULL_BYTE}")
+        end
+
+        it 'increments the write position by the length + 1' do
+          expect(modified.write_position).to eq(8)
+        end
+
+        it 'mutates receiver' do
+          modified
+          expect(buffer.write_position).to eq(8)
+        end
       end
 
-      it 'appends the string plus null byte to the byte buffer' do
+      context "when the string contains a null byte" do
+
+        let(:string) do
+          "test#{BSON::NULL_BYTE}ing"
+        end
+
+        it 'raises ArgumentError' do
+          expect {
+            buffer.put_cstring(string)
+          }.to raise_error(ArgumentError, /String .* contains null bytes/)
+        end
+      end
+    end
+
+    context 'when argument is a symbol' do
+      let(:modified) do
+        buffer.put_cstring(:testing)
+      end
+
+      it 'writes' do
         expect(modified.to_s).to eq("testing#{BSON::NULL_BYTE}")
       end
 
       it 'increments the write position by the length + 1' do
         expect(modified.write_position).to eq(8)
       end
-    end
 
-    context "when the string contains a null byte" do
-
-      let(:string) do
-        "test#{BSON::NULL_BYTE}ing"
+      it 'mutates receiver' do
+        modified
+        expect(buffer.write_position).to eq(8)
       end
 
-      it "raises an error" do
-        expect {
-          buffer.put_cstring(string)
-        }.to raise_error(ArgumentError)
+      context 'when symbol includes a null byte' do
+        let(:modified) do
+          buffer.put_cstring(:"tes\x00ing")
+        end
+
+        it 'raises ArgumentError' do
+          expect {
+            modified
+          }.to raise_error(ArgumentError, /String .* contains null bytes/)
+        end
+
+        it 'does not change write position' do
+          begin
+            buffer.put_cstring(:"tes\x00ing")
+          rescue ArgumentError
+          end
+
+          expect(buffer.write_position).to eq(0)
+        end
+      end
+    end
+
+    context 'when argument is a Fixnum' do
+      let(:modified) do
+        buffer.put_cstring(1234)
+      end
+
+      it 'writes' do
+        expect(modified.to_s).to eq("1234#{BSON::NULL_BYTE}")
+      end
+
+      it 'increments the write position by the length + 1' do
+        expect(modified.write_position).to eq(5)
+      end
+    end
+
+    context 'when argument is of an unsupported type' do
+      let(:modified) do
+        buffer.put_cstring(1234.0)
+      end
+
+      it 'raises TypeError' do
+        expect do
+          modified
+        end.to raise_error(TypeError, /Invalid type for put_cstring/)
+      end
+
+      it 'does not change write position' do
+        begin
+          buffer.put_cstring(1234.0)
+        rescue TypeError
+        end
+
+        expect(buffer.write_position).to eq(0)
       end
     end
   end
@@ -534,7 +616,7 @@ describe BSON::ByteBuffer do
         expect{buffer.put_bytes(1)}.to raise_error(ArgumentError)
       end
     end
-    
+
     context 'when it receives a nil value' do
       it 'raises the ArgumentError exception' do
         expect{buffer.put_bytes(nil)}.to raise_error(ArgumentError)
