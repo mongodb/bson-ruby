@@ -811,7 +811,10 @@ VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes)
 
 /**
  * Writes a string (which may form part of a BSON object) to the byte buffer.
- * length does not include the null terminator.
+ *
+ * Note: the string may not contain null bytes, and must be null-terminated.
+ * length is the number of bytes to write and does not include the null
+ * terminator.
  */
 VALUE rb_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length)
 {
@@ -822,7 +825,11 @@ VALUE rb_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, i
 }
 
 /**
- * length does not include the null terminator.
+ * Writes a string (which may form part of a BSON object) to the byte buffer.
+ *
+ * Note: the string may not contain null bytes, and must be null-terminated.
+ * length is the number of bytes to write and does not include the null
+ * terminator.
  */
 void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length)
 {
@@ -851,31 +858,38 @@ void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys){
 }
 
 /**
- * Writes a cstring to the byte buffer.
- * This magically supports both Ruby symbols and strings.
+ * Converts obj to a string, which must not contain any null bytes, and
+ * writes the string to the buffer. The object can be a String, a Symbol or
+ * a Fixnum.
+ *
+ * If the string serialization of obj contains null bytes, this method raises
+ * ArgumentError. If obj is of an unsupported type, this method raises
+ * TypeError.
  */
-VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string)
+VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE obj)
 {
+  VALUE string;
+  const char *str;
   int32_t length;
 
-  if (TYPE(string) == T_SYMBOL) {
-    const char *sym = rb_id2name(SYM2ID(string));
-    length = strlen(sym);
-
-    return rb_bson_byte_buffer_put_bson_partial_string(self, sym, length);
-  } else if (TYPE(string) == T_STRING) {
-    const char *str = RSTRING_PTR(string);
-    length = RSTRING_LEN(string);
-
-    return rb_bson_byte_buffer_put_bson_partial_string(self, str, length);
-  } else if (TYPE(string) == T_FIXNUM) {
-    const char *str = RSTRING_PTR(rb_fix2str(string, 10));
-    length = strlen(str);
-
-    return rb_bson_byte_buffer_put_bson_partial_string(self, str, length);
-  } else {
-    rb_raise(rb_eTypeError, "Invalid type for string");
+  switch (TYPE(obj)) {
+  case T_STRING:
+    string = obj;
+    break;
+  case T_SYMBOL:
+    string = rb_sym2str(obj);
+    break;
+  case T_FIXNUM:
+    string = rb_fix2str(obj, 10);
+    break;
+  default:
+    rb_raise(rb_eTypeError, "Invalid type for put_cstring");
   }
+  
+  str = RSTRING_PTR(string);
+  length = RSTRING_LEN(string);
+  RB_GC_GUARD(string);
+  return rb_bson_byte_buffer_put_bson_partial_string(self, str, length);
 }
 
 /**
