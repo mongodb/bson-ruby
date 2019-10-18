@@ -265,6 +265,7 @@ void pvt_put_type_byte(byte_buffer_t *b, VALUE val){
       break;
     default:{
       VALUE type = rb_funcall(val, rb_intern("bson_type"),0);
+      RB_GC_GUARD(type);
       pvt_put_byte(b, *RSTRING_PTR(type));
       break;
     }
@@ -338,7 +339,7 @@ static int put_hash_callback(VALUE key, VALUE val, VALUE context){
  */
 VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys){
   byte_buffer_t *b = NULL;
-  put_hash_context context = {0};
+  put_hash_context context = { NULL };
   size_t position = 0;
   size_t new_position = 0;
   int32_t new_length = 0;
@@ -704,7 +705,7 @@ VALUE pvt_get_string(byte_buffer_t *b)
 
 VALUE rb_bson_byte_buffer_get_hash(VALUE self){
   VALUE doc = Qnil;
-  byte_buffer_t *b=NULL;
+  byte_buffer_t *b = NULL;
   uint8_t type;
   VALUE cDocument = rb_const_get(rb_const_get(rb_cObject, rb_intern("BSON")), rb_intern("Document"));
 
@@ -716,6 +717,7 @@ VALUE rb_bson_byte_buffer_get_hash(VALUE self){
 
   while((type = pvt_get_type_byte(b)) != 0){
     VALUE field = rb_bson_byte_buffer_get_cstring(self);
+    RB_GC_GUARD(field);
     rb_hash_aset(doc, field, pvt_read_field(b, self, type));
   }
   return doc;
@@ -735,6 +737,7 @@ VALUE rb_bson_byte_buffer_get_array(VALUE self){
     pvt_skip_cstring(b);
     rb_ary_push(array,  pvt_read_field(b, self, type));
   }
+  RB_GC_GUARD(array);
   return array;
 }
 
@@ -754,6 +757,7 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type){
     {
       VALUE klass = rb_funcall(rb_bson_registry,rb_intern("get"),1, INT2FIX(type));
       VALUE value = rb_funcall(klass, rb_intern("from_bson"),1, rb_buffer);
+      RB_GC_GUARD(klass);
       return value;
     }
   }
