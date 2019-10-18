@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <assert.h>
-#include "bson_native.h"
+#include "bson-native.h"
 
 /**
  * Taken from libbson.
