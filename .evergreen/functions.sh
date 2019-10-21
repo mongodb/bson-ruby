@@ -17,9 +17,7 @@ host_arch() {
     fi
   elif test -f /etc/redhat-release; then
     # RHEL or CentOS
-    if test "`uname -m`" = s390x; then
-      arch=rhel72-s390x
-    elif test "`uname -m`" = ppc64le; then
+    if test "`uname -m`" = ppc64le; then
       arch=rhel71-ppc
     elif lsb_release -i |grep -q RedHat; then
       release=`lsb_release -r |awk '{print $2}' |tr -d .`
