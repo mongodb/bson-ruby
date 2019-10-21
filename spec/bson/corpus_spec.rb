@@ -2,11 +2,14 @@ require 'spec_helper'
 
 describe 'Driver BSON Corpus spec tests' do
 
-  specs = BSON_CORPUS_TESTS.map { |file| BSON::Corpus::Spec.new(file) }
+  BSON_CORPUS_TESTS.each do |path|
+    basename = File.basename(path)
+    # All of the tests in the failures subdir are failing apparently
+    #basename = path.sub(/.*corpus-tests\//, '')
 
-  specs.each do |spec|
+    spec = BSON::Corpus::Spec.new(path)
 
-    context(spec.description) do
+    context("(#{basename}): #{spec.description}") do
 
       spec.valid_tests.each do |test|
 
@@ -57,9 +60,9 @@ describe 'Driver BSON Corpus spec tests' do
 
           it 'raises an error' do
             skip 'This test case does not raise and error but should' unless error
-            expect {
+            expect do
               test.reencoded_bson
-            }.to raise_error
+            end.to raise_error(error.class)
           end
         end
       end
