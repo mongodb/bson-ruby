@@ -493,12 +493,6 @@ axes:
   - id: "special-os"
     display_name: OS
     values:
-      - id: "rhel72-s390x"
-        display_name: "RHEL 7.2 Z-Series"
-        run_on: rhel72-zseries-test
-        variables:
-          MACHINE: "rhel72-s390x"
-      
       - id: "rhel71-ppc"
         display_name: "RHEL 7.1 PowerPC"
         run_on: rhel71-power8-test
