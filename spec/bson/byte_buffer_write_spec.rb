@@ -114,11 +114,11 @@ describe BSON::ByteBuffer do
 
   describe '#put_string' do
 
-    context 'when the buffer does not need to be expanded' do
+    let(:buffer) do
+      described_class.new
+    end
 
-      let(:buffer) do
-        described_class.new
-      end
+    context 'when the buffer does not need to be expanded' do
 
       context 'when the string is UTF-8' do
 
@@ -137,10 +137,6 @@ describe BSON::ByteBuffer do
     end
 
     context 'when the buffer needs to be expanded' do
-
-      let(:buffer) do
-        described_class.new
-      end
 
       let(:string) do
         300.times.inject(""){ |s, i| s << "#{i}" }
@@ -176,6 +172,16 @@ describe BSON::ByteBuffer do
         it 'increments the write position by length + 5' do
           expect(modified.write_position).to eq(string.bytesize + 9)
         end
+      end
+    end
+
+    context 'given empty string' do
+      let(:modified) do
+        buffer.put_string('')
+      end
+
+      it 'writes length and null terminator' do
+        expect(modified.write_position).to eq(5)
       end
     end
   end
