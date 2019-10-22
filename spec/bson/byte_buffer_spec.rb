@@ -14,6 +14,16 @@ describe BSON::ByteBuffer do
   end
 
   describe '#length' do
+    context 'empty buffer' do
+
+      let(:buffer) do
+        described_class.new
+      end
+
+      it 'is zero' do
+        expect(buffer.length).to eq(0)
+      end
+    end
 
     context 'when the byte buffer is initialized with no bytes' do
 
