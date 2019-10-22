@@ -311,9 +311,7 @@ VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i)
   return self;
 }
 
-/**
- * Writes a 32 bit integer to the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i)
 {
   byte_buffer_t *b;
@@ -332,9 +330,7 @@ void pvt_put_int32(byte_buffer_t *b, const int32_t i)
   b->write_position += 4;
 }
 
-/**
- * Writes a 64 bit integer to the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i)
 {
   byte_buffer_t *b;
@@ -355,9 +351,7 @@ void pvt_put_int64(byte_buffer_t *b, const int64_t i)
   b->write_position += 8;
 }
 
-/**
- * Writes a 64 bit double to the buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
 {
   byte_buffer_t *b;
