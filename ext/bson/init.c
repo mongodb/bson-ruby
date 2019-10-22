@@ -94,14 +94,29 @@ void Init_bson_native()
    * Returns the modified +self+.
    */
   rb_define_method(rb_byte_buffer_class, "put_bytes", rb_bson_byte_buffer_put_bytes, 1);
-  
+
+  /*
+   * call-seq:
+   *   buffer.put_string(binary_str) -> ByteBuffer
+   *
+   * Writes the specified byte string to the byte buffer as a BSON string.
+   *
+   * Unlike +put_bytes+, this method writes the provided byte string as
+   * a "BSON string" - the string is prefixed with its length and suffixed
+   * with a null byte. The byte string may contain null bytes itself thus
+   * the null terminator is redundant, but it is required by the BSON
+   * specification.
+   *
+   * Returns the modified +self+.
+   */
+  rb_define_method(rb_byte_buffer_class, "put_string", rb_bson_byte_buffer_put_string, 1);
+
   rb_define_method(rb_byte_buffer_class, "put_cstring", rb_bson_byte_buffer_put_cstring, 1);
   rb_define_method(rb_byte_buffer_class, "put_decimal128", rb_bson_byte_buffer_put_decimal128, 2);
   
   rb_define_method(rb_byte_buffer_class, "put_double", rb_bson_byte_buffer_put_double, 1);
   rb_define_method(rb_byte_buffer_class, "put_int32", rb_bson_byte_buffer_put_int32, 1);
   rb_define_method(rb_byte_buffer_class, "put_int64", rb_bson_byte_buffer_put_int64, 1);
-  rb_define_method(rb_byte_buffer_class, "put_string", rb_bson_byte_buffer_put_string, 1);
   rb_define_method(rb_byte_buffer_class, "put_symbol", rb_bson_byte_buffer_put_symbol, 1);
   rb_define_method(rb_byte_buffer_class, "put_hash", rb_bson_byte_buffer_put_hash, 2);
   rb_define_method(rb_byte_buffer_class, "put_array", rb_bson_byte_buffer_put_array, 2);

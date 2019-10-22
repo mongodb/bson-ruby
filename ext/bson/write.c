@@ -79,9 +79,7 @@ void pvt_put_byte( byte_buffer_t *b, const char byte)
 
 }
 
-/**
- * Writes a byte to the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte)
 {
   byte_buffer_t *b;
@@ -106,9 +104,7 @@ VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte)
   return self;
 }
 
-/**
- * Writes bytes to the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes)
 {
   byte_buffer_t *b;
@@ -193,9 +189,7 @@ VALUE pvt_bson_byte_buffer_put_binary_string(VALUE self, const char *str, int32_
   return self;
 }
 
-/**
- * Writes a string to the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
 {
   const char *str = RSTRING_PTR(string);
