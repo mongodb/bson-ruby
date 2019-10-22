@@ -380,7 +380,7 @@ describe BSON::ByteBuffer do
       described_class.new
     end
 
-    let!(:modified) do
+    let(:modified) do
       buffer.put_bytes(BSON::Int32::BSON_TYPE)
       buffer
     end
@@ -398,6 +398,23 @@ describe BSON::ByteBuffer do
     context 'when it receives a nil value' do
       it 'raises the ArgumentError exception' do
         expect{buffer.put_bytes(nil)}.to raise_error(ArgumentError)
+      end
+    end
+
+    context 'when given a string with null bytes' do
+      let(:byte_str) { "\x00\xef\xfe\x00" }
+
+      let(:modified) do
+        buffer.put_bytes(byte_str)
+      end
+
+      before do
+        expect(buffer.write_position).to eq(0)
+        expect(byte_str.length).to eq(4)
+      end
+
+      it 'writes the string' do
+        expect(modified.write_position).to eq(4)
       end
     end
   end
