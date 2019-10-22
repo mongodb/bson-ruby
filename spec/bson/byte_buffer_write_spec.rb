@@ -33,6 +33,51 @@ describe BSON::ByteBuffer do
     end
   end
 
+  describe '#put_bytes' do
+
+    let(:buffer) do
+      described_class.new
+    end
+
+    let(:modified) do
+      buffer.put_bytes(BSON::Int32::BSON_TYPE)
+      buffer
+    end
+
+    it 'increments the write position by 1' do
+      expect(modified.write_position).to eq(1)
+    end
+
+    context 'when it receives a numeric value' do
+      it 'raises the ArgumentError exception' do
+        expect{buffer.put_bytes(1)}.to raise_error(ArgumentError)
+      end
+    end
+
+    context 'when it receives a nil value' do
+      it 'raises the ArgumentError exception' do
+        expect{buffer.put_bytes(nil)}.to raise_error(ArgumentError)
+      end
+    end
+
+    context 'when given a string with null bytes' do
+      let(:byte_str) { "\x00\xef\xfe\x00" }
+
+      let(:modified) do
+        buffer.put_bytes(byte_str)
+      end
+
+      before do
+        expect(buffer.write_position).to eq(0)
+        expect(byte_str.length).to eq(4)
+      end
+
+      it 'writes the string' do
+        expect(modified.write_position).to eq(4)
+      end
+    end
+  end
+
   describe '#put_cstring' do
 
     let(:buffer) do
@@ -371,51 +416,6 @@ describe BSON::ByteBuffer do
 
     it 'replaces the int32 at the location' do
       expect(modified.to_s).to eq("#{exp_first}#{exp_second}")
-    end
-  end
-
-  describe '#put_bytes' do
-
-    let(:buffer) do
-      described_class.new
-    end
-
-    let(:modified) do
-      buffer.put_bytes(BSON::Int32::BSON_TYPE)
-      buffer
-    end
-
-    it 'increments the write position by 1' do
-      expect(modified.write_position).to eq(1)
-    end
-
-    context 'when it receives a numeric value' do
-      it 'raises the ArgumentError exception' do
-        expect{buffer.put_bytes(1)}.to raise_error(ArgumentError)
-      end
-    end
-
-    context 'when it receives a nil value' do
-      it 'raises the ArgumentError exception' do
-        expect{buffer.put_bytes(nil)}.to raise_error(ArgumentError)
-      end
-    end
-
-    context 'when given a string with null bytes' do
-      let(:byte_str) { "\x00\xef\xfe\x00" }
-
-      let(:modified) do
-        buffer.put_bytes(byte_str)
-      end
-
-      before do
-        expect(buffer.write_position).to eq(0)
-        expect(byte_str.length).to eq(4)
-      end
-
-      it 'writes the string' do
-        expect(modified.write_position).to eq(4)
-      end
     end
   end
 end
