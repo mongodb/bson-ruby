@@ -290,15 +290,24 @@ void pvt_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval)
   memcpy(READ_PTR(b) + position, &i32, 4);
 }
 
-/**
- * Replace a 32 bit integer int the byte buffer.
- */
-VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i)
+/* The docstring is in init.c. */
+VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE position, VALUE newval)
 {
   byte_buffer_t *b;
-
+  long _position;
+  
+  _position = NUM2LONG(position);
+  if (_position < 0) {
+    rb_raise(rb_eArgError, "Position given to replace_int32 cannot be negative: %ld", _position);
+  }
+  
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  pvt_replace_int32(b, NUM2LONG(index), NUM2LONG(i));
+  
+  if (_position > b->write_position - 4) {
+    rb_raise(rb_eArgError, "Position given to replace_int32 is out of bounds: %ld", _position);
+  }
+
+  pvt_replace_int32(b, _position, NUM2LONG(newval));
 
   return self;
 }

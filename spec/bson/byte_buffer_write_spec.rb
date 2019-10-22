@@ -432,12 +432,42 @@ describe BSON::ByteBuffer do
       [ 4 ].pack(BSON::Int32::PACK)
     end
 
+    before do
+      buffer.put_int32(0).put_int32(4)
+    end
+
     let(:modified) do
-      buffer.put_int32(0).put_int32(4).replace_int32(0, 5)
+      buffer.replace_int32(0, 5)
     end
 
     it 'replaces the int32 at the location' do
       expect(modified.to_s).to eq("#{exp_first}#{exp_second}")
+    end
+
+    context 'when the position is negative' do
+
+      let(:modified) do
+        buffer.replace_int32(-1, 5)
+      end
+
+      it 'raises ArgumentError' do
+        expect do
+          modified
+        end.to raise_error(ArgumentError, /Position.*cannot be negative/)
+      end
+    end
+
+    context 'when the position exceeds write position' do
+
+      let(:modified) do
+        buffer.replace_int32(10, 5)
+      end
+
+      it 'raises ArgumentError' do
+        expect do
+          modified
+        end.to raise_error(ArgumentError, /Position.*is out of bounds/)
+      end
     end
   end
 end

@@ -189,6 +189,21 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "put_hash", rb_bson_byte_buffer_put_hash, 2);
   rb_define_method(rb_byte_buffer_class, "put_array", rb_bson_byte_buffer_put_array, 2);
   
+  /*
+   * call-seq:
+   *   buffer.replace_int32(position, fixnum) -> ByteBuffer
+   *
+   * Replaces a 32-bit integer value at the specified position in the buffer.
+   *
+   * The position must be a non-negative integer, and must be completely
+   * contained within the data already written. For example, if the buffer has
+   * the write position of 12, the acceptable range of positions for this
+   * method is 0..8.
+   *
+   * If the argument cannot be represented in 32 bits, raises RangeError.
+   *
+   * Returns the modified +self+.
+   */
   rb_define_method(rb_byte_buffer_class, "replace_int32", rb_bson_byte_buffer_replace_int32, 2);
   
   /*
