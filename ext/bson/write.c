@@ -30,6 +30,7 @@ static void pvt_put_int64(byte_buffer_t *b, const int64_t i);
 static void pvt_put_double(byte_buffer_t *b, double f);
 static void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length);
 static void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys);
+static VALUE pvt_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length);
 
 static int fits_int32(int64_t i64){
   return i64 >= INT32_MIN && i64 <= INT32_MAX;
@@ -207,7 +208,7 @@ VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
  * length is the number of bytes to write and does not include the null
  * terminator.
  */
-VALUE rb_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length)
+VALUE pvt_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length)
 {
   byte_buffer_t *b;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
@@ -247,7 +248,7 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE obj)
   str = RSTRING_PTR(string);
   length = RSTRING_LEN(string);
   RB_GC_GUARD(string);
-  return rb_bson_byte_buffer_put_bson_partial_string(self, str, length);
+  return pvt_bson_byte_buffer_put_bson_partial_string(self, str, length);
 }
 
 /**

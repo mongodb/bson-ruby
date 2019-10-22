@@ -78,7 +78,6 @@ VALUE rb_bson_byte_buffer_get_hash(VALUE self);
 VALUE rb_bson_byte_buffer_get_array(VALUE self);
 VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte);
 VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes);
-VALUE rb_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length);
 VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string);
 VALUE rb_bson_byte_buffer_put_decimal128(VALUE self, VALUE low, VALUE high);
 VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f);
