@@ -212,15 +212,7 @@ VALUE pvt_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, 
   return self;
 }
 
-/**
- * Converts obj to a string, which must not contain any null bytes, and
- * writes the string to the buffer. The object can be a String, a Symbol or
- * a Fixnum.
- *
- * If the string serialization of obj contains null bytes, this method raises
- * ArgumentError. If obj is of an unsupported type, this method raises
- * TypeError.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE obj)
 {
   VALUE string;
