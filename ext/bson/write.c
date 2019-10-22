@@ -361,9 +361,7 @@ void pvt_put_double(byte_buffer_t *b, double f)
   b->write_position += 8;
 }
 
-/**
- * Writes a 128 bit decimal to the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_decimal128(VALUE self, VALUE low, VALUE high)
 {
   byte_buffer_t *b;
