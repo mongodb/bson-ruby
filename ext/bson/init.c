@@ -38,7 +38,14 @@ void Init_bson_native()
   char rb_bson_machine_id[256];
 
   VALUE rb_bson_module = rb_define_module("BSON");
+  
+  /* Document-class: BSON::ByteBuffer
+   *
+   * Stores BSON-serialized data and provides efficient serialization and
+   * deserialization of common Ruby classes using native code.
+   */
   VALUE rb_byte_buffer_class = rb_define_class_under(rb_bson_module, "ByteBuffer", rb_cObject);
+  
   VALUE rb_bson_object_id_class = rb_const_get(rb_bson_module, rb_intern("ObjectId"));
   VALUE rb_bson_object_id_generator_class = rb_const_get(rb_bson_object_id_class, rb_intern("Generator"));
   VALUE rb_digest_class = rb_const_get(rb_cObject, rb_intern("Digest"));
