@@ -362,7 +362,7 @@ VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
 {
   byte_buffer_t *b;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  pvt_put_double(b,NUM2DBL(f));
+  pvt_put_double(b, NUM2DBL(f));
 
   return self;
 }

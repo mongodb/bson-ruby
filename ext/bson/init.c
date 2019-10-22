@@ -114,9 +114,40 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "put_cstring", rb_bson_byte_buffer_put_cstring, 1);
   rb_define_method(rb_byte_buffer_class, "put_decimal128", rb_bson_byte_buffer_put_decimal128, 2);
   
+  /*
+   * call-seq:
+   *   buffer.put_double(double) -> ByteBuffer
+   *
+   * Writes a 64-bit floating point value to the buffer.
+   *
+   * Returns the modified +self+.
+   */
   rb_define_method(rb_byte_buffer_class, "put_double", rb_bson_byte_buffer_put_double, 1);
+  
+  /*
+   * call-seq:
+   *   buffer.put_int32(fixnum) -> ByteBuffer
+   *
+   * Writes a 32-bit integer value to the buffer.
+   *
+   * If the argument cannot be represented in 32 bits, raises RangeError.
+   *
+   * Returns the modified +self+.
+   */
   rb_define_method(rb_byte_buffer_class, "put_int32", rb_bson_byte_buffer_put_int32, 1);
+  
+  /*
+   * call-seq:
+   *   buffer.put_int64(fixnum) -> ByteBuffer
+   *
+   * Writes a 64-integer value to the buffer.
+   *
+   * If the argument cannot be represented in 64 bits, raises RangeError.
+   *
+   * Returns the modified +self+.
+   */
   rb_define_method(rb_byte_buffer_class, "put_int64", rb_bson_byte_buffer_put_int64, 1);
+  
   rb_define_method(rb_byte_buffer_class, "put_symbol", rb_bson_byte_buffer_put_symbol, 1);
   rb_define_method(rb_byte_buffer_class, "put_hash", rb_bson_byte_buffer_put_hash, 2);
   rb_define_method(rb_byte_buffer_class, "put_array", rb_bson_byte_buffer_put_array, 2);

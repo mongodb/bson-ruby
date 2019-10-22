@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe BSON::ByteBuffer do
 
+  let(:buffer) do
+    described_class.new
+  end
+
   shared_examples_for 'does not write' do
     it 'raises ArgumentError' do
       expect do
@@ -19,10 +23,6 @@ describe BSON::ByteBuffer do
   end
 
   describe '#put_byte' do
-
-    let(:buffer) do
-      described_class.new
-    end
 
     let(:modified) do
       buffer.put_byte(BSON::Int32::BSON_TYPE)
@@ -69,10 +69,6 @@ describe BSON::ByteBuffer do
 
   describe '#put_bytes' do
 
-    let(:buffer) do
-      described_class.new
-    end
-
     let(:modified) do
       buffer.put_bytes(BSON::Int32::BSON_TYPE)
       buffer
@@ -113,10 +109,6 @@ describe BSON::ByteBuffer do
   end
 
   describe '#put_string' do
-
-    let(:buffer) do
-      described_class.new
-    end
 
     context 'when the buffer does not need to be expanded' do
 
@@ -187,10 +179,6 @@ describe BSON::ByteBuffer do
   end
 
   describe '#put_cstring' do
-
-    let(:buffer) do
-      described_class.new
-    end
 
     context 'when argument is a string' do
       context 'when the string is valid' do
@@ -305,10 +293,6 @@ describe BSON::ByteBuffer do
 
   describe '#put_double' do
 
-    let(:buffer) do
-      described_class.new
-    end
-
     let!(:modified) do
       buffer.put_double(1.2332)
     end
@@ -323,10 +307,6 @@ describe BSON::ByteBuffer do
   end
 
   describe '#put_int32' do
-
-    let(:buffer) do
-      described_class.new
-    end
 
     context 'when the integer is 32 bit' do
 
@@ -381,10 +361,6 @@ describe BSON::ByteBuffer do
 
   describe '#put_int64' do
 
-    let(:buffer) do
-      described_class.new
-    end
-
     context 'when the integer is 64 bit' do
 
       context 'when the integer is positive' do
@@ -434,13 +410,19 @@ describe BSON::ByteBuffer do
         end
       end
     end
+
+    context 'when integer fits in 32 bits' do
+      let(:modified) do
+        buffer.put_int64(1)
+      end
+
+      it 'increments the write position by 8' do
+        expect(modified.write_position).to eq(8)
+      end
+    end
   end
 
   describe '#replace_int32' do
-
-    let(:buffer) do
-      described_class.new
-    end
 
     let(:exp_first) do
       [ 5 ].pack(BSON::Int32::PACK)
