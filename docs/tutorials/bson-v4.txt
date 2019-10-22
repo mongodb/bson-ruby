@@ -108,6 +108,12 @@ over a socket), call ``to_s`` on the buffer:
   buffer.put_string('testing')
   socket.write(buffer.to_s)
 
+.. note::
+
+  ``ByteBuffer`` keeps track of read and write positions separately.
+  There is no way to rewind the buffer for writing - ``rewind`` only affects
+  the read position.
+
 
 Reading
 ```````
@@ -130,6 +136,17 @@ Reading from the buffer is done via the following API:
   buffer.get_int32 # Pulls a 32-bit integer (4 bytes) from the buffer.
   buffer.get_int64 # Pulls a 64-bit integer (8 bytes) from the buffer.
   buffer.get_string # Pulls a UTF-8 string from the buffer.
+
+To restart reading from the beginning of a buffer, use ``rewind``:
+
+.. code-block:: ruby
+
+  buffer.rewind
+
+.. note::
+
+  ``ByteBuffer`` keeps track of read and write positions separately.
+  ``rewind`` only affects the read position.
 
 
 Supported Classes
