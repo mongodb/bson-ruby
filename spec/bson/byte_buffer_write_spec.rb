@@ -472,53 +472,73 @@ describe BSON::ByteBuffer do
       [ 42 ].pack(BSON::Int32::PACK)
     end
 
-    before do
-      buffer.put_int32(0).put_int32(4)
-    end
-
     let(:modified) do
       buffer.replace_int32(0, 5)
     end
 
-    it 'replaces the int32 at the location' do
-      expect(modified.to_s).to eq("#{exp_first}#{exp_second}")
-    end
+    context 'when there is sufficient data in buffer' do
 
-    context 'when the position is negative' do
-
-      let(:modified) do
-        buffer.replace_int32(-1, 5)
-      end
-
-      it 'raises ArgumentError' do
-        expect do
-          modified
-        end.to raise_error(ArgumentError, /Position.*cannot be negative/)
-      end
-    end
-
-    context 'when the position is 4 bytes prior to write position' do
-
-      let(:modified) do
-        buffer.replace_int32(4, 42)
+      before do
+        buffer.put_int32(0).put_int32(4)
       end
 
       it 'replaces the int32 at the location' do
-        expect(modified.to_s).to eq("#{exp_0}#{exp_42}")
+        expect(modified.to_s).to eq("#{exp_first}#{exp_second}")
+      end
+
+      context 'when the position is negative' do
+
+        let(:modified) do
+          buffer.replace_int32(-1, 5)
+        end
+
+        it 'raises ArgumentError' do
+          expect do
+            modified
+          end.to raise_error(ArgumentError, /Position.*cannot be negative/)
+        end
+      end
+
+      context 'when the position is 4 bytes prior to write position' do
+
+        let(:modified) do
+          buffer.replace_int32(4, 42)
+        end
+
+        it 'replaces the int32 at the location' do
+          expect(modified.to_s).to eq("#{exp_0}#{exp_42}")
+        end
+      end
+
+      context 'when the position exceeds allowed range' do
+
+        let(:modified) do
+          # Buffer has 8 bytes but we can only write up to position 4
+          buffer.replace_int32(5, 42)
+        end
+
+        it 'raises ArgumentError' do
+          expect do
+            modified
+          end.to raise_error(ArgumentError, /Position.*is out of bounds/)
+        end
       end
     end
 
-    context 'when the position exceeds allowed range' do
+    context 'when there is insufficient data in buffer' do
+
+      before do
+        buffer.put_bytes("aa")
+      end
 
       let(:modified) do
-        # Buffer has 8 bytes but we can only write up to position 4
-        buffer.replace_int32(5, 42)
+        buffer.replace_int32(1, 42)
       end
 
       it 'raises ArgumentError' do
         expect do
           modified
-        end.to raise_error(ArgumentError, /Position.*is out of bounds/)
+        end.to raise_error(ArgumentError, /Buffer does not have enough data/)
       end
     end
   end
