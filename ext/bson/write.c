@@ -84,11 +84,17 @@ VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte)
 {
   byte_buffer_t *b;
   const char *str;
+  size_t length;
 
   if (!RB_TYPE_P(byte, T_STRING))
-    rb_raise(rb_eArgError, "Invalid input");
+    rb_raise(rb_eArgError, "A string argument is required for put_byte");
 
   str = RSTRING_PTR(byte);
+  length = RSTRING_LEN(byte);
+  
+  if (length != 1) {
+    rb_raise(rb_eArgError, "put_byte requires a string of length 1");
+  }
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 1);

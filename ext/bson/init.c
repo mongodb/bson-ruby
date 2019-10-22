@@ -70,6 +70,16 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "get_string", rb_bson_byte_buffer_get_string, 0);
   
   rb_define_method(rb_byte_buffer_class, "write_position", rb_bson_byte_buffer_write_position, 0);
+  
+  /*
+   * call-seq:
+   *   buffer.put_byte(binary_str) -> ByteBuffer
+   *
+   * Writes the specified byte string, which must be of length 1,
+   * to the byte buffer.
+   *
+   * Returns the modified +self+.
+   */
   rb_define_method(rb_byte_buffer_class, "put_byte", rb_bson_byte_buffer_put_byte, 1);
   
   /*

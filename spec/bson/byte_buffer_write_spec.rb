@@ -2,13 +2,29 @@ require 'spec_helper'
 
 describe BSON::ByteBuffer do
 
+  shared_examples_for 'does not write' do
+    it 'raises ArgumentError' do
+      expect do
+        modified
+      end.to raise_error(ArgumentError)
+    end
+
+    it 'does not change write position' do
+      expect do
+        modified
+      end.to raise_error(ArgumentError)
+
+      expect(buffer.write_position).to eq(0)
+    end
+  end
+
   describe '#put_byte' do
 
     let(:buffer) do
       described_class.new
     end
 
-    let!(:modified) do
+    let(:modified) do
       buffer.put_byte(BSON::Int32::BSON_TYPE)
     end
 
@@ -30,6 +46,24 @@ describe BSON::ByteBuffer do
       it 'raises the ArgumentError exception' do
         expect{buffer.put_byte(nil)}.to raise_error(ArgumentError)
       end
+    end
+
+    context 'when given a string of length > 1' do
+
+      let(:modified) do
+        buffer.put_byte('xx')
+      end
+
+      it_behaves_like 'does not write'
+    end
+
+    context 'when given a string of length 0' do
+
+      let(:modified) do
+        buffer.put_byte('')
+      end
+
+      it_behaves_like 'does not write'
     end
   end
 
