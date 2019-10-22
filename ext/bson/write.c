@@ -71,7 +71,7 @@ void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validatin
   }
 }
 
-void pvt_put_byte( byte_buffer_t *b, const char byte)
+void pvt_put_byte(byte_buffer_t *b, const char byte)
 {
   ENSURE_BSON_WRITE(b, 1);
   *WRITE_PTR(b) = byte;
@@ -183,8 +183,7 @@ VALUE pvt_bson_byte_buffer_put_binary_string(VALUE self, const char *str, int32_
   b->write_position += 4;
   memcpy(WRITE_PTR(b), str, length);
   b->write_position += length;
-  memcpy(WRITE_PTR(b), "", 1);
-  ++b->write_position;
+  pvt_put_byte(b, 0);
 
   return self;
 }
