@@ -184,7 +184,7 @@ void Init_bson_native()
    * call-seq:
    *   buffer.rewind! -> ByteBuffer
    *
-   * Resets the read position in the buffer to 0.
+   * Resets the read position to the beginning of the byte buffer.
    *
    * Note: +rewind!+ does not change the buffer's write position.
    *
@@ -192,7 +192,18 @@ void Init_bson_native()
    */
   rb_define_method(rb_byte_buffer_class, "rewind!", rb_bson_byte_buffer_rewind, 0);
   
+  /*
+   * call-seq:
+   *   buffer.to_s -> String
+   *
+   * Returns the contents of the buffer as a binary string.
+   *
+   * Note: this method copies the buffer's contents into a newly allocated
+   * +String+ instance. It does not return a reference to the data stored in
+   * the buffer itself.
+   */
   rb_define_method(rb_byte_buffer_class, "to_s", rb_bson_byte_buffer_to_s, 0);
+  
   rb_define_method(rb_bson_object_id_generator_class, "next_object_id", rb_bson_object_id_generator_next, -1);
 
   // Get the object id machine id and hash it.
