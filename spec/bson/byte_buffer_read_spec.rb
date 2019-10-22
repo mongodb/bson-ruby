@@ -182,5 +182,13 @@ describe BSON::ByteBuffer do
 
       it_behaves_like 'a rewindable buffer'
     end
+
+    it 'does not change write position' do
+      buffer = described_class.new
+      buffer.put_byte(BSON::Int32::BSON_TYPE)
+      expect(buffer.write_position).to eq(1)
+      buffer.rewind!
+      expect(buffer.write_position).to eq(1)
+    end
   end
 end
