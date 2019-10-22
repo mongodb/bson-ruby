@@ -148,7 +148,7 @@ void pvt_put_type_byte(byte_buffer_t *b, VALUE val){
       pvt_put_byte(b, BSON_TYPE_BOOLEAN);
       break;
     case T_HASH:
-      pvt_put_byte(b, BSON_TYPE_OBJECT);
+      pvt_put_byte(b, BSON_TYPE_DOCUMENT);
       break;
     case T_FLOAT:
       pvt_put_byte(b, BSON_TYPE_DOUBLE);

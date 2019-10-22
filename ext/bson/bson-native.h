@@ -33,7 +33,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
 
 #define BSON_TYPE_DOUBLE 1
 #define BSON_TYPE_STRING 2
-#define BSON_TYPE_OBJECT 3
+#define BSON_TYPE_DOCUMENT 3
 #define BSON_TYPE_ARRAY 4
 #define BSON_TYPE_INT32 16
 #define BSON_TYPE_INT64 18
