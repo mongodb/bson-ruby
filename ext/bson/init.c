@@ -199,7 +199,24 @@ void Init_bson_native()
    */
   rb_define_method(rb_byte_buffer_class, "put_decimal128", rb_bson_byte_buffer_put_decimal128, 2);
   
+  /*
+   * call-seq:
+   *   buffer.put_hash(hash) -> ByteBuffer
+   *
+   * Writes a Hash into the byte buffer.
+   *
+   * Returns the modified +self+.
+   */
   rb_define_method(rb_byte_buffer_class, "put_hash", rb_bson_byte_buffer_put_hash, 2);
+  
+  /*
+   * call-seq:
+   *   buffer.put_array(array) -> ByteBuffer
+   *
+   * Writes an Array into the byte buffer.
+   *
+   * Returns the modified +self+.
+   */
   rb_define_method(rb_byte_buffer_class, "put_array", rb_bson_byte_buffer_put_array, 2);
   
   /*

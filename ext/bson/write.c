@@ -416,9 +416,7 @@ static int put_hash_callback(VALUE key, VALUE val, VALUE context){
   return ST_CONTINUE;
 }
 
-/**
- * serializes a hash into the byte buffer
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys){
   byte_buffer_t *b = NULL;
   put_hash_context context = { NULL };
@@ -562,9 +560,7 @@ void pvt_put_array_index(byte_buffer_t *b, int32_t index)
   b->write_position += length;
 }
 
-/**
- * serializes an array into the byte buffer
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_keys){
   byte_buffer_t *b = NULL;
   size_t new_position = 0;
