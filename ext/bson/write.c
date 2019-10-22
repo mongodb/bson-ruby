@@ -302,7 +302,7 @@ VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE position, VALUE newval
   
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   
-  if (_position > b->write_position - 4) {
+  if ((size_t) _position > b->write_position - 4) {
     rb_raise(rb_eArgError, "Position given to replace_int32 is out of bounds: %ld", _position);
   }
 
