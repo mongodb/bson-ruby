@@ -31,6 +31,7 @@ static void pvt_put_double(byte_buffer_t *b, double f);
 static void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length);
 static void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys);
 static VALUE pvt_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length);
+static VALUE pvt_bson_byte_buffer_put_binary_string(VALUE self, const char *str, int32_t length);
 
 static int fits_int32(int64_t i64){
   return i64 >= INT32_MIN && i64 <= INT32_MAX;
@@ -164,28 +165,30 @@ void pvt_put_type_byte(byte_buffer_t *b, VALUE val){
 }
 
 /**
- * Write BSON string to byte buffer given a C string.
- * length is inclusive of the NULL terminator in the C string.
+ * Write a binary string (i.e. one potentially including null bytes)
+ * to byte buffer. length is the number of bytes to write.
+ * If str is null terminated, length does not include the terminating null.
  */
-VALUE rb_bson_byte_buffer_put_bson_string(VALUE self, const char *str, int32_t length)
+VALUE pvt_bson_byte_buffer_put_binary_string(VALUE self, const char *str, int32_t length)
 {
   byte_buffer_t *b;
   int32_t length_le;
 
-  if (length <= 0) {
-    rb_raise(rb_eArgError, "The length must include the NULL terminator, and thus be at least 1");
-  }
+  rb_bson_utf8_validate(str, length, true);
 
-  length_le = BSON_UINT32_TO_LE(length);
-
-  rb_bson_utf8_validate(str, length - 1, true);
+  /* Even though we are storing binary data, and including the length
+   * of it, the bson spec still demands the (useless) trailing null.
+   */
+  length_le = BSON_UINT32_TO_LE(length + 1);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  ENSURE_BSON_WRITE(b, length + 4);
+  ENSURE_BSON_WRITE(b, length + 5);
   memcpy(WRITE_PTR(b), &length_le, 4);
   b->write_position += 4;
   memcpy(WRITE_PTR(b), str, length);
   b->write_position += length;
+  memcpy(WRITE_PTR(b), "", 1);
+  ++b->write_position;
 
   return self;
 }
@@ -196,9 +199,9 @@ VALUE rb_bson_byte_buffer_put_bson_string(VALUE self, const char *str, int32_t l
 VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
 {
   const char *str = RSTRING_PTR(string);
-  const int32_t length = RSTRING_LEN(string) + 1;
+  const int32_t length = RSTRING_LEN(string);
 
-  return rb_bson_byte_buffer_put_bson_string(self, str, length);
+  return pvt_bson_byte_buffer_put_binary_string(self, str, length);
 }
 
 /**
@@ -274,9 +277,10 @@ void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length)
 VALUE rb_bson_byte_buffer_put_symbol(VALUE self, VALUE symbol)
 {
   const char *sym = rb_id2name(SYM2ID(symbol));
-  const int32_t length = strlen(sym) + 1;
+  /* This truncates symbols with null bytes. */
+  const int32_t length = strlen(sym);
 
-  return rb_bson_byte_buffer_put_bson_string(self, sym, length);
+  return pvt_bson_byte_buffer_put_binary_string(self, sym, length);
 }
 
 /**
