@@ -112,6 +112,74 @@ describe BSON::ByteBuffer do
     end
   end
 
+  describe '#put_string' do
+
+    context 'when the buffer does not need to be expanded' do
+
+      let(:buffer) do
+        described_class.new
+      end
+
+      context 'when the string is UTF-8' do
+
+        let!(:modified) do
+          buffer.put_string('testing')
+        end
+
+        it 'appends the string to the byte buffer' do
+          expect(modified.to_s).to eq("#{8.to_bson.to_s}testing#{BSON::NULL_BYTE}")
+        end
+
+        it 'increments the write position by length + 5' do
+          expect(modified.write_position).to eq(12)
+        end
+      end
+    end
+
+    context 'when the buffer needs to be expanded' do
+
+      let(:buffer) do
+        described_class.new
+      end
+
+      let(:string) do
+        300.times.inject(""){ |s, i| s << "#{i}" }
+      end
+
+      context 'when no bytes exist in the buffer' do
+
+        let!(:modified) do
+          buffer.put_string(string)
+        end
+
+        it 'appends the string to the byte buffer' do
+          expect(modified.to_s).to eq("#{(string.bytesize + 1).to_bson.to_s}#{string}#{BSON::NULL_BYTE}")
+        end
+
+        it 'increments the write position by length + 5' do
+          expect(modified.write_position).to eq(string.bytesize + 5)
+        end
+      end
+
+      context 'when bytes exist in the buffer' do
+
+        let!(:modified) do
+          buffer.put_int32(4).put_string(string)
+        end
+
+        it 'appends the string to the byte buffer' do
+          expect(modified.to_s).to eq(
+            "#{[ 4 ].pack(BSON::Int32::PACK)}#{(string.bytesize + 1).to_bson.to_s}#{string}#{BSON::NULL_BYTE}"
+          )
+        end
+
+        it 'increments the write position by length + 5' do
+          expect(modified.write_position).to eq(string.bytesize + 9)
+        end
+      end
+    end
+  end
+
   describe '#put_cstring' do
 
     let(:buffer) do
@@ -357,74 +425,6 @@ describe BSON::ByteBuffer do
           expect {
             buffer.put_int64(Integer::MAX_64BIT + 1)
           }.to raise_error(RangeError)
-        end
-      end
-    end
-  end
-
-  describe '#put_string' do
-
-    context 'when the buffer does not need to be expanded' do
-
-      let(:buffer) do
-        described_class.new
-      end
-
-      context 'when the string is UTF-8' do
-
-        let!(:modified) do
-          buffer.put_string('testing')
-        end
-
-        it 'appends the string to the byte buffer' do
-          expect(modified.to_s).to eq("#{8.to_bson.to_s}testing#{BSON::NULL_BYTE}")
-        end
-
-        it 'increments the write position by length + 5' do
-          expect(modified.write_position).to eq(12)
-        end
-      end
-    end
-
-    context 'when the buffer needs to be expanded' do
-
-      let(:buffer) do
-        described_class.new
-      end
-
-      let(:string) do
-        300.times.inject(""){ |s, i| s << "#{i}" }
-      end
-
-      context 'when no bytes exist in the buffer' do
-
-        let!(:modified) do
-          buffer.put_string(string)
-        end
-
-        it 'appends the string to the byte buffer' do
-          expect(modified.to_s).to eq("#{(string.bytesize + 1).to_bson.to_s}#{string}#{BSON::NULL_BYTE}")
-        end
-
-        it 'increments the write position by length + 5' do
-          expect(modified.write_position).to eq(string.bytesize + 5)
-        end
-      end
-
-      context 'when bytes exist in the buffer' do
-
-        let!(:modified) do
-          buffer.put_int32(4).put_string(string)
-        end
-
-        it 'appends the string to the byte buffer' do
-          expect(modified.to_s).to eq(
-            "#{[ 4 ].pack(BSON::Int32::PACK)}#{(string.bytesize + 1).to_bson.to_s}#{string}#{BSON::NULL_BYTE}"
-          )
-        end
-
-        it 'increments the write position by length + 5' do
-          expect(modified.write_position).to eq(string.bytesize + 9)
         end
       end
     end
