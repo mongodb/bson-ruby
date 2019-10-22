@@ -57,7 +57,14 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "initialize", rb_bson_byte_buffer_initialize, -1);
   rb_define_method(rb_byte_buffer_class, "length", rb_bson_byte_buffer_length, 0);
   
+  /*
+   * call-seq:
+   *   buffer.read_position -> Fixnum
+   *
+   * Returns the read position in the buffer.
+   */
   rb_define_method(rb_byte_buffer_class, "read_position", rb_bson_byte_buffer_read_position, 0);
+  
   rb_define_method(rb_byte_buffer_class, "get_byte", rb_bson_byte_buffer_get_byte, 0);
   rb_define_method(rb_byte_buffer_class, "get_bytes", rb_bson_byte_buffer_get_bytes, 1);
   rb_define_method(rb_byte_buffer_class, "get_cstring", rb_bson_byte_buffer_get_cstring, 0);
@@ -69,6 +76,12 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "get_int64", rb_bson_byte_buffer_get_int64, 0);
   rb_define_method(rb_byte_buffer_class, "get_string", rb_bson_byte_buffer_get_string, 0);
   
+  /*
+   * call-seq:
+   *   buffer.write_position -> Fixnum
+   *
+   * Returns the write position in the buffer.
+   */
   rb_define_method(rb_byte_buffer_class, "write_position", rb_bson_byte_buffer_write_position, 0);
   
   /*
@@ -166,7 +179,19 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "put_array", rb_bson_byte_buffer_put_array, 2);
   
   rb_define_method(rb_byte_buffer_class, "replace_int32", rb_bson_byte_buffer_replace_int32, 2);
+  
+  /*
+   * call-seq:
+   *   buffer.rewind! -> ByteBuffer
+   *
+   * Resets the read position in the buffer to 0.
+   *
+   * Note: +rewind!+ does not change the buffer's write position.
+   *
+   * Returns the modified +self+.
+   */
   rb_define_method(rb_byte_buffer_class, "rewind!", rb_bson_byte_buffer_rewind, 0);
+  
   rb_define_method(rb_byte_buffer_class, "to_s", rb_bson_byte_buffer_to_s, 0);
   rb_define_method(rb_bson_object_id_generator_class, "next_object_id", rb_bson_object_id_generator_next, -1);
 
