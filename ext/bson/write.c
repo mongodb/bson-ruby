@@ -256,16 +256,15 @@ void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length)
   b->write_position += bytes_to_write;
 }
 
-/**
- * Writes a symbol to the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_symbol(VALUE self, VALUE symbol)
 {
-  const char *sym = rb_id2name(SYM2ID(symbol));
-  /* This truncates symbols with null bytes. */
-  const int32_t length = strlen(sym);
+  VALUE symbol_str = rb_sym_to_s(symbol);
+  const char *str = RSTRING_PTR(symbol_str);
+  const int32_t length = RSTRING_LEN(symbol_str);
 
-  return pvt_bson_byte_buffer_put_binary_string(self, sym, length);
+  RB_GC_GUARD(symbol_str);
+  return pvt_bson_byte_buffer_put_binary_string(self, str, length);
 }
 
 /**
@@ -392,6 +391,7 @@ static int put_hash_callback(VALUE key, VALUE val, VALUE context){
   VALUE buffer = ((put_hash_context*)context)->buffer;
   VALUE validating_keys = ((put_hash_context*)context)->validating_keys;
   byte_buffer_t *b = ((put_hash_context*)context)->b;
+  VALUE key_str;
 
   pvt_put_type_byte(b, val);
 
@@ -400,7 +400,9 @@ static int put_hash_callback(VALUE key, VALUE val, VALUE context){
       pvt_put_bson_key(b, key, validating_keys);
       break;
     case T_SYMBOL:
-      pvt_put_bson_key(b, rb_sym_to_s(key), validating_keys);
+      key_str = rb_sym_to_s(key);
+      RB_GC_GUARD(key_str);
+      pvt_put_bson_key(b, key_str, validating_keys);
       break;
     default:
       rb_bson_byte_buffer_put_cstring(buffer, rb_funcall(key, rb_intern("to_bson_key"), 1, validating_keys));

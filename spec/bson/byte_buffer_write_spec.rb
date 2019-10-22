@@ -291,6 +291,38 @@ describe BSON::ByteBuffer do
     end
   end
 
+  describe '#put_symbol' do
+    context 'normal symbol' do
+      let(:modified) do
+        buffer.put_symbol(:hello)
+      end
+
+      it 'writes the symbol as string' do
+        expect(modified.to_s).to eq("\x06\x00\x00\x00hello\x00")
+      end
+
+      it 'advances write position' do
+        # 4 byte length + 5 byte string + null byte
+        expect(modified.write_position).to eq(10)
+      end
+    end
+
+    context 'symbol with null byte' do
+      let(:modified) do
+        buffer.put_symbol(:"he\x00lo")
+      end
+
+      it 'writes the symbol as string' do
+        expect(modified.to_s).to eq("\x06\x00\x00\x00he\x00lo\x00")
+      end
+
+      it 'advances write position' do
+        # 4 byte length + 5 byte string + null byte
+        expect(modified.write_position).to eq(10)
+      end
+    end
+  end
+
   describe '#put_double' do
 
     let!(:modified) do

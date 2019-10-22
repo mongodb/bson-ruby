@@ -138,6 +138,20 @@ void Init_bson_native()
    */
   rb_define_method(rb_byte_buffer_class, "put_cstring", rb_bson_byte_buffer_put_cstring, 1);
   
+  /**
+   * call-seq:
+   *   buffer.put_symbol(sym) -> ByteBuffer
+   *
+   * Converts +sym+ to a string and writes the resulting string to the byte
+   * buffer.
+   *
+   * The symbol may contain null bytes.
+   *
+   * Note: due to the string conversion, a symbol written to the buffer becomes
+   * indistinguishable from a string with the same value written to the buffer.
+   */
+  rb_define_method(rb_byte_buffer_class, "put_symbol", rb_bson_byte_buffer_put_symbol, 1);
+  
   /*
    * call-seq:
    *   buffer.put_int32(fixnum) -> ByteBuffer
@@ -185,7 +199,6 @@ void Init_bson_native()
    */
   rb_define_method(rb_byte_buffer_class, "put_decimal128", rb_bson_byte_buffer_put_decimal128, 2);
   
-  rb_define_method(rb_byte_buffer_class, "put_symbol", rb_bson_byte_buffer_put_symbol, 1);
   rb_define_method(rb_byte_buffer_class, "put_hash", rb_bson_byte_buffer_put_hash, 2);
   rb_define_method(rb_byte_buffer_class, "put_array", rb_bson_byte_buffer_put_array, 2);
   
