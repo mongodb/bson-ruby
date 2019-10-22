@@ -71,15 +71,21 @@ void Init_bson_native()
   
   rb_define_method(rb_byte_buffer_class, "write_position", rb_bson_byte_buffer_write_position, 0);
   rb_define_method(rb_byte_buffer_class, "put_byte", rb_bson_byte_buffer_put_byte, 1);
-  rb_define_method(rb_byte_buffer_class, "put_bytes", rb_bson_byte_buffer_put_bytes, 1);
-  rb_define_method(rb_byte_buffer_class, "put_cstring", rb_bson_byte_buffer_put_cstring, 1);
   
   /*
    * call-seq:
-   *   buffer.put_bytes(binary_str)
+   *   buffer.put_bytes(binary_str) -> ByteBuffer
    *
-   * Writes bytes to the byte buffer.
+   * Writes the specified byte string to the byte buffer.
+   *
+   * This method writes exactly the provided byte string - in particular, it
+   * does not prepend the length, and does not append a null byte at the end.
+   *
+   * Returns the modified +self+.
    */
+  rb_define_method(rb_byte_buffer_class, "put_bytes", rb_bson_byte_buffer_put_bytes, 1);
+  
+  rb_define_method(rb_byte_buffer_class, "put_cstring", rb_bson_byte_buffer_put_cstring, 1);
   rb_define_method(rb_byte_buffer_class, "put_decimal128", rb_bson_byte_buffer_put_decimal128, 2);
   
   rb_define_method(rb_byte_buffer_class, "put_double", rb_bson_byte_buffer_put_double, 1);
