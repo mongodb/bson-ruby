@@ -64,7 +64,7 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type){
     case BSON_TYPE_DOUBLE: return pvt_get_double(b);
     case BSON_TYPE_STRING: return pvt_get_string(b);
     case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(rb_buffer);
-    case BSON_TYPE_OBJECT: return rb_bson_byte_buffer_get_hash(rb_buffer);
+    case BSON_TYPE_DOCUMENT: return rb_bson_byte_buffer_get_hash(rb_buffer);
     case BSON_TYPE_BOOLEAN: return pvt_get_boolean(b);
     default:
     {

@@ -285,6 +285,9 @@ public class ByteBuf extends RubyObject {
     } catch (ClassCastException e) {
       throw context.runtime.newArgumentError(e.toString());
     }
+    if (string.strLength() != 1) {
+      throw context.runtime.newArgumentError("put_byte requires a string of length 1");
+    }
     ensureBsonWrite(1);
     this.buffer.put(string.getBytes()[0]);
     this.writePosition += 1;
@@ -459,9 +462,9 @@ public class ByteBuf extends RubyObject {
   }
 
   /**
-   * Replace a 32 bit integer at the provided index in the buffer.
+   * Replace a 32 bit integer at the provided position in the buffer.
    *
-   * @param index The index to replace at.
+   * @param position The position to replace at.
    * @param value The value to replace with.
    *
    * @author Durran Jordan
@@ -469,9 +472,18 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "replace_int32")
-  public ByteBuf replaceInt32(final IRubyObject index, final IRubyObject value) {
-    int i = RubyNumeric.fix2int((RubyFixnum) index);
+  public ByteBuf replaceInt32(final IRubyObject position, final IRubyObject value) {
+    int i = RubyNumeric.fix2int((RubyFixnum) position);
     int int32 = RubyNumeric.fix2int((RubyFixnum) value);
+    if (i < 0) {
+      throw getRuntime().newArgumentError(format("Position given to replace_int32 cannot be negative: %d", i));
+    }
+    if (this.writePosition < 4) {
+      throw getRuntime().newArgumentError(format("Buffer does not have enough data to use replace_int32"));
+    }
+    if (i > this.writePosition - 4) {
+      throw getRuntime().newArgumentError(format("Position given to replace_int32 is out of bounds: %d", i));
+    }
     this.buffer.putInt(i, int32);
     return this;
   }

@@ -31,13 +31,13 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
 #define HOST_NAME_HASH_MAX 256
 #endif
 
-#define BSON_TYPE_DOUBLE 1
-#define BSON_TYPE_STRING 2
-#define BSON_TYPE_OBJECT 3
-#define BSON_TYPE_ARRAY 4
-#define BSON_TYPE_INT32 16
-#define BSON_TYPE_INT64 18
-#define BSON_TYPE_BOOLEAN 8
+#define BSON_TYPE_DOUBLE        1
+#define BSON_TYPE_STRING        2
+#define BSON_TYPE_DOCUMENT      3
+#define BSON_TYPE_ARRAY         4
+#define BSON_TYPE_BOOLEAN       8
+#define BSON_TYPE_INT32         16
+#define BSON_TYPE_INT64         18
 
 typedef struct {
   size_t size;
@@ -78,13 +78,11 @@ VALUE rb_bson_byte_buffer_get_hash(VALUE self);
 VALUE rb_bson_byte_buffer_get_array(VALUE self);
 VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte);
 VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes);
-VALUE rb_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length);
 VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string);
 VALUE rb_bson_byte_buffer_put_decimal128(VALUE self, VALUE low, VALUE high);
 VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f);
 VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i);
 VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i);
-VALUE rb_bson_byte_buffer_put_bson_string(VALUE self, const char *str, int32_t length);
 VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string);
 VALUE rb_bson_byte_buffer_put_symbol(VALUE self, VALUE symbol);
 VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys);

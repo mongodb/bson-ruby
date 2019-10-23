@@ -90,9 +90,7 @@ VALUE rb_bson_byte_buffer_length(VALUE self)
   return UINT2NUM(READ_SIZE(b));
 }
 
-/**
- * Get the read position.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_read_position(VALUE self)
 {
   byte_buffer_t *b;
@@ -100,9 +98,7 @@ VALUE rb_bson_byte_buffer_read_position(VALUE self)
   return INT2NUM(b->read_position);
 }
 
-/**
- * Reset the read position to the beginning of the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_rewind(VALUE self)
 {
   byte_buffer_t *b;
@@ -112,9 +108,7 @@ VALUE rb_bson_byte_buffer_rewind(VALUE self)
   return self;
 }
 
-/**
- * Get the write position.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_write_position(VALUE self)
 {
   byte_buffer_t *b;
@@ -122,9 +116,7 @@ VALUE rb_bson_byte_buffer_write_position(VALUE self)
   return INT2NUM(b->write_position);
 }
 
-/**
- * Convert the buffer to a string.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_to_s(VALUE self)
 {
   byte_buffer_t *b;

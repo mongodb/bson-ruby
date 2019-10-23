@@ -30,6 +30,8 @@ static void pvt_put_int64(byte_buffer_t *b, const int64_t i);
 static void pvt_put_double(byte_buffer_t *b, double f);
 static void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length);
 static void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys);
+static VALUE pvt_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length);
+static VALUE pvt_bson_byte_buffer_put_binary_string(VALUE self, const char *str, int32_t length);
 
 static int fits_int32(int64_t i64){
   return i64 >= INT32_MIN && i64 <= INT32_MAX;
@@ -69,7 +71,7 @@ void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validatin
   }
 }
 
-void pvt_put_byte( byte_buffer_t *b, const char byte)
+void pvt_put_byte(byte_buffer_t *b, const char byte)
 {
   ENSURE_BSON_WRITE(b, 1);
   *WRITE_PTR(b) = byte;
@@ -77,18 +79,22 @@ void pvt_put_byte( byte_buffer_t *b, const char byte)
 
 }
 
-/**
- * Writes a byte to the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte)
 {
   byte_buffer_t *b;
   const char *str;
+  size_t length;
 
   if (!RB_TYPE_P(byte, T_STRING))
-    rb_raise(rb_eArgError, "Invalid input");
+    rb_raise(rb_eArgError, "A string argument is required for put_byte");
 
   str = RSTRING_PTR(byte);
+  length = RSTRING_LEN(byte);
+  
+  if (length != 1) {
+    rb_raise(rb_eArgError, "put_byte requires a string of length 1");
+  }
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   ENSURE_BSON_WRITE(b, 1);
@@ -98,9 +104,7 @@ VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte)
   return self;
 }
 
-/**
- * Writes bytes to the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes)
 {
   byte_buffer_t *b;
@@ -142,7 +146,7 @@ void pvt_put_type_byte(byte_buffer_t *b, VALUE val){
       pvt_put_byte(b, BSON_TYPE_BOOLEAN);
       break;
     case T_HASH:
-      pvt_put_byte(b, BSON_TYPE_OBJECT);
+      pvt_put_byte(b, BSON_TYPE_DOCUMENT);
       break;
     case T_FLOAT:
       pvt_put_byte(b, BSON_TYPE_DOUBLE);
@@ -157,41 +161,40 @@ void pvt_put_type_byte(byte_buffer_t *b, VALUE val){
 }
 
 /**
- * Write BSON string to byte buffer given a C string.
- * length is inclusive of the NULL terminator in the C string.
+ * Write a binary string (i.e. one potentially including null bytes)
+ * to byte buffer. length is the number of bytes to write.
+ * If str is null terminated, length does not include the terminating null.
  */
-VALUE rb_bson_byte_buffer_put_bson_string(VALUE self, const char *str, int32_t length)
+VALUE pvt_bson_byte_buffer_put_binary_string(VALUE self, const char *str, int32_t length)
 {
   byte_buffer_t *b;
   int32_t length_le;
 
-  if (length <= 0) {
-    rb_raise(rb_eArgError, "The length must include the NULL terminator, and thus be at least 1");
-  }
+  rb_bson_utf8_validate(str, length, true);
 
-  length_le = BSON_UINT32_TO_LE(length);
-
-  rb_bson_utf8_validate(str, length - 1, true);
+  /* Even though we are storing binary data, and including the length
+   * of it, the bson spec still demands the (useless) trailing null.
+   */
+  length_le = BSON_UINT32_TO_LE(length + 1);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  ENSURE_BSON_WRITE(b, length + 4);
+  ENSURE_BSON_WRITE(b, length + 5);
   memcpy(WRITE_PTR(b), &length_le, 4);
   b->write_position += 4;
   memcpy(WRITE_PTR(b), str, length);
   b->write_position += length;
+  pvt_put_byte(b, 0);
 
   return self;
 }
 
-/**
- * Writes a string to the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
 {
   const char *str = RSTRING_PTR(string);
-  const int32_t length = RSTRING_LEN(string) + 1;
+  const int32_t length = RSTRING_LEN(string);
 
-  return rb_bson_byte_buffer_put_bson_string(self, str, length);
+  return pvt_bson_byte_buffer_put_binary_string(self, str, length);
 }
 
 /**
@@ -201,7 +204,7 @@ VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
  * length is the number of bytes to write and does not include the null
  * terminator.
  */
-VALUE rb_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length)
+VALUE pvt_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length)
 {
   byte_buffer_t *b;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
@@ -209,15 +212,7 @@ VALUE rb_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, i
   return self;
 }
 
-/**
- * Converts obj to a string, which must not contain any null bytes, and
- * writes the string to the buffer. The object can be a String, a Symbol or
- * a Fixnum.
- *
- * If the string serialization of obj contains null bytes, this method raises
- * ArgumentError. If obj is of an unsupported type, this method raises
- * TypeError.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE obj)
 {
   VALUE string;
@@ -241,7 +236,7 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE obj)
   str = RSTRING_PTR(string);
   length = RSTRING_LEN(string);
   RB_GC_GUARD(string);
-  return rb_bson_byte_buffer_put_bson_partial_string(self, str, length);
+  return pvt_bson_byte_buffer_put_bson_partial_string(self, str, length);
 }
 
 /**
@@ -261,15 +256,15 @@ void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length)
   b->write_position += bytes_to_write;
 }
 
-/**
- * Writes a symbol to the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_symbol(VALUE self, VALUE symbol)
 {
-  const char *sym = rb_id2name(SYM2ID(symbol));
-  const int32_t length = strlen(sym) + 1;
+  VALUE symbol_str = rb_sym_to_s(symbol);
+  const char *str = RSTRING_PTR(symbol_str);
+  const int32_t length = RSTRING_LEN(symbol_str);
 
-  return rb_bson_byte_buffer_put_bson_string(self, sym, length);
+  RB_GC_GUARD(symbol_str);
+  return pvt_bson_byte_buffer_put_binary_string(self, str, length);
 }
 
 /**
@@ -294,22 +289,33 @@ void pvt_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval)
   memcpy(READ_PTR(b) + position, &i32, 4);
 }
 
-/**
- * Replace a 32 bit integer int the byte buffer.
- */
-VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i)
+/* The docstring is in init.c. */
+VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE position, VALUE newval)
 {
   byte_buffer_t *b;
-
+  long _position;
+  
+  _position = NUM2LONG(position);
+  if (_position < 0) {
+    rb_raise(rb_eArgError, "Position given to replace_int32 cannot be negative: %ld", _position);
+  }
+  
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  pvt_replace_int32(b, NUM2LONG(index), NUM2LONG(i));
+  
+  if (b->write_position < 4) {
+    rb_raise(rb_eArgError, "Buffer does not have enough data to use replace_int32");
+  }
+  
+  if ((size_t) _position > b->write_position - 4) {
+    rb_raise(rb_eArgError, "Position given to replace_int32 is out of bounds: %ld", _position);
+  }
+
+  pvt_replace_int32(b, _position, NUM2LONG(newval));
 
   return self;
 }
 
-/**
- * Writes a 32 bit integer to the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i)
 {
   byte_buffer_t *b;
@@ -328,9 +334,7 @@ void pvt_put_int32(byte_buffer_t *b, const int32_t i)
   b->write_position += 4;
 }
 
-/**
- * Writes a 64 bit integer to the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i)
 {
   byte_buffer_t *b;
@@ -351,14 +355,12 @@ void pvt_put_int64(byte_buffer_t *b, const int64_t i)
   b->write_position += 8;
 }
 
-/**
- * Writes a 64 bit double to the buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f)
 {
   byte_buffer_t *b;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  pvt_put_double(b,NUM2DBL(f));
+  pvt_put_double(b, NUM2DBL(f));
 
   return self;
 }
@@ -371,9 +373,7 @@ void pvt_put_double(byte_buffer_t *b, double f)
   b->write_position += 8;
 }
 
-/**
- * Writes a 128 bit decimal to the byte buffer.
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_decimal128(VALUE self, VALUE low, VALUE high)
 {
   byte_buffer_t *b;
@@ -395,6 +395,7 @@ static int put_hash_callback(VALUE key, VALUE val, VALUE context){
   VALUE buffer = ((put_hash_context*)context)->buffer;
   VALUE validating_keys = ((put_hash_context*)context)->validating_keys;
   byte_buffer_t *b = ((put_hash_context*)context)->b;
+  VALUE key_str;
 
   pvt_put_type_byte(b, val);
 
@@ -403,7 +404,9 @@ static int put_hash_callback(VALUE key, VALUE val, VALUE context){
       pvt_put_bson_key(b, key, validating_keys);
       break;
     case T_SYMBOL:
-      pvt_put_bson_key(b, rb_sym_to_s(key), validating_keys);
+      key_str = rb_sym_to_s(key);
+      RB_GC_GUARD(key_str);
+      pvt_put_bson_key(b, key_str, validating_keys);
       break;
     default:
       rb_bson_byte_buffer_put_cstring(buffer, rb_funcall(key, rb_intern("to_bson_key"), 1, validating_keys));
@@ -413,9 +416,7 @@ static int put_hash_callback(VALUE key, VALUE val, VALUE context){
   return ST_CONTINUE;
 }
 
-/**
- * serializes a hash into the byte buffer
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys){
   byte_buffer_t *b = NULL;
   put_hash_context context = { NULL };
@@ -559,9 +560,7 @@ void pvt_put_array_index(byte_buffer_t *b, int32_t index)
   b->write_position += length;
 }
 
-/**
- * serializes an array into the byte buffer
- */
+/* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_keys){
   byte_buffer_t *b = NULL;
   size_t new_position = 0;
