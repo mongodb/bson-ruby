@@ -247,6 +247,7 @@ describe BSON::ByteBuffer do
 
     context 'when string is in an encoding other than utf-8' do
       let(:string) do
+        # "\xfe"
         Utils.make_byte_string([254], 'iso-8859-1')
       end
 
@@ -254,9 +255,13 @@ describe BSON::ByteBuffer do
         buffer.put_string(string)
       end
 
-      it 'is written as utf-8' do
+      let(:expected) do
         # \xc3\xbe == \u00fe
-        expect(modified.to_s).to eq("\x03\x00\x00\x00\xc3\xbe\x00".force_encoding('binary'))
+        Utils.make_byte_string([3, 0, 0, 0, 0xc3, 0xbe, 0])
+      end
+
+      it 'is written as utf-8' do
+        expect(modified.to_s).to eq(expected)
       end
     end
   end
