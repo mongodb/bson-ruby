@@ -137,6 +137,76 @@ public class ByteBuf extends RubyObject {
   }
 
   /**
+   * Get the total length of the buffer.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.29
+   * @version 4.0.0
+   */
+  @JRubyMethod(name = "length")
+  public RubyFixnum getLength() {
+    if (this.mode == Mode.WRITE) {
+      return getWritePosition();
+    } else {
+      return new RubyFixnum(getRuntime(), this.buffer.remaining());
+    }
+  }
+
+  /**
+   * Get the read position of the buffer.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
+  @JRubyMethod(name = "read_position")
+  public RubyFixnum getReadPosition() {
+    return new RubyFixnum(getRuntime(), this.readPosition);
+  }
+
+  /**
+   * Get the write position of the buffer.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
+  @JRubyMethod(name = "write_position")
+  public RubyFixnum getWritePosition() {
+    return new RubyFixnum(getRuntime(), this.writePosition);
+  }
+
+ /**
+   * Reset the read position to the beginning of the byte buffer.
+   *
+   * @author Emily Stolfo
+   * @since 2016.01.19
+   * @version 4.0.1
+   */
+  @JRubyMethod(name = "rewind!")
+  public ByteBuf rewind() {
+    this.buffer.rewind();
+    this.mode = Mode.READ;
+    this.readPosition = 0;
+    return this;
+   }
+
+  /**
+   * Convert the byte buffer to a string of the bytes.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
+  @JRubyMethod(name = "to_s")
+  public RubyString toRubyString() {
+    ensureBsonRead();
+    byte[] bytes = new byte[this.writePosition];
+    this.buffer.get(bytes, 0, this.writePosition);
+    return RubyString.newString(getRuntime(), bytes);
+  }
+
+  /**
    * Get a single byte from the buffer.
    *
    * @author Durran Jordan
@@ -319,6 +389,21 @@ public class ByteBuf extends RubyObject {
   }
 
   /**
+   * Put a UTF-8 string onto the buffer.
+   *
+   * @param value The UTF-8 string to write.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
+  @JRubyMethod(name = "put_string")
+  public ByteBuf putString(final IRubyObject value) throws UnsupportedEncodingException {
+    String string = ((RubyString) value).asJavaString();
+    return putJavaString(string);
+  }
+
+  /**
    * Put a cstring onto the buffer.
    *
    * @param value The cstring to write.
@@ -342,6 +427,72 @@ public class ByteBuf extends RubyObject {
    }
 
    return this;
+  }
+
+  /**
+   * Put a symbol onto the buffer.
+   *
+   * @param value The UTF-8 string to write.
+   *
+   * @author Ben Lewis
+   * @since 2017.04.19
+   * @version 4.2.2
+   */
+  @JRubyMethod(name = "put_symbol")
+  public ByteBuf putSymbol(final IRubyObject value) throws UnsupportedEncodingException {
+    String string = ((RubySymbol) value).asJavaString();
+    return putJavaString(string);
+  }
+
+  /**
+   * Put a 32 bit integer onto the buffer.
+   *
+   * @param value The integer to write.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
+  @JRubyMethod(name = "put_int32")
+  public ByteBuf putInt32(final IRubyObject value) {
+    ensureBsonWrite(4);
+    this.buffer.putInt(RubyNumeric.fix2int((RubyFixnum) value));
+    this.writePosition += 4;
+    return this;
+  }
+
+  /**
+   * Put a 64 bit integer onto the buffer.
+   *
+   * @param value The integer to write.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
+  @JRubyMethod(name = "put_int64")
+  public ByteBuf putInt64(final IRubyObject value) {
+    ensureBsonWrite(8);
+    this.buffer.putLong(((RubyInteger) value).getLongValue());
+    this.writePosition += 8;
+    return this;
+  }
+
+  /**
+   * Put a double onto the buffer.
+   *
+   * @param value the double to write.
+   *
+   * @author Durran Jordan
+   * @since 2015.09.26
+   * @version 4.0.0
+   */
+  @JRubyMethod(name = "put_double")
+  public ByteBuf putDouble(final IRubyObject value) {
+    ensureBsonWrite(8);
+    this.buffer.putDouble(((RubyFloat) value).getDoubleValue());
+    this.writePosition += 8;
+    return this;
   }
 
   /**
@@ -381,87 +532,6 @@ public class ByteBuf extends RubyObject {
   }
 
   /**
-   * Put a double onto the buffer.
-   *
-   * @param value the double to write.
-   *
-   * @author Durran Jordan
-   * @since 2015.09.26
-   * @version 4.0.0
-   */
-  @JRubyMethod(name = "put_double")
-  public ByteBuf putDouble(final IRubyObject value) {
-    ensureBsonWrite(8);
-    this.buffer.putDouble(((RubyFloat) value).getDoubleValue());
-    this.writePosition += 8;
-    return this;
-  }
-
-  /**
-   * Put a 32 bit integer onto the buffer.
-   *
-   * @param value The integer to write.
-   *
-   * @author Durran Jordan
-   * @since 2015.09.26
-   * @version 4.0.0
-   */
-  @JRubyMethod(name = "put_int32")
-  public ByteBuf putInt32(final IRubyObject value) {
-    ensureBsonWrite(4);
-    this.buffer.putInt(RubyNumeric.fix2int((RubyFixnum) value));
-    this.writePosition += 4;
-    return this;
-  }
-
-  /**
-   * Put a 64 bit integer onto the buffer.
-   *
-   * @param value The integer to write.
-   *
-   * @author Durran Jordan
-   * @since 2015.09.26
-   * @version 4.0.0
-   */
-  @JRubyMethod(name = "put_int64")
-  public ByteBuf putInt64(final IRubyObject value) {
-    ensureBsonWrite(8);
-    this.buffer.putLong(((RubyInteger) value).getLongValue());
-    this.writePosition += 8;
-    return this;
-  }
-
-  /**
-   * Put a symbol onto the buffer.
-   *
-   * @param value The UTF-8 string to write.
-   *
-   * @author Ben Lewis
-   * @since 2017.04.19
-   * @version 4.2.2
-   */
-  @JRubyMethod(name = "put_symbol")
-  public ByteBuf putSymbol(final IRubyObject value) throws UnsupportedEncodingException {
-    String string = ((RubySymbol) value).asJavaString();
-    return putJavaString(string);
-  }
-
-  /**
-   * Put a UTF-8 string onto the buffer.
-   *
-   * @param value The UTF-8 string to write.
-   *
-   * @author Durran Jordan
-   * @since 2015.09.26
-   * @version 4.0.0
-   */
-  @JRubyMethod(name = "put_string")
-  public ByteBuf putString(final IRubyObject value) throws UnsupportedEncodingException {
-    String string = ((RubyString) value).asJavaString();
-    return putJavaString(string);
-  }
-
-  /**
    * Replace a 32 bit integer at the provided position in the buffer.
    *
    * @param position The position to replace at.
@@ -486,103 +556,6 @@ public class ByteBuf extends RubyObject {
     }
     this.buffer.putInt(i, int32);
     return this;
-  }
-
- /**
-   * Reset the read position to the beginning of the byte buffer.
-   *
-   * @author Emily Stolfo
-   * @since 2016.01.19
-   * @version 4.0.1
-   */
-  @JRubyMethod(name = "rewind!")
-  public ByteBuf rewind() {
-    this.buffer.rewind();
-    this.mode = Mode.READ;
-    this.readPosition = 0;
-    return this;
-   }
-
-  /**
-   * Get the total length of the buffer.
-   *
-   * @author Durran Jordan
-   * @since 2015.09.29
-   * @version 4.0.0
-   */
-  @JRubyMethod(name = "length")
-  public RubyFixnum getLength() {
-    if (this.mode == Mode.WRITE) {
-      return getWritePosition();
-    } else {
-      return new RubyFixnum(getRuntime(), this.buffer.remaining());
-    }
-  }
-
-  /**
-   * Get the read position of the buffer.
-   *
-   * @author Durran Jordan
-   * @since 2015.09.26
-   * @version 4.0.0
-   */
-  @JRubyMethod(name = "read_position")
-  public RubyFixnum getReadPosition() {
-    return new RubyFixnum(getRuntime(), this.readPosition);
-  }
-
-  /**
-   * Get the write position of the buffer.
-   *
-   * @author Durran Jordan
-   * @since 2015.09.26
-   * @version 4.0.0
-   */
-  @JRubyMethod(name = "write_position")
-  public RubyFixnum getWritePosition() {
-    return new RubyFixnum(getRuntime(), this.writePosition);
-  }
-
-  /**
-   * Convert the byte buffer to a string of the bytes.
-   *
-   * @author Durran Jordan
-   * @since 2015.09.26
-   * @version 4.0.0
-   */
-  @JRubyMethod(name = "to_s")
-  public RubyString toRubyString() {
-    ensureBsonRead();
-    byte[] bytes = new byte[this.writePosition];
-    this.buffer.get(bytes, 0, this.writePosition);
-    return RubyString.newString(getRuntime(), bytes);
-  }
-
-  private RubyString getUTF8String(final byte[] bytes) {
-    return RubyString.newString(getRuntime(), new ByteList(bytes, UTF_8));
-  }
-
-  private void ensureBsonRead() {
-    if (this.mode == Mode.WRITE) {
-      this.buffer.flip();
-    }
-  }
-
-  private void ensureBsonWrite(int length) {
-    if (this.mode == Mode.READ) {
-      this.buffer.flip();
-    }
-    if (length > this.buffer.remaining()) {
-      int size = (this.buffer.position() + length) * 2;
-      ByteBuffer newBuffer = ByteBuffer.allocate(size).order(ByteOrder.LITTLE_ENDIAN);
-      if (this.buffer.position() > 0) {
-        byte [] existing = new byte[this.buffer.position()];
-        this.buffer.rewind();
-        this.buffer.get(existing);
-        newBuffer.put(existing);
-      }
-      this.buffer = newBuffer;
-    }
   }
 
   private void write(byte b) {
@@ -636,5 +609,32 @@ public class ByteBuf extends RubyObject {
     this.buffer.putInt(this.buffer.position() - length - 4, length);
     this.writePosition += (length + 4);
     return this;
+  }
+
+  private void ensureBsonRead() {
+    if (this.mode == Mode.WRITE) {
+      this.buffer.flip();
+    }
+  }
+
+  private void ensureBsonWrite(int length) {
+    if (this.mode == Mode.READ) {
+      this.buffer.flip();
+    }
+    if (length > this.buffer.remaining()) {
+      int size = (this.buffer.position() + length) * 2;
+      ByteBuffer newBuffer = ByteBuffer.allocate(size).order(ByteOrder.LITTLE_ENDIAN);
+      if (this.buffer.position() > 0) {
+        byte [] existing = new byte[this.buffer.position()];
+        this.buffer.rewind();
+        this.buffer.get(existing);
+        newBuffer.put(existing);
+      }
+      this.buffer = newBuffer;
+    }
+  }
+
+  private RubyString getUTF8String(final byte[] bytes) {
+    return RubyString.newString(getRuntime(), new ByteList(bytes, UTF_8));
   }
 }
