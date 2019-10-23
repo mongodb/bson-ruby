@@ -136,12 +136,15 @@ void Init_bson_native()
    *   buffer.put_cstring(obj) -> ByteBuffer
    *
    * Converts +obj+ to a string, which must not contain any null bytes, and
-   * which must be valid UTF-8, and writes the string to the buffer.
-   * +obj+ can be an instance of String, Symbol or Fixnum.
+   * which must be valid UTF-8, and writes the string to the buffer as a
+   * BSON cstring. +obj+ can be an instance of String, Symbol or Fixnum.
    *
    * If the string serialization of +obj+ contains null bytes, this method
    * raises +ArgumentError+. If +obj+ is of an unsupported type, this method
    * raises +TypeError+.
+   *
+   * BSON cstring serialization contains no length of the string (relying
+   * instead on the null terminator), unlike the BSON string serialization.
    */
   rb_define_method(rb_byte_buffer_class, "put_cstring", rb_bson_byte_buffer_put_cstring, 1);
   

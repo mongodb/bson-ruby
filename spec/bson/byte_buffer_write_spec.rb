@@ -136,7 +136,59 @@ describe BSON::ByteBuffer do
     end
   end
 
+  shared_examples_for 'bson string writer' do
+
+    context 'given empty string' do
+      let(:modified) do
+        buffer.put_string('')
+      end
+
+      it 'writes length and null terminator' do
+        expect(modified.write_position).to eq(5)
+      end
+    end
+
+    context 'when string is not valid utf-8 in utf-8 encoding' do
+      let(:string) do
+        Utils.make_byte_string([254, 253, 255], 'utf-8')
+      end
+
+      before do
+        expect(string.encoding.name).to eq('UTF-8')
+      end
+
+      it 'raises EncodingError' do
+        # Precise exception classes and messages differ between MRI and JRuby
+        expect do
+          modified
+        end.to raise_error(EncodingError)
+      end
+    end
+
+    context 'when string is in binary encoding and cannot be encoded in utf-8' do
+      let(:string) do
+        Utils.make_byte_string([254, 253, 255], 'binary')
+      end
+
+      before do
+        expect(string.encoding.name).to eq('ASCII-8BIT')
+      end
+
+      it 'raises Encoding::UndefinedConversionError' do
+        expect do
+          modified
+        end.to raise_error(Encoding::UndefinedConversionError, /from ASCII-8BIT to UTF-8/)
+      end
+    end
+  end
+
   describe '#put_string' do
+
+    let(:modified) do
+      buffer.put_string(string)
+    end
+
+    it_behaves_like 'bson string writer'
 
     context 'when the buffer does not need to be expanded' do
 
@@ -195,65 +247,10 @@ describe BSON::ByteBuffer do
       end
     end
 
-    context 'given empty string' do
-      let(:modified) do
-        buffer.put_string('')
-      end
-
-      it 'writes length and null terminator' do
-        expect(modified.write_position).to eq(5)
-      end
-    end
-
-    context 'when string is not valid utf-8 in utf-8 encoding' do
-      let(:string) do
-        Utils.make_byte_string([254, 0, 255], 'utf-8')
-      end
-
-      let(:modified) do
-        buffer.put_string(string)
-      end
-
-      before do
-        expect(string.encoding.name).to eq('UTF-8')
-      end
-
-      it 'raises EncodingError' do
-        # Precise exception classes and messages differ between MRI and JRuby
-        expect do
-          modified
-        end.to raise_error(EncodingError)
-      end
-    end
-
-    context 'when string is in binary encoding and cannot be encoded in utf-8' do
-      let(:string) do
-        Utils.make_byte_string([254, 0, 255], 'binary')
-      end
-
-      let(:modified) do
-        buffer.put_string(string)
-      end
-
-      before do
-        expect(string.encoding.name).to eq('ASCII-8BIT')
-      end
-
-      it 'raises Encoding::UndefinedConversionError' do
-        expect do
-          modified
-        end.to raise_error(Encoding::UndefinedConversionError, /from ASCII-8BIT to UTF-8/)
-      end
-    end
-
     context 'when string is in an encoding other than utf-8' do
       let(:string) do
         # "\xfe"
         Utils.make_byte_string([254], 'iso-8859-1')
-      end
-
-      let(:modified) do
-        buffer.put_string(string)
       end
 
       let(:expected) do
@@ -268,6 +265,12 @@ describe BSON::ByteBuffer do
   end
 
   describe '#put_cstring' do
+
+    let(:modified) do
+      buffer.put_cstring(string)
+    end
+
+    it_behaves_like 'bson string writer'
 
     context 'when argument is a string' do
       context 'when the string is valid' do
@@ -298,8 +301,25 @@ describe BSON::ByteBuffer do
 
         it 'raises ArgumentError' do
           expect {
-            buffer.put_cstring(string)
+            modified
           }.to raise_error(ArgumentError, /String .* contains null bytes/)
+        end
+      end
+
+      context 'when string is in an encoding other than utf-8' do
+        let(:string) do
+          # "\xfe"
+          Utils.make_byte_string([254], 'iso-8859-1')
+        end
+
+        let(:expected) do
+          # \xc3\xbe == \u00fe
+          # No length prefix
+          Utils.make_byte_string([0xc3, 0xbe, 0])
+        end
+
+        it 'is written as utf-8' do
+          expect(modified.to_s).to eq(expected)
         end
       end
     end
