@@ -285,7 +285,7 @@ public class ByteBuf extends RubyObject {
     } catch (ClassCastException e) {
       throw context.runtime.newArgumentError(e.toString());
     }
-    if (string.length() != 1) {
+    if (string.strLength() != 1) {
       throw context.runtime.newArgumentError("put_byte requires a string of length 1");
     }
     ensureBsonWrite(1);
