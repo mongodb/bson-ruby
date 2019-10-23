@@ -192,12 +192,27 @@ VALUE pvt_bson_byte_buffer_put_binary_string(VALUE self, const char *str, int32_
 /* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
 {
-  VALUE encoding = rb_enc_str_new_cstr("UTF-8", rb_utf8_encoding());
-  VALUE utf8_string = rb_funcall(string, rb_intern("encode"), 1, encoding);
-  const char *str = RSTRING_PTR(utf8_string);
-  const int32_t length = RSTRING_LEN(utf8_string);
+  VALUE existing_encoding_name;
+  VALUE encoding;
+  VALUE utf8_string;
+  const char *str;
+  int32_t length;
+  
+  existing_encoding_name = rb_funcall(
+    rb_funcall(string, rb_intern("encoding"), 0),
+    rb_intern("name"), 0);
+  
+  if (strcmp(RSTRING_PTR(existing_encoding_name), "UTF-8") == 0) {
+    utf8_string = string;
+  } else {
+    encoding = rb_enc_str_new_cstr("UTF-8", rb_utf8_encoding());
+    utf8_string = rb_funcall(string, rb_intern("encode"), 1, encoding);
+    RB_GC_GUARD(encoding);
+  }
+  
+  str = RSTRING_PTR(utf8_string);
+  length = RSTRING_LEN(utf8_string);
 
-  RB_GC_GUARD(encoding);
   RB_GC_GUARD(utf8_string);
   
   return pvt_bson_byte_buffer_put_binary_string(self, str, length);
