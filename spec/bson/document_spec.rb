@@ -998,51 +998,31 @@ describe BSON::Document do
       it_behaves_like "a document able to handle utf-8"
     end
 
-    context "when utf-8 values exist in wrong encoding" do
+    context "given a utf-8-encodable string in another encoding" do
 
       let(:string) { "gültig" }
       let(:document) do
         described_class["type", string.encode("iso-8859-1")]
       end
 
-      it "raises an exception", unless: BSON::Environment.jruby? do
-        expect {
+      it 'converts the values to utf-8' do
+        expect(
+          BSON::Document.from_bson(BSON::ByteBuffer.new(document.to_bson.to_s))
+        ).to eq({ "type" => string })
+      end
+    end
+
+    context "given a binary string with utf-8 values" do
+
+      let(:string) { "europäisch".force_encoding('binary') }
+      let(:document) do
+        described_class["type", string]
+      end
+
+      it "raises encoding error" do
+        expect do
           document.to_bson
-        }.to raise_error(ArgumentError)
-      end
-
-      it 'converts the values', if: BSON::Environment.jruby? do
-        expect(
-          BSON::Document.from_bson(BSON::ByteBuffer.new(document.to_bson.to_s))
-        ).to eq({ "type" => string })
-      end
-    end
-
-    context "when binary strings with utf-8 values exist", if: BSON::Environment.jruby? && (JRUBY_VERSION < '9') do
-
-      let(:string) { "europäisch" }
-      let(:document) do
-        described_class["type", string.encode("binary")]
-      end
-
-      it "encodes and decodes the document properly" do
-        expect(
-          BSON::Document.from_bson(BSON::ByteBuffer.new(document.to_bson.to_s))
-        ).to eq({ "type" => string })
-      end
-    end
-
-    context "when binary strings with utf-8 values exist", unless: BSON::Environment.jruby? do
-
-      let(:string) { "europäisch" }
-      let(:document) do
-        described_class["type", string.encode("binary", "binary")]
-      end
-
-      it "encodes and decodes the document properly" do
-        expect(
-          BSON::Document.from_bson(BSON::ByteBuffer.new(document.to_bson.to_s))
-        ).to eq({ "type" => string })
+        end.to raise_error(Encoding::UndefinedConversionError, /from ASCII-8BIT to UTF-8/)
       end
     end
   end

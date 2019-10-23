@@ -15,6 +15,7 @@
  */
 
 #include "bson-native.h"
+#include <ruby/encoding.h>
 
 typedef struct{
   byte_buffer_t *b;
@@ -191,9 +192,14 @@ VALUE pvt_bson_byte_buffer_put_binary_string(VALUE self, const char *str, int32_
 /* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
 {
-  const char *str = RSTRING_PTR(string);
-  const int32_t length = RSTRING_LEN(string);
+  VALUE encoding = rb_enc_str_new_cstr("UTF-8", rb_utf8_encoding());
+  VALUE utf8_string = rb_funcall(string, rb_intern("encode"), 1, encoding);
+  const char *str = RSTRING_PTR(utf8_string);
+  const int32_t length = RSTRING_LEN(utf8_string);
 
+  RB_GC_GUARD(encoding);
+  RB_GC_GUARD(utf8_string);
+  
   return pvt_bson_byte_buffer_put_binary_string(self, str, length);
 }
 

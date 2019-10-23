@@ -205,19 +205,58 @@ describe BSON::ByteBuffer do
       end
     end
 
-    context 'when string is not valid utf-8' do
+    context 'when string is not valid utf-8 in utf-8 encoding' do
       let(:string) do
-        Utils.make_byte_string([254, 0, 255])
+        Utils.make_byte_string([254, 0, 255], 'utf-8')
       end
 
       let(:modified) do
         buffer.put_string(string)
       end
 
+      before do
+        expect(string.encoding.name).to eq('UTF-8')
+      end
+
       it 'raises ArgumentError' do
         expect do
           modified
         end.to raise_error(ArgumentError, /String.*is not valid UTF-8: bogus initial bits/)
+      end
+    end
+
+    context 'when string is in binary encoding and cannot be encoded in utf-8' do
+      let(:string) do
+        Utils.make_byte_string([254, 0, 255], 'binary')
+      end
+
+      let(:modified) do
+        buffer.put_string(string)
+      end
+
+      before do
+        expect(string.encoding.name).to eq('ASCII-8BIT')
+      end
+
+      it 'raises Encoding::UndefinedConversionError' do
+        expect do
+          modified
+        end.to raise_error(Encoding::UndefinedConversionError, /from ASCII-8BIT to UTF-8/)
+      end
+    end
+
+    context 'when string is in an encoding other than utf-8' do
+      let(:string) do
+        Utils.make_byte_string([254], 'iso-8859-1')
+      end
+
+      let(:modified) do
+        buffer.put_string(string)
+      end
+
+      it 'is written as utf-8' do
+        # \xc3\xbe == \u00fe
+        expect(modified.to_s).to eq("\x03\x00\x00\x00\xc3\xbe\x00".force_encoding('binary'))
       end
     end
   end
