@@ -455,9 +455,9 @@ public class ByteBuf extends RubyObject {
    * @version 4.2.2
    */
   @JRubyMethod(name = "put_symbol")
-  public ByteBuf putSymbol(final IRubyObject value) throws UnsupportedEncodingException {
-    String string = ((RubySymbol) value).asJavaString();
-    return putJavaString(string);
+  public ByteBuf putSymbol(ThreadContext context, final IRubyObject value) throws UnsupportedEncodingException {
+    RubyString str = (RubyString) ((RubySymbol) value).to_s(context);
+    return putString(context, str);
   }
 
   /**

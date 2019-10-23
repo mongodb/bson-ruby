@@ -154,6 +154,10 @@ void Init_bson_native()
    *
    * The symbol may contain null bytes.
    *
+   * The symbol value is assumed to be encoded in UTF-8. If the symbol value
+   * contains bytes or byte sequences that are not valid in UTF-8, this method
+   * raises +EncodingError+.
+   *
    * Note: due to the string conversion, a symbol written to the buffer becomes
    * indistinguishable from a string with the same value written to the buffer.
    */
