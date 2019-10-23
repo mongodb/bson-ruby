@@ -65,6 +65,20 @@ describe BSON::ByteBuffer do
 
       it_behaves_like 'does not write'
     end
+
+    context 'when byte is not valid utf-8' do
+      let(:string) do
+        Utils.make_byte_string([254]).freeze
+      end
+
+      let(:modified) do
+        buffer.put_byte(string)
+      end
+
+      it 'writes the byte' do
+        expect(modified.to_s).to eq(string)
+      end
+    end
   end
 
   describe '#put_bytes' do
@@ -104,6 +118,20 @@ describe BSON::ByteBuffer do
 
       it 'writes the string' do
         expect(modified.write_position).to eq(4)
+      end
+    end
+
+    context 'when bytes are not valid utf-8' do
+      let(:string) do
+        Utils.make_byte_string([254, 0, 255]).freeze
+      end
+
+      let(:modified) do
+        buffer.put_bytes(string)
+      end
+
+      it 'writes the bytes' do
+        expect(modified.to_s).to eq(string)
       end
     end
   end
@@ -174,6 +202,22 @@ describe BSON::ByteBuffer do
 
       it 'writes length and null terminator' do
         expect(modified.write_position).to eq(5)
+      end
+    end
+
+    context 'when string is not valid utf-8' do
+      let(:string) do
+        Utils.make_byte_string([254, 0, 255])
+      end
+
+      let(:modified) do
+        buffer.put_string(string)
+      end
+
+      it 'raises ArgumentError' do
+        expect do
+          modified
+        end.to raise_error(ArgumentError, /String.*is not valid UTF-8: bogus initial bits/)
       end
     end
   end
@@ -319,6 +363,22 @@ describe BSON::ByteBuffer do
       it 'advances write position' do
         # 4 byte length + 5 byte string + null byte
         expect(modified.write_position).to eq(10)
+      end
+    end
+
+    context 'when symbol is not valid utf-8' do
+      let(:symbol) do
+        Utils.make_byte_string([254, 0, 255]).to_sym
+      end
+
+      let(:modified) do
+        buffer.put_symbol(symbol)
+      end
+
+      it 'raises ArgumentError' do
+        expect do
+          modified
+        end.to raise_error(ArgumentError, /String.*is not valid UTF-8: bogus initial bits/)
       end
     end
   end

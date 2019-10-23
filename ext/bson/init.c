@@ -129,8 +129,8 @@ void Init_bson_native()
    *   buffer.put_cstring(obj) -> ByteBuffer
    *
    * Converts +obj+ to a string, which must not contain any null bytes, and
-   * writes the string to the buffer. +obj+ can be an instance of String,
-   * Symbol or Fixnum.
+   * which must be valid UTF-8, and writes the string to the buffer.
+   * +obj+ can be an instance of String, Symbol or Fixnum.
    *
    * If the string serialization of +obj+ contains null bytes, this method
    * raises +ArgumentError+. If +obj+ is of an unsupported type, this method
