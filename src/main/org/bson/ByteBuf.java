@@ -431,8 +431,8 @@ public class ByteBuf extends RubyObject {
       string = (RubyString) value;
     }
     string = convertToUtf8(context, string);
-    verifyNoNulls(string);
     String javaString = string.asJavaString();
+    verifyNoNulls(javaString);
     this.writePosition += writeCharacters(javaString);
    } else {
     throw getRuntime().newTypeError(format("Invalid type for put_cstring: %s", value));
@@ -669,7 +669,7 @@ public class ByteBuf extends RubyObject {
     return encodedString;
   }
   
-  private void verifyNoNulls(RubyString string) {
+  private void verifyNoNulls(String string) {
     int len = string.length();
 
     for (int i = 0; i < len;) {
