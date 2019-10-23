@@ -24,6 +24,7 @@ import java.util.Arrays;
 
 import org.jcodings.Encoding;
 import org.jcodings.EncodingDB;
+import org.jcodings.specific.UTF8Encoding;
 
 import org.jruby.Ruby;
 import org.jruby.RubyBignum;
@@ -400,8 +401,20 @@ public class ByteBuf extends RubyObject {
   @JRubyMethod(name = "put_string")
   public ByteBuf putString(ThreadContext context, final IRubyObject value) throws UnsupportedEncodingException {
     RubyString string = (RubyString) value;
-    RubyString utf8 = RubyString.newString(getRuntime(), "UTF-8");
-    RubyString encodedString = (RubyString) string.encode(context, utf8);
+    RubyString encodedString;
+    
+    if (string.getEncoding() == UTF8Encoding.INSTANCE) {
+      // If the value is already in UTF-8, encoding it to UTF-8 is a no-op.
+      // But we also want to validate the bytes for being a valid UTF-8 sequence.
+      // Do this by encoding the string to UTF-16 for the time being.
+      RubyString utf16 = RubyString.newString(getRuntime(), "UTF-16");
+      string.encode(context, utf16);
+      encodedString = string;
+    } else {
+      RubyString utf8 = RubyString.newString(getRuntime(), "UTF-8");
+      encodedString = (RubyString) string.encode(context, utf8);
+    }
+    
     String javaString = encodedString.asJavaString();
     return putJavaString(javaString);
   }

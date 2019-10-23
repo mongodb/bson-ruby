@@ -110,15 +110,22 @@ void Init_bson_native()
 
   /*
    * call-seq:
-   *   buffer.put_string(binary_str) -> ByteBuffer
+   *   buffer.put_string(str) -> ByteBuffer
    *
-   * Writes the specified byte string to the byte buffer as a BSON string.
+   * Writes the specified string to the byte buffer as a BSON string.
    *
-   * Unlike +put_bytes+, this method writes the provided byte string as
+   * Unlike #put_bytes, this method writes the provided byte string as
    * a "BSON string" - the string is prefixed with its length and suffixed
    * with a null byte. The byte string may contain null bytes itself thus
    * the null terminator is redundant, but it is required by the BSON
    * specification.
+   *
+   * +str+ must either already be in UTF-8 encoding or be a string encodable
+   * to UTF-8. In particular, a string in BINARY/ASCII-8BIT encoding is
+   * generally not suitable for this method. +EncodingError+ will be raised
+   * if +str+ cannot be encoded in UTF-8, or if +str+ claims to be encoded in
+   * UTF-8 but contains bytes/byte sequences which are not valid in UTF-8.
+   * Use #put_bytes to write arbitrary byte strings to the buffer.
    *
    * Returns the modified +self+.
    */

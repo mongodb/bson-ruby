@@ -219,9 +219,10 @@ describe BSON::ByteBuffer do
       end
 
       it 'raises ArgumentError' do
+        # Precise exception classes and messages differ between MRI and JRuby
         expect do
           modified
-        end.to raise_error(ArgumentError, /String.*is not valid UTF-8: bogus initial bits/)
+        end.to raise_error(EncodingError)
       end
     end
 
@@ -422,7 +423,7 @@ describe BSON::ByteBuffer do
       it 'raises ArgumentError' do
         expect do
           modified
-        end.to raise_error(ArgumentError, /String.*is not valid UTF-8: bogus initial bits/)
+        end.to raise_error(EncodingError, /String.*is not valid UTF-8: bogus initial bits/)
       end
     end
   end
