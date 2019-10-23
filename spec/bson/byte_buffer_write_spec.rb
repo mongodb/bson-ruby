@@ -91,7 +91,7 @@ describe BSON::ByteBuffer do
     end
 
     context 'when given a string with null bytes' do
-      let(:byte_str) { "\x00\xef\xfe\x00" }
+      let(:byte_str) { [0, 239, 254, 0].map(&:chr).join }
 
       let(:modified) do
         buffer.put_bytes(byte_str)
