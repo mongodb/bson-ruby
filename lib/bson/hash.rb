@@ -22,7 +22,7 @@ module BSON
   # @since 2.0.0
   module Hash
 
-    # An hash (embedded document) is type 0x03 in the BSON spec.
+    # A hash, also called an embedded document, is type 0x03 in the BSON spec.
     #
     # @since 2.0.0
     BSON_TYPE = 3.chr.force_encoding(BINARY).freeze
