@@ -23,7 +23,8 @@
 void
 rb_bson_utf8_validate (const char *utf8, /* IN */
                     size_t utf8_len,  /* IN */
-                    bool allow_null);  /* IN */
+                    bool allow_null, /* IN */
+                    const char *data_type);  /* IN */
 
 #define BSON_BYTE_BUFFER_SIZE 1024
 

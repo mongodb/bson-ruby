@@ -29,7 +29,7 @@ static void pvt_put_byte(byte_buffer_t *b, const char byte);
 static void pvt_put_int32(byte_buffer_t *b, const int32_t i32);
 static void pvt_put_int64(byte_buffer_t *b, const int64_t i);
 static void pvt_put_double(byte_buffer_t *b, double f);
-static void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length);
+static void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length, const char *data_type);
 static void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys);
 static VALUE pvt_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length);
 static VALUE pvt_bson_byte_buffer_put_binary_string(VALUE self, const char *str, int32_t length);
@@ -171,7 +171,7 @@ VALUE pvt_bson_byte_buffer_put_binary_string(VALUE self, const char *str, int32_
   byte_buffer_t *b;
   int32_t length_le;
 
-  rb_bson_utf8_validate(str, length, true);
+  rb_bson_utf8_validate(str, length, true, "String");
 
   /* Even though we are storing binary data, and including the length
    * of it, the bson spec still demands the (useless) trailing null.
@@ -212,7 +212,7 @@ static VALUE pvt_bson_encode_to_utf8(VALUE string) {
     str = RSTRING_PTR(utf8_string);
     length = RSTRING_LEN(utf8_string);
     
-    rb_bson_utf8_validate(str, length, true);
+    rb_bson_utf8_validate(str, length, true, "String");
   } else {
     encoding = rb_enc_str_new_cstr("UTF-8", rb_utf8_encoding());
     utf8_string = rb_funcall(string, rb_intern("encode"), 1, encoding);
@@ -251,7 +251,7 @@ VALUE pvt_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, 
 {
   byte_buffer_t *b;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  pvt_put_cstring(b, str, length);
+  pvt_put_cstring(b, str, length, "String");
   return self;
 }
 
@@ -288,11 +288,13 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE obj)
  * Note: the string may not contain null bytes, and must be null-terminated.
  * length is the number of bytes to write and does not include the null
  * terminator.
+ *
+ * data_type is the type of data being written, e.g. "String" or "Key".
  */
-void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length)
+void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length, const char *data_type)
 {
   int bytes_to_write;
-  rb_bson_utf8_validate(str, length, false);
+  rb_bson_utf8_validate(str, length, false, data_type);
   bytes_to_write = length + 1;
   ENSURE_BSON_WRITE(b, bytes_to_write);
   memcpy(WRITE_PTR(b), str, bytes_to_write);
@@ -323,7 +325,7 @@ void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys){
     }
   }
 
-  pvt_put_cstring(b, c_str, length);
+  pvt_put_cstring(b, c_str, length, "Key");
 }
 
 void pvt_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval)

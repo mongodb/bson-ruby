@@ -45,7 +45,16 @@ module BSON
         buffer.put_int32(0)
         each do |field, value|
           buffer.put_byte(value.bson_type)
-          buffer.put_cstring(field.to_bson_key(validating_keys))
+          key = field.to_bson_key(validating_keys)
+          begin
+            buffer.put_cstring(key)
+          rescue ArgumentError => e
+            raise ArgumentError, "Error serializing key #{key}: #{e.class}: #{e}"
+          rescue EncodingError => e
+            # Note this may convert exception class from a subclass of
+            # EncodingError to EncodingError itself
+            raise EncodingError, "Error serializing key #{key}: #{e.class}: #{e}"
+          end
           value.to_bson(buffer, validating_keys)
         end
         buffer.put_byte(NULL_BYTE)

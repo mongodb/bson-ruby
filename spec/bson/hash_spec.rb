@@ -158,4 +158,69 @@ describe Hash do
       it_behaves_like "a deserializable bson element"
     end
   end
+
+  describe '#to_bson' do
+    context 'when a key is not valid utf-8' do
+      let(:key) { Utils.make_byte_string([254, 253, 255]) }
+      let(:hash) do
+        {key => 'foo'}
+      end
+
+      let(:expected_message) do
+        if BSON::Environment.jruby?
+          # Uses JRE conversion to another encoding
+          /Error serializing key.*Encoding::UndefinedConversionError/
+        else
+          # Uses our validator
+          /Key.*is not valid UTF-8/
+        end
+      end
+
+      it 'raises EncodingError' do
+        expect do
+          hash.to_bson
+        end.to raise_error(EncodingError, expected_message)
+      end
+    end
+
+    context 'when a key contains null bytes' do
+      let(:hash) do
+        {"\x00".force_encoding('BINARY') => 'foo'}
+      end
+
+      it 'raises ArgumentError' do
+        expect do
+          hash.to_bson
+        end.to raise_error(ArgumentError, /[Kk]ey.*contains null bytes/)
+      end
+    end
+
+    context 'when a value is not valid utf-8' do
+      let(:hash) do
+        {'foo' => [254, 253, 255].map(&:chr).join.force_encoding('BINARY')}
+      end
+
+      let(:expected_message) do
+        /from ASCII-8BIT to UTF-8/
+      end
+
+      it 'raises EncodingError' do
+        expect do
+          hash.to_bson
+        end.to raise_error(EncodingError, expected_message)
+      end
+    end
+
+    context 'when a value contains null bytes' do
+      let(:hash) do
+        {'foo' => "\x00".force_encoding('BINARY')}
+      end
+
+      it 'works' do
+        expect do
+          hash.to_bson
+        end.not_to raise_error
+      end
+    end
+  end
 end
