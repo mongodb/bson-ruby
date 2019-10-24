@@ -122,14 +122,14 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
        * Ensure we have a valid multi-byte sequence length.
        */
       if (!seq_length) {
-         rb_raise(rb_eArgError, "String %s is not valid UTF-8: bogus initial bits", utf8);
+         rb_raise(rb_eEncodingError, "String %s is not valid UTF-8: bogus initial bits", utf8);
       }
 
       /*
        * Ensure we have enough bytes left.
        */
       if ((utf8_len - i) < seq_length) {
-         rb_raise(rb_eArgError, "String %s is not valid UTF-8: truncated multi-byte sequence", utf8);
+         rb_raise(rb_eEncodingError, "String %s is not valid UTF-8: truncated multi-byte sequence", utf8);
       }
 
       /*
@@ -144,7 +144,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
       for (j = i + 1; j < (i + seq_length); j++) {
          c = (c << 6) | (utf8[j] & 0x3F);
          if ((utf8[j] & 0xC0) != 0x80) {
-            rb_raise(rb_eArgError, "String %s is not valid UTF-8: bogus high bits for continuation byte", utf8);
+            rb_raise(rb_eEncodingError, "String %s is not valid UTF-8: bogus high bits for continuation byte", utf8);
          }
       }
 
@@ -168,7 +168,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
        * Code point won't fit in utf-16, not allowed.
        */
       if (c > 0x0010FFFF) {
-         rb_raise(rb_eArgError, "String %s is not valid UTF-8: code point %"PRIu32" does not fit in UTF-16", utf8, c);
+         rb_raise(rb_eEncodingError, "String %s is not valid UTF-8: code point %"PRIu32" does not fit in UTF-16", utf8, c);
       }
 
       /*
@@ -176,7 +176,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
        * for surrogate pairs.
        */
       if ((c & 0xFFFFF800) == 0xD800) {
-         rb_raise(rb_eArgError, "String %s is not valid UTF-8: byte is in surrogate pair reserved range", utf8);
+         rb_raise(rb_eEncodingError, "String %s is not valid UTF-8: byte is in surrogate pair reserved range", utf8);
       }
 
       /*
@@ -222,7 +222,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
       }
       
       if (not_shortest_form) {
-        rb_raise(rb_eArgError, "String %s is not valid UTF-8: not in shortest form", utf8);
+        rb_raise(rb_eEncodingError, "String %s is not valid UTF-8: not in shortest form", utf8);
       }
    }
 }

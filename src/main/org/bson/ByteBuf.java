@@ -24,6 +24,7 @@ import java.util.Arrays;
 
 import org.jcodings.Encoding;
 import org.jcodings.EncodingDB;
+import org.jcodings.specific.UTF8Encoding;
 
 import org.jruby.Ruby;
 import org.jruby.RubyBignum;
@@ -398,9 +399,12 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_string")
-  public ByteBuf putString(final IRubyObject value) throws UnsupportedEncodingException {
-    String string = ((RubyString) value).asJavaString();
-    return putJavaString(string);
+  public ByteBuf putString(ThreadContext context, final IRubyObject value) throws UnsupportedEncodingException {
+    RubyString string = (RubyString) value;
+    RubyString encodedString = convertToUtf8(context, string);
+    
+    String javaString = encodedString.asJavaString();
+    return putJavaString(javaString);
   }
 
   /**
@@ -413,15 +417,23 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_cstring")
-  public ByteBuf putCString(final IRubyObject value) throws UnsupportedEncodingException {
+  public ByteBuf putCString(ThreadContext context, final IRubyObject value) throws UnsupportedEncodingException {
 
    if (value instanceof RubyFixnum) {
      RubyString str = ((RubyFixnum) value).to_s();
      String string = str.asJavaString();
-     this.writePosition += writeCharacters(string, true);
+     this.writePosition += writeCharacters(string);
    } else if (value instanceof RubyString || value instanceof RubySymbol) {
-    String string = value.asJavaString();
-    this.writePosition += writeCharacters(string, true);
+    RubyString string;
+    if (value instanceof RubySymbol) {
+      string = (RubyString) ((RubySymbol) value).to_s(context);
+    } else {
+      string = (RubyString) value;
+    }
+    string = convertToUtf8(context, string);
+    String javaString = string.asJavaString();
+    verifyNoNulls(javaString);
+    this.writePosition += writeCharacters(javaString);
    } else {
     throw getRuntime().newTypeError(format("Invalid type for put_cstring: %s", value));
    }
@@ -439,9 +451,9 @@ public class ByteBuf extends RubyObject {
    * @version 4.2.2
    */
   @JRubyMethod(name = "put_symbol")
-  public ByteBuf putSymbol(final IRubyObject value) throws UnsupportedEncodingException {
-    String string = ((RubySymbol) value).asJavaString();
-    return putJavaString(string);
+  public ByteBuf putSymbol(ThreadContext context, final IRubyObject value) throws UnsupportedEncodingException {
+    RubyString str = (RubyString) ((RubySymbol) value).to_s(context);
+    return putString(context, str);
   }
 
   /**
@@ -563,16 +575,12 @@ public class ByteBuf extends RubyObject {
     this.buffer.put(b);
   }
 
-  private int writeCharacters(final String string, final boolean checkForNull) {
+  private int writeCharacters(final String string) {
     int len = string.length();
     int total = 0;
 
     for (int i = 0; i < len;) {
       int c = Character.codePointAt(string, i);
-
-      if (checkForNull && c == 0x0) {
-        throw getRuntime().newArgumentError(format("String %s contains null bytes", string));
-      }
 
       if (c < 0x80) {
         write((byte) c);
@@ -605,7 +613,7 @@ public class ByteBuf extends RubyObject {
   private ByteBuf putJavaString(final String string) {
     ensureBsonWrite(4);
     this.buffer.putInt(0);
-    int length = writeCharacters(string, false);
+    int length = writeCharacters(string);
     this.buffer.putInt(this.buffer.position() - length - 4, length);
     this.writePosition += (length + 4);
     return this;
@@ -636,5 +644,42 @@ public class ByteBuf extends RubyObject {
 
   private RubyString getUTF8String(final byte[] bytes) {
     return RubyString.newString(getRuntime(), new ByteList(bytes, UTF_8));
+  }
+  
+  /**
+   * Converts +string+ to UTF-8 encoding. If +string+ is already in UTF-8,
+   * verifies that +string+ contains valid byte sequences by encoding in
+   * another encoding (currently UTF-16).
+   */
+  private RubyString convertToUtf8(ThreadContext context, RubyString string) {
+    RubyString encodedString;
+    
+    if (string.getEncoding() == UTF8Encoding.INSTANCE) {
+      // If the value is already in UTF-8, encoding it to UTF-8 is a noop.
+      // But we also want to validate the bytes for being a valid UTF-8 sequence.
+      // Do this by encoding the string to UTF-16 for the time being.
+      RubyString utf16 = RubyString.newString(context.runtime, "UTF-16");
+      string.encode(context, utf16);
+      encodedString = string;
+    } else {
+      RubyString utf8 = RubyString.newString(context.runtime, "UTF-8");
+      encodedString = (RubyString) string.encode(context, utf8);
+    }
+    
+    return encodedString;
+  }
+  
+  private void verifyNoNulls(String string) {
+    int len = string.length();
+
+    for (int i = 0; i < len;) {
+      int c = Character.codePointAt(string, i);
+
+      if (c == 0) {
+        throw getRuntime().newArgumentError(format("String %s contains null bytes", string));
+      }
+
+      i += Character.charCount(c);
+    }
   }
 }

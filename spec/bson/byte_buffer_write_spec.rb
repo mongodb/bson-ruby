@@ -65,6 +65,20 @@ describe BSON::ByteBuffer do
 
       it_behaves_like 'does not write'
     end
+
+    context 'when byte is not valid utf-8' do
+      let(:string) do
+        Utils.make_byte_string([254]).freeze
+      end
+
+      let(:modified) do
+        buffer.put_byte(string)
+      end
+
+      it 'writes the byte' do
+        expect(modified.to_s).to eq(string)
+      end
+    end
   end
 
   describe '#put_bytes' do
@@ -106,9 +120,75 @@ describe BSON::ByteBuffer do
         expect(modified.write_position).to eq(4)
       end
     end
+
+    context 'when bytes are not valid utf-8' do
+      let(:string) do
+        Utils.make_byte_string([254, 0, 255]).freeze
+      end
+
+      let(:modified) do
+        buffer.put_bytes(string)
+      end
+
+      it 'writes the bytes' do
+        expect(modified.to_s).to eq(string)
+      end
+    end
+  end
+
+  shared_examples_for 'bson string writer' do
+
+    context 'given empty string' do
+      let(:modified) do
+        buffer.put_string('')
+      end
+
+      it 'writes length and null terminator' do
+        expect(modified.write_position).to eq(5)
+      end
+    end
+
+    context 'when string is not valid utf-8 in utf-8 encoding' do
+      let(:string) do
+        Utils.make_byte_string([254, 253, 255], 'utf-8')
+      end
+
+      before do
+        expect(string.encoding.name).to eq('UTF-8')
+      end
+
+      it 'raises EncodingError' do
+        # Precise exception classes and messages differ between MRI and JRuby
+        expect do
+          modified
+        end.to raise_error(EncodingError)
+      end
+    end
+
+    context 'when string is in binary encoding and cannot be encoded in utf-8' do
+      let(:string) do
+        Utils.make_byte_string([254, 253, 255], 'binary')
+      end
+
+      before do
+        expect(string.encoding.name).to eq('ASCII-8BIT')
+      end
+
+      it 'raises Encoding::UndefinedConversionError' do
+        expect do
+          modified
+        end.to raise_error(Encoding::UndefinedConversionError, /from ASCII-8BIT to UTF-8/)
+      end
+    end
   end
 
   describe '#put_string' do
+
+    let(:modified) do
+      buffer.put_string(string)
+    end
+
+    it_behaves_like 'bson string writer'
 
     context 'when the buffer does not need to be expanded' do
 
@@ -167,18 +247,30 @@ describe BSON::ByteBuffer do
       end
     end
 
-    context 'given empty string' do
-      let(:modified) do
-        buffer.put_string('')
+    context 'when string is in an encoding other than utf-8' do
+      let(:string) do
+        # "\xfe"
+        Utils.make_byte_string([254], 'iso-8859-1')
       end
 
-      it 'writes length and null terminator' do
-        expect(modified.write_position).to eq(5)
+      let(:expected) do
+        # \xc3\xbe == \u00fe
+        Utils.make_byte_string([3, 0, 0, 0, 0xc3, 0xbe, 0])
+      end
+
+      it 'is written as utf-8' do
+        expect(modified.to_s).to eq(expected)
       end
     end
   end
 
   describe '#put_cstring' do
+
+    let(:modified) do
+      buffer.put_cstring(string)
+    end
+
+    it_behaves_like 'bson string writer'
 
     context 'when argument is a string' do
       context 'when the string is valid' do
@@ -209,8 +301,25 @@ describe BSON::ByteBuffer do
 
         it 'raises ArgumentError' do
           expect {
-            buffer.put_cstring(string)
+            modified
           }.to raise_error(ArgumentError, /String .* contains null bytes/)
+        end
+      end
+
+      context 'when string is in an encoding other than utf-8' do
+        let(:string) do
+          # "\xfe"
+          Utils.make_byte_string([254], 'iso-8859-1')
+        end
+
+        let(:expected) do
+          # \xc3\xbe == \u00fe
+          # No length prefix
+          Utils.make_byte_string([0xc3, 0xbe, 0])
+        end
+
+        it 'is written as utf-8' do
+          expect(modified.to_s).to eq(expected)
         end
       end
     end
@@ -319,6 +428,23 @@ describe BSON::ByteBuffer do
       it 'advances write position' do
         # 4 byte length + 5 byte string + null byte
         expect(modified.write_position).to eq(10)
+      end
+    end
+
+    context 'when symbol is not valid utf-8' do
+      let(:symbol) do
+        Utils.make_byte_string([254, 0, 255]).to_sym
+      end
+
+      let(:modified) do
+        buffer.put_symbol(symbol)
+      end
+
+      it 'raises EncodingError' do
+        # Precise exception classes and messages differ between MRI and JRuby
+        expect do
+          modified
+        end.to raise_error(EncodingError)
       end
     end
   end

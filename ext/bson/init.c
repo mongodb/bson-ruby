@@ -110,15 +110,22 @@ void Init_bson_native()
 
   /*
    * call-seq:
-   *   buffer.put_string(binary_str) -> ByteBuffer
+   *   buffer.put_string(str) -> ByteBuffer
    *
-   * Writes the specified byte string to the byte buffer as a BSON string.
+   * Writes the specified string to the byte buffer as a BSON string.
    *
-   * Unlike +put_bytes+, this method writes the provided byte string as
+   * Unlike #put_bytes, this method writes the provided byte string as
    * a "BSON string" - the string is prefixed with its length and suffixed
    * with a null byte. The byte string may contain null bytes itself thus
    * the null terminator is redundant, but it is required by the BSON
    * specification.
+   *
+   * +str+ must either already be in UTF-8 encoding or be a string encodable
+   * to UTF-8. In particular, a string in BINARY/ASCII-8BIT encoding is
+   * generally not suitable for this method. +EncodingError+ will be raised
+   * if +str+ cannot be encoded in UTF-8, or if +str+ claims to be encoded in
+   * UTF-8 but contains bytes/byte sequences which are not valid in UTF-8.
+   * Use #put_bytes to write arbitrary byte strings to the buffer.
    *
    * Returns the modified +self+.
    */
@@ -129,12 +136,15 @@ void Init_bson_native()
    *   buffer.put_cstring(obj) -> ByteBuffer
    *
    * Converts +obj+ to a string, which must not contain any null bytes, and
-   * writes the string to the buffer. +obj+ can be an instance of String,
-   * Symbol or Fixnum.
+   * which must be valid UTF-8, and writes the string to the buffer as a
+   * BSON cstring. +obj+ can be an instance of String, Symbol or Fixnum.
    *
    * If the string serialization of +obj+ contains null bytes, this method
    * raises +ArgumentError+. If +obj+ is of an unsupported type, this method
    * raises +TypeError+.
+   *
+   * BSON cstring serialization contains no length of the string (relying
+   * instead on the null terminator), unlike the BSON string serialization.
    */
   rb_define_method(rb_byte_buffer_class, "put_cstring", rb_bson_byte_buffer_put_cstring, 1);
   
@@ -146,6 +156,10 @@ void Init_bson_native()
    * buffer.
    *
    * The symbol may contain null bytes.
+   *
+   * The symbol value is assumed to be encoded in UTF-8. If the symbol value
+   * contains bytes or byte sequences that are not valid in UTF-8, this method
+   * raises +EncodingError+.
    *
    * Note: due to the string conversion, a symbol written to the buffer becomes
    * indistinguishable from a string with the same value written to the buffer.

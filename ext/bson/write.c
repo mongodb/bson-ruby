@@ -15,6 +15,7 @@
  */
 
 #include "bson-native.h"
+#include <ruby/encoding.h>
 
 typedef struct{
   byte_buffer_t *b;
@@ -188,12 +189,54 @@ VALUE pvt_bson_byte_buffer_put_binary_string(VALUE self, const char *str, int32_
   return self;
 }
 
+/**
+ * Encodes +string+ to UTF-8. If +string+ is already in UTF-8, validates that
+ * it contains only valid UTF-8 bytes/byte sequences.
+ *
+ * Raises EncodingError on failure.
+ */
+static VALUE pvt_bson_encode_to_utf8(VALUE string) {
+  VALUE existing_encoding_name;
+  VALUE encoding;
+  VALUE utf8_string;
+  const char *str;
+  int32_t length;
+  
+  existing_encoding_name = rb_funcall(
+    rb_funcall(string, rb_intern("encoding"), 0),
+    rb_intern("name"), 0);
+  
+  if (strcmp(RSTRING_PTR(existing_encoding_name), "UTF-8") == 0) {
+    utf8_string = string;
+  
+    str = RSTRING_PTR(utf8_string);
+    length = RSTRING_LEN(utf8_string);
+    
+    rb_bson_utf8_validate(str, length, true);
+  } else {
+    encoding = rb_enc_str_new_cstr("UTF-8", rb_utf8_encoding());
+    utf8_string = rb_funcall(string, rb_intern("encode"), 1, encoding);
+    RB_GC_GUARD(encoding);
+  }
+  
+  return utf8_string;
+}
+
 /* The docstring is in init.c. */
 VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
 {
-  const char *str = RSTRING_PTR(string);
-  const int32_t length = RSTRING_LEN(string);
+  VALUE utf8_string;
+  const char *str;
+  int32_t length;
+  
+  utf8_string = pvt_bson_encode_to_utf8(string);
+  /* At this point utf8_string contains valid utf-8 byte sequences only */
+  
+  str = RSTRING_PTR(utf8_string);
+  length = RSTRING_LEN(utf8_string);
 
+  RB_GC_GUARD(utf8_string);
+  
   return pvt_bson_byte_buffer_put_binary_string(self, str, length);
 }
 
@@ -221,7 +264,7 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE obj)
 
   switch (TYPE(obj)) {
   case T_STRING:
-    string = obj;
+    string = pvt_bson_encode_to_utf8(obj);
     break;
   case T_SYMBOL:
     string = rb_sym2str(obj);
