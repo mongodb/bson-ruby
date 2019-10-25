@@ -163,6 +163,26 @@ describe BSON::Document do
     it "sets the value" do
       expect(doc[key]).to eq(val)
     end
+
+    context 'when value is a hash' do
+      let(:val) do
+        {'foo' => {'bar' => 'baz'}}
+      end
+
+      it 'converts value to indifferent access' do
+        expect(doc[key][:foo][:bar]).to eq('baz')
+      end
+    end
+
+    context 'when value is an array with hash element' do
+      let(:val) do
+        [42, {'foo' => {'bar' => 'baz'}}]
+      end
+
+      it 'converts hash element to indifferent access' do
+        expect(doc[key][1][:foo][:bar]).to eq('baz')
+      end
+    end
   end
 
   if described_class.instance_methods.include?(:dig)

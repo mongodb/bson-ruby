@@ -88,7 +88,49 @@ module BSON
       super(convert_key(key))
     end
 
-    # Set a value on the document. Will normalize symbol keys into strings.
+    # Stores a key-value pair in the current document.
+    #
+    # Since BSON documents provide deep indifferent access (both strings and
+    # symbols are accepted as keys, recursively), the value may be converted
+    # to facilitate indifferent access. This conversion is performed for
+    # built-in Array and Hash classes, and other classes can override
+    # +to_bson_normalized_value+ method to provide custom conversion logic.
+    # For example:
+    #
+    #     doc = BSON::Document.new
+    #     doc[:a] = {b: {c: 'd'}}
+    #     doc['a']['b']['c']
+    #     # => "d"
+    #
+    # Note that due to this conversion, the object that is stored in the
+    # receiver Document may be different from the object supplied as the
+    # right hand side of the assignment. In Ruby, the result of assignment
+    # is the right hand side, not the return value of []= method.
+    # Because of this, modifying the result of assignment generally does not
+    # work as intended:
+    #
+    #     doc = BSON::Document.new
+    #     foo = (doc[:a] = {b: {c: 'd'}})
+    #     # foo is original Hash with symbol keys
+    #     foo['test'] = 'test'
+    #     # doc is not modified
+    #     doc
+    #     # => {"a"=>{"b"=>{"c"=>"d"}}}
+    #
+    # This behavior can be encountered when defaulting document contents with
+    # []= in a method, such as:
+    #
+    #     def foo
+    #       # @doc is a BSON::Document
+    #       @doc[:foo] ||= calculation
+    #     end
+    #
+    # The above method should be written as follows to allow chaining:
+    #
+    #     def foo
+    #       # @doc is a BSON::Document
+    #       @doc[:foo] ||= calculation and @doc[:foo]
+    #     end
     #
     # @example Set a value on the document.
     #   document[:test] = "value"
