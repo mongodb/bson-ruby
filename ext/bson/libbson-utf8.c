@@ -91,6 +91,7 @@ _bson_utf8_get_sequence (const char *utf8,    /* IN */
  *       @utf8: A UTF-8 encoded string.
  *       @utf8_len: The length of @utf8 in bytes.
  *       @allow_null: If \0 is allowed within @utf8, exclusing trailing \0.
+ *       @data_type: The data type being serialized.
  *
  * Returns:
  *       true if @utf8 is valid UTF-8. otherwise false.
@@ -104,7 +105,8 @@ _bson_utf8_get_sequence (const char *utf8,    /* IN */
 void
 rb_bson_utf8_validate (const char *utf8, /* IN */
                     size_t utf8_len,  /* IN */
-                    bool allow_null)  /* IN */
+                    bool allow_null, /* IN */
+                    const char *data_type)  /* IN */
 {
    uint32_t c;
    uint8_t first_mask;
@@ -122,14 +124,14 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
        * Ensure we have a valid multi-byte sequence length.
        */
       if (!seq_length) {
-         rb_raise(rb_eEncodingError, "String %s is not valid UTF-8: bogus initial bits", utf8);
+         rb_raise(rb_eEncodingError, "%s %s is not valid UTF-8: bogus initial bits", data_type, utf8);
       }
 
       /*
        * Ensure we have enough bytes left.
        */
       if ((utf8_len - i) < seq_length) {
-         rb_raise(rb_eEncodingError, "String %s is not valid UTF-8: truncated multi-byte sequence", utf8);
+         rb_raise(rb_eEncodingError, "%s %s is not valid UTF-8: truncated multi-byte sequence", data_type, utf8);
       }
 
       /*
@@ -144,7 +146,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
       for (j = i + 1; j < (i + seq_length); j++) {
          c = (c << 6) | (utf8[j] & 0x3F);
          if ((utf8[j] & 0xC0) != 0x80) {
-            rb_raise(rb_eEncodingError, "String %s is not valid UTF-8: bogus high bits for continuation byte", utf8);
+            rb_raise(rb_eEncodingError, "%s %s is not valid UTF-8: bogus high bits for continuation byte", data_type, utf8);
          }
       }
 
@@ -159,7 +161,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
       if (!allow_null) {
          for (j = 0; j < seq_length; j++) {
             if (((i + j) > utf8_len) || !utf8[i + j]) {
-               rb_raise(rb_eArgError, "String %s contains null bytes", utf8);
+               rb_raise(rb_eArgError, "%s %s contains null bytes", data_type, utf8);
             }
          }
       }
@@ -168,7 +170,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
        * Code point won't fit in utf-16, not allowed.
        */
       if (c > 0x0010FFFF) {
-         rb_raise(rb_eEncodingError, "String %s is not valid UTF-8: code point %"PRIu32" does not fit in UTF-16", utf8, c);
+         rb_raise(rb_eEncodingError, "%s %s is not valid UTF-8: code point %"PRIu32" does not fit in UTF-16", data_type, utf8, c);
       }
 
       /*
@@ -176,7 +178,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
        * for surrogate pairs.
        */
       if ((c & 0xFFFFF800) == 0xD800) {
-         rb_raise(rb_eEncodingError, "String %s is not valid UTF-8: byte is in surrogate pair reserved range", utf8);
+         rb_raise(rb_eEncodingError, "%s %s is not valid UTF-8: byte is in surrogate pair reserved range", data_type, utf8);
       }
 
       /*
@@ -196,7 +198,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
          } else if (c == 0) {
             /* Two-byte representation for NULL. */
             if (!allow_null) {
-               rb_raise(rb_eArgError, "String %s contains null bytes", utf8);
+               rb_raise(rb_eArgError, "%s %s contains null bytes", data_type, utf8);
             }
             continue;
          }
@@ -222,7 +224,7 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
       }
       
       if (not_shortest_form) {
-        rb_raise(rb_eEncodingError, "String %s is not valid UTF-8: not in shortest form", utf8);
+        rb_raise(rb_eEncodingError, "%s %s is not valid UTF-8: not in shortest form", data_type, utf8);
       }
    }
 }

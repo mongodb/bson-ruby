@@ -130,4 +130,22 @@ describe String do
       end
     end
   end
+
+  describe '#to_bson' do
+    context 'when string is not valid utf-8' do
+      let(:string) do
+        "\xfe\x00\xff".force_encoding('BINARY')
+      end
+
+      let(:expected_message) do
+        /from ASCII-8BIT to UTF-8/
+      end
+
+      it 'raises EncodingError' do
+        expect do
+          string.to_bson
+        end.to raise_error(EncodingError, expected_message)
+      end
+    end
+  end
 end
