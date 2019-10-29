@@ -46,15 +46,22 @@ module BSON
 
     # Instantiate a BSON Int64.
     #
-    # @param [ Integer ] integer The 64-bit integer.
+    # @param [ Integer ] value The 64-bit integer.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 4.2.0
-    def initialize(integer)
-      out_of_range! unless integer.bson_int64?
-      @integer = integer.freeze
+    def initialize(value)
+      unless value.bson_int64?
+        raise RangeError.new("#{value} cannot be stored in 64 bits")
+      end
+      @value = value.freeze
     end
+
+    # Returns the value of this Int64.
+    #
+    # @return [ Integer ] The integer value.
+    attr_reader :value
 
     # Append the integer as encoded BSON to a ByteBuffer.
     #
@@ -67,7 +74,7 @@ module BSON
     #
     # @since 4.2.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      buffer.put_int64(@integer)
+      buffer.put_int64(value)
     end
 
     # Convert the integer to a BSON string key.
@@ -81,7 +88,7 @@ module BSON
     #
     # @since 4.2.0
     def to_bson_key(validating_keys = Config.validating_keys?)
-      @integer
+      value
     end
 
     # Check equality of the int64 with another object.
@@ -93,16 +100,10 @@ module BSON
     # @since 4.4.0
     def ==(other)
       return false unless other.is_a?(Int64)
-      @integer == other.instance_variable_get('@integer')
+      value == other.value
     end
     alias :eql? :==
     alias :=== :==
-
-    private
-
-    def out_of_range!
-      raise RangeError.new("#{self} is not a valid 8 byte integer value.")
-    end
 
     # Register this type when the module is loaded.
     #

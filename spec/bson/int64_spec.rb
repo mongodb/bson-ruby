@@ -25,7 +25,7 @@ describe BSON::Int64 do
       let(:integer) { Integer::MAX_64BIT - 1 }
 
       it "wraps the integer" do
-        expect(obj.instance_variable_get(:@integer)).to be(integer)
+        expect(obj.value).to be(integer)
       end
     end
 
@@ -34,9 +34,9 @@ describe BSON::Int64 do
       let(:integer) { Integer::MAX_64BIT + 1 }
 
       it "raises an out of range error" do
-        expect {
+        expect do
           obj
-        }.to raise_error(RangeError)
+        end.to raise_error(RangeError, /#{integer} cannot be stored in 64 bits/)
       end
     end
 
@@ -280,4 +280,13 @@ describe BSON::Int64 do
       end
     end
   end
+
+  describe '#value' do
+    let(:obj) { described_class.new(12345) }
+
+    it 'returns value passed to initializer' do
+      expect(obj.value).to eq(12345)
+    end
+  end
+
 end
