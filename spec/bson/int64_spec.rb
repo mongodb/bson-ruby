@@ -50,6 +50,16 @@ describe BSON::Int64 do
         }.to raise_error(RangeError)
       end
     end
+
+    context 'when argument is an Int64' do
+      let(:integer) do
+        described_class.new(described_class.new(50))
+      end
+
+      it 'works' do
+        expect(integer.value).to be 50
+      end
+    end
   end
 
   describe "#from_bson" do

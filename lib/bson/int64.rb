@@ -52,6 +52,11 @@ module BSON
     #
     # @since 4.2.0
     def initialize(value)
+      if value.is_a?(self.class)
+        @value = value.value
+        return
+      end
+
       unless value.bson_int64?
         raise RangeError.new("#{value} cannot be stored in 64 bits")
       end
