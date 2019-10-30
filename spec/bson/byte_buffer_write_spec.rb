@@ -451,7 +451,7 @@ describe BSON::ByteBuffer do
 
   describe '#put_double' do
 
-    let!(:modified) do
+    let(:modified) do
       buffer.put_double(1.2332)
     end
 
@@ -461,6 +461,55 @@ describe BSON::ByteBuffer do
 
     it 'increments the write position by 8' do
       expect(modified.write_position).to eq(8)
+    end
+
+    context 'when argument is an integer' do
+
+      let(:modified) do
+        buffer.put_double(3)
+      end
+
+      it 'writes a double' do
+        expect(modified.to_s).to eq([ 3 ].pack(Float::PACK))
+      end
+
+      it 'increments the write position by 8' do
+        expect(modified.write_position).to eq(8)
+      end
+    end
+
+    context 'when argument is a BigNum' do
+      let(:value) { 123456789012345678901234567890 }
+
+      let(:modified) do
+        buffer.put_double(value)
+      end
+
+      let(:actual) do
+        described_class.new(modified.to_s).get_double
+      end
+
+      it 'writes a double' do
+        expect(actual).to be_within(1).of(value)
+      end
+
+      it 'increments the write position by 8' do
+        expect(modified.write_position).to eq(8)
+      end
+    end
+
+    context 'when argument is a string' do
+
+      let(:modified) do
+        buffer.put_double("hello")
+      end
+
+      it 'raises TypeError' do
+        expect do
+          modified
+        end.to raise_error(TypeError, /no implicit conversion to float from string|ClassCastException:.*RubyString cannot be cast to.*RubyFloat/)
+        expect(buffer.write_position).to eq(0)
+      end
     end
   end
 
@@ -513,6 +562,25 @@ describe BSON::ByteBuffer do
             buffer.put_int32(Integer::MAX_64BIT - 1)
           }.to raise_error(RangeError)
         end
+      end
+    end
+
+    context 'when argument is a float' do
+
+      let(:modified) do
+        buffer.put_int32(4.934)
+      end
+
+        let(:expected) do
+          [ 4 ].pack(BSON::Int32::PACK)
+        end
+
+      it 'appends the int32 to the byte buffer' do
+        expect(modified.to_s).to eq(expected)
+      end
+
+      it 'increments the write position by 4' do
+        expect(modified.write_position).to eq(4)
       end
     end
   end
@@ -572,6 +640,25 @@ describe BSON::ByteBuffer do
     context 'when integer fits in 32 bits' do
       let(:modified) do
         buffer.put_int64(1)
+      end
+
+      it 'increments the write position by 8' do
+        expect(modified.write_position).to eq(8)
+      end
+    end
+
+    context 'when argument is a float' do
+
+      let(:modified) do
+        buffer.put_int64(4.934)
+      end
+
+        let(:expected) do
+          [ 4 ].pack(BSON::Int64::PACK)
+        end
+
+      it 'appends the int64 to the byte buffer' do
+        expect(modified.to_s).to eq(expected)
       end
 
       it 'increments the write position by 8' do

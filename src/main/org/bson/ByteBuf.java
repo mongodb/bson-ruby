@@ -466,7 +466,10 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_int32")
-  public ByteBuf putInt32(final IRubyObject value) {
+  public ByteBuf putInt32(ThreadContext context, IRubyObject value) {
+    if (value instanceof RubyFloat) {
+      value = ((RubyFloat) value).truncate(context);
+    }
     ensureBsonWrite(4);
     this.buffer.putInt(RubyNumeric.fix2int((RubyFixnum) value));
     this.writePosition += 4;
@@ -483,7 +486,10 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_int64")
-  public ByteBuf putInt64(final IRubyObject value) {
+  public ByteBuf putInt64(ThreadContext context, IRubyObject value) {
+    if (value instanceof RubyFloat) {
+      value = ((RubyFloat) value).truncate(context);
+    }
     ensureBsonWrite(8);
     this.buffer.putLong(((RubyInteger) value).getLongValue());
     this.writePosition += 8;
@@ -500,9 +506,19 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "put_double")
-  public ByteBuf putDouble(final IRubyObject value) {
+  public ByteBuf putDouble(ThreadContext context, final IRubyObject value) {
     ensureBsonWrite(8);
-    this.buffer.putDouble(((RubyFloat) value).getDoubleValue());
+    RubyFloat float_value;
+    try {
+      if (value instanceof RubyInteger) {
+        float_value = (RubyFloat) ((RubyInteger) value).to_f();
+      } else {
+        float_value = (RubyFloat) value;
+      }
+    } catch (ClassCastException e) {
+      throw context.runtime.newTypeError(e.toString());
+    }
+    this.buffer.putDouble(float_value.getDoubleValue());
     this.writePosition += 8;
     return this;
   }
