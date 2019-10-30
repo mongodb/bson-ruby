@@ -6,7 +6,7 @@ An implementation of the BSON specification in Ruby.
 Compatibility
 -------------
 
-BSON is tested against MRI (2.3+) and JRuby (9.1+).
+BSON is tested against MRI (2.3+) and JRuby (9.2+).
 
 Documentation
 -------------
