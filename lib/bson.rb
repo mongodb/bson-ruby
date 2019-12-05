@@ -101,7 +101,7 @@ begin
   else
     require "bson_native"
   end
-rescue LoadError
-  $stderr.puts("Failed to load the necessary extensions.")
+rescue LoadError => e
+  $stderr.puts("Failed to load the necessary extensions: #{e.class}: #{e}")
   raise
 end
