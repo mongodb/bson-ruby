@@ -50,10 +50,12 @@ module BSON
     # @!attribute data
     #   @return [ Object ] The raw binary data.
     #   @since 2.0.0
+    attr_reader :data
+
     # @!attribute type
     #   @return [ Symbol ] The binary type.
     #   @since 2.0.0
-    attr_reader :data, :type
+    attr_reader :type
 
     # Determine if this binary object is equal to another object.
     #
