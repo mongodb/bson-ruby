@@ -105,7 +105,11 @@ describe BSON::Binary do
         expect(object.inspect).to eq("<BSON::Binary:0x#{object.object_id} type=user data=0x1f8b08000c787055...>")
       end
 
-      it 'is not different from default encoding' do
+      it 'is not binary' do
+        # As long as the default Ruby encoding is not binary, the inspected
+        # string should also not be in the binary encoding (it should be
+        # in one of the text encodings, but which one could depend on
+        # the Ruby runtime environment).
         expect(object.inspect.encoding).not_to eq(Encoding::BINARY)
       end
 
