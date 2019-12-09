@@ -138,7 +138,7 @@ module BSON
     #
     # If the Binary is of another subtype, this method raises TypeError.
     #
-    # @param [ String | Symbol ] representation How to interpret the UUID.
+    # @param [ Symbol ] representation How to interpret the UUID.
     #
     # @return [ String ] The string representation of the UUID.
     #
@@ -147,10 +147,15 @@ module BSON
     #   is requested for Binary subtype 4 (:uuid), if :standard representation
     #   is requested for Binary subtype 3 (:uuid_old), or if an invalid
     #   representation is requested.
+    #
+    # @api experimental
     def to_uuid(representation = nil)
+      if representation.is_a?(String)
+        raise ArgumentError, "Representation must be given as a symbol: #{representation}"
+      end
       case type
       when :uuid
-        if representation && representation.to_s != 'standard'
+        if representation && representation != :standard
           raise ArgumentError, "Binary of type :uuid can only be stringified to :standard representation, requested: #{representation.inspect}"
         end
         data.split('').map { |n| '%02x' % n.ord }.join.sub(/(.{8})(.{4})(.{4})(.{12})/, '\1-\2-\3-\4')
@@ -161,17 +166,17 @@ module BSON
 
         hex = data.split('').map { |n| '%02x' % n.ord }.join
 
-        case representation.to_s
-        when 'standard'
+        case representation
+        when :standard
           raise ArgumentError, 'BSON::Binary objects of type :uuid_old cannot be stringified to :standard representation'
-        when 'csharp_legacy'
+        when :csharp_legacy
           hex.sub(/\A(..)(..)(..)(..)(..)(..)(..)(..)(.{16})\z/, '\4\3\2\1\6\5\8\7\9')
-        when 'java_legacy'
+        when :java_legacy
           hex.sub(/\A(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)\z/) do |m|
             "#{$8}#{$7}#{$6}#{$5}#{$4}#{$3}#{$2}#{$1}" +
             "#{$16}#{$15}#{$14}#{$13}#{$12}#{$11}#{$10}#{$9}"
           end
-        when 'python_legacy'
+        when :python_legacy
           hex
         else
           raise ArgumentError, "Invalid representation: #{representation}"
@@ -235,26 +240,31 @@ module BSON
     # UUID storage format.
     #
     # @param [ String ] uuid The string representation of the UUID.
-    # @param [ String | Symbol ] representation How to interpret the UUID.
+    # @param [ Symbol ] representation How to interpret the UUID.
     #
     # @return [ Binary ] The binary.
     #
     # @raise [ ArgumentError ] If invalid representation is requested.
+    #
+    # @api experimental
     def self.from_uuid(uuid, representation = nil)
+      if representation.is_a?(String)
+        raise ArgumentError, "Representation must be given as a symbol: #{representation}"
+      end
       uuid_binary = uuid.gsub('-', '').scan(/../).map(&:hex).map(&:chr).join
-      case representation && representation.to_s
-      when nil, 'standard'
+      case representation && representation
+      when nil, :standard
         new(uuid_binary, :uuid)
-      when 'csharp_legacy'
+      when :csharp_legacy
         uuid_binary.sub!(/\A(.)(.)(.)(.)(.)(.)(.)(.)(.{8})\z/, '\4\3\2\1\6\5\8\7\9')
         new(uuid_binary, :uuid_old)
-      when 'java_legacy'
+      when :java_legacy
         uuid_binary.sub!(/\A(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)\z/) do |m|
           "#{$8}#{$7}#{$6}#{$5}#{$4}#{$3}#{$2}#{$1}" +
           "#{$16}#{$15}#{$14}#{$13}#{$12}#{$11}#{$10}#{$9}"
         end
         new(uuid_binary, :uuid_old)
-      when 'python_legacy'
+      when :python_legacy
         new(uuid_binary, :uuid_old)
       else
         raise ArgumentError, "Invalid representation: #{representation}"
