@@ -72,6 +72,14 @@ describe BSON::Binary do
 
   describe "#initialize" do
 
+    context 'when type is not given' do
+      let(:obj) { described_class.new('foo') }
+
+      it 'defaults to generic type' do
+        expect(obj.type).to eq(:generic)
+      end
+    end
+
     context "when he type is invalid" do
 
       it "raises an error" do
@@ -181,6 +189,14 @@ describe BSON::Binary do
 
       let(:obj)  { described_class.new("testing", :user) }
       let(:bson) { "#{7.to_bson}#{128.chr}testing" }
+
+      it_behaves_like "a serializable bson element"
+      it_behaves_like "a deserializable bson element"
+    end
+
+    context 'when given binary string' do
+      let(:obj) { described_class.new("\x00\xfe\xff".force_encoding('BINARY')) }
+      let(:bson) { "#{3.to_bson}#{0.chr}\x00\xfe\xff".force_encoding('BINARY') }
 
       it_behaves_like "a serializable bson element"
       it_behaves_like "a deserializable bson element"
