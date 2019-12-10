@@ -47,14 +47,16 @@ module BSON
     # @since 2.0.0
     TYPES = SUBTYPES.invert.freeze
 
-    # @!attribute data
-    #   @return [ Object ] The raw binary data.
-    #   @since 2.0.0
+    # @return [ String ] The raw binary data.
+    #
+    # The string is always stored in BINARY encoding.
+    #
+    # @since 2.0.0
     attr_reader :data
 
-    # @!attribute type
-    #   @return [ Symbol ] The binary type.
-    #   @since 2.0.0
+    # @return [ Symbol ] The binary type.
+    #
+    # @since 2.0.0
     attr_reader :type
 
     # Determine if this binary object is equal to another object.
@@ -98,15 +100,32 @@ module BSON
 
     # Instantiate the new binary object.
     #
+    # This method accepts a string in any encoding; however, if a string is
+    # of a non-BINARY encoding, the encoding is set to BINARY. This does not
+    # change the bytes of the string but it means that applications referencing
+    # the data of a Binary instance cannot assume it is in a non-binary
+    # encoding, even if the string given to the constructor was in such an
+    # encoding.
+    #
     # @example Instantiate a binary.
     #   BSON::Binary.new(data, :md5)
     #
-    # @param [ Object ] data The raw binary data.
+    # @param [ String ] data The raw binary data.
     # @param [ Symbol ] type The binary type.
     #
     # @since 2.0.0
     def initialize(data = "", type = :generic)
       validate_type!(type)
+
+      # The Binary class used to force encoding to BINARY when serializing to
+      # BSON. Instead of doing that during serialization, perform this
+      # operation during Binary construction to make it clear that once
+      # the string is given to the Binary, the data is treated as a binary
+      # string and not a text string in any encoding.
+      unless data.encoding == Encoding.find('BINARY')
+        data = data.dup.force_encoding('BINARY')
+      end
+
       @data = data
       @type = type
     end
@@ -201,7 +220,7 @@ module BSON
       buffer.put_int32(0)
       buffer.put_byte(SUBTYPES[type])
       buffer.put_int32(data.bytesize) if type == :old
-      buffer.put_bytes(data.force_encoding(BINARY))
+      buffer.put_bytes(data)
       buffer.replace_int32(position, buffer.length - position - 5)
     end
 

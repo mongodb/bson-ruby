@@ -125,6 +125,15 @@ describe BSON::Binary do
 
   end
 
+  describe '#from_bson' do
+    let(:bson) { BSON::ByteBuffer.new("#{5.to_bson}#{0.chr}hello".force_encoding('BINARY')) }
+    let(:obj) { described_class.from_bson(bson) }
+
+    it 'sets data encoding to binary' do
+      expect(obj.data.encoding).to eq(Encoding.find('BINARY'))
+    end
+  end
+
   describe "#to_bson/#from_bson" do
 
     let(:type) { 5.chr }
@@ -196,6 +205,15 @@ describe BSON::Binary do
 
     context 'when given binary string' do
       let(:obj) { described_class.new("\x00\xfe\xff".force_encoding('BINARY')) }
+      let(:bson) { "#{3.to_bson}#{0.chr}\x00\xfe\xff".force_encoding('BINARY') }
+
+      it_behaves_like "a serializable bson element"
+      it_behaves_like "a deserializable bson element"
+    end
+
+    context 'when given a frozen string' do
+      let(:str) { "\x00\xfe\xff".force_encoding('BINARY').freeze }
+      let(:obj) { described_class.new(str) }
       let(:bson) { "#{3.to_bson}#{0.chr}\x00\xfe\xff".force_encoding('BINARY') }
 
       it_behaves_like "a serializable bson element"
