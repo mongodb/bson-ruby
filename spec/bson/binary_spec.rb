@@ -186,4 +186,33 @@ describe BSON::Binary do
       it_behaves_like "a deserializable bson element"
     end
   end
+
+  describe '#to_uuid' do
+    let(:obj) { described_class.new("\x00" * 16, :uuid) }
+
+    it 'accepts symbol representation' do
+      expect(obj.to_uuid(:standard)).to eq('00000000-0000-0000-0000000000000000')
+    end
+
+    it 'rejects string representation' do
+      expect do
+        obj.to_uuid('standard')
+      end.to raise_error(ArgumentError, /Representation must be given as a symbol/)
+    end
+  end
+
+  describe '#from_uuid' do
+    let(:uuid) { '00000000-0000-0000-0000000000000000' }
+
+    it 'accepts symbol representation' do
+      obj = described_class.from_uuid(uuid, :standard)
+      expect(obj.data).to eq("\x00" * 16)
+    end
+
+    it 'rejects string representation' do
+      expect do
+        described_class.from_uuid(uuid, 'standard')
+      end.to raise_error(ArgumentError, /Representation must be given as a symbol/)
+    end
+  end
 end

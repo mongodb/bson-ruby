@@ -123,6 +123,69 @@ module BSON
       "<BSON::Binary:0x#{object_id} type=#{type} data=0x#{data[0, 8].unpack('H*').first}...>"
     end
 
+    # Returns a string representation of the UUID stored in this Binary.
+    #
+    # If the Binary is of subtype 4 (:uuid), this method returns the UUID
+    # in RFC 4122 format. If the representation parameter is provided, it
+    # must be the value :standard as a symbol or a string.
+    #
+    # If the Binary is of subtype 3 (:uuid_old), this method requires that
+    # the representation parameter is provided and is one of :csharp_legacy,
+    # :java_legacy or :python_legacy or the equivalent strings. In this case
+    # the method assumes the Binary stores the UUID in the specified format,
+    # transforms the stored bytes to the standard RFC 4122 representation
+    # and returns the UUID in RFC 4122 format.
+    #
+    # If the Binary is of another subtype, this method raises TypeError.
+    #
+    # @param [ Symbol ] representation How to interpret the UUID.
+    #
+    # @return [ String ] The string representation of the UUID.
+    #
+    # @raise [ TypeError ] If the subtype of Binary is not :uuid nor :uuid_old.
+    # @raise [ ArgumentError ] If the representation other than :standard
+    #   is requested for Binary subtype 4 (:uuid), if :standard representation
+    #   is requested for Binary subtype 3 (:uuid_old), or if an invalid
+    #   representation is requested.
+    #
+    # @api experimental
+    def to_uuid(representation = nil)
+      if representation.is_a?(String)
+        raise ArgumentError, "Representation must be given as a symbol: #{representation}"
+      end
+      case type
+      when :uuid
+        if representation && representation != :standard
+          raise ArgumentError, "Binary of type :uuid can only be stringified to :standard representation, requested: #{representation.inspect}"
+        end
+        data.split('').map { |n| '%02x' % n.ord }.join.sub(/(.{8})(.{4})(.{4})(.{12})/, '\1-\2-\3-\4')
+      when :uuid_old
+        if representation.nil?
+          raise ArgumentError, 'Representation must be specified for BSON::Binary objects of type :uuid_old'
+        end
+
+        hex = data.split('').map { |n| '%02x' % n.ord }.join
+
+        case representation
+        when :standard
+          raise ArgumentError, 'BSON::Binary objects of type :uuid_old cannot be stringified to :standard representation'
+        when :csharp_legacy
+          hex.sub(/\A(..)(..)(..)(..)(..)(..)(..)(..)(.{16})\z/, '\4\3\2\1\6\5\8\7\9')
+        when :java_legacy
+          hex.sub(/\A(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)\z/) do |m|
+            "#{$8}#{$7}#{$6}#{$5}#{$4}#{$3}#{$2}#{$1}" +
+            "#{$16}#{$15}#{$14}#{$13}#{$12}#{$11}#{$10}#{$9}"
+          end
+        when :python_legacy
+          hex
+        else
+          raise ArgumentError, "Invalid representation: #{representation}"
+        end.sub(/(.{8})(.{4})(.{4})(.{12})/, '\1-\2-\3-\4')
+      else
+        raise TypeError, "The type of Binary must be :uuid or :uuid_old, this object is: #{type.inspect}"
+      end
+    end
+
     # Encode the binary type
     #
     # @example Encode the binary.
@@ -157,6 +220,55 @@ module BSON
       length = buffer.get_int32 if type == :old
       data = buffer.get_bytes(length)
       new(data, type)
+    end
+
+    # Creates a BSON::Binary from a string representation of a UUID.
+    #
+    # The UUID may be given in either 00112233-4455-6677-8899-aabbccddeeff or
+    # 00112233445566778899AABBCCDDEEFF format - specifically, any dashes in
+    # the UUID are removed and both upper and lower case letters are acceptable.
+    #
+    # The input UUID string is always interpreted to be in the RFC 4122 format.
+    #
+    # If representation is not provided, this method creates a BSON::Binary
+    # of subtype 4 (:uuid). If representation is provided, it must be one of
+    # :standard, :csharp_legacy, :java_legacy or :python_legacy. If
+    # representation is :standard, this method creates a subtype 4 (:uuid)
+    # binary which is the same behavior as if representation was not provided.
+    # For other representations, this method creates a Binary of subtype 3
+    # (:uuid_old) with the UUID converted to the appropriate legacy MongoDB
+    # UUID storage format.
+    #
+    # @param [ String ] uuid The string representation of the UUID.
+    # @param [ Symbol ] representation How to interpret the UUID.
+    #
+    # @return [ Binary ] The binary.
+    #
+    # @raise [ ArgumentError ] If invalid representation is requested.
+    #
+    # @api experimental
+    def self.from_uuid(uuid, representation = nil)
+      if representation.is_a?(String)
+        raise ArgumentError, "Representation must be given as a symbol: #{representation}"
+      end
+      uuid_binary = uuid.gsub('-', '').scan(/../).map(&:hex).map(&:chr).join
+      case representation && representation
+      when nil, :standard
+        new(uuid_binary, :uuid)
+      when :csharp_legacy
+        uuid_binary.sub!(/\A(.)(.)(.)(.)(.)(.)(.)(.)(.{8})\z/, '\4\3\2\1\6\5\8\7\9')
+        new(uuid_binary, :uuid_old)
+      when :java_legacy
+        uuid_binary.sub!(/\A(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)\z/) do |m|
+          "#{$8}#{$7}#{$6}#{$5}#{$4}#{$3}#{$2}#{$1}" +
+          "#{$16}#{$15}#{$14}#{$13}#{$12}#{$11}#{$10}#{$9}"
+        end
+        new(uuid_binary, :uuid_old)
+      when :python_legacy
+        new(uuid_binary, :uuid_old)
+      else
+        raise ArgumentError, "Invalid representation: #{representation}"
+      end
     end
 
     # Raised when providing an invalid type to the Binary.
