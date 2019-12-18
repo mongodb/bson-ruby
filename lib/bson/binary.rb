@@ -39,6 +39,7 @@ module BSON
       :uuid_old => 3.chr,
       :uuid => 4.chr,
       :md5 => 5.chr,
+      :cyphertext => 6.chr,
       :user => 128.chr
     }.freeze
 
