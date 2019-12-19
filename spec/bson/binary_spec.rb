@@ -203,6 +203,14 @@ describe BSON::Binary do
       it_behaves_like "a deserializable bson element"
     end
 
+    context "when the type is :cyphertext" do
+      let(:obj)  { described_class.new("testing", :ciphertext) }
+      let(:bson) { "#{7.to_bson}#{6.chr}testing" }
+
+      it_behaves_like "a serializable bson element"
+      it_behaves_like "a deserializable bson element"
+    end
+
     context 'when given binary string' do
       let(:obj) { described_class.new("\x00\xfe\xff".force_encoding('BINARY')) }
       let(:bson) { "#{3.to_bson}#{0.chr}\x00\xfe\xff".force_encoding('BINARY') }

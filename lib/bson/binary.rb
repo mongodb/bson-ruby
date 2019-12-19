@@ -31,6 +31,12 @@ module BSON
 
     # The mappings of subtypes to their single byte identifiers.
     #
+    # @note subtype 6 (ciphertext) is used for the Client-Side Encryption
+    #   feature. Data represented by this subtype is often encrypted, but
+    #   may also be plaintext. All instances of this subtype necessary for
+    #   Client-Side Encryption will be created internally by the Ruby driver.
+    #   An application should not create new BSON::Binary objects of this subtype.
+    #
     # @since 2.0.0
     SUBTYPES = {
       :generic => 0.chr,
@@ -39,6 +45,7 @@ module BSON
       :uuid_old => 3.chr,
       :uuid => 4.chr,
       :md5 => 5.chr,
+      :ciphertext => 6.chr,
       :user => 128.chr
     }.freeze
 
