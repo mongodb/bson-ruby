@@ -204,7 +204,7 @@ describe BSON::Binary do
     end
 
     context "when the type is :cyphertext" do
-      let(:obj)  { described_class.new("testing", :cyphertext) }
+      let(:obj)  { described_class.new("testing", :ciphertext) }
       let(:bson) { "#{7.to_bson}#{6.chr}testing" }
 
       it_behaves_like "a serializable bson element"
