@@ -397,7 +397,7 @@ pre:
 
 post:
   # Removed, causing timeouts
-  - func: "upload working dir"
+  #- func: "upload working dir"
   - func: "upload mo artifacts"
   - func: "upload test results"
   - func: "cleanup"
