@@ -1,4 +1,13 @@
+detected_arch=
+
 host_arch() {
+  if test -z "$detected_arch"; then
+    detected_arch=`_detect_arch`
+  fi
+  echo "$detected_arch"
+}
+
+_detect_arch() {
   local arch
   arch=
   if test -f /etc/debian_version; then
@@ -9,8 +18,13 @@ host_arch() {
       release=`lsb_release -r |awk '{print $2}' |tr -d .`
       arch="debian$release"
     elif lsb_release -i |grep -q Ubuntu; then
-      release=`lsb_release -r |awk '{print $2}' |tr -d .`
-      arch="ubuntu$release"
+      if test "`uname -m`" = ppc64le; then
+        release=`lsb_release -r |awk '{print $2}' |tr -d .`
+        arch="ubuntu$release-ppc"
+      else
+        release=`lsb_release -r |awk '{print $2}' |tr -d .`
+        arch="ubuntu$release"
+      fi
     else
       echo 'Unknown Debian flavor' 1>&2
       return 1
@@ -30,6 +44,7 @@ host_arch() {
     echo 'Unknown distro' 1>&2
     return 1
   fi
+  echo "Detected arch: $arch" 1>&2
   echo $arch
 }
 
@@ -93,7 +108,7 @@ setup_ruby() {
     if true; then
     
     # For testing toolchains:
-    toolchain_url=https://s3.amazonaws.com//mciuploads/mongo-ruby-toolchain/`host_arch`/ce62fbb005213564a3da1041854da54df6615b2a/mongo_ruby_driver_toolchain_`host_arch |tr - _`_patch_ce62fbb005213564a3da1041854da54df6615b2a_5cfacdc857e85a3ef6647ad9_19_06_07_20_49_15.tar.gz
+    toolchain_url=https://s3.amazonaws.com//mciuploads/mongo-ruby-toolchain/`host_arch`/08f8a795f7c52682f8696866284d9fcd4a5a979b/mongo_ruby_driver_toolchain_`host_arch |tr - _`_08f8a795f7c52682f8696866284d9fcd4a5a979b_20_01_02_04_05_46.tar.gz
     curl -fL $toolchain_url |tar zxf -
     export PATH=`pwd`/rubies/$RVM_RUBY/bin:$PATH
     
