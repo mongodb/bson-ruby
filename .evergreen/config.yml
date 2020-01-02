@@ -493,11 +493,17 @@ axes:
   - id: "special-os"
     display_name: OS
     values:
-      - id: "rhel71-ppc"
-        display_name: "RHEL 7.1 PowerPC"
-        run_on: rhel71-power8-test
+      #- id: "rhel71-ppc"
+      #  display_name: "RHEL 7.1 PowerPC"
+      #  run_on: rhel71-power8-test
+      #  variables:
+      #    MACHINE: "rhel71-ppc"
+      
+      - id: "ubuntu1804-ppc"
+        display_name: "Ubuntu 18.04 PowerPC"
+        run_on: ubuntu1804-power8-test
         variables:
-          MACHINE: "rhel71-ppc"
+          MACHINE: ubuntu1804-ppc
       
       - id: "ubuntu1604-arm"
         display_name: "Ubuntu 16.04 ARM64"
@@ -523,6 +529,10 @@ axes:
         display_name: ruby-2.6
         variables:
            RVM_RUBY: "ruby-2.6"
+      - id: "ruby-2.7"
+        display_name: ruby-2.7
+        variables:
+           RVM_RUBY: "ruby-2.7"
   - id: "jruby-rubies"
     display_name: Ruby Version
     values:
@@ -530,13 +540,6 @@ axes:
         display_name: jruby-9.2
         variables:
            RVM_RUBY: "jruby-9.2"
-  - id: "latest-stable-rubies"
-    display_name: Ruby Version
-    values:
-      - id: "ruby-2.5"
-        display_name: ruby-2.5
-        variables:
-           RVM_RUBY: "ruby-2.5"
   - id: "ruby-head"
     display_name: Ruby Head
     values:
@@ -554,7 +557,7 @@ axes:
 
 buildvariants:
 - matrix_name: "mri-rhel"
-  matrix_spec: { mri-rubies: ["ruby-2.3", "ruby-2.6"], all-os: "rhel70" }
+  matrix_spec: { mri-rubies: ["ruby-2.3", "ruby-2.7"], all-os: "rhel70" }
   display_name: "${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
@@ -576,8 +579,8 @@ buildvariants:
      - name: "test"
 
 - matrix_name: "special-os"
-  matrix_spec: { latest-stable-rubies: "*", special-os: "*" }
-  display_name: "${latest-stable-rubies}, ${special-os}"
+  matrix_spec: { mri-rubies: "ruby-2.6", special-os: "*" }
+  display_name: "${mri-rubies}, ${special-os}"
   tasks:
      - name: "test"
 
