@@ -26,24 +26,28 @@ describe 'Driver BSON Corpus spec tests' do
             end
           end
 
-          context 'when the document can be represented as extended json', if: test.test_extjson? do
+          if test.correct_relaxed_extjson
+            context 'when the document can be represented as extended json' do
 
-            it 'decodes from the given bson, then encodes the document as extended json correctly' do
-              skip 'The extended json in this test case does not match' unless (test.extjson_from_bson == test.correct_extjson)
-              expect(test.extjson_from_bson).to eq(test.correct_extjson)
-              expect(test.extjson_from_bson[test.test_key]).to eq(test.correct_extjson[test.test_key])
-            end
+              it 'decodes from the given bson, then encodes the document as extended json correctly' do
+                skip 'The extended json in this test case does not match' unless (test.extjson_from_bson == test.correct_relaxed_extjson)
+                expect(test.extjson_from_bson).to eq(test.correct_relaxed_extjson)
+                expect(test.extjson_from_bson[test.test_key]).to eq(test.correct_relaxed_extjson[test.test_key])
+              end
 
-            it 'decodes from extended json, then encodes the document as extended json correctly' do
-              expect(test.extjson_from_encoded_extjson).to eq(test.correct_extjson)
-              expect(test.extjson_from_encoded_extjson[test.test_key]).to eq(test.correct_extjson[test.test_key])
-            end
+              it 'decodes from extended json, then encodes the document as extended json correctly' do
+                expect(test.extjson_from_encoded_extjson).to eq(test.correct_relaxed_extjson)
+                expect(test.extjson_from_encoded_extjson[test.test_key]).to eq(test.correct_relaxed_extjson[test.test_key])
+              end
 
-            context 'when the canonical bson can be represented as extended json', if: (test.test_canonical_bson? && test.test_extjson?) do
+              if test.test_canonical_bson?
+                context 'when the canonical bson can be represented as extended json' do
 
-              it 'encodes the canonical bson correctly as extended json' do
-                expect(test.extjson_from_canonical_bson).to eq(test.correct_extjson)
-                expect(test.extjson_from_canonical_bson[test.test_key]).to eq(test.correct_extjson[test.test_key])
+                  it 'encodes the canonical bson correctly as extended json' do
+                    expect(test.extjson_from_canonical_bson).to eq(test.correct_relaxed_extjson)
+                    expect(test.extjson_from_canonical_bson[test.test_key]).to eq(test.correct_relaxed_extjson[test.test_key])
+                  end
+                end
               end
             end
           end
@@ -59,7 +63,7 @@ describe 'Driver BSON Corpus spec tests' do
           end
 
           it 'raises an error' do
-            skip 'This test case does not raise and error but should' unless error
+            skip 'This test case does not raise an error but should' unless error
             expect do
               test.reencoded_bson
             end.to raise_error(error.class)

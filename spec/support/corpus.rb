@@ -128,7 +128,8 @@ module BSON
         @spec = spec
         @description = test['description']
         @canonical_bson = test['canonical_bson']
-        @extjson = ::JSON.parse(test['extjson']) if test['extjson']
+        @canonical_extjson = ::JSON.parse(test['canonical_extjson']) if test['canonical_extjson']
+        @relaxed_extjson = ::JSON.parse(test['relaxed_extjson']) if test['relaxed_extjson']
         @bson = test['bson']
         @test_key = spec.test_key
       end
@@ -155,7 +156,7 @@ module BSON
       #
       # @since 4.2.0
       def reencoded_bson
-        bson_bytes = decode_hex(@bson)
+        bson_bytes = decode_hex(@canonical_bson || @bson)
         buffer = BSON::ByteBuffer.new(bson_bytes)
         BSON::Document.from_bson(buffer).to_bson.to_s
       end
@@ -189,26 +190,15 @@ module BSON
 
       # The correct representation of the subject as extended json.
       #
-      # @example Get the correct representation of the subject as extended json.
-      #   test.correct_extjson
-      #
       # @return [ String ] The correct extended json representation.
       #
       # @since 4.2.0
-      def correct_extjson
-        @canonical_extjson || @extjson
+      def correct_canonical_extjson
+        @canonical_extjson
       end
 
-      # Whether the extended json should be tested.
-      #
-      # @example Determine if the extended json should be tested.
-      #   test.test_extjson?
-      #
-      # @return [ true, false ] Whether the extended json should be tested.
-      #
-      # @since 4.2.0
-      def test_extjson?
-        !!@extjson
+      def correct_relaxed_extjson
+        @relaxed_extjson
       end
 
       # Get the extended json representation of the decoded doc from the provided
@@ -221,7 +211,7 @@ module BSON
       #
       # @since 4.2.0
       def extjson_from_bson
-        subject = decode_hex(@bson)
+        subject = decode_hex(@canonical_bson || @bson)
         buffer = BSON::ByteBuffer.new(subject)
         ::JSON.parse(BSON::Document.from_bson(buffer).to_json)
       end
@@ -251,7 +241,7 @@ module BSON
       #
       # @since 4.2.0
       def extjson_from_encoded_extjson
-        doc = BSON::Document.new(@extjson)
+        doc = BSON::Document.new(@relaxed_extjson)
         ::JSON.parse(doc.to_json)
       end
 
