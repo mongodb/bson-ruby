@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'runners/corpus'
 
 describe 'Driver BSON Corpus spec tests' do
 
