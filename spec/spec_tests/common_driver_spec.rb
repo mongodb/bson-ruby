@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'runners/common_driver'
 
 describe 'Driver common bson tests' do
 

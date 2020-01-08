@@ -13,8 +13,8 @@
 # limitations under the License.
 
 CURRENT_PATH = File.expand_path(File.dirname(__FILE__))
-DRIVER_COMMON_BSON_TESTS = Dir.glob("#{CURRENT_PATH}/support/driver-spec-tests/**/*.json")
-BSON_CORPUS_TESTS = Dir.glob("#{CURRENT_PATH}/support/corpus-tests/*.json")
+DRIVER_COMMON_BSON_TESTS = Dir.glob("#{CURRENT_PATH}/spec_tests/data/decimal128/*.json")
+BSON_CORPUS_TESTS = Dir.glob("#{CURRENT_PATH}/spec_tests/data/corpus/*.json")
 
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
