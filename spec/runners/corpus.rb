@@ -13,6 +13,7 @@
 # limitations under the License.
 
 require 'json'
+require 'forwardable'
 
 module BSON
   module Corpus
@@ -46,39 +47,34 @@ module BSON
       # @since 4.2.0
       def initialize(file)
         @spec = ::JSON.parse(File.read(file))
-        @valid = @spec['valid'] || []
-        @invalid = @spec['decodeErrors'] || []
-        @description = @spec['description']
-        @test_key = @spec['test_key']
       end
 
-      # Get a list of tests that are expected to pass.
-      #
-      # @example Get the list of valid tests.
-      #   spec.valid_tests
-      #
-      # @return [ Array<BSON::Corpus::Test> ] The list of valid Tests.
-      #
-      # @since 4.2.0
+      def description
+        @spec['description']
+      end
+
+      def test_key
+        @spec['test_key']
+      end
+
       def valid_tests
         @valid_tests ||=
-          @valid.collect do |test|
-            BSON::Corpus::Test.new(self, test)
+          @spec['valid']&.map do |test_spec|
+            ValidTest.new(self, test_spec)
           end
       end
 
-      # Get a list of tests that raise exceptions.
-      #
-      # @example Get the list of invalid tests.
-      #   spec.invalid_tests
-      #
-      # @return [ Array<BSON::Corpus::Test> ] The list of invalid Tests.
-      #
-      # @since 4.2.0
-      def invalid_tests
-        @invalid_tests ||=
-          @invalid.collect do |test|
-            BSON::Corpus::Test.new(self, test)
+      def decode_error_tests
+        @decode_error_tests ||=
+          @spec['decodeErrors']&.map do |test_spec|
+            DecodeErrorTest.new(self, test_spec)
+          end
+      end
+
+      def parse_error_tests
+        @parse_error_tests ||=
+          @spec['parseErrors']&.map do |test_spec|
+            ParseErrorTest.new(self, test_spec)
           end
       end
 
@@ -98,22 +94,8 @@ module BSON
     # Represents a single BSON Corpus test.
     #
     # @since 4.2.0
-    class Test
-
-      # The test description.
-      #
-      # @return [ String ] The test description.
-      #
-      # @since 4.2.0
-      attr_reader :description
-
-      # Name of a field in a valid test case extjson document that should be
-      #   checked against the case's string field.
-      #
-      # @return [ String ] The json representation of the object.
-      #
-      # @since 4.2.0
-      attr_reader :test_key
+    class ValidTest
+      extend Forwardable
 
       # Instantiate the new Test.
       #
@@ -124,125 +106,50 @@ module BSON
       # @param [ Hash ] test The test specification.
       #
       # @since 4.2.0
-      def initialize(spec, test)
+      def initialize(spec, test_params)
         @spec = spec
-        @description = test['description']
-        @canonical_bson = test['canonical_bson']
-        @canonical_extjson = ::JSON.parse(test['canonical_extjson']) if test['canonical_extjson']
-        @relaxed_extjson = ::JSON.parse(test['relaxed_extjson']) if test['relaxed_extjson']
-        @bson = test['bson']
-        @test_key = spec.test_key
+        test_params = test_params.dup
+        %w(
+          description canonical_extjson relaxed_extjson
+          degenerate_extjson converted_extjson
+          lossy
+        ).each do |key|
+          instance_variable_set("@#{key}", test_params.delete(key))
+        end
+        %w(
+          canonical_bson degenerate_bson converted_bson
+          lossy
+        ).each do |key|
+          if test_params.key?(key)
+            instance_variable_set("@#{key}", decode_hex(test_params.delete(key)))
+          end
+        end
+        unless test_params.empty?
+          raise "Test params has unprocessed keys: #{test_params}"
+        end
       end
 
-      # The correct representation of the subject as bson.
-      #
-      # @example Get the correct representation of the subject as bson.
-      #   test.correct_bson
-      #
-      # @return [ String ] The correct bson bytes.
-      #
-      # @since 4.2.0
-      def correct_bson
-        @correct_bson ||= decode_hex(@canonical_bson || @bson)
+      def_delegators :@spec, :test_key
+
+      attr_reader :description,
+        :canonical_bson,
+        :degenerate_bson,
+        :converted_bson,
+        :canonical_extjson,
+        :relaxed_extjson,
+        :degenerate_extjson,
+        :converted_extjson
+
+      def lossy?
+        !!@lossy
       end
 
-      # Given the hex representation of bson, decode it into a Document,
-      #   then reencoded it to bson.
-      #
-      # @example Decoded the bson hex representation, then reencode.
-      #   test.reencoded_bson
-      #
-      # @return [ String ] The reencoded bson bytes.
-      #
-      # @since 4.2.0
-      def reencoded_bson
-        bson_bytes = decode_hex(@canonical_bson || @bson)
-        buffer = BSON::ByteBuffer.new(bson_bytes)
-        BSON::Document.from_bson(buffer).to_bson.to_s
+      def canonical_extjson_doc
+        ::JSON.parse(canonical_extjson)
       end
 
-      # Given the hex representation of the canonical bson, decode it into a Document,
-      #   then reencoded it to bson.
-      #
-      # @example Decoded the canonical bson hex representation, then reencode.
-      #   test.reencoded_canonical_bson
-      #
-      # @return [ String ] The reencoded canonical bson bytes.
-      #
-      # @since 4.2.0
-      def reencoded_canonical_bson
-        bson_bytes = decode_hex(@canonical_bson)
-        buffer = BSON::ByteBuffer.new(bson_bytes)
-        BSON::Document.from_bson(buffer).to_bson.to_s
-      end
-
-      # Whether the canonical bson should be tested.
-      #
-      # @example Determine if the canonical bson should be tested.
-      #   test.test_canonical_bson?
-      #
-      # @return [ true, false ] Whether the canonical bson should be tested.
-      #
-      # @since 4.2.0
-      def test_canonical_bson?
-        @canonical_bson && (@bson != @canonical_bson)
-      end
-
-      # The correct representation of the subject as extended json.
-      #
-      # @return [ String ] The correct extended json representation.
-      #
-      # @since 4.2.0
-      def correct_canonical_extjson
-        @canonical_extjson
-      end
-
-      def correct_relaxed_extjson
-        @relaxed_extjson
-      end
-
-      # Get the extended json representation of the decoded doc from the provided
-      #   bson hex representation.
-      #
-      # @example Get the extended json representation of the decoded doc.
-      #   test.extjson_from_encoded_bson
-      #
-      # @return [ Hash ] The extended json representation.
-      #
-      # @since 4.2.0
-      def extjson_from_bson
-        subject = decode_hex(@canonical_bson || @bson)
-        buffer = BSON::ByteBuffer.new(subject)
-        ::JSON.parse(BSON::Document.from_bson(buffer).to_json)
-      end
-
-      # Get the extended json representation of the decoded doc from the provided
-      #   canonical bson hex representation.
-      #
-      # @example Get the extended json representation of the canonical decoded doc.
-      #   test.extjson_from_canonical_bson
-      #
-      # @return [ Hash ] The extended json representation.
-      #
-      # @since 4.2.0
-      def extjson_from_canonical_bson
-        subject = decode_hex(@canonical_bson)
-        buffer = BSON::ByteBuffer.new(subject)
-        ::JSON.parse(BSON::Document.from_bson(buffer).to_json)
-      end
-
-      # Get the extended json representation of the decoded doc from the provided
-      #   extended json representation. (Verifies roundtrip)
-      #
-      # @example Get the extended json representation of the canonical decoded doc.
-      #   test.extjson_from_encoded_extjson
-      #
-      # @return [ Hash ] The extended json representation.
-      #
-      # @since 4.2.0
-      def extjson_from_encoded_extjson
-        doc = BSON::Document.new(@relaxed_extjson)
-        ::JSON.parse(doc.to_json)
+      def relaxed_extjson_doc
+        relaxed_extjson && ::JSON.parse(relaxed_extjson)
       end
 
       private
@@ -250,6 +157,26 @@ module BSON
       def decode_hex(obj)
         [ obj ].pack('H*')
       end
+    end
+
+    class DecodeErrorTest
+      def initialize(spec, test_params)
+        @spec = spec
+        @description = test_params['description']
+        @bson = test_params['bson']
+      end
+
+      attr_reader :description, :bson
+    end
+
+    class ParseErrorTest
+      def initialize(spec, test_params)
+        @spec = spec
+        @description = test_params['description']
+        @string = test_params['string']
+      end
+
+      attr_reader :description, :string
     end
   end
 end
