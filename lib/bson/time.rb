@@ -38,7 +38,26 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      buffer.put_int64((to_i * 1000) + (usec / 1000))
+      # A previous version of this method used the following implementation:
+      # buffer.put_int64((to_i * 1000) + (usec / 1000))
+      # Turns out, usec returned incorrect value - 999 for 1 millisecond.
+      buffer.put_int64((to_f * 1000).round)
+    end
+
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # @option options [ true | false ] :relaxed Whether to produce relaxed
+    #   extended JSON representation.
+    #
+    # @return [ Hash ] The extended json representation.
+    def as_extended_json(**options)
+      utc_time = utc
+      if options[:relaxed] && (1970..9999).include?(utc_time.year)
+        {'$date' => utc_time.strftime('%Y-%m-%dT%H:%M:%S.%LZ')}
+      else
+        {'$date' => {'$numberLong' => (utc_time.to_f * 1000).round.to_s}}
+      end
     end
 
     module ClassMethods

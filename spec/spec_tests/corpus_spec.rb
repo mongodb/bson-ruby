@@ -31,11 +31,24 @@ describe 'BSON Corpus spec tests' do
           end
 =end
 
-          it 'converts bson to relaxed extended json' do
-            # TODO when canonical extjson serialization is implemented,
-            # this test should only be run if relaxed extjson serialization
-            # is present in the spec test file
-            JSON.parse(decoded_canonical_bson.to_json).should == (test.relaxed_extjson_doc || test.canonical_extjson_doc)
+          it 'converts bson to canonical extended json' do
+            decoded_canonical_bson.as_extended_json.should == test.canonical_extjson_doc
+          end
+
+          if test.relaxed_extjson
+            it 'converts bson to relaxed extended json' do
+              decoded_canonical_bson.as_extended_json(relaxed: true).should == test.relaxed_extjson_doc
+            end
+
+            unless test.lossy?
+              let(:parsed_relaxed_extjson) do
+                BSON::ExtJSON.parse_obj(test.relaxed_extjson_doc)
+              end
+
+              it 'converts relaxed extended json to bson' do
+                parsed_relaxed_extjson.to_bson.to_s.should == test.canonical_bson
+              end
+            end
           end
 
           if test.degenerate_bson
@@ -44,8 +57,8 @@ describe 'BSON Corpus spec tests' do
               BSON::Document.from_bson(BSON::ByteBuffer.new(test.degenerate_bson))
             end
 
-            it 'round-trips degenerate bson' do
-              decoded_degenerate_bson.to_bson.to_s.should == test.degenerate_bson
+            it 'round-trips degenerate bson to canonical bson' do
+              decoded_degenerate_bson.to_bson.to_s.should == test.canonical_bson
             end
           end
 
@@ -59,20 +72,6 @@ describe 'BSON Corpus spec tests' do
             end
           end
 
-          if test.relaxed_extjson
-
-            let(:parsed_relaxed_extjson) do
-              BSON::ExtJSON.parse_obj(test.relaxed_extjson_doc)
-            end
-
-            it 'converts relaxed extended json to bson' do
-              parsed_relaxed_extjson.to_bson.to_s.should == test.canonical_bson
-            end
-
-            it 'round-trips relaxed extended json' do
-              JSON.parse(parsed_relaxed_extjson.to_json).should == test.relaxed_extjson_doc
-            end
-          end
         end
       end
 
@@ -90,6 +89,25 @@ describe 'BSON Corpus spec tests' do
           it 'raises an exception' do
             expect do
               decoded_bson
+            end.to raise_error(Exception)
+          end
+        end
+      end
+
+      spec.parse_error_tests&.each do |test|
+
+        context("parse error: #{test.description}") do
+
+          let(:parsed_extjson) do
+            BSON::ExtJSON.parse(test.string)
+          end
+
+          # Until bson-ruby gets an exception hierarchy, we can only rescue
+          # the basic Exception here.
+          # https://jira.mongodb.org/browse/RUBY-1806
+          it 'raises an exception' do
+            expect do
+              parsed_extjson
             end.to raise_error(Exception)
           end
         end

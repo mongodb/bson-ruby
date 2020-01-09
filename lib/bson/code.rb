@@ -55,7 +55,19 @@ module BSON
     # @return [ Hash ] The code as a JSON hash.
     #
     # @since 2.0.0
+    # @deprecated Use as_extended_json instead.
     def as_json(*args)
+      as_extended_json
+    end
+
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # @option options [ true | false ] :relaxed Whether to produce relaxed
+    #   extended JSON representation.
+    #
+    # @return [ Hash ] The extended json representation.
+    def as_extended_json(**options)
       { "$code" => javascript }
     end
 

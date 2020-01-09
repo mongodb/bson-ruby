@@ -164,6 +164,9 @@ module BSON
           end
         when '$numberDouble'
           # This handles string to double conversion as well as inf/-inf/nan
+          unless value.is_a?(String)
+            raise "Invalid $numberDouble value: #{value}"
+          end
           BigDecimal(value).to_f
         when '$numberDecimal'
           # TODO consider returning BigDecimal here instead of Decimal128
@@ -176,12 +179,21 @@ module BSON
             raise "Invalid $binary value: #{value}"
           end
           subtype = value['subType']
-          unless subtype.to_i == 0
+          unless subtype.is_a?(String)
+            raise "Invalid $subType value: #{value}"
+          end
+          subtype = subtype.hex
+          subtype = case subtype
+          when 0
+            :generic
+          else
             raise NotImplementedError
           end
-          subtype = :generic
           Binary.new(Base64.decode64(value['base64']), subtype)
         when '$code'
+          unless value.is_a?(String)
+            raise "Invalid $code value: #{value}"
+          end
           Code.new(value)
         when '$timestamp'
           unless value.keys.sort == %w(i t)
@@ -243,6 +255,9 @@ module BSON
         when '$code'
           unless sorted_keys == %w($code $scope)
             raise "Invalid $code value: #{hash}"
+          end
+          unless hash['$code'].is_a?(String)
+            raise "Invalid $code value: #{value}"
           end
           CodeWithScope.new(hash['$code'], map_hash(hash['$scope']))
         else

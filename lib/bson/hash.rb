@@ -74,6 +74,22 @@ module BSON
       Document.new(self)
     end
 
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # This method recursively invokes +as_extended_json+ with the provided
+    # options on each hash value.
+    #
+    # @option options [ true | false ] :relaxed Whether to produce relaxed
+    #   extended JSON representation.
+    #
+    # @return [ Hash ] This hash converted to extended json representation.
+    def as_extended_json(**options)
+      ::Hash[map do |key, value|
+        [key, value.as_extended_json(**options)]
+      end]
+    end
+
     module ClassMethods
 
       # Deserialize the hash from BSON.

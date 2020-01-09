@@ -58,6 +58,33 @@ module BSON
     def to_bson_normalized_value
       self
     end
+
+    # Serializes this object to Extended JSON
+    # (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # Subclasses should override +as_extended_json+ rather than this method.
+    #
+    # @option options [ true | false ] :relaxed Whether to produce relaxed
+    #   extended JSON representation.
+    #
+    # @return [ String ] The extended json serialization.
+    def to_extended_json(**options)
+      as_extended_json(**options).to_json
+    end
+
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # Subclasses should override this method to provide custom serialization
+    # to Extended JSON.
+    #
+    # @option options [ true | false ] :relaxed Whether to produce relaxed
+    #   extended JSON representation.
+    #
+    # @return [ Object ] The extended json representation.
+    def as_extended_json(**options)
+      self
+    end
   end
 
   # Raised when trying to serialize an object into a key.
