@@ -12,11 +12,32 @@ describe Regexp::Raw do
       described_class.new(pattern, 'im')
     end
 
-    it "returns the regex pattern and options" do
+    it "returns the legacy serialization including regex pattern and options" do
       expect(object.as_json).to eq({ "$regex" => "\\W+", "$options" => "im" })
     end
 
     it_behaves_like "a JSON serializable object"
+  end
+
+  describe '#as_extended_json' do
+
+    let(:object) do
+      described_class.new(pattern, 'im')
+    end
+
+    context 'legacy mode' do
+      it "returns the legacy serialization including regex pattern and options" do
+        expect(object.as_extended_json(legacy: true)).to eq({ "$regex" => "\\W+", "$options" => "im" })
+      end
+    end
+
+    context 'canonical/relaxed mode' do
+      it "returns the extended json 2.0 serialization" do
+        expect(object.as_extended_json).to eq(
+          "$regularExpression" => {'pattern' => "\\W+", "options" => "im"}
+        )
+      end
+    end
   end
 
   describe "#to_bson/#from_bson" do

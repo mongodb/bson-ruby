@@ -205,7 +205,7 @@ module BSON
       #
       # @since 4.2.0
       def as_json(*args)
-        as_extended_json
+        as_extended_json(legacy: true)
       end
 
       # Converts this object to a representation directly serializable to
@@ -216,9 +216,11 @@ module BSON
       #
       # @return [ Hash ] The extended json representation.
       def as_extended_json(**opts)
-        # Legacy serialization:
-        # { "$regex" => source, "$options" => options }
-        {"$regularExpression" => {'pattern' => source, "options" => options}}
+        if opts[:legacy]
+          { "$regex" => source, "$options" => options }
+        else
+          {"$regularExpression" => {'pattern' => source, "options" => options}}
+        end
       end
 
       # Check equality of the raw bson regexp against another.
