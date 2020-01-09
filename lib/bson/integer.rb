@@ -159,6 +159,40 @@ module BSON
       self
     end
 
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # This method returns the integer itself if relaxed representation is
+    # requested, otherwise a $numberInt hash if the value fits in 32 bits
+    # and a $numberLong otherwise. Regardless of which representation is
+    # requested, a value that does not fit in 64 bits raises RangeError.
+    #
+    # @option options [ true | false ] :relaxed Whether to produce relaxed
+    #   extended JSON representation.
+    #
+    # @return [ Hash | Integer ] The extended json representation.
+    def as_extended_json(**options)
+      # The behavior of native integers' serialization to extended json is
+      # not specified. Following our bson serialization logic in this file,
+      # produce explicit $numberInt or $numberLong, choosing $numberInt if
+      # the integer fits in 32 bits. In Ruby integers can be arbitrarily
+      # big; integers that do not fit into 64 bits raise an error as we do not
+      # want to silently perform an effective type conversion of integer ->
+      # decimal.
+
+      unless bson_int64?
+        raise RangeError, "Integer #{self} is too big to be represented as a MongoDB integer"
+      end
+
+      if options[:relaxed]
+        self
+      elsif bson_int32?
+        {'$numberInt' => to_s}
+      else
+        {'$numberLong' => to_s}
+      end
+    end
+
     private
 
     def append_bson_int32(encoded)

@@ -46,6 +46,50 @@ module BSON
       buffer.put_double(self)
     end
 
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # This method returns the float itself if relaxed representation is
+    # requested and the value is finite, otherwise a $numberDouble hash.
+    #
+    # @option options [ true | false ] :relaxed Whether to produce relaxed
+    #   extended JSON representation.
+    #
+    # @return [ Hash | Float ] The extended json representation.
+    def as_extended_json(**options)
+      case infinite?
+      when 1
+        {'$numberDouble' => 'Infinity'}
+      when -1
+        {'$numberDouble' => '-Infinity'}
+      else
+        if nan?
+          {'$numberDouble' => 'NaN'}
+        else
+          if options[:relaxed]
+            self
+          else
+            value = if BSON::Environment.jruby?
+              # Hack to make bson corpus spec tests pass.
+              # JRuby serializes -1.2345678901234568e+18 as
+              # -1234567890123456770.0, which is valid but differs from MRI
+              # serialization. Extended JSON spec does not define precise
+              # stringification of floats.
+              # https://jira.mongodb.org/browse/SPEC-1536
+              if abs > 1e15
+                '%.17g' % to_s
+              else
+                to_s
+              end
+            else
+              to_s
+            end
+            {'$numberDouble' => value}
+          end
+        end
+      end
+    end
+
     module ClassMethods
 
       # Deserialize an instance of a Float from a BSON double.

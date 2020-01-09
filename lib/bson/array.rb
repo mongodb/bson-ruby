@@ -85,6 +85,22 @@ module BSON
       map { |value| value.to_bson_normalized_value }
     end
 
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # This method recursively invokes +as_extended_json+ with the provided
+    # options on each array element.
+    #
+    # @option options [ true | false ] :relaxed Whether to produce relaxed
+    #   extended JSON representation.
+    #
+    # @return [ Array ] This array converted to extended json representation.
+    def as_extended_json(**options)
+      map do |item|
+        item.as_extended_json(**options)
+      end
+    end
+
     module ClassMethods
 
       # Deserialize the array from BSON.

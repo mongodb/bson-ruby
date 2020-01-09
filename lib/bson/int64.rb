@@ -110,6 +110,24 @@ module BSON
     alias :eql? :==
     alias :=== :==
 
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # This method returns the integer value if relaxed representation is
+    # requested, otherwise a $numberLong hash.
+    #
+    # @option options [ true | false ] :relaxed Whether to produce relaxed
+    #   extended JSON representation.
+    #
+    # @return [ Hash | Integer ] The extended json representation.
+    def as_extended_json(**options)
+      if options[:relaxed]
+        value
+      else
+        {'$numberLong' => to_s}
+      end
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
