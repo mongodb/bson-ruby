@@ -49,48 +49,30 @@ describe 'BSON Corpus spec tests' do
             end
           end
 
-=begin bson-ruby does not have extended json parser yet
-          it 'round-trips relaxed json' do
-            # TODO when canonical extjson serialization is implemented,
-            # this test should only be run if relaxed extjson serialization
-            # is present in the spec test file
+          let(:parsed_canonical_extjson) do
+            BSON::ExtJSON.parse_obj(test.canonical_extjson_doc)
           end
-=end
 
-=begin
-          context 'when the canonical bson is roundtripped', if: test.test_canonical_bson? do
-
-            it 'encodes the canonical bson correctly' do
-              expect(test.reencoded_canonical_bson).to eq(test.correct_bson)
+          unless test.lossy?
+            it 'converts canonical extended json to bson' do
+              parsed_canonical_extjson.to_bson.to_s.should == test.canonical_bson
             end
           end
 
-          if test.correct_relaxed_extjson
-            context 'when the document can be represented as extended json' do
+          if test.relaxed_extjson
 
-              it 'decodes from the given bson, then encodes the document as extended json correctly' do
-                skip 'The extended json in this test case does not match' unless (test.extjson_from_bson == test.correct_relaxed_extjson)
-                expect(test.extjson_from_bson).to eq(test.correct_relaxed_extjson)
-                expect(test.extjson_from_bson[test.test_key]).to eq(test.correct_relaxed_extjson[test.test_key])
-              end
+            let(:parsed_relaxed_extjson) do
+              BSON::ExtJSON.parse_obj(test.relaxed_extjson_doc)
+            end
 
-              it 'decodes from extended json, then encodes the document as extended json correctly' do
-                expect(test.extjson_from_encoded_extjson).to eq(test.correct_relaxed_extjson)
-                expect(test.extjson_from_encoded_extjson[test.test_key]).to eq(test.correct_relaxed_extjson[test.test_key])
-              end
+            it 'converts relaxed extended json to bson' do
+              parsed_relaxed_extjson.to_bson.to_s.should == test.canonical_bson
+            end
 
-              if test.test_canonical_bson?
-                context 'when the canonical bson can be represented as extended json' do
-
-                  it 'encodes the canonical bson correctly as extended json' do
-                    expect(test.extjson_from_canonical_bson).to eq(test.correct_relaxed_extjson)
-                    expect(test.extjson_from_canonical_bson[test.test_key]).to eq(test.correct_relaxed_extjson[test.test_key])
-                  end
-                end
-              end
+            it 'round-trips relaxed extended json' do
+              JSON.parse(parsed_relaxed_extjson.to_json).should == test.relaxed_extjson_doc
             end
           end
-=end
         end
       end
 
