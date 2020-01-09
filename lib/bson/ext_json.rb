@@ -212,7 +212,7 @@ module BSON
             raise "Invalid $regularExpression value: #{value}"
           end
           # TODO consider returning Ruby regular expression object here
-          Regexp.new(pattern, options)
+          Regexp::Raw.new(value['pattern'], value['options'])
         when '$dbPointer'
           raise NotImplementedError
         when '$date'
