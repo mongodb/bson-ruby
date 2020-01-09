@@ -41,6 +41,17 @@ module BSON
       self.class == other.class
     end
 
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # @option options [ true | false ] :relaxed Whether to produce relaxed
+    #   extended JSON representation.
+    #
+    # @return [ Hash ] The extended json representation.
+    def as_extended_json(**options)
+      { "$undefined" => true }
+    end
+
     # Register this type when the module is loaded.
     #
     # @since 2.0.0
