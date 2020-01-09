@@ -63,7 +63,19 @@ module BSON
     # @return [ Hash ] The number as a JSON hash.
     #
     # @since 4.2.0
+    # @deprecated Use as_extended_json instead.
     def as_json(*args)
+      as_extended_json
+    end
+
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # @option options [ true | false ] :relaxed Whether to produce relaxed
+    #   extended JSON representation.
+    #
+    # @return [ Hash ] The extended json representation.
+    def as_extended_json(**options)
       { EXTENDED_JSON_KEY => to_s }
     end
 
