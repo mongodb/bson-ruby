@@ -101,8 +101,24 @@ module BSON
     # @return [ Hash ] The binary as a JSON hash.
     #
     # @since 2.0.0
+    # @deprecated Use as_extended_json instead.
     def as_json(*args)
-      { "$binary" => Base64.encode64(data), "$type" => type }
+      as_extended_json
+    end
+
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # @option options [ true | false ] :relaxed Whether to produce relaxed
+    #   extended JSON representation.
+    #
+    # @return [ Hash ] The extended json representation.
+    def as_extended_json(**options)
+      subtype = SUBTYPES[type].each_byte.map { |c| c.to_s(16) }.join
+      if subtype.length == 1
+        subtype = "0#{subtype}"
+      end
+      { "$binary" => {'base64' => Base64.encode64(data).strip, "subType" => subtype }}
     end
 
     # Instantiate the new binary object.

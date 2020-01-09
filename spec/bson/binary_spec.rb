@@ -63,7 +63,7 @@ describe BSON::Binary do
 
     it "returns the binary data plus type" do
       expect(object.as_json).to eq(
-        { "$binary" => Base64.encode64("testing"), "$type" => :user }
+        { "$binary" => {'base64' => Base64.encode64("testing").strip, "subType" => '80' }}
       )
     end
 
