@@ -183,13 +183,12 @@ module BSON
             raise "Invalid $subType value: #{value}"
           end
           subtype = subtype.hex
-          subtype = case subtype
-          when 0
-            :generic
-          else
+          type = Binary::TYPES[subtype.chr]
+          unless type
+            # Requires https://jira.mongodb.org/browse/RUBY-2056
             raise NotImplementedError
           end
-          Binary.new(Base64.decode64(value['base64']), subtype)
+          Binary.new(Base64.decode64(value['base64']), type)
         when '$code'
           unless value.is_a?(String)
             raise "Invalid $code value: #{value}"
