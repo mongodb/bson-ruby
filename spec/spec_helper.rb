@@ -13,8 +13,8 @@
 # limitations under the License.
 
 CURRENT_PATH = File.expand_path(File.dirname(__FILE__))
-DRIVER_COMMON_BSON_TESTS = Dir.glob("#{CURRENT_PATH}/spec_tests/data/decimal128/*.json")
-BSON_CORPUS_TESTS = Dir.glob("#{CURRENT_PATH}/spec_tests/data/corpus/*.json")
+DRIVER_COMMON_BSON_TESTS = Dir.glob("#{CURRENT_PATH}/spec_tests/data/decimal128/*.json").sort
+BSON_CORPUS_TESTS = Dir.glob("#{CURRENT_PATH}/spec_tests/data/corpus/*.json").sort
 
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
@@ -52,5 +52,11 @@ class AlternateIO < StringIO
   # @returns [ String ] A String representation of the next byte.
   def readbyte
     super.chr
+  end
+end
+
+RSpec.configure do |config|
+  config.expect_with :rspec do |c|
+    c.syntax = [:should, :expect]
   end
 end
