@@ -102,9 +102,8 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(buffer, relaxed: true)
-        if false&&buffer.respond_to?(:get_hash)
-        #byebug
-          buffer.get_hash
+        if buffer.respond_to?(:get_hash)
+          buffer.get_hash(relaxed: relaxed)
         else
           hash = Document.allocate
           buffer.get_int32 # Throw away the size.

@@ -225,7 +225,7 @@ VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv)
   if (NIL_P(opts)) {
     relaxed = Qtrue;
   } else {
-    relaxed = rb_hash_lookup(opts, rb_intern("relaxed"));
+    relaxed = rb_hash_lookup(opts, ID2SYM(rb_intern("relaxed")));
     if (relaxed != Qfalse) {
       relaxed = Qtrue;
     }
