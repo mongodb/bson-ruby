@@ -113,8 +113,8 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(buffer, relaxed: true)
-        if false&&buffer.respond_to?(:get_array)
-          buffer.get_array
+        if buffer.respond_to?(:get_array)
+          buffer.get_array(relaxed: relaxed)
         else
           array = new
           buffer.get_int32 # throw away the length

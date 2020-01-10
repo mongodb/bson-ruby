@@ -20,11 +20,11 @@
 static void pvt_validate_length(byte_buffer_t *b);
 static uint8_t pvt_get_type_byte(byte_buffer_t *b);
 static VALUE pvt_get_int32(byte_buffer_t *b);
-static VALUE pvt_get_int64(byte_buffer_t *b);
+static VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv);
 static VALUE pvt_get_double(byte_buffer_t *b);
 static VALUE pvt_get_string(byte_buffer_t *b);
 static VALUE pvt_get_boolean(byte_buffer_t *b);
-static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type);
+static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv);
 static void pvt_skip_cstring(byte_buffer_t *b);
 
 /**
@@ -57,14 +57,14 @@ void pvt_validate_length(byte_buffer_t *b)
 /**
  * Read a single field from a hash or array
  */
-VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type){
+VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv){
   switch(type) {
     case BSON_TYPE_INT32: return pvt_get_int32(b);
-    case BSON_TYPE_INT64: return pvt_get_int64(b);
+    case BSON_TYPE_INT64: return pvt_get_int64(b, argc, argv);
     case BSON_TYPE_DOUBLE: return pvt_get_double(b);
     case BSON_TYPE_STRING: return pvt_get_string(b);
-    case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(rb_buffer);
-    case BSON_TYPE_DOCUMENT: return rb_bson_byte_buffer_get_hash(rb_buffer);
+    case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(argc, argv, rb_buffer);
+    case BSON_TYPE_DOCUMENT: return rb_bson_byte_buffer_get_hash(argc, argv, rb_buffer);
     case BSON_TYPE_BOOLEAN: return pvt_get_boolean(b);
     default:
     {
@@ -202,21 +202,44 @@ VALUE pvt_get_int32(byte_buffer_t *b)
 /**
  * Get a int64 from the buffer.
  */
-VALUE rb_bson_byte_buffer_get_int64(VALUE self)
+VALUE rb_bson_byte_buffer_get_int64(int argc, VALUE *argv, VALUE self)
 {
   byte_buffer_t *b;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  return pvt_get_int64(b);
+  return pvt_get_int64(b, argc, argv);
 }
 
-VALUE pvt_get_int64(byte_buffer_t *b)
+VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv)
 {
   int64_t i64;
+  VALUE num;
+  VALUE opts;
+  VALUE relaxed;
 
   ENSURE_BSON_READ(b, 8);
   memcpy(&i64, READ_PTR(b), 8);
   b->read_position += 8;
-  return LL2NUM(BSON_UINT64_FROM_LE(i64));
+  num = LL2NUM(BSON_UINT64_FROM_LE(i64));
+  
+  rb_scan_args(argc, argv, ":", &opts);
+  if (NIL_P(opts)) {
+    relaxed = Qtrue;
+  } else {
+    relaxed = rb_hash_lookup(opts, rb_intern("relaxed"));
+    if (relaxed != Qfalse) {
+      relaxed = Qtrue;
+    }
+  }
+  if (RTEST(relaxed)) {
+    return num;
+  } else {
+    VALUE klass = rb_funcall(rb_bson_registry,rb_intern("get"),1, INT2FIX(BSON_TYPE_INT64));
+    VALUE value = rb_funcall(klass, rb_intern("new"), 1, num);
+    RB_GC_GUARD(klass);
+    return value;
+  }
+  
+  RB_GC_GUARD(num);
 }
 
 /**
@@ -255,7 +278,7 @@ VALUE rb_bson_byte_buffer_get_decimal128_bytes(VALUE self)
   return bytes;
 }
 
-VALUE rb_bson_byte_buffer_get_hash(VALUE self){
+VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
   VALUE doc = Qnil;
   byte_buffer_t *b = NULL;
   uint8_t type;
@@ -270,12 +293,12 @@ VALUE rb_bson_byte_buffer_get_hash(VALUE self){
   while((type = pvt_get_type_byte(b)) != 0){
     VALUE field = rb_bson_byte_buffer_get_cstring(self);
     RB_GC_GUARD(field);
-    rb_hash_aset(doc, field, pvt_read_field(b, self, type));
+    rb_hash_aset(doc, field, pvt_read_field(b, self, type, argc, argv));
   }
   return doc;
 }
 
-VALUE rb_bson_byte_buffer_get_array(VALUE self){
+VALUE rb_bson_byte_buffer_get_array(int argc, VALUE *argv, VALUE self){
   byte_buffer_t *b;
   VALUE array = Qnil;
   uint8_t type;
@@ -287,7 +310,7 @@ VALUE rb_bson_byte_buffer_get_array(VALUE self){
   array = rb_ary_new();
   while((type = pvt_get_type_byte(b)) != 0){
     pvt_skip_cstring(b);
-    rb_ary_push(array,  pvt_read_field(b, self, type));
+    rb_ary_push(array,  pvt_read_field(b, self, type, argc, argv));
   }
   RB_GC_GUARD(array);
   return array;

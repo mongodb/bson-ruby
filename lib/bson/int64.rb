@@ -41,12 +41,7 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(buffer, relaxed: true)
-      value = buffer.get_int64
-      if relaxed
-        value
-      else
-        new(value)
-      end
+      buffer.get_int64(relaxed: relaxed)
     end
 
     # Instantiate a BSON Int64.

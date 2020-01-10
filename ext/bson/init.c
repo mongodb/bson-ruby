@@ -70,10 +70,10 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "get_cstring", rb_bson_byte_buffer_get_cstring, 0);
   rb_define_method(rb_byte_buffer_class, "get_decimal128_bytes", rb_bson_byte_buffer_get_decimal128_bytes, 0);
   rb_define_method(rb_byte_buffer_class, "get_double", rb_bson_byte_buffer_get_double, 0);
-  rb_define_method(rb_byte_buffer_class, "get_hash", rb_bson_byte_buffer_get_hash, 0);
-  rb_define_method(rb_byte_buffer_class, "get_array", rb_bson_byte_buffer_get_array, 0);
+  rb_define_method(rb_byte_buffer_class, "get_hash", rb_bson_byte_buffer_get_hash, -1);
+  rb_define_method(rb_byte_buffer_class, "get_array", rb_bson_byte_buffer_get_array, -1);
   rb_define_method(rb_byte_buffer_class, "get_int32", rb_bson_byte_buffer_get_int32, 0);
-  rb_define_method(rb_byte_buffer_class, "get_int64", rb_bson_byte_buffer_get_int64, 0);
+  rb_define_method(rb_byte_buffer_class, "get_int64", rb_bson_byte_buffer_get_int64, -1);
   rb_define_method(rb_byte_buffer_class, "get_string", rb_bson_byte_buffer_get_string, 0);
   
   /*
