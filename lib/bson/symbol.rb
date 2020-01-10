@@ -89,6 +89,17 @@ module BSON
       to_s
     end
 
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # @option options [ true | false ] :relaxed Whether to produce relaxed
+    #   extended JSON representation.
+    #
+    # @return [ Hash ] The extended json representation.
+    def as_extended_json(**options)
+      { "$symbol" => to_s }
+    end
+
     module ClassMethods
 
       # Deserialize a symbol from BSON.
