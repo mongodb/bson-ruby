@@ -75,8 +75,8 @@ module BSON
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(buffer)
-        seconds, fragment = Int64.from_bson(buffer).divmod(1000)
+      def from_bson(buffer, relaxed: true)
+        seconds, fragment = Int64.from_bson(buffer, relaxed: true).divmod(1000)
         at(seconds, fragment * 1000).utc
       end
     end

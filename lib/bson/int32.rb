@@ -45,7 +45,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(buffer)
+    def self.from_bson(buffer, relaxed: true)
       buffer.get_int32
     end
 
@@ -129,7 +129,7 @@ module BSON
       if options[:mode] == :relaxed
         value
       else
-        {'$numberInt' => to_s}
+        {'$numberInt' => value.to_s}
       end
     end
 

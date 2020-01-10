@@ -268,7 +268,7 @@ module BSON
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(buffer)
+      def from_bson(buffer, relaxed: true)
         pattern = buffer.get_cstring
         options = buffer.get_cstring
         Raw.new(pattern, options)

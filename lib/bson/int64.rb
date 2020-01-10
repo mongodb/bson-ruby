@@ -40,8 +40,13 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(buffer)
-      buffer.get_int64
+    def self.from_bson(buffer, relaxed: true)
+      value = buffer.get_int64
+      if relaxed
+        value
+      else
+        new(value)
+      end
     end
 
     # Instantiate a BSON Int64.
@@ -124,7 +129,7 @@ module BSON
       if options[:mode] == :relaxed
         value
       else
-        {'$numberLong' => to_s}
+        {'$numberLong' => value.to_s}
       end
     end
 

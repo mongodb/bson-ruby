@@ -106,7 +106,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(buffer)
+    def self.from_bson(buffer, relaxed: true)
       new(buffer.get_string)
     end
 

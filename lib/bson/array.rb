@@ -112,15 +112,15 @@ module BSON
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(buffer)
-        if buffer.respond_to?(:get_array)
+      def from_bson(buffer, relaxed: true)
+        if false&&buffer.respond_to?(:get_array)
           buffer.get_array
         else
           array = new
           buffer.get_int32 # throw away the length
           while (type = buffer.get_byte) != NULL_BYTE
             buffer.get_cstring
-            array << BSON::Registry.get(type).from_bson(buffer)
+            array << BSON::Registry.get(type).from_bson(buffer, relaxed: relaxed)
           end
           array
         end

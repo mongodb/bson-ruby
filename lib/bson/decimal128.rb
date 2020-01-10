@@ -212,7 +212,7 @@ module BSON
       # @return [ BSON::Decimal128 ] The decimal object.
       #
       # @since 4.2.0
-      def from_bson(buffer)
+      def from_bson(buffer, relaxed: true)
         from_bits(*buffer.get_decimal128_bytes.unpack('Q<*'))
       end
 

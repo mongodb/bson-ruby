@@ -101,7 +101,7 @@ module BSON
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(buffer)
+      def from_bson(buffer, relaxed: true)
         buffer.get_double
       end
     end
