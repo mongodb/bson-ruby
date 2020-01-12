@@ -213,27 +213,13 @@ VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv)
 {
   int64_t i64;
   VALUE num;
-  VALUE opts;
-  VALUE types;
-  int wrap;
 
   ENSURE_BSON_READ(b, 8);
   memcpy(&i64, READ_PTR(b), 8);
   b->read_position += 8;
   num = LL2NUM(BSON_UINT64_FROM_LE(i64));
   
-  rb_scan_args(argc, argv, ":", &opts);
-  if (NIL_P(opts)) {
-    wrap = false;
-  } else {
-    types = rb_hash_lookup(opts, ID2SYM(rb_intern("types")));
-    if (types == ID2SYM(rb_intern("bson"))) {
-      wrap = true;
-    } else {
-      wrap = false;
-    }
-  }
-  if (wrap) {
+  if (pvt_get_types_option(argc, argv) == BSON_TYPES_BSON) {
     VALUE klass = rb_funcall(rb_bson_registry,rb_intern("get"),1, INT2FIX(BSON_TYPE_INT64));
     VALUE value = rb_funcall(klass, rb_intern("new"), 1, num);
     RB_GC_GUARD(klass);
@@ -285,7 +271,7 @@ VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
   VALUE doc = Qnil;
   byte_buffer_t *b = NULL;
   uint8_t type;
-  VALUE cDocument = rb_const_get(rb_const_get(rb_cObject, rb_intern("BSON")), rb_intern("Document"));
+  VALUE cDocument = pvt_const_get_2("BSON", "Document");
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 

@@ -53,3 +53,44 @@ VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
   rb_bson_object_id_counter++;
   return rb_str_new(bytes, 12);
 }
+
+/**
+ * Returns a Ruby constant nested one level, e.g. BSON::Document.
+ */
+VALUE pvt_const_get_2(const char *c1, const char *c2) {
+  return rb_const_get(rb_const_get(rb_cObject, rb_intern(c1)), rb_intern(c2));
+}
+
+/**
+ * Returns a Ruby constant nested two levels, e.g. BSON::Regexp::Raw.
+ */
+VALUE pvt_const_get_3(const char *c1, const char *c2, const char *c3) {
+  return rb_const_get(pvt_const_get_2(c1, c2), rb_intern(c3));
+}
+
+/**
+ * Returns the value of the :types option, or the default if the option is not
+ * specified. Raises ArgumentError if the value is not one of nil, :bson or
+ * :ruby. Returns one of the BSON_TYPES_* values.
+ */
+int pvt_get_types_option(int argc, VALUE *argv) {
+  VALUE opts;
+  VALUE types;
+  
+  rb_scan_args(argc, argv, ":", &opts);
+  if (NIL_P(opts)) {
+    return BSON_TYPES_DEFAULT;
+  } else {
+    types = rb_hash_lookup(opts, ID2SYM(rb_intern("types")));
+    if (types == Qnil) {
+      return BSON_TYPES_DEFAULT;
+    } else if (types == ID2SYM(rb_intern("bson"))) {
+      return BSON_TYPES_BSON;
+    } else if (types == ID2SYM(rb_intern("ruby"))) {
+      return BSON_TYPES_RUBY;
+    } else {
+      rb_raise(rb_eArgError, "Invalid value for :types option: %s",
+        RSTRING_PTR(rb_funcall(types, rb_intern("inspect"), 0)));
+    }
+  }
+}
