@@ -214,7 +214,8 @@ VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv)
   int64_t i64;
   VALUE num;
   VALUE opts;
-  VALUE relaxed;
+  VALUE types;
+  int wrap;
 
   ENSURE_BSON_READ(b, 8);
   memcpy(&i64, READ_PTR(b), 8);
@@ -223,20 +224,22 @@ VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv)
   
   rb_scan_args(argc, argv, ":", &opts);
   if (NIL_P(opts)) {
-    relaxed = Qtrue;
+    wrap = false;
   } else {
-    relaxed = rb_hash_lookup(opts, ID2SYM(rb_intern("relaxed")));
-    if (relaxed != Qfalse) {
-      relaxed = Qtrue;
+    types = rb_hash_lookup(opts, ID2SYM(rb_intern("types")));
+    if (types == ID2SYM(rb_intern("bson"))) {
+      wrap = true;
+    } else {
+      wrap = false;
     }
   }
-  if (RTEST(relaxed)) {
-    return num;
-  } else {
+  if (wrap) {
     VALUE klass = rb_funcall(rb_bson_registry,rb_intern("get"),1, INT2FIX(BSON_TYPE_INT64));
     VALUE value = rb_funcall(klass, rb_intern("new"), 1, num);
     RB_GC_GUARD(klass);
     return value;
+  } else {
+    return num;
   }
   
   RB_GC_GUARD(num);

@@ -232,7 +232,7 @@ module BSON
       # @return [ BSON::ObjectId ] The object id.
       #
       # @since 2.0.0
-      def from_bson(buffer, relaxed: true)
+      def from_bson(buffer, **options)
         from_data(buffer.get_bytes(12))
       end
 

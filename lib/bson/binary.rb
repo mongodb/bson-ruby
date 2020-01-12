@@ -256,7 +256,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(buffer, relaxed: true)
+    def self.from_bson(buffer, **options)
       length = buffer.get_int32
       type = TYPES[buffer.get_byte]
       length = buffer.get_int32 if type == :old

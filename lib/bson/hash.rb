@@ -101,16 +101,16 @@ module BSON
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(buffer, relaxed: true)
+      def from_bson(buffer, **options)
         if buffer.respond_to?(:get_hash)
-          buffer.get_hash(relaxed: relaxed)
+          buffer.get_hash(**options)
         else
           hash = Document.allocate
           buffer.get_int32 # Throw away the size.
           while (type = buffer.get_byte) != NULL_BYTE
             field = buffer.get_cstring
             cls = BSON::Registry.get(type, field)
-            value = cls.from_bson(buffer, relaxed: relaxed)
+            value = cls.from_bson(buffer, **options)
             hash.store(field, value)
           end
           hash

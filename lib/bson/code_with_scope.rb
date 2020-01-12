@@ -116,9 +116,9 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(buffer, relaxed: true)
+    def self.from_bson(buffer, **options)
       buffer.get_int32 # Throw away the total length.
-      new(buffer.get_string, ::Hash.from_bson(buffer, relaxed: relaxed))
+      new(buffer.get_string, ::Hash.from_bson(buffer, **options))
     end
 
     # Register this type when the module is loaded.
