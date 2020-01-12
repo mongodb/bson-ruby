@@ -23,6 +23,7 @@ static VALUE pvt_get_int32(byte_buffer_t *b);
 static VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv);
 static VALUE pvt_get_double(byte_buffer_t *b);
 static VALUE pvt_get_string(byte_buffer_t *b);
+static VALUE pvt_get_symbol(byte_buffer_t *b, int argc, VALUE *argv);
 static VALUE pvt_get_boolean(byte_buffer_t *b);
 static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv);
 static void pvt_skip_cstring(byte_buffer_t *b);
@@ -57,12 +58,14 @@ void pvt_validate_length(byte_buffer_t *b)
 /**
  * Read a single field from a hash or array
  */
-VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv){
+VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv)
+{
   switch(type) {
     case BSON_TYPE_INT32: return pvt_get_int32(b);
     case BSON_TYPE_INT64: return pvt_get_int64(b, argc, argv);
     case BSON_TYPE_DOUBLE: return pvt_get_double(b);
     case BSON_TYPE_STRING: return pvt_get_string(b);
+    case BSON_TYPE_SYMBOL: return pvt_get_symbol(b, argc, argv);
     case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(argc, argv, rb_buffer);
     case BSON_TYPE_DOCUMENT: return rb_bson_byte_buffer_get_hash(argc, argv, rb_buffer);
     case BSON_TYPE_BOOLEAN: return pvt_get_boolean(b);
@@ -148,6 +151,25 @@ VALUE pvt_get_string(byte_buffer_t *b)
   string = rb_enc_str_new(READ_PTR(b), length_le - 1, rb_utf8_encoding());
   b->read_position += length_le;
   return string;
+}
+
+/**
+ * Reads a UTF-8 string out of the byte buffer. If the argc/argv arguments
+ * have a :types option with the value of :bson, wraps the string in a
+ * BSON::Symbol::Raw. Returns either the read string or the BSON::Symbol::Raw
+ * instance.
+ */
+VALUE pvt_get_symbol(byte_buffer_t *b, int argc, VALUE *argv)
+{
+  VALUE value = pvt_get_string(b);
+  
+  if (pvt_get_types_option(argc, argv) == BSON_TYPES_BSON) {
+    VALUE klass = pvt_const_get_3("BSON", "Symbol", "Raw");
+    value = rb_funcall(klass, rb_intern("new"), 1, value);
+    RB_GC_GUARD(klass);
+  }
+  
+  return value;
 }
 
 /**
@@ -277,12 +299,12 @@ VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
 
   pvt_validate_length(b);
 
-  doc = rb_funcall(cDocument, rb_intern("allocate"),0);
+  doc = rb_funcall(cDocument, rb_intern("allocate"), 0);
 
   while((type = pvt_get_type_byte(b)) != 0){
     VALUE field = rb_bson_byte_buffer_get_cstring(self);
-    RB_GC_GUARD(field);
     rb_hash_aset(doc, field, pvt_read_field(b, self, type, argc, argv));
+    RB_GC_GUARD(field);
   }
   return doc;
 }

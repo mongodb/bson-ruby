@@ -100,6 +100,48 @@ module BSON
       { "$symbol" => to_s }
     end
 
+    class Raw
+      def initialize(str_or_sym)
+        unless str_or_sym.is_a?(String) || str_or_sym.is_a?(Symbol)
+          raise ArgumentError, "BSON::Symbol::Raw must be given a symbol or a string, not #{str_or_sym}"
+        end
+
+        @symbol = str_or_sym.to_sym
+      end
+
+      attr_reader :symbol
+
+      def to_sym
+        symbol
+      end
+
+      def to_s
+        symbol.to_s
+      end
+
+      def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+        buffer.put_string(to_s)
+      end
+
+      def bson_type
+        Symbol::BSON_TYPE
+      end
+
+      # Converts this object to a representation directly serializable to
+      # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+      #
+      # This method returns the integer value if relaxed representation is
+      # requested, otherwise a $numberLong hash.
+      #
+      # @option options [ true | false ] :relaxed Whether to produce relaxed
+      #   extended JSON representation.
+      #
+      # @return [ Hash | Integer ] The extended json representation.
+      def as_extended_json(**options)
+        {'$symbol' => to_s}
+      end
+    end
+
     module ClassMethods
 
       # Deserialize a symbol from BSON.
