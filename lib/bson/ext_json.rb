@@ -212,7 +212,10 @@ module BSON
           # TODO consider returning Ruby regular expression object here
           Regexp::Raw.new(value['pattern'], value['options'])
         when '$dbPointer'
-          raise NotImplementedError
+          unless value.keys.sort == %w($id $ref)
+            raise "Invalid $dbPointer value: #{value}"
+          end
+          DbPointer.new(value['$ref'], parse_hash(value['$id']))
         when '$date'
           case value
           when String
