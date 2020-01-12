@@ -125,40 +125,44 @@ VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes)
   return self;
 }
 
-/* write the byte denoting the BSON type for the passed object*/
+/* write the byte denoting the BSON type for the passed object */
 void pvt_put_type_byte(byte_buffer_t *b, VALUE val){
-  switch(TYPE(val)){
+  char type_byte;
+  
+  switch (TYPE(val)){
     case T_BIGNUM:
     case T_FIXNUM:
-      if(fits_int32(NUM2LL(val))){
-        pvt_put_byte(b, BSON_TYPE_INT32);
-      }else{
-        pvt_put_byte(b, BSON_TYPE_INT64);
+      if (fits_int32(NUM2LL(val))) {
+        type_byte = BSON_TYPE_INT32;
+      } else {
+        type_byte = BSON_TYPE_INT64;
       }
       break;
     case T_STRING:
-      pvt_put_byte(b, BSON_TYPE_STRING);
+      type_byte = BSON_TYPE_STRING;
       break;
     case T_ARRAY:
-      pvt_put_byte(b, BSON_TYPE_ARRAY);
+      type_byte = BSON_TYPE_ARRAY;
       break;
     case T_TRUE:
     case T_FALSE:
-      pvt_put_byte(b, BSON_TYPE_BOOLEAN);
+      type_byte = BSON_TYPE_BOOLEAN;
       break;
     case T_HASH:
-      pvt_put_byte(b, BSON_TYPE_DOCUMENT);
+      type_byte = BSON_TYPE_DOCUMENT;
       break;
     case T_FLOAT:
-      pvt_put_byte(b, BSON_TYPE_DOUBLE);
+      type_byte = BSON_TYPE_DOUBLE;
       break;
     default:{
-      VALUE type = rb_funcall(val, rb_intern("bson_type"),0);
+      VALUE type = rb_funcall(val, rb_intern("bson_type"), 0);
+      type_byte = *RSTRING_PTR(type);
       RB_GC_GUARD(type);
-      pvt_put_byte(b, *RSTRING_PTR(type));
       break;
     }
   }
+  
+  pvt_put_byte(b, type_byte);
 }
 
 /**
