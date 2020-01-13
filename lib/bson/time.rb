@@ -54,7 +54,11 @@ module BSON
     def as_extended_json(**options)
       utc_time = utc
       if options[:relaxed] && (1970..9999).include?(utc_time.year)
-        {'$date' => utc_time.strftime('%Y-%m-%dT%H:%M:%S.%LZ')}
+        if utc_time.usec != 0
+          {'$date' => utc_time.strftime('%Y-%m-%dT%H:%M:%S.%LZ')}
+        else
+          {'$date' => utc_time.strftime('%Y-%m-%dT%H:%M:%SZ')}
+        end
       else
         {'$date' => {'$numberLong' => (utc_time.to_f * 1000).round.to_s}}
       end
