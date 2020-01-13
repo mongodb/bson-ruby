@@ -109,4 +109,22 @@ describe "BSON::ExtJSON.parse" do
       end
     end
   end
+
+  context 'when input is a hash' do
+    let(:input) do
+      {}
+    end
+
+    let(:parsed) { BSON::ExtJSON.parse_obj(input, mode: mode) }
+
+    context 'when mode is invalid' do
+      let(:mode) { :foo }
+
+      it 'raises an exception' do
+        lambda do
+          parsed
+        end.should raise_error(ArgumentError, /Invalid value for :mode option/)
+      end
+    end
+  end
 end
