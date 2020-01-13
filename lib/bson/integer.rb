@@ -167,8 +167,8 @@ module BSON
     # and a $numberLong otherwise. Regardless of which representation is
     # requested, a value that does not fit in 64 bits raises RangeError.
     #
-    # @option options [ true | false ] :relaxed Whether to produce relaxed
-    #   extended JSON representation.
+    # @option opts [ nil | :relaxed | :legacy ] :mode Serialization mode
+    #   (default is canonical extended JSON)
     #
     # @return [ Hash | Integer ] The extended json representation.
     def as_extended_json(**options)
@@ -184,7 +184,7 @@ module BSON
         raise RangeError, "Integer #{self} is too big to be represented as a MongoDB integer"
       end
 
-      if options[:relaxed]
+      if options[:mode] == :relaxed
         self
       elsif bson_int32?
         {'$numberInt' => to_s}

@@ -52,8 +52,8 @@ module BSON
     # This method returns the float itself if relaxed representation is
     # requested and the value is finite, otherwise a $numberDouble hash.
     #
-    # @option options [ true | false ] :relaxed Whether to produce relaxed
-    #   extended JSON representation.
+    # @option opts [ nil | :relaxed | :legacy ] :mode Serialization mode
+    #   (default is canonical extended JSON)
     #
     # @return [ Hash | Float ] The extended json representation.
     def as_extended_json(**options)
@@ -66,7 +66,7 @@ module BSON
         if nan?
           {'$numberDouble' => 'NaN'}
         else
-          if options[:relaxed]
+          if options[:mode] == :relaxed
             self
           else
             value = if BSON::Environment.jruby?

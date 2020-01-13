@@ -80,8 +80,8 @@ module BSON
     # This method recursively invokes +as_extended_json+ with the provided
     # options on each hash value.
     #
-    # @option options [ true | false ] :relaxed Whether to produce relaxed
-    #   extended JSON representation.
+    # @option opts [ nil | :relaxed | :legacy ] :mode Serialization mode
+    #   (default is canonical extended JSON)
     #
     # @return [ Hash ] This hash converted to extended json representation.
     def as_extended_json(**options)

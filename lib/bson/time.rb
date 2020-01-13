@@ -53,7 +53,7 @@ module BSON
     # @return [ Hash ] The extended json representation.
     def as_extended_json(**options)
       utc_time = utc
-      if options[:relaxed] && (1970..9999).include?(utc_time.year)
+      if options[:mode] == :relaxed && (1970..9999).include?(utc_time.year)
         if utc_time.usec != 0
           {'$date' => utc_time.strftime('%Y-%m-%dT%H:%M:%S.%LZ')}
         else

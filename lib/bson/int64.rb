@@ -116,12 +116,12 @@ module BSON
     # This method returns the integer value if relaxed representation is
     # requested, otherwise a $numberLong hash.
     #
-    # @option options [ true | false ] :relaxed Whether to produce relaxed
-    #   extended JSON representation.
+    # @option opts [ nil | :relaxed | :legacy ] :mode Serialization mode
+    #   (default is canonical extended JSON)
     #
     # @return [ Hash | Integer ] The extended json representation.
     def as_extended_json(**options)
-      if options[:relaxed]
+      if options[:mode] == :relaxed
         value
       else
         {'$numberLong' => to_s}

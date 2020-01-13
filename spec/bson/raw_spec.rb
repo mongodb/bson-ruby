@@ -27,7 +27,7 @@ describe Regexp::Raw do
 
     context 'legacy mode' do
       it "returns the legacy serialization including regex pattern and options" do
-        expect(object.as_extended_json(legacy: true)).to eq({ "$regex" => "\\W+", "$options" => "im" })
+        expect(object.as_extended_json(mode: :legacy)).to eq({ "$regex" => "\\W+", "$options" => "im" })
       end
     end
 
