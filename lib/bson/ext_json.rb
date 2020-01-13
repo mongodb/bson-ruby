@@ -51,7 +51,7 @@ module BSON
     #
     # @param [ String ] str The string to parse.
     #
-    # @option options [ nil | :bson | :ruby ] :types Which types to emit
+    # @option options [ nil | :bson ] :mode Which types to emit
     #
     # @return [ Object ] Parsed object tree.
     module_function def parse(str, **options)
@@ -98,12 +98,13 @@ module BSON
     #
     # @param [ Object ] value The object tree to convert.
     #
-    # @option options [ nil | :bson | :ruby ] :types Which types to emit
+    # @option options [ nil | :bson ] :mode Which types to emit
     #
     # @return [ Object ] Converted object tree.
     module_function def parse_obj(value, **options)
-      unless [nil, :bson, :ruby].include?(options[:types])
-        raise ArgumentError, "Invalid value for :types option: #{options[:types].inspect}"
+      # TODO implement :ruby and :ruby! modes
+      unless [nil, :bson].include?(options[:mode])
+        raise ArgumentError, "Invalid value for :mode option: #{options[:mode].inspect}"
       end
 
       case value
@@ -154,7 +155,7 @@ module BSON
             raise "$numberLong value is of an incorrect type: #{value}"
           end
           value = value.to_i
-          if options[:types] != :bson
+          if options[:mode] != :bson
             value
           else
             Int64.new(value)
