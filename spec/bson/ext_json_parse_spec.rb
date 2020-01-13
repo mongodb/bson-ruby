@@ -57,4 +57,30 @@ describe "BSON::ExtJSON.parse" do
       parsed.should == BSON::Timestamp.new(12345, 42)
     end
   end
+
+  context 'when input is an int64' do
+    let(:input) do
+      {'$numberLong' => '42'}
+    end
+
+    let(:parsed) { BSON::ExtJSON.parse_obj(input, mode: mode) }
+
+    context 'when :mode is nil' do
+      let(:mode) { nil }
+
+      it 'returns Integer instance' do
+        parsed.should be_a(Integer)
+        parsed.should == 42
+      end
+    end
+
+    context 'when :mode is :bson' do
+      let(:mode) { :bson }
+
+      it 'returns Int64 instance' do
+        parsed.should be_a(BSON::Int64)
+        parsed.value.should == 42
+      end
+    end
+  end
 end
