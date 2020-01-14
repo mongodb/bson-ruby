@@ -231,6 +231,12 @@ VALUE rb_bson_byte_buffer_get_int64(VALUE self)
   return pvt_get_int64(b, 0, NULL);
 }
 
+/**
+ * Reads a 64-bit integer out of the byte buffer into a Ruby Integer instance.
+ * If the argc/argv arguments have a :mode option with the value of :bson,
+ * wraps the integer in a BSON::Int64. Returns either the Integer or the
+ * BSON::Int64 instance.
+ */
 VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv)
 {
   int64_t i64;
