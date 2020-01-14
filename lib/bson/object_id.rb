@@ -229,6 +229,8 @@ module BSON
       #
       # @param [ ByteBuffer ] buffer The byte buffer.
       #
+      # @option options [ nil | :bson ] :mode Decoding mode to use.
+      #
       # @return [ BSON::ObjectId ] The object id.
       #
       # @since 2.0.0

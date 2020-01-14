@@ -111,6 +111,8 @@ module BSON
     #
     # @param [ ByteBuffer ] buffer The byte buffer.
     #
+    # @option options [ nil | :bson ] :mode Decoding mode to use.
+    #
     # @return [ TrueClass, FalseClass ] The decoded code with scope.
     #
     # @see http://bsonspec.org/#/specification

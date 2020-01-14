@@ -124,6 +124,8 @@ module BSON
       #
       # @param [ ByteBuffer ] buffer The byte buffer.
       #
+      # @option options [ nil | :bson ] :mode Decoding mode to use.
+      #
       # @return [ Regexp ] The decoded string.
       #
       # @see http://bsonspec.org/#/specification

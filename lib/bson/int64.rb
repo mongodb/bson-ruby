@@ -35,6 +35,8 @@ module BSON
     #
     # @param [ ByteBuffer ] buffer The byte buffer.
     #
+    # @option options [ nil | :bson ] :mode Decoding mode to use.
+    #
     # @return [ Integer ] The decoded Integer.
     #
     # @see http://bsonspec.org/#/specification

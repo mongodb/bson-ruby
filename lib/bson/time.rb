@@ -70,6 +70,8 @@ module BSON
       #
       # @param [ ByteBuffer ] buffer The byte buffer.
       #
+      # @option options [ nil | :bson ] :mode Decoding mode to use.
+      #
       # @return [ Time ] The decoded UTC datetime.
       #
       # @see http://bsonspec.org/#/specification

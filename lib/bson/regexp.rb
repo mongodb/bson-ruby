@@ -263,12 +263,14 @@ module BSON
       #
       # @param [ ByteBuffer ] buffer The byte buffer.
       #
+      # @option opts [ nil | :bson ] :mode Decoding mode to use.
+      #
       # @return [ Regexp ] The decoded regular expression.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(buffer, **options)
+      def from_bson(buffer, **opts)
         pattern = buffer.get_cstring
         options = buffer.get_cstring
         Raw.new(pattern, options)

@@ -107,6 +107,8 @@ module BSON
       #
       # @param [ ByteBuffer ] buffer The byte buffer.
       #
+      # @option options [ nil | :bson ] :mode Decoding mode to use.
+      #
       # @return [ Array ] The decoded array.
       #
       # @see http://bsonspec.org/#/specification

@@ -209,6 +209,8 @@ module BSON
       #
       # @param [ ByteBuffer ] buffer The byte buffer.
       #
+      # @option options [ nil | :bson ] :mode Decoding mode to use.
+      #
       # @return [ BSON::Decimal128 ] The decimal object.
       #
       # @since 4.2.0
