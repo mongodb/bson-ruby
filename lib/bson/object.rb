@@ -64,8 +64,8 @@ module BSON
     #
     # Subclasses should override +as_extended_json+ rather than this method.
     #
-    # @option options [ true | false ] :relaxed Whether to produce relaxed
-    #   extended JSON representation.
+    # @option opts [ nil | :relaxed | :legacy ] :mode Serialization mode
+    #   (default is canonical extended JSON)
     #
     # @return [ String ] The extended json serialization.
     def to_extended_json(**options)

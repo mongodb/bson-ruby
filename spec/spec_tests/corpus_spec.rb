@@ -37,7 +37,7 @@ describe 'BSON Corpus spec tests' do
 
           if test.relaxed_extjson
             it 'converts bson to relaxed extended json' do
-              decoded_canonical_bson.as_extended_json(relaxed: true).should == test.relaxed_extjson_doc
+              decoded_canonical_bson.as_extended_json(mode: :relaxed).should == test.relaxed_extjson_doc
             end
 
             unless test.lossy?

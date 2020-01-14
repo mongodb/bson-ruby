@@ -205,7 +205,22 @@ module BSON
       #
       # @since 4.2.0
       def as_json(*args)
-        { "$regex" => source, "$options" => options }
+        as_extended_json(mode: :legacy)
+      end
+
+      # Converts this object to a representation directly serializable to
+      # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+      #
+      # @option opts [ nil | :relaxed | :legacy ] :mode Serialization mode
+      #   (default is canonical extended JSON)
+      #
+      # @return [ Hash ] The extended json representation.
+      def as_extended_json(**opts)
+        if opts[:mode] == :legacy
+          { "$regex" => source, "$options" => options }
+        else
+          {"$regularExpression" => {'pattern' => source, "options" => options}}
+        end
       end
 
       # Check equality of the raw bson regexp against another.
