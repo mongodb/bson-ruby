@@ -45,7 +45,7 @@ describe 'BSON Corpus spec tests' do
             end
 
             let(:round_tripped_relaxed_extjson) do
-              parsed_relaxed_extjson.as_extended_json(relaxed: true)
+              parsed_relaxed_extjson.as_extended_json(mode: :relaxed)
             end
 
             # Relaxed extended json may parse into something other than the
