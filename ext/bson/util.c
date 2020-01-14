@@ -69,28 +69,27 @@ VALUE pvt_const_get_3(const char *c1, const char *c2, const char *c3) {
 }
 
 /**
- * Returns the value of the :types option, or the default if the option is not
- * specified. Raises ArgumentError if the value is not one of nil, :bson or
- * :ruby. Returns one of the BSON_TYPES_* values.
+ * Returns the value of the :mode option, or the default if the option is not
+ * specified. Raises ArgumentError if the value is not one of nil or :bson.
+ * A future version of bson-ruby is expected to also support :ruby and :ruby!
+ * values. Returns one of the BSON_MODE_* values.
  */
-int pvt_get_types_option(int argc, VALUE *argv) {
+int pvt_get_mode_option(int argc, VALUE *argv) {
   VALUE opts;
-  VALUE types;
+  VALUE mode;
   
   rb_scan_args(argc, argv, ":", &opts);
   if (NIL_P(opts)) {
-    return BSON_TYPES_DEFAULT;
+    return BSON_MODE_DEFAULT;
   } else {
-    types = rb_hash_lookup(opts, ID2SYM(rb_intern("types")));
-    if (types == Qnil) {
-      return BSON_TYPES_DEFAULT;
-    } else if (types == ID2SYM(rb_intern("bson"))) {
-      return BSON_TYPES_BSON;
-    } else if (types == ID2SYM(rb_intern("ruby"))) {
-      return BSON_TYPES_RUBY;
+    mode = rb_hash_lookup(opts, ID2SYM(rb_intern("mode")));
+    if (mode == Qnil) {
+      return BSON_MODE_DEFAULT;
+    } else if (mode == ID2SYM(rb_intern("bson"))) {
+      return BSON_MODE_BSON;
     } else {
-      rb_raise(rb_eArgError, "Invalid value for :types option: %s",
-        RSTRING_PTR(rb_funcall(types, rb_intern("inspect"), 0)));
+      rb_raise(rb_eArgError, "Invalid value for :mode option: %s",
+        RSTRING_PTR(rb_funcall(mode, rb_intern("inspect"), 0)));
     }
   }
 }

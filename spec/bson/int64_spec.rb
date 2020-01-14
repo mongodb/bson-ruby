@@ -79,7 +79,7 @@ describe BSON::Int64 do
       end
 
       let(:deserialized) do
-        described_class.from_bson(bson, types: :bson)
+        described_class.from_bson(bson, mode: :bson)
       end
 
       it 'deserializes to BSON::Int64' do

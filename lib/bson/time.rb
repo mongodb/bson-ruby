@@ -76,7 +76,7 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(buffer, **options)
-        seconds, fragment = Int64.from_bson(buffer, types: :ruby).divmod(1000)
+        seconds, fragment = Int64.from_bson(buffer, mode: nil).divmod(1000)
         at(seconds, fragment * 1000).utc
       end
     end

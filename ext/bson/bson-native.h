@@ -105,11 +105,10 @@ void rb_bson_generate_machine_id(VALUE rb_md5_class, char *rb_bson_machine_id);
 VALUE pvt_const_get_2(const char *c1, const char *c2);
 VALUE pvt_const_get_3(const char *c1, const char *c2, const char *c3);
 
-#define BSON_TYPES_DEFAULT      0
-#define BSON_TYPES_BSON         1
-#define BSON_TYPES_RUBY         2
+#define BSON_MODE_DEFAULT       0
+#define BSON_MODE_BSON          1
 
-int pvt_get_types_option(int argc, VALUE *argv);
+int pvt_get_mode_option(int argc, VALUE *argv);
 
 /**
  * The counter for incrementing object ids.

@@ -17,7 +17,7 @@ describe 'BSON Corpus spec tests' do
         context("valid: #{test.description}") do
 
           let(:decoded_canonical_bson) do
-            BSON::Document.from_bson(BSON::ByteBuffer.new(test.canonical_bson), types: :bson)
+            BSON::Document.from_bson(BSON::ByteBuffer.new(test.canonical_bson), mode: :bson)
           end
 
           it 'round-trips canonical bson' do
@@ -41,7 +41,7 @@ describe 'BSON Corpus spec tests' do
             end
 
             let(:parsed_relaxed_extjson) do
-              BSON::ExtJSON.parse_obj(test.relaxed_extjson_doc, types: :bson)
+              BSON::ExtJSON.parse_obj(test.relaxed_extjson_doc, mode: :bson)
             end
 
             let(:round_tripped_relaxed_extjson) do
@@ -61,7 +61,7 @@ describe 'BSON Corpus spec tests' do
           if test.degenerate_bson
 
             let(:decoded_degenerate_bson) do
-              BSON::Document.from_bson(BSON::ByteBuffer.new(test.degenerate_bson), relaxed: false)
+              BSON::Document.from_bson(BSON::ByteBuffer.new(test.degenerate_bson), mode: :relaxed)
             end
 
             it 'round-trips degenerate bson to canonical bson' do
@@ -70,7 +70,7 @@ describe 'BSON Corpus spec tests' do
           end
 
           let(:parsed_canonical_extjson) do
-            BSON::ExtJSON.parse_obj(test.canonical_extjson_doc, types: :bson)
+            BSON::ExtJSON.parse_obj(test.canonical_extjson_doc, mode: :bson)
           end
 
           unless test.lossy?
@@ -87,7 +87,7 @@ describe 'BSON Corpus spec tests' do
         context("decode error: #{test.description}") do
 
           let(:decoded_bson) do
-            BSON::Document.from_bson(BSON::ByteBuffer.new(test.bson), types: :bson)
+            BSON::Document.from_bson(BSON::ByteBuffer.new(test.bson), mode: :bson)
           end
 
           # Until bson-ruby gets an exception hierarchy, we can only rescue
@@ -106,7 +106,7 @@ describe 'BSON Corpus spec tests' do
         context("parse error: #{test.description}") do
 
           let(:parsed_extjson) do
-            BSON::ExtJSON.parse(test.string, types: :bson)
+            BSON::ExtJSON.parse(test.string, mode: :bson)
           end
 
           # Until bson-ruby gets an exception hierarchy, we can only rescue

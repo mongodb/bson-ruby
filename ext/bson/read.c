@@ -155,7 +155,7 @@ VALUE pvt_get_string(byte_buffer_t *b)
 
 /**
  * Reads a UTF-8 string out of the byte buffer. If the argc/argv arguments
- * have a :types option with the value of :bson, wraps the string in a
+ * have a :mode option with the value of :bson, wraps the string in a
  * BSON::Symbol::Raw. Returns either the read string or the BSON::Symbol::Raw
  * instance.
  */
@@ -163,7 +163,7 @@ VALUE pvt_get_symbol(byte_buffer_t *b, int argc, VALUE *argv)
 {
   VALUE value = pvt_get_string(b);
   
-  if (pvt_get_types_option(argc, argv) == BSON_TYPES_BSON) {
+  if (pvt_get_mode_option(argc, argv) == BSON_MODE_BSON) {
     VALUE klass = pvt_const_get_3("BSON", "Symbol", "Raw");
     value = rb_funcall(klass, rb_intern("new"), 1, value);
     RB_GC_GUARD(klass);
@@ -241,7 +241,7 @@ VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv)
   b->read_position += 8;
   num = LL2NUM(BSON_UINT64_FROM_LE(i64));
   
-  if (pvt_get_types_option(argc, argv) == BSON_TYPES_BSON) {
+  if (pvt_get_mode_option(argc, argv) == BSON_MODE_BSON) {
     VALUE klass = rb_funcall(rb_bson_registry,rb_intern("get"),1, INT2FIX(BSON_TYPE_INT64));
     VALUE value = rb_funcall(klass, rb_intern("new"), 1, num);
     RB_GC_GUARD(klass);
