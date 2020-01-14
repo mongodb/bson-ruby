@@ -41,7 +41,12 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(buffer, **options)
-      buffer.get_int64(**options)
+      value = buffer.get_int64
+      if options[:mode] == :bson
+        new(value)
+      else
+        value
+      end
     end
 
     # Instantiate a BSON Int64.

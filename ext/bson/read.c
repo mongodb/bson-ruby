@@ -224,11 +224,11 @@ VALUE pvt_get_int32(byte_buffer_t *b)
 /**
  * Get a int64 from the buffer.
  */
-VALUE rb_bson_byte_buffer_get_int64(int argc, VALUE *argv, VALUE self)
+VALUE rb_bson_byte_buffer_get_int64(VALUE self)
 {
   byte_buffer_t *b;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  return pvt_get_int64(b, argc, argv);
+  return pvt_get_int64(b, 0, NULL);
 }
 
 VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv)

@@ -75,7 +75,7 @@ VALUE rb_bson_byte_buffer_get_cstring(VALUE self);
 VALUE rb_bson_byte_buffer_get_decimal128_bytes(VALUE self);
 VALUE rb_bson_byte_buffer_get_double(VALUE self);
 VALUE rb_bson_byte_buffer_get_int32(VALUE self);
-VALUE rb_bson_byte_buffer_get_int64(int argc, VALUE *argv, VALUE self);
+VALUE rb_bson_byte_buffer_get_int64(VALUE self);
 VALUE rb_bson_byte_buffer_get_string(VALUE self);
 VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self);
 VALUE rb_bson_byte_buffer_get_array(int argc, VALUE *argv, VALUE self);
