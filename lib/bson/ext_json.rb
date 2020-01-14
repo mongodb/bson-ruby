@@ -51,8 +51,7 @@ module BSON
     #
     # @param [ String ] str The string to parse.
     #
-    # @option options [ true | false ] :emit_relaxed Whether to emit native
-    #   Ruby types as much as possible
+    # @option options [ nil | :bson ] :mode Which types to emit
     #
     # @return [ Object ] Parsed object tree.
     module_function def parse(str, **options)
@@ -99,19 +98,23 @@ module BSON
     #
     # @param [ Object ] value The object tree to convert.
     #
-    # @option options [ true | false ] :emit_relaxed Whether to emit native
-    #   Ruby types as much as possible
+    # @option options [ nil | :bson ] :mode Which types to emit
     #
     # @return [ Object ] Converted object tree.
-    module_function def parse_obj(value, emit_relaxed: false)
+    module_function def parse_obj(value, **options)
+      # TODO implement :ruby and :ruby! modes
+      unless [nil, :bson].include?(options[:mode])
+        raise ArgumentError, "Invalid value for :mode option: #{options[:mode].inspect}"
+      end
+
       case value
       when String, TrueClass, FalseClass, NilClass, Numeric
         value
       when Hash
-        parse_hash(value, emit_relaxed: emit_relaxed)
+        parse_hash(value, **options)
       when Array
         value.map do |item|
-          parse_obj(item, emit_relaxed: emit_relaxed)
+          parse_obj(item, **options)
         end
       else
         raise "Unknown value type: #{value}"
@@ -130,7 +133,7 @@ module BSON
       [key, true]
     end].freeze
 
-    module_function def parse_hash(hash, emit_relaxed:)
+    module_function def parse_hash(hash, **options)
       if hash.empty?
         return {}
       end
@@ -146,18 +149,13 @@ module BSON
           unless value.is_a?(String)
             raise "$numberInt value is of an incorrect type: #{value}"
           end
-          value = value.to_i
-          if emit_relaxed
-            value
-          else
-            Int32.new(value)
-          end
+          value.to_i
         when '$numberLong'
           unless value.is_a?(String)
             raise "$numberLong value is of an incorrect type: #{value}"
           end
           value = value.to_i
-          if emit_relaxed
+          if options[:mode] != :bson
             value
           else
             Int64.new(value)
@@ -243,7 +241,7 @@ module BSON
           end
           Undefined.new
         else
-          map_hash(hash, emit_relaxed: emit_relaxed)
+          map_hash(hash, **options)
         end
       end
 
@@ -260,11 +258,11 @@ module BSON
           end
           CodeWithScope.new(hash['$code'], map_hash(hash['$scope']))
         else
-          verify_no_reserved_keys(hash, emit_relaxed: emit_relaxed)
+          verify_no_reserved_keys(hash, **options)
         end
       end
 
-      verify_no_reserved_keys(hash, emit_relaxed: emit_relaxed)
+      verify_no_reserved_keys(hash, **options)
     end
 
     module_function def verify_no_reserved_keys(hash, **options)

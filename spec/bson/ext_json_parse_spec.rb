@@ -1,4 +1,4 @@
-# Copyright (C) 2019 MongoDB Inc.
+# Copyright (C) 2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -55,6 +55,76 @@ describe "BSON::ExtJSON.parse" do
 
     it 'returns a timestamp object' do
       parsed.should == BSON::Timestamp.new(12345, 42)
+    end
+  end
+
+  context 'when input is an int32' do
+    let(:input) do
+      {'$numberInt' => '42'}
+    end
+
+    let(:parsed) { BSON::ExtJSON.parse_obj(input, mode: mode) }
+
+    context 'when :mode is nil' do
+      let(:mode) { nil }
+
+      it 'returns Integer instance' do
+        parsed.should be_a(Integer)
+        parsed.should == 42
+      end
+    end
+
+    context 'when :mode is :bson' do
+      let(:mode) { :bson }
+
+      it 'returns Integer instance' do
+        parsed.should be_a(Integer)
+        parsed.should == 42
+      end
+    end
+  end
+
+  context 'when input is an int64' do
+    let(:input) do
+      {'$numberLong' => '42'}
+    end
+
+    let(:parsed) { BSON::ExtJSON.parse_obj(input, mode: mode) }
+
+    context 'when :mode is nil' do
+      let(:mode) { nil }
+
+      it 'returns Integer instance' do
+        parsed.should be_a(Integer)
+        parsed.should == 42
+      end
+    end
+
+    context 'when :mode is :bson' do
+      let(:mode) { :bson }
+
+      it 'returns Int64 instance' do
+        parsed.should be_a(BSON::Int64)
+        parsed.value.should == 42
+      end
+    end
+  end
+
+  context 'when input is a hash' do
+    let(:input) do
+      {}
+    end
+
+    let(:parsed) { BSON::ExtJSON.parse_obj(input, mode: mode) }
+
+    context 'when mode is invalid' do
+      let(:mode) { :foo }
+
+      it 'raises an exception' do
+        lambda do
+          parsed
+        end.should raise_error(ArgumentError, /Invalid value for :mode option/)
+      end
     end
   end
 end
