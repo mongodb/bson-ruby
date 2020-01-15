@@ -84,7 +84,7 @@ module BSON
             else
               to_s
             end
-            {'$numberDouble' => value}
+            {'$numberDouble' => value.upcase}
           end
         end
       end
