@@ -156,7 +156,13 @@ module BSON
       #
       # @since 2.0.0
       def from_bson(buffer, **options)
-        buffer.get_string.intern
+        sym = buffer.get_string.intern
+
+        if options[:mode] == :bson
+          Raw.new(sym)
+        else
+          sym
+        end
       end
     end
 
