@@ -101,12 +101,14 @@ module BSON
     #
     # @param [ ByteBuffer ] buffer The byte buffer.
     #
+    # @option options [ nil | :bson ] :mode Decoding mode to use.
+    #
     # @return [ TrueClass, FalseClass ] The decoded code.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(buffer)
+    def self.from_bson(buffer, **options)
       new(buffer.get_string)
     end
 

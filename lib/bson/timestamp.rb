@@ -132,12 +132,14 @@ module BSON
     #
     # @param [ ByteBuffer ] buffer The byte buffer.
     #
+    # @option options [ nil | :bson ] :mode Decoding mode to use.
+    #
     # @return [ Timestamp ] The decoded timestamp.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(buffer)
+    def self.from_bson(buffer, **options)
       increment = buffer.get_int32
       seconds = buffer.get_int32
       new(seconds, increment)

@@ -70,8 +70,31 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "get_cstring", rb_bson_byte_buffer_get_cstring, 0);
   rb_define_method(rb_byte_buffer_class, "get_decimal128_bytes", rb_bson_byte_buffer_get_decimal128_bytes, 0);
   rb_define_method(rb_byte_buffer_class, "get_double", rb_bson_byte_buffer_get_double, 0);
-  rb_define_method(rb_byte_buffer_class, "get_hash", rb_bson_byte_buffer_get_hash, 0);
-  rb_define_method(rb_byte_buffer_class, "get_array", rb_bson_byte_buffer_get_array, 0);
+  
+  /*
+   * call-seq:
+   *   buffer.get_hash(**options) -> Hash
+   *
+   * Reads a document from the byte buffer and returns it as a BSON::Document.
+   *
+   * @option options [ nil | :bson ] :mode Decoding mode to use.
+   *
+   * @return [ BSON::Document ] The decoded document.
+   */
+  rb_define_method(rb_byte_buffer_class, "get_hash", rb_bson_byte_buffer_get_hash, -1);
+  
+  /*
+   * call-seq:
+   *   buffer.get_array(**options) -> Array
+   *
+   * Reads an array from the byte buffer..
+   *
+   * @option options [ nil | :bson ] :mode Decoding mode to use.
+   *
+   * @return [ Array ] The decoded array.
+   */
+  rb_define_method(rb_byte_buffer_class, "get_array", rb_bson_byte_buffer_get_array, -1);
+  
   rb_define_method(rb_byte_buffer_class, "get_int32", rb_bson_byte_buffer_get_int32, 0);
   rb_define_method(rb_byte_buffer_class, "get_int64", rb_bson_byte_buffer_get_int64, 0);
   rb_define_method(rb_byte_buffer_class, "get_string", rb_bson_byte_buffer_get_string, 0);

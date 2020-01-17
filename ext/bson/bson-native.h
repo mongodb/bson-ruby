@@ -32,13 +32,15 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
 #define HOST_NAME_HASH_MAX 256
 #endif
 
+/* See the type list in http://bsonspec.org/spec.html. */
 #define BSON_TYPE_DOUBLE        1
 #define BSON_TYPE_STRING        2
 #define BSON_TYPE_DOCUMENT      3
 #define BSON_TYPE_ARRAY         4
 #define BSON_TYPE_BOOLEAN       8
-#define BSON_TYPE_INT32         16
-#define BSON_TYPE_INT64         18
+#define BSON_TYPE_SYMBOL        0x0E
+#define BSON_TYPE_INT32         0x10
+#define BSON_TYPE_INT64         0x12
 
 typedef struct {
   size_t size;
@@ -75,8 +77,8 @@ VALUE rb_bson_byte_buffer_get_double(VALUE self);
 VALUE rb_bson_byte_buffer_get_int32(VALUE self);
 VALUE rb_bson_byte_buffer_get_int64(VALUE self);
 VALUE rb_bson_byte_buffer_get_string(VALUE self);
-VALUE rb_bson_byte_buffer_get_hash(VALUE self);
-VALUE rb_bson_byte_buffer_get_array(VALUE self);
+VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self);
+VALUE rb_bson_byte_buffer_get_array(int argc, VALUE *argv, VALUE self);
 VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte);
 VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes);
 VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string);
@@ -99,6 +101,14 @@ size_t rb_bson_byte_buffer_memsize(const void *ptr);
 void rb_bson_byte_buffer_free(void *ptr);
 void rb_bson_expand_buffer(byte_buffer_t* buffer_ptr, size_t length);
 void rb_bson_generate_machine_id(VALUE rb_md5_class, char *rb_bson_machine_id);
+
+VALUE pvt_const_get_2(const char *c1, const char *c2);
+VALUE pvt_const_get_3(const char *c1, const char *c2, const char *c3);
+
+#define BSON_MODE_DEFAULT       0
+#define BSON_MODE_BSON          1
+
+int pvt_get_mode_option(int argc, VALUE *argv);
 
 /**
  * The counter for incrementing object ids.

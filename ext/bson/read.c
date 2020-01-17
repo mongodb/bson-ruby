@@ -20,11 +20,12 @@
 static void pvt_validate_length(byte_buffer_t *b);
 static uint8_t pvt_get_type_byte(byte_buffer_t *b);
 static VALUE pvt_get_int32(byte_buffer_t *b);
-static VALUE pvt_get_int64(byte_buffer_t *b);
+static VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv);
 static VALUE pvt_get_double(byte_buffer_t *b);
 static VALUE pvt_get_string(byte_buffer_t *b);
+static VALUE pvt_get_symbol(byte_buffer_t *b, int argc, VALUE *argv);
 static VALUE pvt_get_boolean(byte_buffer_t *b);
-static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type);
+static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv);
 static void pvt_skip_cstring(byte_buffer_t *b);
 
 /**
@@ -57,14 +58,16 @@ void pvt_validate_length(byte_buffer_t *b)
 /**
  * Read a single field from a hash or array
  */
-VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type){
+VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv)
+{
   switch(type) {
     case BSON_TYPE_INT32: return pvt_get_int32(b);
-    case BSON_TYPE_INT64: return pvt_get_int64(b);
+    case BSON_TYPE_INT64: return pvt_get_int64(b, argc, argv);
     case BSON_TYPE_DOUBLE: return pvt_get_double(b);
     case BSON_TYPE_STRING: return pvt_get_string(b);
-    case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(rb_buffer);
-    case BSON_TYPE_DOCUMENT: return rb_bson_byte_buffer_get_hash(rb_buffer);
+    case BSON_TYPE_SYMBOL: return pvt_get_symbol(b, argc, argv);
+    case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(argc, argv, rb_buffer);
+    case BSON_TYPE_DOCUMENT: return rb_bson_byte_buffer_get_hash(argc, argv, rb_buffer);
     case BSON_TYPE_BOOLEAN: return pvt_get_boolean(b);
     default:
     {
@@ -151,6 +154,25 @@ VALUE pvt_get_string(byte_buffer_t *b)
 }
 
 /**
+ * Reads a UTF-8 string out of the byte buffer. If the argc/argv arguments
+ * have a :mode option with the value of :bson, wraps the string in a
+ * BSON::Symbol::Raw. Returns either the read string or the BSON::Symbol::Raw
+ * instance.
+ */
+VALUE pvt_get_symbol(byte_buffer_t *b, int argc, VALUE *argv)
+{
+  VALUE value = pvt_get_string(b);
+  
+  if (pvt_get_mode_option(argc, argv) == BSON_MODE_BSON) {
+    VALUE klass = pvt_const_get_3("BSON", "Symbol", "Raw");
+    value = rb_funcall(klass, rb_intern("new"), 1, value);
+    RB_GC_GUARD(klass);
+  }
+  
+  return value;
+}
+
+/**
  * Get a cstring from the buffer.
  */
 VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
@@ -206,17 +228,35 @@ VALUE rb_bson_byte_buffer_get_int64(VALUE self)
 {
   byte_buffer_t *b;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  return pvt_get_int64(b);
+  return pvt_get_int64(b, 0, NULL);
 }
 
-VALUE pvt_get_int64(byte_buffer_t *b)
+/**
+ * Reads a 64-bit integer out of the byte buffer into a Ruby Integer instance.
+ * If the argc/argv arguments have a :mode option with the value of :bson,
+ * wraps the integer in a BSON::Int64. Returns either the Integer or the
+ * BSON::Int64 instance.
+ */
+VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv)
 {
   int64_t i64;
+  VALUE num;
 
   ENSURE_BSON_READ(b, 8);
   memcpy(&i64, READ_PTR(b), 8);
   b->read_position += 8;
-  return LL2NUM(BSON_UINT64_FROM_LE(i64));
+  num = LL2NUM(BSON_UINT64_FROM_LE(i64));
+  
+  if (pvt_get_mode_option(argc, argv) == BSON_MODE_BSON) {
+    VALUE klass = rb_funcall(rb_bson_registry,rb_intern("get"),1, INT2FIX(BSON_TYPE_INT64));
+    VALUE value = rb_funcall(klass, rb_intern("new"), 1, num);
+    RB_GC_GUARD(klass);
+    return value;
+  } else {
+    return num;
+  }
+  
+  RB_GC_GUARD(num);
 }
 
 /**
@@ -255,27 +295,27 @@ VALUE rb_bson_byte_buffer_get_decimal128_bytes(VALUE self)
   return bytes;
 }
 
-VALUE rb_bson_byte_buffer_get_hash(VALUE self){
+VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
   VALUE doc = Qnil;
   byte_buffer_t *b = NULL;
   uint8_t type;
-  VALUE cDocument = rb_const_get(rb_const_get(rb_cObject, rb_intern("BSON")), rb_intern("Document"));
+  VALUE cDocument = pvt_const_get_2("BSON", "Document");
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
   pvt_validate_length(b);
 
-  doc = rb_funcall(cDocument, rb_intern("allocate"),0);
+  doc = rb_funcall(cDocument, rb_intern("allocate"), 0);
 
   while((type = pvt_get_type_byte(b)) != 0){
     VALUE field = rb_bson_byte_buffer_get_cstring(self);
+    rb_hash_aset(doc, field, pvt_read_field(b, self, type, argc, argv));
     RB_GC_GUARD(field);
-    rb_hash_aset(doc, field, pvt_read_field(b, self, type));
   }
   return doc;
 }
 
-VALUE rb_bson_byte_buffer_get_array(VALUE self){
+VALUE rb_bson_byte_buffer_get_array(int argc, VALUE *argv, VALUE self){
   byte_buffer_t *b;
   VALUE array = Qnil;
   uint8_t type;
@@ -287,7 +327,7 @@ VALUE rb_bson_byte_buffer_get_array(VALUE self){
   array = rb_ary_new();
   while((type = pvt_get_type_byte(b)) != 0){
     pvt_skip_cstring(b);
-    rb_ary_push(array,  pvt_read_field(b, self, type));
+    rb_ary_push(array,  pvt_read_field(b, self, type, argc, argv));
   }
   RB_GC_GUARD(array);
   return array;

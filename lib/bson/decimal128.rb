@@ -209,10 +209,12 @@ module BSON
       #
       # @param [ ByteBuffer ] buffer The byte buffer.
       #
+      # @option options [ nil | :bson ] :mode Decoding mode to use.
+      #
       # @return [ BSON::Decimal128 ] The decimal object.
       #
       # @since 4.2.0
-      def from_bson(buffer)
+      def from_bson(buffer, **options)
         from_bits(*buffer.get_decimal128_bytes.unpack('Q<*'))
       end
 

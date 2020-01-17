@@ -111,14 +111,16 @@ module BSON
     #
     # @param [ ByteBuffer ] buffer The byte buffer.
     #
+    # @option options [ nil | :bson ] :mode Decoding mode to use.
+    #
     # @return [ TrueClass, FalseClass ] The decoded code with scope.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(buffer)
+    def self.from_bson(buffer, **options)
       buffer.get_int32 # Throw away the total length.
-      new(buffer.get_string, ::Hash.from_bson(buffer))
+      new(buffer.get_string, ::Hash.from_bson(buffer, **options))
     end
 
     # Register this type when the module is loaded.

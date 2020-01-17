@@ -144,7 +144,7 @@ module BSON
         when '$oid'
           ObjectId.from_string(value)
         when '$symbol'
-          value.to_sym
+          Symbol::Raw.new(value)
         when '$numberInt'
           unless value.is_a?(String)
             raise "$numberInt value is of an incorrect type: #{value}"

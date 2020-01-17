@@ -53,3 +53,43 @@ VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
   rb_bson_object_id_counter++;
   return rb_str_new(bytes, 12);
 }
+
+/**
+ * Returns a Ruby constant nested one level, e.g. BSON::Document.
+ */
+VALUE pvt_const_get_2(const char *c1, const char *c2) {
+  return rb_const_get(rb_const_get(rb_cObject, rb_intern(c1)), rb_intern(c2));
+}
+
+/**
+ * Returns a Ruby constant nested two levels, e.g. BSON::Regexp::Raw.
+ */
+VALUE pvt_const_get_3(const char *c1, const char *c2, const char *c3) {
+  return rb_const_get(pvt_const_get_2(c1, c2), rb_intern(c3));
+}
+
+/**
+ * Returns the value of the :mode option, or the default if the option is not
+ * specified. Raises ArgumentError if the value is not one of nil or :bson.
+ * A future version of bson-ruby is expected to also support :ruby and :ruby!
+ * values. Returns one of the BSON_MODE_* values.
+ */
+int pvt_get_mode_option(int argc, VALUE *argv) {
+  VALUE opts;
+  VALUE mode;
+  
+  rb_scan_args(argc, argv, ":", &opts);
+  if (NIL_P(opts)) {
+    return BSON_MODE_DEFAULT;
+  } else {
+    mode = rb_hash_lookup(opts, ID2SYM(rb_intern("mode")));
+    if (mode == Qnil) {
+      return BSON_MODE_DEFAULT;
+    } else if (mode == ID2SYM(rb_intern("bson"))) {
+      return BSON_MODE_BSON;
+    } else {
+      rb_raise(rb_eArgError, "Invalid value for :mode option: %s",
+        RSTRING_PTR(rb_funcall(mode, rb_intern("inspect"), 0)));
+    }
+  }
+}

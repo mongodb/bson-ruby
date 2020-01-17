@@ -35,13 +35,20 @@ module BSON
     #
     # @param [ ByteBuffer ] buffer The byte buffer.
     #
-    # @return [ Integer ] The decoded Integer.
+    # @option options [ nil | :bson ] :mode Decoding mode to use.
+    #
+    # @return [ Integer | BSON::Int64 ] The decoded Integer.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(buffer)
-      buffer.get_int64
+    def self.from_bson(buffer, **options)
+      value = buffer.get_int64
+      if options[:mode] == :bson
+        new(value)
+      else
+        value
+      end
     end
 
     # Instantiate a BSON Int64.
@@ -124,7 +131,7 @@ module BSON
       if options[:mode] == :relaxed
         value
       else
-        {'$numberLong' => to_s}
+        {'$numberLong' => value.to_s}
       end
     end
 

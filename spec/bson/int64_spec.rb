@@ -71,6 +71,25 @@ describe BSON::Int64 do
     it_behaves_like "a bson element"
     it_behaves_like "a deserializable bson element"
 
+    context 'canonical deserialization' do
+      let(:integer) { 42 }
+
+      let(:bson) do
+        BSON::ByteBuffer.new(BSON::Int64.new(integer).to_bson.to_s)
+      end
+
+      let(:deserialized) do
+        described_class.from_bson(bson, mode: :bson)
+      end
+
+      it 'deserializes to BSON::Int64' do
+        deserialized.class.should be BSON::Int64
+      end
+
+      it 'has the correct value' do
+        deserialized.value.should == 42
+      end
+    end
 
     context "when the integer is within the MRI Fixnum range" do
 

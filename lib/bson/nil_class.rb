@@ -34,12 +34,14 @@ module BSON
       #
       # @param [ ByteBuffer ] buffer The byte buffer.
       #
+      # @option options [ nil | :bson ] :mode Decoding mode to use.
+      #
       # @return [ nil ] The decoded nil value.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(buffer)
+      def from_bson(buffer, **options)
         nil
       end
     end

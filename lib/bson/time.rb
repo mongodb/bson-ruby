@@ -70,13 +70,15 @@ module BSON
       #
       # @param [ ByteBuffer ] buffer The byte buffer.
       #
+      # @option options [ nil | :bson ] :mode Decoding mode to use.
+      #
       # @return [ Time ] The decoded UTC datetime.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(buffer)
-        seconds, fragment = Int64.from_bson(buffer).divmod(1000)
+      def from_bson(buffer, **options)
+        seconds, fragment = Int64.from_bson(buffer, mode: nil).divmod(1000)
         at(seconds, fragment * 1000).utc
       end
     end

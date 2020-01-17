@@ -31,12 +31,14 @@ module BSON
     #
     # @param [ ByteBuffer ] buffer The byte buffer.
     #
+    # @option options [ nil | :bson ] :mode Decoding mode to use.
+    #
     # @return [ TrueClass, FalseClass ] The decoded boolean.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(buffer)
+    def self.from_bson(buffer, **options)
       buffer.get_byte == TrueClass::TRUE_BYTE
     end
 

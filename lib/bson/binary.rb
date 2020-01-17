@@ -251,12 +251,14 @@ module BSON
     #
     # @param [ ByteBuffer ] buffer The byte buffer.
     #
+    # @option options [ nil | :bson ] :mode Decoding mode to use.
+    #
     # @return [ Binary ] The decoded binary data.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(buffer)
+    def self.from_bson(buffer, **options)
       length = buffer.get_int32
       type = TYPES[buffer.get_byte]
       length = buffer.get_int32 if type == :old

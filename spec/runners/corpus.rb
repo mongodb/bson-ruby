@@ -46,7 +46,7 @@ module BSON
       #
       # @since 4.2.0
       def initialize(file)
-        @spec = ::JSON.parse(File.read(file))
+        @spec = ::JSON.parse(File.read(file).force_encoding('utf-8'))
       end
 
       def description

@@ -229,10 +229,12 @@ module BSON
       #
       # @param [ ByteBuffer ] buffer The byte buffer.
       #
+      # @option options [ nil | :bson ] :mode Decoding mode to use.
+      #
       # @return [ BSON::ObjectId ] The object id.
       #
       # @since 2.0.0
-      def from_bson(buffer)
+      def from_bson(buffer, **options)
         from_data(buffer.get_bytes(12))
       end
 

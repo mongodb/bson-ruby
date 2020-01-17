@@ -89,19 +89,97 @@ module BSON
       to_s
     end
 
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # @option options [ true | false ] :relaxed Whether to produce relaxed
+    #   extended JSON representation.
+    #
+    # @return [ Hash ] The extended json representation.
+    def as_extended_json(**options)
+      { "$symbol" => to_s }
+    end
+
+    class Raw
+      # Create a BSON Symbol
+      #
+      # @param [ String | Symbol ] str_or_sym The symbol represented by this
+      #   object. Can be specified as a Symbol or a String.
+      #
+      # @see http://bsonspec.org/#/specification
+      def initialize(str_or_sym)
+        unless str_or_sym.is_a?(String) || str_or_sym.is_a?(Symbol)
+          raise ArgumentError, "BSON::Symbol::Raw must be given a symbol or a string, not #{str_or_sym}"
+        end
+
+        @symbol = str_or_sym.to_sym
+      end
+
+      # Get the underlying symbol as a Ruby symbol.
+      #
+      # @return [ Symbol ] The symbol represented by this BSON object.
+      def to_sym
+        @symbol
+      end
+
+      # Get the underlying symbol as a Ruby string.
+      #
+      # @return [ String ] The symbol as a string.
+      def to_s
+        @symbol.to_s
+      end
+
+      # Get the symbol as encoded BSON.
+      #
+      # @raise [ EncodingError ] If the symbol is not UTF-8.
+      #
+      # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
+      #
+      # @see http://bsonspec.org/#/specification
+      def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+        buffer.put_string(to_s)
+      end
+
+      def bson_type
+        Symbol::BSON_TYPE
+      end
+
+      # Converts this object to a representation directly serializable to
+      # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+      #
+      # This method returns the integer value if relaxed representation is
+      # requested, otherwise a $numberLong hash.
+      #
+      # @option options [ true | false ] :relaxed Whether to produce relaxed
+      #   extended JSON representation.
+      #
+      # @return [ Hash | Integer ] The extended json representation.
+      def as_extended_json(**options)
+        {'$symbol' => to_s}
+      end
+    end
+
     module ClassMethods
 
       # Deserialize a symbol from BSON.
       #
       # @param [ ByteBuffer ] buffer The byte buffer.
       #
-      # @return [ Regexp ] The decoded symbol.
+      # @option options [ nil | :bson ] :mode Decoding mode to use.
+      #
+      # @return [ Symbol | BSON::Symbol::Raw ] The decoded symbol.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 2.0.0
-      def from_bson(buffer)
-        buffer.get_string.intern
+      def from_bson(buffer, **options)
+        sym = buffer.get_string.intern
+
+        if options[:mode] == :bson
+          Raw.new(sym)
+        else
+          sym
+        end
       end
     end
 

@@ -402,7 +402,7 @@ public class ByteBuf extends RubyObject {
   public ByteBuf putString(ThreadContext context, final IRubyObject value) throws UnsupportedEncodingException {
     RubyString string = (RubyString) value;
     RubyString encodedString = convertToUtf8(context, string);
-    
+
     String javaString = encodedString.asJavaString();
     return putJavaString(javaString);
   }
@@ -661,7 +661,7 @@ public class ByteBuf extends RubyObject {
   private RubyString getUTF8String(final byte[] bytes) {
     return RubyString.newString(getRuntime(), new ByteList(bytes, UTF_8));
   }
-  
+
   /**
    * Converts +string+ to UTF-8 encoding. If +string+ is already in UTF-8,
    * verifies that +string+ contains valid byte sequences by encoding in
@@ -669,7 +669,7 @@ public class ByteBuf extends RubyObject {
    */
   private RubyString convertToUtf8(ThreadContext context, RubyString string) {
     RubyString encodedString;
-    
+
     if (string.getEncoding() == UTF8Encoding.INSTANCE) {
       // If the value is already in UTF-8, encoding it to UTF-8 is a noop.
       // But we also want to validate the bytes for being a valid UTF-8 sequence.
@@ -681,10 +681,10 @@ public class ByteBuf extends RubyObject {
       RubyString utf8 = RubyString.newString(context.runtime, "UTF-8");
       encodedString = (RubyString) string.encode(context, utf8);
     }
-    
+
     return encodedString;
   }
-  
+
   private void verifyNoNulls(String string) {
     int len = string.length();
 
