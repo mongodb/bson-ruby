@@ -42,7 +42,7 @@ describe Symbol do
         described_class.from_bson(bson, mode: :bson)
       end
 
-      it 'deserializes to BSON::Int64' do
+      it 'deserializes to BSON::Symbol::Raw' do
         deserialized.class.should be BSON::Symbol::Raw
       end
 
