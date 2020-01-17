@@ -115,23 +115,18 @@ module BSON
         @symbol = str_or_sym.to_sym
       end
 
-      # Returns the value of this Symbol.
-      #
-      # @return [ Symbol ] The underlying symbol.
-      attr_reader :symbol
-
       # Get the underlying symbol as a Ruby symbol.
       #
       # @return [ Symbol ] The symbol represented by this BSON object.
       def to_sym
-        symbol
+        @symbol
       end
 
       # Get the underlying symbol as a Ruby string.
       #
       # @return [ String ] The symbol as a string.
       def to_s
-        symbol.to_s
+        @symbol.to_s
       end
 
       # Get the symbol as encoded BSON.

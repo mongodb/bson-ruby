@@ -47,7 +47,7 @@ describe Symbol do
       end
 
       it 'has the correct value' do
-        deserialized.symbol.should == obj
+        deserialized.to_sym.should be obj
       end
     end
   end
