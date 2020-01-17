@@ -32,6 +32,24 @@ describe Symbol do
     it_behaves_like "a bson element"
     it_behaves_like "a serializable bson element"
     it_behaves_like "a deserializable bson element"
+
+    context 'canonical deserialization' do
+      let(:bson) do
+        BSON::ByteBuffer.new(BSON::Symbol::Raw.new(obj).to_bson.to_s)
+      end
+
+      let(:deserialized) do
+        described_class.from_bson(bson, mode: :bson)
+      end
+
+      it 'deserializes to BSON::Int64' do
+        deserialized.class.should be BSON::Symbol::Raw
+      end
+
+      it 'has the correct value' do
+        deserialized.symbol.should == obj
+      end
+    end
   end
 
   describe "#to_bson_key" do

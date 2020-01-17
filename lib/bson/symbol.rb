@@ -101,6 +101,12 @@ module BSON
     end
 
     class Raw
+      # Create a BSON Symbol
+      #
+      # @param [ String | Symbol ] str_or_sym The symbol represented by this
+      #   object. Can be specified as a Symbol or a String.
+      #
+      # @see http://bsonspec.org/#/specification
       def initialize(str_or_sym)
         unless str_or_sym.is_a?(String) || str_or_sym.is_a?(Symbol)
           raise ArgumentError, "BSON::Symbol::Raw must be given a symbol or a string, not #{str_or_sym}"
@@ -109,16 +115,32 @@ module BSON
         @symbol = str_or_sym.to_sym
       end
 
+      # Returns the value of this Symbol.
+      #
+      # @return [ Symbol ] The underlying symbol.
       attr_reader :symbol
 
+      # Get the underlying symbol as a Ruby symbol.
+      #
+      # @return [ Symbol ] The symbol represented by this BSON object.
       def to_sym
         symbol
       end
 
+      # Get the underlying symbol as a Ruby string.
+      #
+      # @return [ String ] The symbol as a string.
       def to_s
         symbol.to_s
       end
 
+      # Get the symbol as encoded BSON.
+      #
+      # @raise [ EncodingError ] If the symbol is not UTF-8.
+      #
+      # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
+      #
+      # @see http://bsonspec.org/#/specification
       def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
         buffer.put_string(to_s)
       end
@@ -150,7 +172,7 @@ module BSON
       #
       # @option options [ nil | :bson ] :mode Decoding mode to use.
       #
-      # @return [ Regexp ] The decoded symbol.
+      # @return [ Symbol | BSON::Symbol::Raw ] The decoded symbol.
       #
       # @see http://bsonspec.org/#/specification
       #

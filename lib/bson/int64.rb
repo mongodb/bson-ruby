@@ -37,7 +37,7 @@ module BSON
     #
     # @option options [ nil | :bson ] :mode Decoding mode to use.
     #
-    # @return [ Integer ] The decoded Integer.
+    # @return [ Integer | BSON::Int64 ] The decoded Integer.
     #
     # @see http://bsonspec.org/#/specification
     #
