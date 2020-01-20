@@ -8,5 +8,10 @@ module BSON
     # Exception raised when Extended JSON parsing fails.
     class ExtJSONParseError < Error
     end
+
+    # Exception raised when decoding BSON and the data contains an
+    # unsupported binary subtype.
+    class UnsupportedBinarySubtype < Error
+    end
   end
 end

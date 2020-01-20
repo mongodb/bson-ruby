@@ -126,11 +126,33 @@ describe BSON::Binary do
   end
 
   describe '#from_bson' do
-    let(:bson) { BSON::ByteBuffer.new("#{5.to_bson}#{0.chr}hello".force_encoding('BINARY')) }
-    let(:obj) { described_class.from_bson(bson) }
+    let(:buffer) { BSON::ByteBuffer.new(bson) }
+    let(:obj) { described_class.from_bson(buffer) }
+
+    let(:bson) { "#{5.to_bson}#{0.chr}hello".force_encoding('BINARY') }
 
     it 'sets data encoding to binary' do
       expect(obj.data.encoding).to eq(Encoding.find('BINARY'))
+    end
+
+    context 'when binary subtype is supported' do
+      let(:bson) { [3, 0, 0, 0, 1].map(&:chr).join.force_encoding('BINARY') + 'foo' }
+
+      it 'works' do
+        obj.should be_a(described_class)
+        obj.type.should be :function
+      end
+    end
+
+    context 'when binary subtype is not supported' do
+      let(:bson) { [3, 0, 0, 0, 16].map(&:chr).join.force_encoding('BINARY') + 'foo' }
+
+      it 'raises an exception' do
+        lambda do
+          obj
+        end.should raise_error(BSON::Error::UnsupportedBinarySubtype,
+          /BSON data contains unsupported binary subtype 0x10/)
+      end
     end
   end
 
