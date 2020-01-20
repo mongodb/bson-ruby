@@ -126,7 +126,7 @@ module BSON
     RESERVED_KEYS = %w(
       $oid $symbol $numberInt $numberLong $numberDouble $numberDecimal
       $binary $code $scope $timestamp $regularExpression $dbPointer
-      $date $ref $id $minKey $maxKey $undefined
+      $date $minKey $maxKey $undefined
     ).freeze
 
     RESERVED_KEYS_HASH = Hash[RESERVED_KEYS.map do |key|
@@ -136,6 +136,40 @@ module BSON
     module_function def parse_hash(hash, **options)
       if hash.empty?
         return {}
+      end
+
+      if hash.key?('$ref')
+        # Legacy dbref handling.
+        # Note that according to extended json spec, only hash values (but
+        # not the top-level BSON document itself) may be of type "dbref".
+        # This code applies to both hash values and the hash overall; however,
+        # since we do not have DBRef as a distinct type, applying the below
+        # logic to top level hashes doesn't cause harm.
+        hash = hash.dup
+        ref = hash.delete('$ref')
+        # $ref can be a string value or an ObjectId
+        unless ref.is_a?(String)
+          raise "Invalid $ref value: #{ref}"
+        end
+        # $id, if present, can be anything
+        id = hash.delete('$id')
+        if id.is_a?(Hash)
+          id = parse_hash(id)
+        end
+        # Preserve $id value as it was, do not convert either to ObjectId
+        # or to a string. But if the value was in {'$oid' => ...} format,
+        # the value is converted to an ObjectId instance so that
+        # serialization to BSON later on works correctly.
+        out = {'$ref' => ref, '$id' => id}
+        if hash.key?('$db')
+          # $db must always be a string, if provided
+          db = hash.delete('$db')
+          unless db.is_a?(String)
+            raise "Invalid $db value: #{db}"
+          end
+          out['$db'] = db
+        end
+        return out.update(hash)
       end
 
       if hash.length == 1
