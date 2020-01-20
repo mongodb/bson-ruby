@@ -129,6 +129,17 @@ module BSON
         @symbol.to_s
       end
 
+      # Check equality of the raw bson symbol against another.
+      #
+      # @param [ Object ] other The object to check against.
+      #
+      # @return [ true, false ] If the objects are equal.
+      def ==(other)
+        return false unless other.is_a?(Raw)
+        to_sym == other.to_sym
+      end
+      alias :eql? :==
+
       # Get the symbol as encoded BSON.
       #
       # @raise [ EncodingError ] If the symbol is not UTF-8.
