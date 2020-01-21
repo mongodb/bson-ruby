@@ -26,17 +26,19 @@ module BSON
 
     # Create a new DBPointer object.
     #
-    # @param [ String ] ref 
-    # @param [ BSON::ObjectId ] id The object's id.
+    # @param [ String ] ref The database collection name.
+    # @param [ BSON::ObjectId ] id The DBPointer id.
     def initialize(ref, id)
       @ref = ref
       @id = id
     end
 
-    # TODO
+    # Return the collection name.
+    #
+    # @return [ String ] The database collection name.
     attr_reader :ref
 
-    # Return the DbPointer's id
+    # Return the DbPointer's id.
     #
     # @return [ BSON::ObjectId ] The id of the DbPointer instance
     attr_reader :id
@@ -71,9 +73,9 @@ module BSON
       {'$dbPointer' => { "$ref" => ref, '$id' => id.as_extended_json }}
     end
 
-    # Encode the DBPointer
+    # Encode the DBPointer.
     #
-    # @return [ BSON::ByteBuffer ] The buffer with the encoded object
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
@@ -82,7 +84,7 @@ module BSON
       buffer
     end
 
-    # Deserialize a DBPointer from BSON
+    # Deserialize a DBPointer from BSON.
     #
     # @param [ ByteBuffer ] buffer The byte buffer.
     # @param [ Hash ] options
