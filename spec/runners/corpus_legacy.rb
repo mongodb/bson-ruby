@@ -70,6 +70,21 @@ module BSON
           end
       end
 
+      # A mapping between test descriptions and the BSON class names
+      # they represent.
+      KLASSES = {
+        'Javascript Code with Scope' => 'CodeWithScope',
+        'Javascript Code' => 'Code',
+        'Double type' => 'Float',
+        'Int32 type' => 'Integer',
+        'Maxkey type' => 'MaxKey',
+        'Minkey type' => 'MinKey',
+        'Timestamp type' => 'Timestamp',
+        'Null type' => 'NilClass',
+        'Document type (sub-documents)' => 'Document',
+        'Regular Expression type' => 'Regexp'
+      }
+
       # The class of the bson object to test.
       #
       # @example Get the class of the object to test.
@@ -77,7 +92,8 @@ module BSON
       #
       # @return [ Class ] The object class.
       def klass
-        @klass ||= BSON.const_get(description)
+        name = KLASSES[description] || description
+        @klass ||= BSON.const_get(name)
       end
     end
 
@@ -121,6 +137,25 @@ module BSON
         @correct_bson ||= decode_hex(@canonical_bson || @bson)
       end
 
+      # Create a BSON::Document object from the test's bson representation
+      #
+      # @return [ BSON::Document ] The BSON::Document object
+      def document_from_bson
+        bson_bytes = decode_hex(@bson)
+        buffer = BSON::ByteBuffer.new(bson_bytes)
+        BSON::Document.from_bson(buffer)
+      end
+
+      # Create a BSON::Document object from the test's canonical bson
+      # representation
+      #
+      # @return [ BSON::Document ] The BSON::Document object
+      def document_from_canonical_bson
+        bson_bytes = decode_hex(@canonical_bson)
+        buffer = BSON::ByteBuffer.new(bson_bytes)
+        BSON::Document.from_bson(buffer)
+      end
+
       # Given the hex representation of bson, decode it into a Document,
       #   then reencoded it to bson.
       #
@@ -129,9 +164,7 @@ module BSON
       #
       # @return [ String ] The reencoded bson bytes.
       def reencoded_bson
-        bson_bytes = decode_hex(@bson)
-        buffer = BSON::ByteBuffer.new(bson_bytes)
-        BSON::Document.from_bson(buffer).to_bson.to_s
+        document_from_bson.to_bson.to_s
       end
 
       # Given the hex representation of the canonical bson, decode it into a Document,
@@ -142,9 +175,7 @@ module BSON
       #
       # @return [ String ] The reencoded canonical bson bytes.
       def reencoded_canonical_bson
-        bson_bytes = decode_hex(@canonical_bson)
-        buffer = BSON::ByteBuffer.new(bson_bytes)
-        BSON::Document.from_bson(buffer).to_bson.to_s
+        document_from_canonical_bson.to_bson.to_s
       end
 
       # Whether the canonical bson should be tested.
@@ -185,9 +216,7 @@ module BSON
       #
       # @return [ Hash ] The extended json representation.
       def extjson_from_bson
-        subject = decode_hex(@bson)
-        buffer = BSON::ByteBuffer.new(subject)
-        BSON::Document.from_bson(buffer).as_extended_json(mode: :legacy)
+        document_from_bson.as_extended_json(mode: :legacy)
       end
 
       # Get the extended json representation of the decoded doc from the provided
@@ -198,9 +227,7 @@ module BSON
       #
       # @return [ Hash ] The extended json representation.
       def extjson_from_canonical_bson
-        subject = decode_hex(@canonical_bson)
-        buffer = BSON::ByteBuffer.new(subject)
-        BSON::Document.from_bson(buffer).as_extended_json(mode: :legacy)
+        document_from_canonical_bson.as_extended_json(mode: :legacy)
       end
 
       # Get the extended json representation of the decoded doc from the provided
