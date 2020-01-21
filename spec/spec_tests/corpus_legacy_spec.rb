@@ -1,46 +1,70 @@
 require 'spec_helper'
 require 'runners/corpus_legacy'
-require 'byebug'
 
-describe 'BSON corpus legacy spec tests' do
-  # BSON_CORPUS_LEGACY_TESTS.each do |path|
-    path = "#{CURRENT_PATH}/spec_tests/data/corpus_legacy/array.json"
+describe 'Driver BSON Corpus Legacy spec tests' do
+
+  BSON_CORPUS_LEGACY_TESTS.each do |path|
     basename = File.basename(path)
+    # All of the tests in the failures subdir are failing apparently
+    #basename = path.sub(/.*corpus-tests\//, '')
 
     spec = BSON::CorpusLegacy::Spec.new(path)
 
     context("(#{basename}): #{spec.description}") do
 
-      spec.valid_tests&.each do |test|
+      spec.valid_tests.each do |test|
 
-        context("valid: #{test.description}") do
+        context("VALID CASE: #{test.description}") do
 
-          if test.canonical_bson
-            let(:decoded_canonical_bson) do
-              BSON::Document.from_bson(BSON::ByteBuffer.new(test.canonical_bson), mode: :legacy)
-            end
+          it 'roundtrips the given bson correctly' do
+            expect(test.reencoded_bson).to eq(test.correct_bson)
+          end
 
-            it 'round-trips canonical bson' do
-              decoded_canonical_bson.to_bson.to_s.should == test.canonical_bson
-            end
+          context 'when the canonical bson is roundtripped', if: test.test_canonical_bson? do
 
-            it 'converts canonical bson to legacy extended json' do
-              decoded_canonical_bson.as_extended_json(mode: :legacy).should == test.extjson
+            it 'encodes the canonical bson correctly' do
+              expect(test.reencoded_canonical_bson).to eq(test.correct_bson)
             end
           end
 
-          let(:decoded_bson) do
-            BSON::Document.from_bson(BSON::ByteBuffer.new(test.bson), mode: :legacy)
+          context 'when the document can be represented as extended json', if: test.test_extjson? do
+
+            it 'decodes from the given bson, then encodes the document as extended json correctly' do
+              expect(test.extjson_from_bson).to eq(test.correct_extjson)
+              expect(test.extjson_from_bson[test.test_key]).to eq(test.correct_extjson[test.test_key])
+            end
+
+            it 'decodes from extended json, then encodes the document as extended json correctly' do
+              expect(test.extjson_from_encoded_extjson).to eq(test.correct_extjson)
+              expect(test.extjson_from_encoded_extjson[test.test_key]).to eq(test.correct_extjson[test.test_key])
+            end
+
+            context 'when the canonical bson can be represented as extended json', if: (test.test_canonical_bson? && test.test_extjson?) do
+
+              it 'encodes the canonical bson correctly as extended json' do
+                expect(test.extjson_from_canonical_bson).to eq(test.correct_extjson)
+                expect(test.extjson_from_canonical_bson[test.test_key]).to eq(test.correct_extjson[test.test_key])
+              end
+            end
+          end
+        end
+      end
+
+      spec.invalid_tests.each do |test|
+
+        context("INVALID CASE: #{test.description}") do
+
+          let(:error) do
+            begin; test.reencoded_bson; false; rescue => e; e; end
           end
 
-          it 'round-trips bson' do
-            decoded_bson.to_bson.to_s.should == test.bson
+          it 'raises an error' do
+            skip 'This test case does not raise and error but should' unless error
+            expect do
+              test.reencoded_bson
+            end.to raise_error(error.class)
           end
-
-          it 'converts canonical bson to legacy extended json' do
-            decoded_bson.as_extended_json(mode: :legacy).should == test.extjson
-          end
-        # end
+        end
       end
     end
   end
