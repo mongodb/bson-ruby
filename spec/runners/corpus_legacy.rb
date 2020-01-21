@@ -70,21 +70,6 @@ module BSON
           end
       end
 
-      # A mapping between test descriptions and the BSON class names
-      # they represent.
-      KLASSES = {
-        'Javascript Code with Scope' => 'CodeWithScope',
-        'Javascript Code' => 'Code',
-        'Double type' => 'Float',
-        'Int32 type' => 'Integer',
-        'Maxkey type' => 'MaxKey',
-        'Minkey type' => 'MinKey',
-        'Timestamp type' => 'Timestamp',
-        'Null type' => 'NilClass',
-        'Document type (sub-documents)' => 'Document',
-        'Regular Expression type' => 'Regexp'
-      }
-
       # The class of the bson object to test.
       #
       # @example Get the class of the object to test.
@@ -92,8 +77,7 @@ module BSON
       #
       # @return [ Class ] The object class.
       def klass
-        name = KLASSES[description] || description
-        @klass ||= BSON.const_get(name)
+        @klass ||= BSON.const_get(description)
       end
     end
 

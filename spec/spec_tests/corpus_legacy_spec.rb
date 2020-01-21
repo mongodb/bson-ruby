@@ -40,10 +40,10 @@ describe 'Driver BSON Corpus Legacy spec tests' do
             end
 
             it 'can be converted to extended json using the #as_json method', if: spec.klass.respond_to?(:as_json) do
-                as_json = test.document_from_bson['a'].as_json
+                as_json = test.document_from_bson[test.test_key].as_json
 
-                expect(as_json).to eq(test.extjson_from_bson['a'])
-                expect(as_json).to eq(test.correct_extjson['a'])
+                expect(as_json).to eq(test.extjson_from_bson[test.test_key])
+                expect(as_json).to eq(test.correct_extjson[test.test_key])
             end
 
             context 'when the canonical bson can be represented as extended json', if: (test.test_canonical_bson? && test.test_extjson?) do
@@ -54,10 +54,10 @@ describe 'Driver BSON Corpus Legacy spec tests' do
               end
 
               it 'can be converted to extended json using the #as_json method', if: spec.klass.respond_to?(:as_json) do
-                as_json = test.document_from_canonical_bson['a'].as_json
+                as_json = test.document_from_canonical_bson[test.test_key].as_json
 
-                expect(as_json).to eq(test.extjson_from_canonical_bson['a'])
-                expect(as_json).to eq(test.correct_extjson['a'])
+                expect(as_json).to eq(test.extjson_from_canonical_bson[test.test_key])
+                expect(as_json).to eq(test.correct_extjson[test.test_key])
               end
             end
           end

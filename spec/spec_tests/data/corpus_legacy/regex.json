@@ -1,5 +1,5 @@
 {
-    "description": "Regular Expression type",
+    "description": "Regexp",
     "bson_type": "0x0B",
     "test_key": "a",
     "valid": [

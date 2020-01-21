@@ -1,5 +1,5 @@
 {
-    "description": "Minkey type",
+    "description": "MinKey",
     "bson_type": "0xFF",
     "test_key": "a",
     "valid": [

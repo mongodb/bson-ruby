@@ -1,5 +1,5 @@
 {
-    "description": "Maxkey type",
+    "description": "MaxKey",
     "bson_type": "0xFF",
     "test_key": "a",
     "valid": [

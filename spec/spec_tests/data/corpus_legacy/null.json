@@ -1,5 +1,5 @@
 {
-    "description": "Null type",
+    "description": "NilClass",
     "bson_type": "0x0A",
     "test_key": "a",
     "valid": [

@@ -1,5 +1,5 @@
 {
-    "description": "Double type",
+    "description": "Float",
     "bson_type": "0x01",
     "test_key": "d",
     "valid": [

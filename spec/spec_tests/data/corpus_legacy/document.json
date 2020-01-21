@@ -1,5 +1,5 @@
 {
-    "description": "Document type (sub-documents)",
+    "description": "Document",
     "bson_type": "0x03",
     "test_key": "x",
     "valid": [

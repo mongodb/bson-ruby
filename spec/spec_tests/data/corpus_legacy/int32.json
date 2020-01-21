@@ -1,5 +1,5 @@
 {
-    "description": "Int32 type",
+    "description": "Integer",
     "bson_type": "0x10",
     "test_key": "i",
     "valid": [
