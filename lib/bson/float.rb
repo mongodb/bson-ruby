@@ -66,7 +66,7 @@ module BSON
         if nan?
           {'$numberDouble' => 'NaN'}
         else
-          if options[:mode] == :relaxed
+          if options[:mode] == :relaxed || options[:mode] == :legacy
             self
           else
             value = if BSON::Environment.jruby?

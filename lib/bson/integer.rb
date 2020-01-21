@@ -184,7 +184,7 @@ module BSON
         raise RangeError, "Integer #{self} is too big to be represented as a MongoDB integer"
       end
 
-      if options[:mode] == :relaxed
+      if options[:mode] == :relaxed || options[:mode] == :legacy
         self
       elsif bson_int32?
         {'$numberInt' => to_s}

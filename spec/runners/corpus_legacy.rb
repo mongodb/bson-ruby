@@ -187,7 +187,7 @@ module BSON
       def extjson_from_bson
         subject = decode_hex(@bson)
         buffer = BSON::ByteBuffer.new(subject)
-        BSON::Document.from_bson(buffer).as_extended_json#(mode: :legacy)
+        BSON::Document.from_bson(buffer).as_extended_json(mode: :legacy)
       end
 
       # Get the extended json representation of the decoded doc from the provided
@@ -200,7 +200,7 @@ module BSON
       def extjson_from_canonical_bson
         subject = decode_hex(@canonical_bson)
         buffer = BSON::ByteBuffer.new(subject)
-        BSON::Document.from_bson(buffer).as_extended_json# (mode: :legacy)
+        BSON::Document.from_bson(buffer).as_extended_json(mode: :legacy)
       end
 
       # Get the extended json representation of the decoded doc from the provided
@@ -212,7 +212,7 @@ module BSON
       # @return [ Hash ] The extended json representation.
       def extjson_from_encoded_extjson
         doc = BSON::Document.new(@extjson)
-        doc.as_extended_json#(mode: :legacy)
+        doc.as_extended_json(mode: :legacy)
       end
 
       private
