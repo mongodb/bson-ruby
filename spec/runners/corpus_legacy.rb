@@ -200,7 +200,7 @@ module BSON
       #
       # @return [ Hash ] The extended json representation.
       def extjson_from_bson
-        document_from_bson.as_extended_json(mode: :legacy)
+        as_legacy_extended_json(document_from_bson)
       end
 
       # Get the extended json representation of the decoded doc from the provided
@@ -211,7 +211,7 @@ module BSON
       #
       # @return [ Hash ] The extended json representation.
       def extjson_from_canonical_bson
-        document_from_canonical_bson.as_extended_json(mode: :legacy)
+        as_legacy_extended_json(document_from_canonical_bson)
       end
 
       # Get the extended json representation of the decoded doc from the provided
@@ -223,10 +223,21 @@ module BSON
       # @return [ Hash ] The extended json representation.
       def extjson_from_encoded_extjson
         doc = BSON::Document.new(@extjson)
-        doc.as_extended_json(mode: :legacy)
+        as_legacy_extended_json(doc)
       end
 
       private
+
+      def as_legacy_extended_json(object)
+        result = object.as_extended_json(mode: :legacy)
+        if object.respond_to?(:as_json)
+          old_result = object.as_json
+          unless result == old_result
+            raise "Serializing #{object} to legacy extended json did not match between new and old APIs"
+          end
+        end
+        result
+      end
 
       def decode_hex(obj)
         [ obj ].pack('H*')
