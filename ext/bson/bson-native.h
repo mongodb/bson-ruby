@@ -16,6 +16,7 @@
 
 #include <ruby.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <time.h>
 #include "bson-endian.h"

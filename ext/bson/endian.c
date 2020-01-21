@@ -15,6 +15,7 @@
  */
 
 #include <string.h>
+#include <stdint.h>
 #include "bson-endian.h"
 
 /*
