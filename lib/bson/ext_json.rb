@@ -294,6 +294,21 @@ module BSON
             raise "Invalid $code value: #{value}"
           end
           CodeWithScope.new(hash['$code'], map_hash(hash['$scope']))
+        when '$binary'
+          unless sorted_keys == %w($binary $type)
+            raise "Invalid $binary value: #{hash}"
+          end
+          unless hash['$binary'].is_a?(String)
+            raise "Invalid $binary value: #{value}"
+          end
+          unless hash['$type'].is_a?(String)
+            raise "Invalid $binary subtype: #{hash['$type']}"
+          end
+
+          type = Binary::TYPES[hash['$type'].hex.chr]
+          value = Base64.decode64(hash['$binary'])
+
+          Binary.new(value, type)
         else
           verify_no_reserved_keys(hash, **options)
         end
