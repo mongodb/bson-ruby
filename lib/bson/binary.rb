@@ -118,7 +118,14 @@ module BSON
       if subtype.length == 1
         subtype = "0#{subtype}"
       end
-      { "$binary" => {'base64' => Base64.encode64(data).strip, "subType" => subtype }}
+
+      value = Base64.encode64(data).strip
+
+      if options[:mode] == :legacy
+        { "$binary" => value, "$type" => subtype }
+      else
+        { "$binary" => {'base64' => value, "subType" => subtype }}
+      end
     end
 
     # Instantiate the new binary object.
