@@ -314,10 +314,18 @@ module BSON
           unless sorted_keys == %w($options $regex)
             raise "Invalid $regex value: #{hash}"
           end
+
+          if hash['$regex'].is_a?(Hash)
+            return {
+              '$regex' => parse_hash(hash['$regex']),
+              '$options' => hash['$options']
+            }
+          end
+
           unless hash['$regex'].is_a?(String)
             raise "Invalid $regex pattern: #{hash['$regex']}"
           end
-          unless hash['$options'].is_a?(String)
+          unless hash['$options'].is_a?(String) || hash['$options'].is_a?(Integer)
             raise "Invalid $regex options: #{hash['$options']}"
           end
 
