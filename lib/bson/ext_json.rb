@@ -210,17 +210,15 @@ module BSON
           unless value.keys.sort == %w(base64 subType)
             raise "Invalid $binary value: #{value}"
           end
+          encoded_value = value['base64']
+          unless encoded_value.is_a?(String)
+            raise "Invalid base64 value in $binary: #{value}"
+          end
           subtype = value['subType']
           unless subtype.is_a?(String)
-            raise "Invalid $subType value: #{value}"
+            raise "Invalid subType value in $binary: #{value}"
           end
-          subtype = subtype.hex
-          type = Binary::TYPES[subtype.chr]
-          unless type
-            # Requires https://jira.mongodb.org/browse/RUBY-2056
-            raise NotImplementedError
-          end
-          Binary.new(Base64.decode64(value['base64']), type)
+          create_binary(encoded_value, subtype)
         when '$code'
           unless value.is_a?(String)
             raise "Invalid $code value: #{value}"
@@ -305,10 +303,7 @@ module BSON
             raise "Invalid $binary subtype: #{hash['$type']}"
           end
 
-          type = Binary::TYPES[hash['$type'].hex.chr]
-          value = Base64.decode64(hash['$binary'])
-
-          Binary.new(value, type)
+          create_binary(hash['$binary'], hash['$type'])
         else
           verify_no_reserved_keys(hash, **options)
         end
@@ -334,6 +329,16 @@ module BSON
       ::Hash[hash.map do |key, value|
         [key, parse_obj(value, **options)]
       end]
+    end
+
+    module_function def create_binary(encoded_value, encoded_subtype)
+      subtype = encoded_subtype.hex
+      type = Binary::TYPES[subtype.chr]
+      unless type
+        # Requires https://jira.mongodb.org/browse/RUBY-2056
+        raise NotImplementedError, "Binary subtype #{encoded_subtype} is not currently supported"
+      end
+      Binary.new(Base64.decode64(encoded_value), type)
     end
   end
 end
