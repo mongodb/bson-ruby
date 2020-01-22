@@ -237,5 +237,40 @@ describe "BSON::ExtJSON.parse" do
         end
       end
     end
+
+    context 'when $regularExpression is nested in $regex' do
+      context 'with options' do
+        let(:input) do
+          {
+            "$regex" => {
+              "$regularExpression" => { "pattern" => "foo*", "options" => "" },
+            },
+            "$options" => "ix",
+          }
+        end
+
+        it 'parses' do
+          parsed.should == {
+            '$regex' => BSON::Regexp::Raw.new('foo*'), '$options' => 'ix'
+          }
+        end
+      end
+
+      context 'without options' do
+        let(:input) do
+          {
+            "$regex" => {
+              "$regularExpression" => { "pattern" => "foo*", "options" => "" },
+            },
+          }
+        end
+
+        it 'parses' do
+          parsed.should == {
+            '$regex' => BSON::Regexp::Raw.new('foo*'),
+          }
+        end
+      end
+    end
   end
 end
