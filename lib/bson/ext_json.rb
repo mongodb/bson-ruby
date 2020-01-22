@@ -325,7 +325,7 @@ module BSON
           unless hash['$regex'].is_a?(String)
             raise "Invalid $regex pattern: #{hash['$regex']}"
           end
-          unless hash['$options'].is_a?(String) || hash['$options'].is_a?(Integer)
+          unless hash['$options'].is_a?(String)
             raise "Invalid $regex options: #{hash['$options']}"
           end
 
