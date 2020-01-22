@@ -253,4 +253,24 @@ describe BSON::Int32 do
       expect(obj.value).to eq(12345)
     end
   end
+
+  describe '#as_extended_json' do
+    context 'canonical mode' do
+      it 'returns $numberInt' do
+        described_class.new(42).as_extended_json.should == {'$numberInt' => '42'}
+      end
+    end
+
+    context 'relaxed mode' do
+      it 'returns integer' do
+        described_class.new(42).as_extended_json(mode: :relaxed).should == 42
+      end
+    end
+
+    context 'legacy mode' do
+      it 'returns integer' do
+        described_class.new(42).as_extended_json(mode: :legacy).should be 42
+      end
+    end
+  end
 end
