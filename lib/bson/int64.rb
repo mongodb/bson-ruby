@@ -128,7 +128,7 @@ module BSON
     #
     # @return [ Hash | Integer ] The extended json representation.
     def as_extended_json(**options)
-      if options[:mode] == :relaxed
+      if options[:mode] == :relaxed || options[:mode] == :legacy
         value
       else
         {'$numberLong' => value.to_s}

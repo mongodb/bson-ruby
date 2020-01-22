@@ -26,4 +26,40 @@ describe Float do
     it_behaves_like "a serializable bson element"
     it_behaves_like "a deserializable bson element"
   end
+
+  describe '#to_json' do
+    it 'returns float' do
+      42.0.to_json.should == '42.0'
+    end
+  end
+
+  describe '#as_extended_json' do
+    context 'canonical mode' do
+      it 'returns $numberDouble' do
+        42.0.as_extended_json.should == {'$numberDouble' => '42.0'}
+      end
+    end
+
+    context 'relaxed mode' do
+      let(:serialized) do
+        42.0.as_extended_json(mode: :relaxed)
+      end
+
+      it 'returns float' do
+        serialized.should be_a(Float)
+        serialized.should be_within(0.00001).of(42)
+      end
+    end
+
+    context 'legacy mode' do
+      let(:serialized) do
+        42.0.as_extended_json(mode: :legacy)
+      end
+
+      it 'returns float' do
+        serialized.should be_a(Float)
+        serialized.should be_within(0.00001).of(42)
+      end
+    end
+  end
 end
