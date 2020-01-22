@@ -242,7 +242,7 @@ module BSON
             raise "Invalid $regularExpression value: #{value}"
           end
           # TODO consider returning Ruby regular expression object here
-          create_regex(value['pattern'], value['options'])
+          create_regexp(value['pattern'], value['options'])
         when '$dbPointer'
           unless value.keys.sort == %w($id $ref)
             raise "Invalid $dbPointer value: #{value}"
@@ -329,7 +329,7 @@ module BSON
             raise "Invalid $regex options: #{hash['$options']}"
           end
 
-          return create_regex(hash['$regex'], hash['$options'])
+          return create_regexp(hash['$regex'], hash['$options'])
         end
 
         verify_no_reserved_keys(hash, **options)
@@ -367,7 +367,7 @@ module BSON
       Binary.new(Base64.decode64(encoded_value), type)
     end
 
-    module_function def create_regex(pattern, options)
+    module_function def create_regexp(pattern, options)
       Regexp::Raw.new(pattern, options)
     end
   end
