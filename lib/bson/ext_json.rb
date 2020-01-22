@@ -205,7 +205,7 @@ module BSON
           Decimal128.new(value)
         when '$binary'
           unless value.is_a?(Hash)
-            raise "Invalid $binary value; #{value}"
+            raise "Invalid $binary value: #{value}"
           end
           unless value.keys.sort == %w(base64 subType)
             raise "Invalid $binary value: #{value}"
