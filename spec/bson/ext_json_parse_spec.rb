@@ -127,4 +127,58 @@ describe "BSON::ExtJSON.parse" do
       end
     end
   end
+
+  context 'when input is a binary' do
+    let(:data) do
+      Base64.decode64("//8=")
+    end
+
+    context 'in current format' do
+      let(:input) do
+        { "$binary" => { "base64"=>"//8=", "subType"=>"00" } }
+      end
+
+      context 'when :mode is nil' do
+        let(:mode) { nil }
+
+        it 'returns BSON::Binary instance' do
+          parsed.should be_a(BSON::Binary)
+          parsed.data.should == data
+        end
+      end
+
+      context 'when mode is :bson' do
+        let(:mode) { :bson }
+
+        it 'returns BSON::Binary instance' do
+          parsed.should be_a(BSON::Binary)
+          parsed.data.should == data
+        end
+      end
+    end
+
+    context 'in legacy format' do
+      let(:input) do
+        { "$binary"=>"//8=", "$type"=>"00" }
+      end
+
+      context 'when :mode is nil' do
+        let(:mode) { nil }
+
+        it 'returns BSON::Binary instance' do
+          parsed.should be_a(BSON::Binary)
+          parsed.data.should == data
+        end
+      end
+
+      context 'when mode is :bson' do
+        let(:mode) { :bson }
+
+        it 'returns BSON::Binary instance' do
+          parsed.should be_a(BSON::Binary)
+          parsed.data.should == data
+        end
+      end
+    end
+  end
 end
