@@ -181,4 +181,61 @@ describe "BSON::ExtJSON.parse" do
       end
     end
   end
+
+  context 'when input is a regex' do
+    let(:pattern) { 'abc' }
+    let(:options) { 'im' }
+
+    context 'in current format' do
+      let(:input) do
+        { "$regularExpression" => { "pattern" => pattern, "options" => options } }
+      end
+
+      context 'when :mode is nil' do
+        let(:mode) { nil }
+
+        it 'returns a BSON::Regexp::Raw instance' do
+          parsed.should be_a(BSON::Regexp::Raw)
+          parsed.pattern.should == pattern
+          parsed.options.should == options
+        end
+      end
+
+      context 'when :mode is :bson' do
+        let(:mode) { :bson }
+
+        it 'returns a BSON::Regexp::Raw instance' do
+          parsed.should be_a(BSON::Regexp::Raw)
+          parsed.pattern.should == pattern
+          parsed.options.should == options
+        end
+      end
+    end
+
+    context 'in legacy format' do
+      let(:input) do
+        { "$regex" => pattern, "$options" => options }
+      end
+
+      context 'when :mode is nil' do
+        let(:mode) { nil }
+
+        it 'returns a BSON::Regexp::Raw instance' do
+          parsed.should be_a(BSON::Regexp::Raw)
+          parsed.pattern.should == pattern
+          parsed.options.should == options
+        end
+      end
+
+      context 'when :mode is :bson' do
+        let(:mode) { :bson }
+
+        it 'returns a BSON::Regexp::Raw instance' do
+          parsed.should be_a(BSON::Regexp::Raw)
+          parsed.pattern.should == pattern
+          parsed.options.should == options
+        end
+      end
+    end
+  end
 end

@@ -242,7 +242,7 @@ module BSON
             raise "Invalid $regularExpression value: #{value}"
           end
           # TODO consider returning Ruby regular expression object here
-          Regexp::Raw.new(value['pattern'], value['options'])
+          create_regex(value['pattern'], value['options'])
         when '$dbPointer'
           unless value.keys.sort == %w($id $ref)
             raise "Invalid $dbPointer value: #{value}"
@@ -283,16 +283,20 @@ module BSON
       if hash.length == 2
         sorted_keys = hash.keys.sort
         first_key = sorted_keys.first
-        return case first_key
-        when '$code'
+        last_key = sorted_keys.last
+
+        if first_key == '$code'
           unless sorted_keys == %w($code $scope)
             raise "Invalid $code value: #{hash}"
           end
           unless hash['$code'].is_a?(String)
             raise "Invalid $code value: #{value}"
           end
-          CodeWithScope.new(hash['$code'], map_hash(hash['$scope']))
-        when '$binary'
+
+          return CodeWithScope.new(hash['$code'], map_hash(hash['$scope']))
+        end
+
+        if first_key == '$binary'
           unless sorted_keys == %w($binary $type)
             raise "Invalid $binary value: #{hash}"
           end
@@ -303,10 +307,24 @@ module BSON
             raise "Invalid $binary subtype: #{hash['$type']}"
           end
 
-          create_binary(hash['$binary'], hash['$type'])
-        else
-          verify_no_reserved_keys(hash, **options)
+          return create_binary(hash['$binary'], hash['$type'])
         end
+
+        if last_key == '$regex'
+          unless sorted_keys == %w($options $regex)
+            raise "Invalid $regex value: #{hash}"
+          end
+          unless hash['$regex'].is_a?(String)
+            raise "Invalid $regex pattern: #{hash['$regex']}"
+          end
+          unless hash['$options'].is_a?(String)
+            raise "Invalid $regex options: #{hash['$options']}"
+          end
+
+          return create_regex(hash['$regex'], hash['$options'])
+        end
+
+        verify_no_reserved_keys(hash, **options)
       end
 
       verify_no_reserved_keys(hash, **options)
@@ -339,6 +357,10 @@ module BSON
         raise NotImplementedError, "Binary subtype #{encoded_subtype} is not currently supported"
       end
       Binary.new(Base64.decode64(encoded_value), type)
+    end
+
+    module_function def create_regex(pattern, options)
+      Regexp::Raw.new(pattern, options)
     end
   end
 end
