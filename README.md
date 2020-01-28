@@ -1,4 +1,8 @@
-BSON [![Build Status](https://secure.travis-ci.org/mongodb/bson-ruby.png?branch=master&.png)](http://travis-ci.org/mongodb/bson-ruby)  [![Code Climate](https://codeclimate.com/github/mongodb/bson-ruby.png)](https://codeclimate.com/github/mongodb/bson-ruby) [![Coverage Status](https://coveralls.io/repos/mongodb/bson-ruby/badge.png?branch=master)](https://coveralls.io/r/mongodb/bson-ruby?branch=master) [![Inline docs](http://inch-ci.org/github/mongodb/bson-ruby.svg?branch=master)](http://inch-ci.org/github/mongodb/bson-ruby)
+BSON [![Build Status](https://secure.travis-ci.org/mongodb/bson-ruby.svg?branch=master)](http://travis-ci.org/mongodb/bson-ruby)
+[![Build status Windows](https://ci.appveyor.com/api/projects/status/p5aqko7umsx351nm?svg=true)](https://ci.appveyor.com/project/p-mongo/bson-ruby/branch/master)
+[![Code Climate](https://codeclimate.com/github/mongodb/bson-ruby.svg)](https://codeclimate.com/github/mongodb/bson-ruby)
+[![Coverage Status](https://coveralls.io/repos/mongodb/bson-ruby/badge.svg?branch=master)](https://coveralls.io/r/mongodb/bson-ruby?branch=master)
+[![Inline docs](http://inch-ci.org/github/mongodb/bson-ruby.svg?branch=master)](http://inch-ci.org/github/mongodb/bson-ruby)
 ====
 
 An implementation of the BSON specification in Ruby.
