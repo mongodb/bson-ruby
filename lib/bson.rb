@@ -57,6 +57,7 @@ module BSON
 end
 
 require "bson/config"
+require "bson/error"
 require "bson/registry"
 require "bson/specialized"
 require "bson/json"

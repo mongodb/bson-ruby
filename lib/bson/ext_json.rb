@@ -117,7 +117,7 @@ module BSON
           parse_obj(item, **options)
         end
       else
-        raise "Unknown value type: #{value}"
+        raise Error::ExtJSONParseError, "Unknown value type: #{value}"
       end
     end
 
@@ -149,7 +149,7 @@ module BSON
         ref = hash.delete('$ref')
         # $ref can be a string value or an ObjectId
         unless ref.is_a?(String)
-          raise "Invalid $ref value: #{ref}"
+          raise Error::ExtJSONParseError, "Invalid $ref value: #{ref}"
         end
         # $id, if present, can be anything
         id = hash.delete('$id')
@@ -165,7 +165,7 @@ module BSON
           # $db must always be a string, if provided
           db = hash.delete('$db')
           unless db.is_a?(String)
-            raise "Invalid $db value: #{db}"
+            raise Error::ExtJSONParseError, "Invalid $db value: #{db}"
           end
           out['$db'] = db
         end
@@ -181,12 +181,12 @@ module BSON
           Symbol::Raw.new(value)
         when '$numberInt'
           unless value.is_a?(String)
-            raise "$numberInt value is of an incorrect type: #{value}"
+            raise Error::ExtJSONParseError, "$numberInt value is of an incorrect type: #{value}"
           end
           value.to_i
         when '$numberLong'
           unless value.is_a?(String)
-            raise "$numberLong value is of an incorrect type: #{value}"
+            raise Error::ExtJSONParseError, "$numberLong value is of an incorrect type: #{value}"
           end
           value = value.to_i
           if options[:mode] != :bson
@@ -197,7 +197,7 @@ module BSON
         when '$numberDouble'
           # This handles string to double conversion as well as inf/-inf/nan
           unless value.is_a?(String)
-            raise "Invalid $numberDouble value: #{value}"
+            raise Error::ExtJSONParseError, "Invalid $numberDouble value: #{value}"
           end
           BigDecimal(value).to_f
         when '$numberDecimal'
@@ -205,47 +205,47 @@ module BSON
           Decimal128.new(value)
         when '$binary'
           unless value.is_a?(Hash)
-            raise "Invalid $binary value: #{value}"
+            raise Error::ExtJSONParseError, "Invalid $binary value: #{value}"
           end
           unless value.keys.sort == %w(base64 subType)
-            raise "Invalid $binary value: #{value}"
+            raise Error::ExtJSONParseError, "Invalid $binary value: #{value}"
           end
           encoded_value = value['base64']
           unless encoded_value.is_a?(String)
-            raise "Invalid base64 value in $binary: #{value}"
+            raise Error::ExtJSONParseError, "Invalid base64 value in $binary: #{value}"
           end
           subtype = value['subType']
           unless subtype.is_a?(String)
-            raise "Invalid subType value in $binary: #{value}"
+            raise Error::ExtJSONParseError, "Invalid subType value in $binary: #{value}"
           end
           create_binary(encoded_value, subtype)
         when '$code'
           unless value.is_a?(String)
-            raise "Invalid $code value: #{value}"
+            raise Error::ExtJSONParseError, "Invalid $code value: #{value}"
           end
           Code.new(value)
         when '$timestamp'
           unless value.keys.sort == %w(i t)
-            raise "Invalid $timestamp value: #{value}"
+            raise Error::ExtJSONParseError, "Invalid $timestamp value: #{value}"
           end
           t = value['t']
           unless t.is_a?(Integer)
-            raise "Invalid t value: #{value}"
+            raise Error::ExtJSONParseError, "Invalid t value: #{value}"
           end
           i = value['i']
           unless i.is_a?(Integer)
-            raise "Invalid i value: #{value}"
+            raise Error::ExtJSONParseError, "Invalid i value: #{value}"
           end
           Timestamp.new(t, i)
         when '$regularExpression'
           unless value.keys.sort == %w(options pattern)
-            raise "Invalid $regularExpression value: #{value}"
+            raise Error::ExtJSONParseError, "Invalid $regularExpression value: #{value}"
           end
           # TODO consider returning Ruby regular expression object here
           create_regexp(value['pattern'], value['options'])
         when '$dbPointer'
           unless value.keys.sort == %w($id $ref)
-            raise "Invalid $dbPointer value: #{value}"
+            raise Error::ExtJSONParseError, "Invalid $dbPointer value: #{value}"
           end
           DbPointer.new(value['$ref'], parse_hash(value['$id']))
         when '$date'
@@ -254,25 +254,25 @@ module BSON
             ::Time.parse(value)
           when Hash
             unless value.keys.sort == %w($numberLong)
-              raise "Invalid value for $date: #{value}"
+              raise Error::ExtJSONParseError, "Invalid value for $date: #{value}"
             end
             ::Time.at(value.values.first.to_i.to_f / 1000)
           else
-            raise "Invalid value for $date: #{value}"
+            raise Error::ExtJSONParseError, "Invalid value for $date: #{value}"
           end
         when '$minKey'
           unless value == 1
-            raise "Invalid $minKey value: #{value}"
+            raise Error::ExtJSONParseError, "Invalid $minKey value: #{value}"
           end
           MinKey.new
         when '$maxKey'
           unless value == 1
-            raise "Invalid $maxKey value: #{value}"
+            raise Error::ExtJSONParseError, "Invalid $maxKey value: #{value}"
           end
           MaxKey.new
         when '$undefined'
           unless value == true
-            raise "Invalid $undefined value: #{value}"
+            raise Error::ExtJSONParseError, "Invalid $undefined value: #{value}"
           end
           Undefined.new
         else
@@ -287,10 +287,10 @@ module BSON
 
         if first_key == '$code'
           unless sorted_keys == %w($code $scope)
-            raise "Invalid $code value: #{hash}"
+            raise Error::ExtJSONParseError, "Invalid $code value: #{hash}"
           end
           unless hash['$code'].is_a?(String)
-            raise "Invalid $code value: #{value}"
+            raise Error::ExtJSONParseError, "Invalid $code value: #{value}"
           end
 
           return CodeWithScope.new(hash['$code'], map_hash(hash['$scope']))
@@ -298,13 +298,13 @@ module BSON
 
         if first_key == '$binary'
           unless sorted_keys == %w($binary $type)
-            raise "Invalid $binary value: #{hash}"
+            raise Error::ExtJSONParseError, "Invalid $binary value: #{hash}"
           end
           unless hash['$binary'].is_a?(String)
-            raise "Invalid $binary value: #{value}"
+            raise Error::ExtJSONParseError, "Invalid $binary value: #{value}"
           end
           unless hash['$type'].is_a?(String)
-            raise "Invalid $binary subtype: #{hash['$type']}"
+            raise Error::ExtJSONParseError, "Invalid $binary subtype: #{hash['$type']}"
           end
 
           return create_binary(hash['$binary'], hash['$type'])
@@ -312,7 +312,7 @@ module BSON
 
         if last_key == '$regex'
           unless sorted_keys == %w($options $regex)
-            raise "Invalid $regex value: #{hash}"
+            raise Error::ExtJSONParseError, "Invalid $regex value: #{hash}"
           end
 
           if hash['$regex'].is_a?(Hash)
@@ -323,10 +323,10 @@ module BSON
           end
 
           unless hash['$regex'].is_a?(String)
-            raise "Invalid $regex pattern: #{hash['$regex']}"
+            raise Error::ExtJSONParseError, "Invalid $regex pattern: #{hash['$regex']}"
           end
           unless hash['$options'].is_a?(String)
-            raise "Invalid $regex options: #{hash['$options']}"
+            raise Error::ExtJSONParseError, "Invalid $regex options: #{hash['$options']}"
           end
 
           return create_regexp(hash['$regex'], hash['$options'])
@@ -341,11 +341,11 @@ module BSON
     module_function def verify_no_reserved_keys(hash, **options)
       if hash.length > RESERVED_KEYS.length
         if RESERVED_KEYS.any? { |key| hash.key?(key) }
-          raise "Hash uses reserved keys but does not match a known type: #{hash}"
+          raise Error::ExtJSONParseError, "Hash uses reserved keys but does not match a known type: #{hash}"
         end
       else
         if hash.keys.any? { |key| RESERVED_KEYS_HASH.key?(key) }
-          raise "Hash uses reserved keys but does not match a known type: #{hash}"
+          raise Error::ExtJSONParseError, "Hash uses reserved keys but does not match a known type: #{hash}"
         end
       end
       map_hash(hash, **options)
