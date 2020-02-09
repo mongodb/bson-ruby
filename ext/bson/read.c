@@ -23,7 +23,7 @@ static VALUE pvt_get_int32(byte_buffer_t *b);
 static VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv);
 static VALUE pvt_get_double(byte_buffer_t *b);
 static VALUE pvt_get_string(byte_buffer_t *b);
-static VALUE pvt_get_symbol(byte_buffer_t *b, int argc, VALUE *argv);
+static VALUE pvt_get_symbol(byte_buffer_t *b, VALUE rb_buffer, int argc, VALUE *argv);
 static VALUE pvt_get_boolean(byte_buffer_t *b);
 static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv);
 static void pvt_skip_cstring(byte_buffer_t *b);
@@ -65,7 +65,7 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, 
     case BSON_TYPE_INT64: return pvt_get_int64(b, argc, argv);
     case BSON_TYPE_DOUBLE: return pvt_get_double(b);
     case BSON_TYPE_STRING: return pvt_get_string(b);
-    case BSON_TYPE_SYMBOL: return pvt_get_symbol(b, argc, argv);
+    case BSON_TYPE_SYMBOL: return pvt_get_symbol(b, rb_buffer, argc, argv);
     case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(argc, argv, rb_buffer);
     case BSON_TYPE_DOCUMENT: return rb_bson_byte_buffer_get_hash(argc, argv, rb_buffer);
     case BSON_TYPE_BOOLEAN: return pvt_get_boolean(b);
@@ -156,19 +156,25 @@ VALUE pvt_get_string(byte_buffer_t *b)
 /**
  * Reads a UTF-8 string out of the byte buffer. If the argc/argv arguments
  * have a :mode option with the value of :bson, wraps the string in a
- * BSON::Symbol::Raw. Returns either the read string or the BSON::Symbol::Raw
- * instance.
+ * BSON::Symbol::Raw. Otherwise consults the BSON registry to determine
+ * which class to instantiate (String in bson-ruby, overridden to Symbol by
+ * the Ruby driver). Returns either a BSON::Symbol::Raw, Symbol or String
+ * value.
  */
-VALUE pvt_get_symbol(byte_buffer_t *b, int argc, VALUE *argv)
+VALUE pvt_get_symbol(byte_buffer_t *b, VALUE rb_buffer, int argc, VALUE *argv)
 {
-  VALUE value = pvt_get_string(b);
-  
+  VALUE value, klass;
+
   if (pvt_get_mode_option(argc, argv) == BSON_MODE_BSON) {
-    VALUE klass = pvt_const_get_3("BSON", "Symbol", "Raw");
+    value = pvt_get_string(b);
+    klass = pvt_const_get_3("BSON", "Symbol", "Raw");
     value = rb_funcall(klass, rb_intern("new"), 1, value);
-    RB_GC_GUARD(klass);
+  } else {
+    klass = rb_funcall(rb_bson_registry, rb_intern("get"), 1, INT2FIX(BSON_TYPE_SYMBOL));
+    value = rb_funcall(klass, rb_intern("from_bson"), 1, rb_buffer);
   }
   
+  RB_GC_GUARD(klass);
   return value;
 }
 
