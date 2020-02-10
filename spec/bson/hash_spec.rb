@@ -157,6 +157,76 @@ describe Hash do
       it_behaves_like "a serializable bson element"
       it_behaves_like "a deserializable bson element"
     end
+
+    context 'with symbol values' do
+      let(:value) { :foo }
+
+      let(:serialized) do
+        {foo: value}.to_bson.to_s
+      end
+
+      def perform_test(bson_type_to_use)
+        Symbol.class_eval do
+          alias_method :bson_type_orig, :bson_type
+          define_method(:bson_type) do
+            bson_type_to_use
+          end
+        end
+
+        begin
+          yield
+        ensure
+          Symbol.class_eval do
+            alias_method :bson_type, :bson_type_orig
+            remove_method :bson_type_orig
+          end
+        end
+      end
+
+      let(:bson_with_symbol) do
+        "\x12\x00\x00\x00\x0Efoo\x00\x04\x00\x00\x00bar\x00\x00".force_encoding('binary')
+      end
+
+      let(:deserialized) do
+        Hash.from_bson(BSON::ByteBuffer.new(bson_with_symbol))
+      end
+
+      context 'when Symbol#bson_type is set to symbol' do
+        let(:bson_type_to_use) { BSON::Symbol::BSON_TYPE }
+
+        let(:expected) do
+          "\x12\x00\x00\x00\x0Efoo\x00\x04\x00\x00\x00foo\x00\x00".force_encoding('binary')
+        end
+
+        it 'serializes to BSON symbol' do
+          perform_test(bson_type_to_use) do
+            serialized
+          end.should == expected
+        end
+
+        it 'deserializes to Symbol' do
+          deserialized.should == {'foo' => :bar}
+        end
+      end
+
+      context 'when Symbol#bson_type is set to string' do
+        let(:bson_type_to_use) { BSON::String::BSON_TYPE }
+
+        let(:expected) do
+          "\x12\x00\x00\x00\x02foo\x00\x04\x00\x00\x00foo\x00\x00".force_encoding('binary')
+        end
+
+        it 'serializes to BSON string' do
+          perform_test(bson_type_to_use) do
+            serialized
+          end.should == expected
+        end
+
+        it 'deserializes to Symbol' do
+          deserialized.should == {'foo' => :bar}
+        end
+      end
+    end
   end
 
   describe '#to_bson' do

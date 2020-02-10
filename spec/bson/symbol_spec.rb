@@ -50,6 +50,48 @@ describe Symbol do
         deserialized.to_sym.should be obj
       end
     end
+
+    context 'when changing bson_type' do
+      def perform_test(bson_type_to_use)
+        Symbol.class_eval do
+          alias_method :bson_type_orig, :bson_type
+          define_method(:bson_type) do
+            bson_type_to_use
+          end
+        end
+
+        begin
+          yield
+        ensure
+          Symbol.class_eval do
+            alias_method :bson_type, :bson_type_orig
+            remove_method :bson_type_orig
+          end
+        end
+      end
+
+      let(:value) { :foo }
+
+      let(:serialized) do
+        value.to_bson.to_s
+      end
+
+      context 'when bson_type is set to symbol' do
+        it 'serializes to BSON string' do
+          perform_test(BSON::Symbol::BSON_TYPE) do
+            serialized
+          end.should == "\x04\x00\x00\x00foo\x00".force_encoding('binary')
+        end
+      end
+
+      context 'when bson_type is set to string' do
+        it 'serializes to BSON string' do
+          perform_test(BSON::String::BSON_TYPE) do
+            serialized
+          end.should == "\x04\x00\x00\x00foo\x00".force_encoding('binary')
+        end
+      end
+    end
   end
 
   describe "#to_bson_key" do
