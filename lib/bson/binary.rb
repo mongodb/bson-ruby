@@ -267,7 +267,13 @@ module BSON
     # @since 2.0.0
     def self.from_bson(buffer, **options)
       length = buffer.get_int32
-      type = TYPES[buffer.get_byte]
+      type_byte = buffer.get_byte
+      type = TYPES[type_byte]
+      if type.nil?
+        raise Error::UnsupportedBinarySubtype,
+          "BSON data contains unsupported binary subtype #{'0x%02x' % type_byte.ord}"
+      end
+
       length = buffer.get_int32 if type == :old
       data = buffer.get_bytes(length)
       new(data, type)
