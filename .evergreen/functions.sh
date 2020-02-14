@@ -48,6 +48,12 @@ _detect_arch() {
   echo $arch
 }
 
+set_home() {
+  if test -z "$HOME"; then
+    export HOME=$(pwd)
+  fi
+}
+
 set_fcv() {
   if test -n "$FCV"; then
     mongo --eval 'assert.commandWorked(db.adminCommand( { setFeatureCompatibilityVersion: "'"$FCV"'" } ));' "$MONGODB_URI"
@@ -55,10 +61,36 @@ set_fcv() {
   fi
 }
 
+add_uri_option() {
+  opt=$1
+  
+  if ! echo $MONGODB_URI |sed -e s,//,, |grep -q /; then
+    MONGODB_URI="$MONGODB_URI/"
+  fi
+  
+  if ! echo $MONGODB_URI |grep -q '?'; then
+    MONGODB_URI="$MONGODB_URI?"
+  fi
+  
+  MONGODB_URI="$MONGODB_URI&$opt"
+}
+
 set_env_vars() {
   AUTH=${AUTH:-noauth}
   SSL=${SSL:-nossl}
   MONGODB_URI=${MONGODB_URI:-}
+
+  # drivers-evergreen-tools do not set tls parameter in URI when the
+  # deployment uses TLS, repair this
+  if test "$SSL" = ssl && ! echo $MONGODB_URI |grep -q tls=; then
+    add_uri_option tls=true
+  fi
+  
+  # Compression is handled via an environment variable, convert to URI option
+  if test "$COMPRESSOR" = zlib && ! echo $MONGODB_URI |grep -q compressors=; then
+    add_uri_option compressors=zlib
+  fi
+
   TOPOLOGY=${TOPOLOGY:-server}
   DRIVERS_TOOLS=${DRIVERS_TOOLS:-}
 
@@ -66,12 +98,19 @@ set_env_vars() {
     export ROOT_USER_NAME="bob"
     export ROOT_USER_PWD="pwd123"
   fi
-  if [ "$COMPRESSOR" == "zlib" ]; then
-    export COMPRESSOR="zlib"
-  fi
+
+  export MONGODB_URI
+
   export CI=evergreen
+
   # JRUBY_OPTS were initially set for Mongoid
-  export JRUBY_OPTS="--server -J-Xms512m -J-Xmx1G"
+  export JRUBY_OPTS="--server -J-Xms512m -J-Xmx2G"
+
+  if test "$BSON" = min; then
+    export BUNDLE_GEMFILE=gemfiles/bson_min.gemfile
+  elif test "$BSON" = master; then
+    export BUNDLE_GEMFILE=gemfiles/bson_master.gemfile
+  fi
 }
 
 setup_ruby() {
@@ -79,7 +118,7 @@ setup_ruby() {
     echo "Empty RVM_RUBY, aborting"
     exit 2
   fi
-  
+
   ls -l /opt
 
   # Necessary for jruby
@@ -88,7 +127,7 @@ setup_ruby() {
     export JAVACMD=/opt/java/jdk8/bin/java
     export PATH=$PATH:/opt/java/jdk8/bin
   fi
-    
+
   # ppc64le has it in a different place
   if test -z "$JAVACMD" && [ -f /usr/lib/jvm/java-1.8.0/bin/java ]; then
     export JAVACMD=/usr/lib/jvm/java-1.8.0/bin/java
@@ -102,22 +141,22 @@ setup_ruby() {
     export PATH=`pwd`/ruby-head/bin:`pwd`/ruby-head/lib/ruby/gems/2.6.0/bin:$PATH
     ruby --version
     ruby --version |grep dev
-    
+
     #rvm reinstall $RVM_RUBY
   else
     if true; then
-    
+
     # For testing toolchains:
-    toolchain_url=https://s3.amazonaws.com//mciuploads/mongo-ruby-toolchain/`host_arch`/08f8a795f7c52682f8696866284d9fcd4a5a979b/mongo_ruby_driver_toolchain_`host_arch |tr - _`_08f8a795f7c52682f8696866284d9fcd4a5a979b_20_01_02_04_05_46.tar.gz
-    curl -fL $toolchain_url |tar zxf -
+    toolchain_url=https://s3.amazonaws.com//mciuploads/mongo-ruby-toolchain/`host_arch`/f11598d091441ffc8d746aacfdc6c26741a3e629/mongo_ruby_driver_toolchain_`host_arch |tr - _`_f11598d091441ffc8d746aacfdc6c26741a3e629_20_02_01_23_51_34.tar.gz
+    curl --retry 3 -fL $toolchain_url |tar zxf -
     export PATH=`pwd`/rubies/$RVM_RUBY/bin:$PATH
-    
+
     # Attempt to get bundler to report all errors - so far unsuccessful
     #curl -o bundler-openssl.diff https://github.com/bundler/bundler/compare/v2.0.1...p-mongo:report-errors.diff
     #find . -path \*/lib/bundler/fetcher.rb -exec patch {} bundler-openssl.diff \;
-    
+
     else
-    
+
     # Normal operation
     if ! test -d $HOME/.rubies/$RVM_RUBY/bin; then
       echo "Ruby directory does not exist: $HOME/.rubies/$RVM_RUBY/bin" 1>&2
@@ -130,9 +169,9 @@ setup_ruby() {
       exit 2
     fi
     export PATH=$HOME/.rubies/$RVM_RUBY/bin:$PATH
-    
+
     fi
-    
+
     ruby --version
 
     # Ensure we're using the right ruby
@@ -157,11 +196,19 @@ EOH
   fi
 }
 
+bundle_install() {
+  #which bundle
+  #bundle --version
+  args=--quiet
+  if test -n "$BUNDLE_GEMFILE"; then
+    args="$args --gemfile=$BUNDLE_GEMFILE"
+  fi
+  echo "Running bundle install $args"
+  bundle install $args
+}
+
 install_deps() {
-  echo "Installing all gem dependencies"
-  which bundle
-  bundle --version
-  bundle install
+  bundle_install
   bundle exec rake clean
 }
 
@@ -176,18 +223,29 @@ kill_jruby() {
 prepare_server() {
   arch=$1
   version=$2
-  
+
   url=http://downloads.10gen.com/linux/mongodb-linux-x86_64-enterprise-$arch-$version.tgz
+  prepare_server_from_url $url
+}
+
+prepare_server_from_url() {
+  url=$1
+
   mongodb_dir="$MONGO_ORCHESTRATION_HOME"/mdb
   mkdir -p "$mongodb_dir"
-  curl $url |tar xz -C "$mongodb_dir" -f -
+  curl --retry 3 $url |tar xz -C "$mongodb_dir" -f -
   BINDIR="$mongodb_dir"/`basename $url |sed -e s/.tgz//`/bin
   export PATH="$BINDIR":$PATH
 }
 
 install_mlaunch() {
-  pythonpath="$MONGO_ORCHESTRATION_HOME"/python
-  pip install -t "$pythonpath" 'mtools[mlaunch]'
-  export PATH="$pythonpath/bin":$PATH
-  export PYTHONPATH="$pythonpath"
+  find /opt/python/ |grep bin/python$
+  export PATH=/opt/python/3.7/bin:$PATH
+  python -V
+  python3 -V
+  pip install --user virtualenv
+  venvpath="$MONGO_ORCHESTRATION_HOME"/venv
+  virtualenv -p python3 $venvpath
+  . $venvpath/bin/activate
+  pip install 'mtools[mlaunch]'
 }
