@@ -71,7 +71,12 @@ module BSON
       utc_time = utc
       if options[:mode] == :relaxed && (1970..9999).include?(utc_time.year)
         if utc_time.usec != 0
-          utc_time = utc_time.floor(3)
+          if utc_time.respond_to?(:floor)
+            # Ruby 2.7+
+            utc_time = utc_time.floor(3)
+          else
+            utc_time -= utc_time.usec.divmod(1000).last.to_r / 1000000
+          end
           {'$date' => utc_time.strftime('%Y-%m-%dT%H:%M:%S.%LZ')}
         else
           {'$date' => utc_time.strftime('%Y-%m-%dT%H:%M:%SZ')}
