@@ -27,6 +27,9 @@ group :development, :test do
       gem 'byebug', platforms: :mri
     end
     gem 'pry', platforms: :jruby
+    gem 'pry-nav', platforms: :jruby
+    # https://github.com/jruby/jruby/wiki/UsingTheJRubyDebugger
+    gem 'ruby-debug', platforms: :jruby
   end
 end
 
