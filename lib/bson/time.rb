@@ -54,7 +54,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      value = to_i * 1000 + usec.floor(-3) / 1000
+      value = to_i * 1000 + usec.divmod(1000).first
       buffer.put_int64(value)
     end
 
@@ -83,7 +83,7 @@ module BSON
         end
       else
         sec = utc_time.to_i
-        msec = utc_time.usec.floor(-3) / 1000
+        msec = utc_time.usec.divmod(1000).first
         {'$date' => {'$numberLong' => (sec * 1000 + msec).to_s}}
       end
     end
