@@ -112,7 +112,13 @@ module BSON
           while (type = buffer.get_byte) != NULL_BYTE
             field = buffer.get_cstring
             cls = BSON::Registry.get(type, field)
-            value = cls.from_bson(buffer, **options)
+            value = if options.empty?
+              # Compatibility with the older Ruby driver versions which define
+              # a DBRef class with from_bson accepting a single argument.
+              cls.from_bson(buffer)
+            else
+              cls.from_bson(buffer, **options)
+            end
             hash.store(field, value)
           end
           hash
