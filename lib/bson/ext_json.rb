@@ -256,7 +256,8 @@ module BSON
             unless value.keys.sort == %w($numberLong)
               raise Error::ExtJSONParseError, "Invalid value for $date: #{value}"
             end
-            ::Time.at(value.values.first.to_i.to_f / 1000)
+            sec, msec = value.values.first.to_i.divmod(1000)
+            ::Time.at(sec, msec*1000)
           else
             raise Error::ExtJSONParseError, "Invalid value for $date: #{value}"
           end

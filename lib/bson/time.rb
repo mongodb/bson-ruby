@@ -17,6 +17,20 @@ module BSON
   # Injects behaviour for encoding and decoding time values to
   # and from raw bytes as specified by the BSON spec.
   #
+  # @note
+  #   Ruby time can have nanosecond precision:
+  #   +Time.utc(2020, 1, 1, 0, 0, 0, 999_999_999/1000r)+
+  #   +Time#usec+ returns the number of microseconds in the time, and
+  #   if the time has nanosecond precision the sub-microsecond part is
+  #   truncated (the value is floored to the nearest millisecond).
+  #   MongoDB only supports millisecond precision; we truncate the
+  #   sub-millisecond part of microseconds (floor to the nearest millisecond).
+  #   Note that if a time is constructed from a floating point value,
+  #   the microsecond value may round to the starting floating point value
+  #   but due to flooring, the time after serialization may end up to
+  #   be different than the starting floating point value.
+  #   It is recommended that time calculations use integer math only.
+  #
   # @see http://bsonspec.org/#/specification
   #
   # @since 2.0.0
@@ -29,6 +43,8 @@ module BSON
 
     # Get the time as encoded BSON.
     #
+    # @note The time is floored to the nearest millisecond.
+    #
     # @example Get the time as encoded BSON.
     #   Time.new(2012, 1, 1, 0, 0, 0).to_bson
     #
@@ -38,14 +54,14 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      # A previous version of this method used the following implementation:
-      # buffer.put_int64((to_i * 1000) + (usec / 1000))
-      # Turns out, usec returned incorrect value - 999 for 1 millisecond.
-      buffer.put_int64((to_f * 1000).round)
+      value = to_i * 1000 + usec.floor(-3) / 1000
+      buffer.put_int64(value)
     end
 
     # Converts this object to a representation directly serializable to
     # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # @note The time is floored to the nearest millisecond.
     #
     # @option options [ true | false ] :relaxed Whether to produce relaxed
     #   extended JSON representation.
@@ -55,12 +71,15 @@ module BSON
       utc_time = utc
       if options[:mode] == :relaxed && (1970..9999).include?(utc_time.year)
         if utc_time.usec != 0
+          utc_time = utc_time.floor(3)
           {'$date' => utc_time.strftime('%Y-%m-%dT%H:%M:%S.%LZ')}
         else
           {'$date' => utc_time.strftime('%Y-%m-%dT%H:%M:%SZ')}
         end
       else
-        {'$date' => {'$numberLong' => (utc_time.to_f * 1000).round.to_s}}
+        sec = utc_time.to_i
+        msec = utc_time.usec.floor(-3) / 1000
+        {'$date' => {'$numberLong' => (sec * 1000 + msec).to_s}}
       end
     end
 

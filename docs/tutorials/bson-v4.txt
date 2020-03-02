@@ -555,12 +555,26 @@ them.
      - ``{ "$regex" : "[abc]", "$options" : "i" }``
 
 
-Special Ruby Date Classes
--------------------------
+Time Instances
+--------------
 
-Ruby's ``Date`` and ``DateTime`` are able to be serialized, but when they are
-deserialized, they will always be returned as a ``Time`` since the BSON
-specification only has a ``Time`` type and knows nothing about Ruby.
+Times in Ruby can have nanosecond precision. Times in BSON (and MongoDB)
+can only have microsecond precision. When Ruby ``Time`` instances are
+serialized to BSON or Extended JSON, the times are floored to the nearest
+millisecond.
+
+Because of this flooring, applications are strongly recommended to perform
+all time calculations using integer math, as inexactness of floating point
+calculations may produce unexpected results.
+
+
+Date And DateTime Instances
+---------------------------
+
+BSON only supports storing the time as the number of seconds since the
+Unix epoch. Ruby's ``Date`` and ``DateTime`` instances can be serialized
+to BSON, but when the BSON is deserialized the times will be returned as
+``Time`` instances.
 
 
 Regular Expressions
