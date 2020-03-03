@@ -95,7 +95,13 @@ module BSON
     #
     # @see http://bsonspec.org/#/specification
     def self.from_bson(buffer, **options)
-      new(buffer.get_string, ObjectId.from_bson(buffer, **options))
+      ref = buffer.get_string
+      id = if options.empty?
+        ObjectId.from_bson(buffer)
+      else
+        ObjectId.from_bson(buffer, **options)
+      end
+      new(ref, id)
     end
 
     # Register this type when the module is loaded.
