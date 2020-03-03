@@ -563,6 +563,20 @@ can only have microsecond precision. When Ruby ``Time`` instances are
 serialized to BSON or Extended JSON, the times are floored to the nearest
 millisecond.
 
+.. note::
+
+  The time as always rounded down. If the time precedes the Unix epoch
+  (January 1, 1970 00:00:00 UTC), the absolute value of the time would
+  increase:
+
+  .. code-block:: ruby
+
+  time = Time.utc(1960, 1, 1, 0, 0, 0, 999_999)
+  time.to_f
+  # => -315619199.000001
+  time.floor(3).to_f
+  # => -315619199.001
+
 Because of this flooring, applications are strongly recommended to perform
 all time calculations using integer math, as inexactness of floating point
 calculations may produce unexpected results.
