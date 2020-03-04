@@ -251,13 +251,13 @@ module BSON
         when '$date'
           case value
           when String
-            ::Time.parse(value)
+            ::Time.parse(value).utc
           when Hash
             unless value.keys.sort == %w($numberLong)
               raise Error::ExtJSONParseError, "Invalid value for $date: #{value}"
             end
             sec, msec = value.values.first.to_i.divmod(1000)
-            ::Time.at(sec, msec*1000)
+            ::Time.at(sec, msec*1000).utc
           else
             raise Error::ExtJSONParseError, "Invalid value for $date: #{value}"
           end

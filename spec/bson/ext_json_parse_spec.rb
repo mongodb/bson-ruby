@@ -50,11 +50,43 @@ describe "BSON::ExtJSON.parse" do
     end
   end
 
-  context 'when input is a timestamp' do
+  context 'when input is a BSON timestamp' do
     let(:input) { {'$timestamp' => {'t' => 12345, 'i' => 42}} }
 
-    it 'returns a timestamp object' do
+    it 'returns a BSON::Timestamp instance' do
       parsed.should == BSON::Timestamp.new(12345, 42)
+    end
+  end
+
+  context 'when input is an ISO time' do
+    let(:input) { {'$date' => '1970-01-01T00:00:04Z'} }
+
+    it 'returns a Time instance ' do
+      parsed.should be_a(Time)
+    end
+
+    it 'returns a Time instance with correct value' do
+      parsed.should == Time.at(4)
+    end
+
+    it 'returns a Time instance in UTC' do
+      parsed.zone.should == 'UTC'
+    end
+  end
+
+  context 'when input is a Unix timestamp' do
+    let(:input) { {'$date' => {'$numberLong' => '4000'}} }
+
+    it 'returns a Time instance ' do
+      parsed.should be_a(Time)
+    end
+
+    it 'returns a Time instance with correct value' do
+      parsed.should == Time.at(4)
+    end
+
+    it 'returns a Time instance in UTC' do
+      parsed.zone.should == 'UTC'
     end
   end
 
