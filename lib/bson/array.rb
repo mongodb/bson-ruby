@@ -122,7 +122,13 @@ module BSON
           buffer.get_int32 # throw away the length
           while (type = buffer.get_byte) != NULL_BYTE
             buffer.get_cstring
-            array << BSON::Registry.get(type).from_bson(buffer, **options)
+            cls = BSON::Registry.get(type)
+            value = if options.empty?
+              cls.from_bson(buffer)
+            else
+              cls.from_bson(buffer, **options)
+            end
+            array << value
           end
           array
         end
