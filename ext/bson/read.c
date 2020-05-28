@@ -17,6 +17,7 @@
 #include "bson-native.h"
 #include <ruby/encoding.h>
 
+static void pvt_raise_decode_error(volatile VALUE msg);
 static void pvt_validate_length(byte_buffer_t *b);
 static uint8_t pvt_get_type_byte(byte_buffer_t *b);
 static VALUE pvt_get_int32(byte_buffer_t *b);
@@ -27,6 +28,11 @@ static VALUE pvt_get_symbol(byte_buffer_t *b, VALUE rb_buffer, int argc, VALUE *
 static VALUE pvt_get_boolean(byte_buffer_t *b);
 static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv);
 static void pvt_skip_cstring(byte_buffer_t *b);
+
+void pvt_raise_decode_error(volatile VALUE msg) {
+  VALUE klass = pvt_const_get_3("BSON", "Error", "BSONDecodeError");
+  rb_exc_raise(rb_exc_new_str(klass, msg));
+}
 
 /**
  * validate the buffer contains the amount of bytes the array / hash claimns
@@ -139,17 +145,30 @@ VALUE rb_bson_byte_buffer_get_string(VALUE self)
 
 VALUE pvt_get_string(byte_buffer_t *b)
 {
-  int32_t length;
   int32_t length_le;
+  int32_t length;
+  char *str_ptr;
   VALUE string;
+  unsigned char last_byte;
 
   ENSURE_BSON_READ(b, 4);
-  memcpy(&length, READ_PTR(b), 4);
-  length_le = BSON_UINT32_FROM_LE(length);
-  b->read_position += 4;
-  ENSURE_BSON_READ(b, length_le);
-  string = rb_enc_str_new(READ_PTR(b), length_le - 1, rb_utf8_encoding());
-  b->read_position += length_le;
+  memcpy(&length_le, READ_PTR(b), 4);
+  length = BSON_UINT32_FROM_LE(length_le);
+  if (length < 0) {
+    pvt_raise_decode_error(rb_sprintf("String length is negative: %d", length));
+  }
+  if (length == 0) {
+    pvt_raise_decode_error(rb_str_new_cstr("String length is zero but string must be null-terminated"));
+  }
+  ENSURE_BSON_READ(b, 4 + length);
+  str_ptr = READ_PTR(b) + 4;
+  last_byte = *(READ_PTR(b) + 4 + length_le - 1);
+  if (last_byte != 0) {
+    pvt_raise_decode_error(rb_sprintf("Last byte of the string is not null: 0x%x", (int) last_byte));
+  }
+  /* TODO validate the string contains valid UTF-8 */
+  string = rb_enc_str_new(str_ptr, length - 1, rb_utf8_encoding());
+  b->read_position += 4 + length_le;
   return string;
 }
 
