@@ -354,10 +354,13 @@ VALUE rb_bson_byte_buffer_get_array(int argc, VALUE *argv, VALUE self){
   byte_buffer_t *b;
   VALUE array = Qnil;
   uint8_t type;
+  int32_t length;
+  char *start_ptr;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
-  pvt_validate_length(b);
+  start_ptr = READ_PTR(b);
+  length = pvt_validate_length(b);
 
   array = rb_ary_new();
   while((type = pvt_get_type_byte(b)) != 0){
@@ -365,5 +368,10 @@ VALUE rb_bson_byte_buffer_get_array(int argc, VALUE *argv, VALUE self){
     rb_ary_push(array,  pvt_read_field(b, self, type, argc, argv));
   }
   RB_GC_GUARD(array);
+  
+  if (READ_PTR(b) - start_ptr != length) {
+    pvt_raise_decode_error(rb_sprintf("Expected to read %d bytes for the hash but read %ld bytes", length, READ_PTR(b) - start_ptr));
+  }
+  
   return array;
 }
