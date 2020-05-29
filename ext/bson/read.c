@@ -127,9 +127,20 @@ VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i)
 }
 
 VALUE pvt_get_boolean(byte_buffer_t *b){
-  VALUE result = Qnil;
+  VALUE result;
+  char byte_value;
   ENSURE_BSON_READ(b, 1);
-  result = *READ_PTR(b) == 1 ? Qtrue: Qfalse;
+  byte_value = *READ_PTR(b);
+  switch (byte_value) {
+    case 1:
+      result = Qtrue;
+      break;
+    case 0:
+      result = Qfalse;
+      break;
+    default:
+      pvt_raise_decode_error(rb_sprintf("Invalid boolean byte value: %d", (int) byte_value));
+  }
   b->read_position += 1;
   return result;
 }
