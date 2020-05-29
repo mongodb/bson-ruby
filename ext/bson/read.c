@@ -168,8 +168,11 @@ VALUE pvt_get_string(byte_buffer_t *b)
   if (last_byte != 0) {
     pvt_raise_decode_error(rb_sprintf("Last byte of the string is not null: 0x%x", (int) last_byte));
   }
-  /* TODO validate the string contains valid UTF-8 */
   string = rb_enc_str_new(str_ptr, length - 1, rb_utf8_encoding());
+  /* https://stackoverflow.com/questions/8635578/how-to-check-whether-the-character-is-utf-8 */
+  if (rb_funcall(string, rb_intern("valid_encoding?"), 0) != Qtrue) {
+    pvt_raise_decode_error(rb_str_new_cstr("Invalid UTF-8 in string"));
+  }
   b->read_position += 4 + length_le;
   return string;
 }
