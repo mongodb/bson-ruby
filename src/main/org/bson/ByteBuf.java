@@ -18,6 +18,7 @@ package org.bson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import org.jcodings.specific.UTF8Encoding;
 import org.jruby.Ruby;
 import org.jruby.RubyBignum;
 import org.jruby.RubyClass;
+import org.jruby.RubyException;
 import org.jruby.RubyFloat;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyInteger;
@@ -36,8 +38,8 @@ import org.jruby.RubyNumeric;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.RubySymbol;
-import java.math.BigInteger;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
@@ -318,8 +320,15 @@ public class ByteBuf extends RubyObject {
     this.readPosition += 4;
     byte[] stringBytes = new byte[length];
     this.buffer.get(stringBytes);
-    if (stringBytes[length-1] != 0) {
-      throw context.runtime.newArgumentError("Last byte was not null: " + String.format("%02X", stringBytes[length-1]));
+    if (stringBytes.length != length) {
+      RubyClass cls = context.runtime.getClass("BSON::Error::BSONDecodeError");
+      RubyString msg = RubyString.newString(context.runtime, String.format("Failed to read %d bytes: %d bytes read", length, stringBytes.length));
+      throw ((RubyException) cls.newInstance(context, msg, Block.NULL_BLOCK)).toThrowable();
+    }
+    if (stringBytes[stringBytes.length-1] != 0) {
+      RubyClass cls = context.runtime.getClass("BSON::Error::BSONDecodeError");
+      RubyString msg = RubyString.newString(context.runtime, "Last byte was not null: " + String.format("%02X", stringBytes[length-1]));
+      throw ((RubyException) cls.newInstance(context, msg, Block.NULL_BLOCK)).toThrowable();
     }
     byte[] bytes = Arrays.copyOfRange(stringBytes, 0, stringBytes.length - 1);
     RubyString string = getUTF8String(bytes);
