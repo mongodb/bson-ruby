@@ -243,7 +243,7 @@ public class ByteBuf extends RubyObject {
   }
 
   /**
-   * Get a cstring from the buffer.
+   * Get a CString from the buffer.
    *
    * @author Durran Jordan
    * @since 2015.09.26
@@ -312,12 +312,15 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "get_string")
-  public RubyString getString() {
+  public RubyString getString(ThreadContext context) {
     ensureBsonRead();
     int length = this.buffer.getInt();
     this.readPosition += 4;
     byte[] stringBytes = new byte[length];
     this.buffer.get(stringBytes);
+    if (stringBytes[length-1] != 0) {
+      throw context.runtime.newArgumentError("Last byte was not null: " + String.format("%02X", stringBytes[length-1]));
+    }
     byte[] bytes = Arrays.copyOfRange(stringBytes, 0, stringBytes.length - 1);
     RubyString string = getUTF8String(bytes);
     this.readPosition += length;
