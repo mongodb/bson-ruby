@@ -252,14 +252,14 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "get_cstring")
-  public RubyString getCString() {
+  public RubyString getCString(ThreadContext context) {
     ensureBsonRead();
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     byte next = NULL_BYTE;
     while((next = this.buffer.get()) != NULL_BYTE) {
       bytes.write(next);
     }
-    RubyString string = getUTF8String(bytes.toByteArray());
+    RubyString string = getUTF8String(context, bytes.toByteArray());
     this.readPosition += (bytes.size() + 1);
     return string;
   }
@@ -331,7 +331,7 @@ public class ByteBuf extends RubyObject {
       throw ((RubyException) cls.newInstance(context, msg, Block.NULL_BLOCK)).toThrowable();
     }
     byte[] bytes = Arrays.copyOfRange(stringBytes, 0, stringBytes.length - 1);
-    RubyString string = getUTF8String(bytes);
+    RubyString string = getUTF8String(context, bytes);
     this.readPosition += length;
     return string;
   }
@@ -670,8 +670,13 @@ public class ByteBuf extends RubyObject {
     }
   }
 
-  private RubyString getUTF8String(final byte[] bytes) {
-    return RubyString.newString(getRuntime(), new ByteList(bytes, UTF_8));
+  private RubyString getUTF8String(ThreadContext context, final byte[] bytes) {
+    // This call appears to not validate that the byte sequence is valid UTF-8
+    RubyString str = RubyString.newString(context.runtime, bytes, 0, bytes.length, UTF_8);
+    // ... hence validate manually:
+    convertToUtf8(context, str);
+    
+    return str;
   }
 
   /**
