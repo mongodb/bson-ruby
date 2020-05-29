@@ -18,7 +18,7 @@
 #include <ruby/encoding.h>
 
 static void pvt_raise_decode_error(volatile VALUE msg);
-static void pvt_validate_length(byte_buffer_t *b);
+static int32_t pvt_validate_length(byte_buffer_t *b);
 static uint8_t pvt_get_type_byte(byte_buffer_t *b);
 static VALUE pvt_get_int32(byte_buffer_t *b);
 static VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv);
@@ -38,7 +38,7 @@ void pvt_raise_decode_error(volatile VALUE msg) {
  * validate the buffer contains the amount of bytes the array / hash claimns
  * and that it is null terminated
  */
-void pvt_validate_length(byte_buffer_t *b)
+int32_t pvt_validate_length(byte_buffer_t *b)
 {
   int32_t length;
   
@@ -59,6 +59,8 @@ void pvt_validate_length(byte_buffer_t *b)
   else{
     rb_raise(rb_eRangeError, "Buffer contained invalid length %d at %zu", length, b->read_position);
   }
+  
+  return length;
 }
 
 /**
@@ -325,10 +327,13 @@ VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
   byte_buffer_t *b = NULL;
   uint8_t type;
   VALUE cDocument = pvt_const_get_2("BSON", "Document");
+  int32_t length;
+  char *start_ptr;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
-  pvt_validate_length(b);
+  start_ptr = READ_PTR(b);
+  length = pvt_validate_length(b);
 
   doc = rb_funcall(cDocument, rb_intern("allocate"), 0);
 
@@ -337,6 +342,11 @@ VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
     rb_hash_aset(doc, field, pvt_read_field(b, self, type, argc, argv));
     RB_GC_GUARD(field);
   }
+  
+  if (READ_PTR(b) - start_ptr != length) {
+    pvt_raise_decode_error(rb_sprintf("Expected to read %d bytes for the hash but read %ld bytes", length, READ_PTR(b) - start_ptr));
+  }
+  
   return doc;
 }
 
