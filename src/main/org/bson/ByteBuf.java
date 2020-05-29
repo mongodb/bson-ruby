@@ -419,26 +419,26 @@ public class ByteBuf extends RubyObject {
   @JRubyMethod(name = "put_cstring")
   public ByteBuf putCString(ThreadContext context, final IRubyObject value) throws UnsupportedEncodingException {
 
-   if (value instanceof RubyFixnum) {
-     RubyString str = ((RubyFixnum) value).to_s();
-     String string = str.asJavaString();
-     this.writePosition += writeCharacters(string);
-   } else if (value instanceof RubyString || value instanceof RubySymbol) {
-    RubyString string;
-    if (value instanceof RubySymbol) {
-      string = (RubyString) ((RubySymbol) value).to_s(context);
+    if (value instanceof RubyFixnum) {
+      RubyString str = ((RubyFixnum) value).to_s();
+      String string = str.asJavaString();
+      this.writePosition += writeCharacters(string);
+    } else if (value instanceof RubyString || value instanceof RubySymbol) {
+      RubyString string;
+      if (value instanceof RubySymbol) {
+        string = (RubyString) ((RubySymbol) value).to_s(context);
+      } else {
+        string = (RubyString) value;
+      }
+      string = convertToUtf8(context, string);
+      String javaString = string.asJavaString();
+      verifyNoNulls(javaString);
+      this.writePosition += writeCharacters(javaString);
     } else {
-      string = (RubyString) value;
+      throw getRuntime().newTypeError(format("Invalid type for put_cstring: %s", value));
     }
-    string = convertToUtf8(context, string);
-    String javaString = string.asJavaString();
-    verifyNoNulls(javaString);
-    this.writePosition += writeCharacters(javaString);
-   } else {
-    throw getRuntime().newTypeError(format("Invalid type for put_cstring: %s", value));
-   }
 
-   return this;
+    return this;
   }
 
   /**
