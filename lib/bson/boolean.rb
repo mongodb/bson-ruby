@@ -39,7 +39,14 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(buffer, **options)
-      buffer.get_byte == TrueClass::TRUE_BYTE
+      case v = buffer.get_byte
+      when TrueClass::TRUE_BYTE
+        true
+      when FalseClass::FALSE_BYTE
+        false
+      else
+        raise Error::BSONDecodeError, "Invalid boolean byte value: #{v}"
+      end
     end
 
     # Register this type when the module is loaded.

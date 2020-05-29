@@ -17,22 +17,28 @@
 #include "bson-native.h"
 #include <ruby/encoding.h>
 
-static void pvt_validate_length(byte_buffer_t *b);
+static void pvt_raise_decode_error(volatile VALUE msg);
+static int32_t pvt_validate_length(byte_buffer_t *b);
 static uint8_t pvt_get_type_byte(byte_buffer_t *b);
 static VALUE pvt_get_int32(byte_buffer_t *b);
 static VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv);
 static VALUE pvt_get_double(byte_buffer_t *b);
-static VALUE pvt_get_string(byte_buffer_t *b);
+static VALUE pvt_get_string(byte_buffer_t *b, const char *data_type);
 static VALUE pvt_get_symbol(byte_buffer_t *b, VALUE rb_buffer, int argc, VALUE *argv);
 static VALUE pvt_get_boolean(byte_buffer_t *b);
 static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv);
 static void pvt_skip_cstring(byte_buffer_t *b);
 
+void pvt_raise_decode_error(volatile VALUE msg) {
+  VALUE klass = pvt_const_get_3("BSON", "Error", "BSONDecodeError");
+  rb_exc_raise(rb_exc_new_str(klass, msg));
+}
+
 /**
  * validate the buffer contains the amount of bytes the array / hash claimns
  * and that it is null terminated
  */
-void pvt_validate_length(byte_buffer_t *b)
+int32_t pvt_validate_length(byte_buffer_t *b)
 {
   int32_t length;
   
@@ -53,6 +59,8 @@ void pvt_validate_length(byte_buffer_t *b)
   else{
     rb_raise(rb_eRangeError, "Buffer contained invalid length %d at %zu", length, b->read_position);
   }
+  
+  return length;
 }
 
 /**
@@ -64,7 +72,7 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, 
     case BSON_TYPE_INT32: return pvt_get_int32(b);
     case BSON_TYPE_INT64: return pvt_get_int64(b, argc, argv);
     case BSON_TYPE_DOUBLE: return pvt_get_double(b);
-    case BSON_TYPE_STRING: return pvt_get_string(b);
+    case BSON_TYPE_STRING: return pvt_get_string(b, "String");
     case BSON_TYPE_SYMBOL: return pvt_get_symbol(b, rb_buffer, argc, argv);
     case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(argc, argv, rb_buffer);
     case BSON_TYPE_DOCUMENT: return rb_bson_byte_buffer_get_hash(argc, argv, rb_buffer);
@@ -119,9 +127,20 @@ VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i)
 }
 
 VALUE pvt_get_boolean(byte_buffer_t *b){
-  VALUE result = Qnil;
+  VALUE result;
+  char byte_value;
   ENSURE_BSON_READ(b, 1);
-  result = *READ_PTR(b) == 1 ? Qtrue: Qfalse;
+  byte_value = *READ_PTR(b);
+  switch (byte_value) {
+    case 1:
+      result = Qtrue;
+      break;
+    case 0:
+      result = Qfalse;
+      break;
+    default:
+      pvt_raise_decode_error(rb_sprintf("Invalid boolean byte value: %d", (int) byte_value));
+  }
   b->read_position += 1;
   return result;
 }
@@ -134,22 +153,35 @@ VALUE rb_bson_byte_buffer_get_string(VALUE self)
   byte_buffer_t *b;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  return pvt_get_string(b);
+  return pvt_get_string(b, "String");
 }
 
-VALUE pvt_get_string(byte_buffer_t *b)
+VALUE pvt_get_string(byte_buffer_t *b, const char *data_type)
 {
-  int32_t length;
   int32_t length_le;
+  int32_t length;
+  char *str_ptr;
   VALUE string;
+  unsigned char last_byte;
 
   ENSURE_BSON_READ(b, 4);
-  memcpy(&length, READ_PTR(b), 4);
-  length_le = BSON_UINT32_FROM_LE(length);
-  b->read_position += 4;
-  ENSURE_BSON_READ(b, length_le);
-  string = rb_enc_str_new(READ_PTR(b), length_le - 1, rb_utf8_encoding());
-  b->read_position += length_le;
+  memcpy(&length_le, READ_PTR(b), 4);
+  length = BSON_UINT32_FROM_LE(length_le);
+  if (length < 0) {
+    pvt_raise_decode_error(rb_sprintf("String length is negative: %d", length));
+  }
+  if (length == 0) {
+    pvt_raise_decode_error(rb_str_new_cstr("String length is zero but string must be null-terminated"));
+  }
+  ENSURE_BSON_READ(b, 4 + length);
+  str_ptr = READ_PTR(b) + 4;
+  last_byte = *(READ_PTR(b) + 4 + length_le - 1);
+  if (last_byte != 0) {
+    pvt_raise_decode_error(rb_sprintf("Last byte of the string is not null: 0x%x", (int) last_byte));
+  }
+  rb_bson_utf8_validate(str_ptr, length - 1, true, data_type);
+  string = rb_enc_str_new(str_ptr, length - 1, rb_utf8_encoding());
+  b->read_position += 4 + length_le;
   return string;
 }
 
@@ -166,7 +198,7 @@ VALUE pvt_get_symbol(byte_buffer_t *b, VALUE rb_buffer, int argc, VALUE *argv)
   VALUE value, klass;
 
   if (pvt_get_mode_option(argc, argv) == BSON_MODE_BSON) {
-    value = pvt_get_string(b);
+    value = pvt_get_string(b, "Symbol");
     klass = pvt_const_get_3("BSON", "Symbol", "Raw");
     value = rb_funcall(klass, rb_intern("new"), 1, value);
   } else {
@@ -306,10 +338,13 @@ VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
   byte_buffer_t *b = NULL;
   uint8_t type;
   VALUE cDocument = pvt_const_get_2("BSON", "Document");
+  int32_t length;
+  char *start_ptr;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
-  pvt_validate_length(b);
+  start_ptr = READ_PTR(b);
+  length = pvt_validate_length(b);
 
   doc = rb_funcall(cDocument, rb_intern("allocate"), 0);
 
@@ -318,6 +353,11 @@ VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
     rb_hash_aset(doc, field, pvt_read_field(b, self, type, argc, argv));
     RB_GC_GUARD(field);
   }
+  
+  if (READ_PTR(b) - start_ptr != length) {
+    pvt_raise_decode_error(rb_sprintf("Expected to read %d bytes for the hash but read %ld bytes", length, READ_PTR(b) - start_ptr));
+  }
+  
   return doc;
 }
 
@@ -325,10 +365,13 @@ VALUE rb_bson_byte_buffer_get_array(int argc, VALUE *argv, VALUE self){
   byte_buffer_t *b;
   VALUE array = Qnil;
   uint8_t type;
+  int32_t length;
+  char *start_ptr;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
-  pvt_validate_length(b);
+  start_ptr = READ_PTR(b);
+  length = pvt_validate_length(b);
 
   array = rb_ary_new();
   while((type = pvt_get_type_byte(b)) != 0){
@@ -336,5 +379,10 @@ VALUE rb_bson_byte_buffer_get_array(int argc, VALUE *argv, VALUE self){
     rb_ary_push(array,  pvt_read_field(b, self, type, argc, argv));
   }
   RB_GC_GUARD(array);
+  
+  if (READ_PTR(b) - start_ptr != length) {
+    pvt_raise_decode_error(rb_sprintf("Expected to read %d bytes for the hash but read %ld bytes", length, READ_PTR(b) - start_ptr));
+  }
+  
   return array;
 }

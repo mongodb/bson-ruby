@@ -91,10 +91,19 @@ module BSON
       end
     end
 
+    class TestBase
+
+      private
+
+      def decode_hex(obj)
+        [ obj ].pack('H*')
+      end
+    end
+
     # Represents a single BSON Corpus test.
     #
     # @since 4.2.0
-    class ValidTest
+    class ValidTest < TestBase
       extend Forwardable
 
       # Instantiate the new Test.
@@ -151,19 +160,13 @@ module BSON
       def relaxed_extjson_doc
         relaxed_extjson && ::JSON.parse(relaxed_extjson)
       end
-
-      private
-
-      def decode_hex(obj)
-        [ obj ].pack('H*')
-      end
     end
 
-    class DecodeErrorTest
+    class DecodeErrorTest < TestBase
       def initialize(spec, test_params)
         @spec = spec
         @description = test_params['description']
-        @bson = test_params['bson']
+        @bson = decode_hex(test_params['bson'])
       end
 
       attr_reader :description, :bson

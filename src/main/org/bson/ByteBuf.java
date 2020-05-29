@@ -18,6 +18,7 @@ package org.bson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import org.jcodings.specific.UTF8Encoding;
 import org.jruby.Ruby;
 import org.jruby.RubyBignum;
 import org.jruby.RubyClass;
+import org.jruby.RubyException;
 import org.jruby.RubyFloat;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyInteger;
@@ -36,8 +38,8 @@ import org.jruby.RubyNumeric;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.RubySymbol;
-import java.math.BigInteger;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
@@ -243,21 +245,21 @@ public class ByteBuf extends RubyObject {
   }
 
   /**
-   * Get a cstring from the buffer.
+   * Get a CString from the buffer.
    *
    * @author Durran Jordan
    * @since 2015.09.26
    * @version 4.0.0
    */
   @JRubyMethod(name = "get_cstring")
-  public RubyString getCString() {
+  public RubyString getCString(ThreadContext context) {
     ensureBsonRead();
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     byte next = NULL_BYTE;
     while((next = this.buffer.get()) != NULL_BYTE) {
       bytes.write(next);
     }
-    RubyString string = getUTF8String(bytes.toByteArray());
+    RubyString string = getUTF8String(context, bytes.toByteArray());
     this.readPosition += (bytes.size() + 1);
     return string;
   }
@@ -312,14 +314,24 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "get_string")
-  public RubyString getString() {
+  public RubyString getString(ThreadContext context) {
     ensureBsonRead();
     int length = this.buffer.getInt();
     this.readPosition += 4;
     byte[] stringBytes = new byte[length];
     this.buffer.get(stringBytes);
+    if (stringBytes.length != length) {
+      RubyClass cls = context.runtime.getClass("BSON::Error::BSONDecodeError");
+      RubyString msg = RubyString.newString(context.runtime, String.format("Failed to read %d bytes: %d bytes read", length, stringBytes.length));
+      throw ((RubyException) cls.newInstance(context, msg, Block.NULL_BLOCK)).toThrowable();
+    }
+    if (stringBytes[stringBytes.length-1] != 0) {
+      RubyClass cls = context.runtime.getClass("BSON::Error::BSONDecodeError");
+      RubyString msg = RubyString.newString(context.runtime, "Last byte was not null: " + String.format("%02X", stringBytes[length-1]));
+      throw ((RubyException) cls.newInstance(context, msg, Block.NULL_BLOCK)).toThrowable();
+    }
     byte[] bytes = Arrays.copyOfRange(stringBytes, 0, stringBytes.length - 1);
-    RubyString string = getUTF8String(bytes);
+    RubyString string = getUTF8String(context, bytes);
     this.readPosition += length;
     return string;
   }
@@ -419,26 +431,26 @@ public class ByteBuf extends RubyObject {
   @JRubyMethod(name = "put_cstring")
   public ByteBuf putCString(ThreadContext context, final IRubyObject value) throws UnsupportedEncodingException {
 
-   if (value instanceof RubyFixnum) {
-     RubyString str = ((RubyFixnum) value).to_s();
-     String string = str.asJavaString();
-     this.writePosition += writeCharacters(string);
-   } else if (value instanceof RubyString || value instanceof RubySymbol) {
-    RubyString string;
-    if (value instanceof RubySymbol) {
-      string = (RubyString) ((RubySymbol) value).to_s(context);
+    if (value instanceof RubyFixnum) {
+      RubyString str = ((RubyFixnum) value).to_s();
+      String string = str.asJavaString();
+      this.writePosition += writeCharacters(string);
+    } else if (value instanceof RubyString || value instanceof RubySymbol) {
+      RubyString string;
+      if (value instanceof RubySymbol) {
+        string = (RubyString) ((RubySymbol) value).to_s(context);
+      } else {
+        string = (RubyString) value;
+      }
+      string = convertToUtf8(context, string);
+      String javaString = string.asJavaString();
+      verifyNoNulls(javaString);
+      this.writePosition += writeCharacters(javaString);
     } else {
-      string = (RubyString) value;
+      throw getRuntime().newTypeError(format("Invalid type for put_cstring: %s", value));
     }
-    string = convertToUtf8(context, string);
-    String javaString = string.asJavaString();
-    verifyNoNulls(javaString);
-    this.writePosition += writeCharacters(javaString);
-   } else {
-    throw getRuntime().newTypeError(format("Invalid type for put_cstring: %s", value));
-   }
 
-   return this;
+    return this;
   }
 
   /**
@@ -658,8 +670,13 @@ public class ByteBuf extends RubyObject {
     }
   }
 
-  private RubyString getUTF8String(final byte[] bytes) {
-    return RubyString.newString(getRuntime(), new ByteList(bytes, UTF_8));
+  private RubyString getUTF8String(ThreadContext context, final byte[] bytes) {
+    // This call appears to not validate that the byte sequence is valid UTF-8
+    RubyString str = RubyString.newString(context.runtime, bytes, 0, bytes.length, UTF_8);
+    // ... hence validate manually:
+    convertToUtf8(context, str);
+    
+    return str;
   }
 
   /**

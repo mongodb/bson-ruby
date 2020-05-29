@@ -119,12 +119,19 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(buffer, **options)
-      buffer.get_int32 # Throw away the total length.
+      # Code with scope has a length (?) field which is not needed for
+      # decoding, but spec tests want this field validated.
+      start_position = buffer.read_position
+      length = buffer.get_int32
       javascript = buffer.get_string
       scope = if options.empty?
         ::Hash.from_bson(buffer)
       else
         ::Hash.from_bson(buffer, **options)
+      end
+      read_bytes = buffer.read_position - start_position
+      if read_bytes != length
+        raise Error::BSONDecodeError, "CodeWithScope invalid: claimed length #{length}, actual length #{read_bytes}"
       end
       new(javascript, scope)
     end

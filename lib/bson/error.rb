@@ -13,5 +13,9 @@ module BSON
     # unsupported binary subtype.
     class UnsupportedBinarySubtype < Error
     end
+
+    # Exception raised when BSON decoding fails.
+    class BSONDecodeError < Error
+    end
   end
 end

@@ -108,7 +108,8 @@ module BSON
           buffer.get_hash(**options)
         else
           hash = Document.allocate
-          buffer.get_int32 # Throw away the size.
+          start_position = buffer.read_position
+          expected_byte_size = buffer.get_int32
           while (type = buffer.get_byte) != NULL_BYTE
             field = buffer.get_cstring
             cls = BSON::Registry.get(type, field)
@@ -120,6 +121,10 @@ module BSON
               cls.from_bson(buffer, **options)
             end
             hash.store(field, value)
+          end
+          actual_byte_size = buffer.read_position - start_position
+          if actual_byte_size != expected_byte_size
+            raise Error::BSONDecodeError, "Expected hash to take #{expected_byte_size} bytes but it took #{actual_byte_size} bytes"
           end
           hash
         end
