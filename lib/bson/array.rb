@@ -119,7 +119,8 @@ module BSON
           buffer.get_array(**options)
         else
           array = new
-          buffer.get_int32 # throw away the length
+          start_position = buffer.read_position
+          expected_byte_size = buffer.get_int32
           while (type = buffer.get_byte) != NULL_BYTE
             buffer.get_cstring
             cls = BSON::Registry.get(type)
@@ -129,6 +130,10 @@ module BSON
               cls.from_bson(buffer, **options)
             end
             array << value
+          end
+          actual_byte_size = buffer.read_position - start_position
+          if actual_byte_size != expected_byte_size
+            raise Error::BSONDecodeError, "Expected array to take #{expected_byte_size} bytes but it took #{actual_byte_size} bytes"
           end
           array
         end
