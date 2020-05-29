@@ -23,7 +23,7 @@ static uint8_t pvt_get_type_byte(byte_buffer_t *b);
 static VALUE pvt_get_int32(byte_buffer_t *b);
 static VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv);
 static VALUE pvt_get_double(byte_buffer_t *b);
-static VALUE pvt_get_string(byte_buffer_t *b);
+static VALUE pvt_get_string(byte_buffer_t *b, const char *data_type);
 static VALUE pvt_get_symbol(byte_buffer_t *b, VALUE rb_buffer, int argc, VALUE *argv);
 static VALUE pvt_get_boolean(byte_buffer_t *b);
 static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv);
@@ -72,7 +72,7 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, 
     case BSON_TYPE_INT32: return pvt_get_int32(b);
     case BSON_TYPE_INT64: return pvt_get_int64(b, argc, argv);
     case BSON_TYPE_DOUBLE: return pvt_get_double(b);
-    case BSON_TYPE_STRING: return pvt_get_string(b);
+    case BSON_TYPE_STRING: return pvt_get_string(b, "String");
     case BSON_TYPE_SYMBOL: return pvt_get_symbol(b, rb_buffer, argc, argv);
     case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(argc, argv, rb_buffer);
     case BSON_TYPE_DOCUMENT: return rb_bson_byte_buffer_get_hash(argc, argv, rb_buffer);
@@ -142,10 +142,10 @@ VALUE rb_bson_byte_buffer_get_string(VALUE self)
   byte_buffer_t *b;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  return pvt_get_string(b);
+  return pvt_get_string(b, "String");
 }
 
-VALUE pvt_get_string(byte_buffer_t *b)
+VALUE pvt_get_string(byte_buffer_t *b, const char *data_type)
 {
   int32_t length_le;
   int32_t length;
@@ -168,11 +168,8 @@ VALUE pvt_get_string(byte_buffer_t *b)
   if (last_byte != 0) {
     pvt_raise_decode_error(rb_sprintf("Last byte of the string is not null: 0x%x", (int) last_byte));
   }
+  rb_bson_utf8_validate(str_ptr, length - 1, true, data_type);
   string = rb_enc_str_new(str_ptr, length - 1, rb_utf8_encoding());
-  /* https://stackoverflow.com/questions/8635578/how-to-check-whether-the-character-is-utf-8 */
-  if (rb_funcall(string, rb_intern("valid_encoding?"), 0) != Qtrue) {
-    pvt_raise_decode_error(rb_str_new_cstr("Invalid UTF-8 in string"));
-  }
   b->read_position += 4 + length_le;
   return string;
 }
@@ -190,7 +187,7 @@ VALUE pvt_get_symbol(byte_buffer_t *b, VALUE rb_buffer, int argc, VALUE *argv)
   VALUE value, klass;
 
   if (pvt_get_mode_option(argc, argv) == BSON_MODE_BSON) {
-    value = pvt_get_string(b);
+    value = pvt_get_string(b, "Symbol");
     klass = pvt_const_get_3("BSON", "Symbol", "Raw");
     value = rb_funcall(klass, rb_intern("new"), 1, value);
   } else {
