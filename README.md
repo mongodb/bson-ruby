@@ -1,8 +1,9 @@
-BSON [![Build Status](https://secure.travis-ci.org/mongodb/bson-ruby.svg?branch=master)](http://travis-ci.org/mongodb/bson-ruby)
-[![Build status Windows](https://ci.appveyor.com/api/projects/status/p5aqko7umsx351nm?svg=true)](https://ci.appveyor.com/project/p-mongo/bson-ruby/branch/master)
-[![Code Climate](https://codeclimate.com/github/mongodb/bson-ruby.svg)](https://codeclimate.com/github/mongodb/bson-ruby)
-[![Coverage Status](https://coveralls.io/repos/mongodb/bson-ruby/badge.svg?branch=master)](https://coveralls.io/r/mongodb/bson-ruby?branch=master)
-[![Inline docs](http://inch-ci.org/github/mongodb/bson-ruby.svg?branch=master)](http://inch-ci.org/github/mongodb/bson-ruby)
+BSON
+[![Gem Version][rubygems-img]][rubygems-url]
+[![Build Status][travis-img]][travis-url]
+[![Build status Windows][appveyor-img]][appveyor-url]
+[![Coverage Status][coveralls-img]][coveralls-url]
+[![Inline docs][inch-img]][inch-url]
 ====
 
 An implementation of the BSON specification in Ruby.
@@ -51,3 +52,14 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+[rubygems-img]: https://badge.fury.io/rb/bson.svg
+[rubygems-url]: http://badge.fury.io/rb/bson
+[travis-img]: https://secure.travis-ci.org/mongodb/bson-ruby.svg?branch=master
+[travis-url]: http://travis-ci.org/mongodb/bson-ruby
+[appveyor-img]: https://ci.appveyor.com/api/projects/status/p5aqko7umsx351nm?svg=true
+[appveyor-url]: https://ci.appveyor.com/project/p-mongo/bson-ruby/branch/master
+[coveralls-img]: https://coveralls.io/repos/mongodb/bson-ruby/badge.svg?branch=master
+[coveralls-url]: https://coveralls.io/r/mongodb/bson-ruby?branch=master
+[inch-img]: http://inch-ci.org/github/mongodb/bson-ruby.svg?branch=master
+[inch-url]: http://inch-ci.org/github/mongodb/bson-ruby
