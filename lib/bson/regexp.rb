@@ -165,7 +165,13 @@ module BSON
       #
       # @since 3.1.0
       def respond_to?(method, include_private = false)
-        compile.respond_to?(method, include_private) || super
+        if defined?(@pattern)
+          compile.respond_to?(method, include_private) || super
+        else
+          # YAML calls #respond_to? during deserialization, before the object
+          # is initialized.
+          super
+        end
       end
 
       # Encode the Raw Regexp object to BSON.
