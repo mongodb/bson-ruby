@@ -580,4 +580,15 @@ describe Regexp::Raw do
       end
     end
   end
+
+  describe 'yaml loading' do
+    let(:regexp) { described_class.new('hello.world', 's') }
+
+    it 'round-trips' do
+      actual = YAML.load(regexp.to_yaml)
+      actual.pattern.should == 'hello.world'
+      actual.options.should == 's'
+      actual.compile.should =~ "hello\nworld"
+    end
+  end
 end
