@@ -38,25 +38,26 @@ void Init_bson_native()
   char rb_bson_machine_id[256];
 
   VALUE rb_bson_module = rb_define_module("BSON");
-  
+
   /* Document-class: BSON::ByteBuffer
    *
    * Stores BSON-serialized data and provides efficient serialization and
    * deserialization of common Ruby classes using native code.
    */
   VALUE rb_byte_buffer_class = rb_define_class_under(rb_bson_module, "ByteBuffer", rb_cObject);
-  
+
   VALUE rb_bson_object_id_class = rb_const_get(rb_bson_module, rb_intern("ObjectId"));
   VALUE rb_bson_object_id_generator_class = rb_const_get(rb_bson_object_id_class, rb_intern("Generator"));
   VALUE rb_digest_class = rb_const_get(rb_cObject, rb_intern("Digest"));
   VALUE rb_md5_class = rb_const_get(rb_digest_class, rb_intern("MD5"));
 
   rb_bson_illegal_key = rb_const_get(rb_const_get(rb_bson_module, rb_intern("String")),rb_intern("IllegalKey"));
+  rb_gc_register_mark_object(rb_bson_illegal_key);
 
   rb_define_alloc_func(rb_byte_buffer_class, rb_bson_byte_buffer_allocate);
   rb_define_method(rb_byte_buffer_class, "initialize", rb_bson_byte_buffer_initialize, -1);
   rb_define_method(rb_byte_buffer_class, "length", rb_bson_byte_buffer_length, 0);
-  
+
   /*
    * call-seq:
    *   buffer.read_position -> Fixnum
@@ -64,13 +65,13 @@ void Init_bson_native()
    * Returns the read position in the buffer.
    */
   rb_define_method(rb_byte_buffer_class, "read_position", rb_bson_byte_buffer_read_position, 0);
-  
+
   rb_define_method(rb_byte_buffer_class, "get_byte", rb_bson_byte_buffer_get_byte, 0);
   rb_define_method(rb_byte_buffer_class, "get_bytes", rb_bson_byte_buffer_get_bytes, 1);
   rb_define_method(rb_byte_buffer_class, "get_cstring", rb_bson_byte_buffer_get_cstring, 0);
   rb_define_method(rb_byte_buffer_class, "get_decimal128_bytes", rb_bson_byte_buffer_get_decimal128_bytes, 0);
   rb_define_method(rb_byte_buffer_class, "get_double", rb_bson_byte_buffer_get_double, 0);
-  
+
   /*
    * call-seq:
    *   buffer.get_hash(**options) -> Hash
@@ -82,7 +83,7 @@ void Init_bson_native()
    * @return [ BSON::Document ] The decoded document.
    */
   rb_define_method(rb_byte_buffer_class, "get_hash", rb_bson_byte_buffer_get_hash, -1);
-  
+
   /*
    * call-seq:
    *   buffer.get_array(**options) -> Array
@@ -94,11 +95,11 @@ void Init_bson_native()
    * @return [ Array ] The decoded array.
    */
   rb_define_method(rb_byte_buffer_class, "get_array", rb_bson_byte_buffer_get_array, -1);
-  
+
   rb_define_method(rb_byte_buffer_class, "get_int32", rb_bson_byte_buffer_get_int32, 0);
   rb_define_method(rb_byte_buffer_class, "get_int64", rb_bson_byte_buffer_get_int64, 0);
   rb_define_method(rb_byte_buffer_class, "get_string", rb_bson_byte_buffer_get_string, 0);
-  
+
   /*
    * call-seq:
    *   buffer.write_position -> Fixnum
@@ -106,7 +107,7 @@ void Init_bson_native()
    * Returns the write position in the buffer.
    */
   rb_define_method(rb_byte_buffer_class, "write_position", rb_bson_byte_buffer_write_position, 0);
-  
+
   /*
    * call-seq:
    *   buffer.put_byte(binary_str) -> ByteBuffer
@@ -117,7 +118,7 @@ void Init_bson_native()
    * Returns the modified +self+.
    */
   rb_define_method(rb_byte_buffer_class, "put_byte", rb_bson_byte_buffer_put_byte, 1);
-  
+
   /*
    * call-seq:
    *   buffer.put_bytes(binary_str) -> ByteBuffer
@@ -170,7 +171,7 @@ void Init_bson_native()
    * instead on the null terminator), unlike the BSON string serialization.
    */
   rb_define_method(rb_byte_buffer_class, "put_cstring", rb_bson_byte_buffer_put_cstring, 1);
-  
+
   /**
    * call-seq:
    *   buffer.put_symbol(sym) -> ByteBuffer
@@ -188,7 +189,7 @@ void Init_bson_native()
    * indistinguishable from a string with the same value written to the buffer.
    */
   rb_define_method(rb_byte_buffer_class, "put_symbol", rb_bson_byte_buffer_put_symbol, 1);
-  
+
   /*
    * call-seq:
    *   buffer.put_int32(fixnum) -> ByteBuffer
@@ -200,7 +201,7 @@ void Init_bson_native()
    * Returns the modified +self+.
    */
   rb_define_method(rb_byte_buffer_class, "put_int32", rb_bson_byte_buffer_put_int32, 1);
-  
+
   /*
    * call-seq:
    *   buffer.put_int64(fixnum) -> ByteBuffer
@@ -212,7 +213,7 @@ void Init_bson_native()
    * Returns the modified +self+.
    */
   rb_define_method(rb_byte_buffer_class, "put_int64", rb_bson_byte_buffer_put_int64, 1);
-  
+
   /*
    * call-seq:
    *   buffer.put_double(double) -> ByteBuffer
@@ -222,7 +223,7 @@ void Init_bson_native()
    * Returns the modified +self+.
    */
   rb_define_method(rb_byte_buffer_class, "put_double", rb_bson_byte_buffer_put_double, 1);
-  
+
   /*
    * call-seq:
    *   buffer.put_decimal128(low_64bit, high_64bit) -> ByteBuffer
@@ -235,7 +236,7 @@ void Init_bson_native()
    * Returns the modified +self+.
    */
   rb_define_method(rb_byte_buffer_class, "put_decimal128", rb_bson_byte_buffer_put_decimal128, 2);
-  
+
   /*
    * call-seq:
    *   buffer.put_hash(hash) -> ByteBuffer
@@ -245,7 +246,7 @@ void Init_bson_native()
    * Returns the modified +self+.
    */
   rb_define_method(rb_byte_buffer_class, "put_hash", rb_bson_byte_buffer_put_hash, 2);
-  
+
   /*
    * call-seq:
    *   buffer.put_array(array) -> ByteBuffer
@@ -255,7 +256,7 @@ void Init_bson_native()
    * Returns the modified +self+.
    */
   rb_define_method(rb_byte_buffer_class, "put_array", rb_bson_byte_buffer_put_array, 2);
-  
+
   /*
    * call-seq:
    *   buffer.replace_int32(position, fixnum) -> ByteBuffer
@@ -272,7 +273,7 @@ void Init_bson_native()
    * Returns the modified +self+.
    */
   rb_define_method(rb_byte_buffer_class, "replace_int32", rb_bson_byte_buffer_replace_int32, 2);
-  
+
   /*
    * call-seq:
    *   buffer.rewind! -> ByteBuffer
@@ -284,7 +285,7 @@ void Init_bson_native()
    * Returns the modified +self+.
    */
   rb_define_method(rb_byte_buffer_class, "rewind!", rb_bson_byte_buffer_rewind, 0);
-  
+
   /*
    * call-seq:
    *   buffer.to_s -> String
@@ -296,7 +297,7 @@ void Init_bson_native()
    * the buffer itself.
    */
   rb_define_method(rb_byte_buffer_class, "to_s", rb_bson_byte_buffer_to_s, 0);
-  
+
   rb_define_method(rb_bson_object_id_generator_class, "next_object_id", rb_bson_object_id_generator_next, -1);
 
   // Get the object id machine id and hash it.
@@ -309,4 +310,5 @@ void Init_bson_native()
   rb_bson_object_id_counter = FIX2INT(rb_funcall(rb_mKernel, rb_intern("rand"), 1, INT2FIX(0x1000000)));
 
   rb_bson_registry = rb_const_get(rb_bson_module, rb_intern("Registry"));
+  rb_gc_register_mark_object(rb_bson_registry);
 }

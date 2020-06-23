@@ -60,4 +60,15 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = [:should, :expect]
   end
+
+  # To ensure that calling GC.compact does not produce unexpected behavior,
+  # randomly call GC.compact after a small percentage of tests in the suite.
+  # This behavior is only enabled when the COMPACT environment variable is true.
+  if SpecConfig.instance.compact?
+    config.after do
+      if rand < SpecConfig::COMPACTION_CHANCE
+        GC.compact
+      end
+    end
+  end
 end
