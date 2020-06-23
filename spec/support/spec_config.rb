@@ -13,13 +13,3 @@ class SpecConfig
     %w(1 true yes).include?(ENV['COMPACT'])
   end
 end
-
-RSpec.configure do |config|
-  if SpecConfig.instance.compact?
-    config.after do
-      if rand < SpecConfig::COMPACTION_CHANCE
-        GC.compact
-      end
-    end
-  end
-end
