@@ -204,6 +204,18 @@ void Init_bson_native()
 
   /*
    * call-seq:
+   *   buffer.put_uint32(fixnum) -> ByteBuffer
+   *
+   * Writes an unsigned 32-bit integer value to the buffer.
+   *
+   * If the argument cannot be represented in 32 bits, raises RangeError.
+   *
+   * Returns the modified +self+.
+   */
+  rb_define_method(rb_byte_buffer_class, "put_uint32", rb_bson_byte_buffer_put_uint32, 1);
+
+  /*
+   * call-seq:
    *   buffer.put_int64(fixnum) -> ByteBuffer
    *
    * Writes a 64-bit integer value to the buffer.

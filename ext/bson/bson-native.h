@@ -86,6 +86,7 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE string);
 VALUE rb_bson_byte_buffer_put_decimal128(VALUE self, VALUE low, VALUE high);
 VALUE rb_bson_byte_buffer_put_double(VALUE self, VALUE f);
 VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i);
+VALUE rb_bson_byte_buffer_put_uint32(VALUE self, VALUE i);
 VALUE rb_bson_byte_buffer_put_int64(VALUE self, VALUE i);
 VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string);
 VALUE rb_bson_byte_buffer_put_symbol(VALUE self, VALUE symbol);
