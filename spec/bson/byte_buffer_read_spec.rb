@@ -66,7 +66,7 @@ describe BSON::ByteBuffer do
   describe '#get_double' do
 
     let(:buffer) do
-      described_class.new("#{12.5.to_bson.to_s}")
+      described_class.new(12.5.to_bson.to_s)
     end
 
     let!(:double) do
@@ -85,7 +85,7 @@ describe BSON::ByteBuffer do
   describe '#get_int32' do
 
     let(:buffer) do
-      described_class.new("#{12.to_bson.to_s}")
+      described_class.new(12.to_bson.to_s)
     end
 
     let!(:int32) do
@@ -104,7 +104,7 @@ describe BSON::ByteBuffer do
   describe '#get_uint32' do
 
     let(:buffer) do
-      described_class.new("#{4294967295.to_bson.to_s}")
+      described_class.new(4294967295.to_bson.to_s)
     end
 
     let!(:int32) do
@@ -123,7 +123,7 @@ describe BSON::ByteBuffer do
   describe '#get_int64' do
 
     let(:buffer) do
-      described_class.new("#{(Integer::MAX_64BIT - 1).to_bson.to_s}")
+      described_class.new((Integer::MAX_64BIT - 1).to_bson.to_s)
     end
 
     let!(:int64) do
