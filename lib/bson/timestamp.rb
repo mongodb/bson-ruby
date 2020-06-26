@@ -110,8 +110,6 @@ module BSON
     #
     # @since 2.0.0
     def initialize(seconds, increment)
-      if seconds < 0 then seconds += 2**32 end
-      if increment < 0 then increment += 2**32 end
       @seconds, @increment = seconds, increment
     end
 
@@ -142,8 +140,8 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(buffer, **options)
-      increment = buffer.get_int32
-      seconds = buffer.get_int32
+      increment = buffer.get_uint32
+      seconds = buffer.get_uint32
       new(seconds, increment)
     end
 
