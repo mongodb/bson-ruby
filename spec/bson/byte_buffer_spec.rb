@@ -30,15 +30,36 @@ describe BSON::ByteBuffer do
       let(:buffer) do
         described_class.new
       end
+      context '#put_int32' do 
+        before do
+          buffer.put_int32(5)
+        end
 
-      before do
-        buffer.put_int32(5)
+        it 'returns the length of the buffer' do
+          expect(buffer.length).to eq(4)
+        end
       end
 
-      it 'returns the length of the buffer' do
-        expect(buffer.length).to eq(4)
+      context '#put_uint32' do 
+        context 'when number is in range' do 
+          before do
+            buffer.put_uint32(5)
+          end
+
+          it 'returns the length of the buffer' do
+            expect(buffer.length).to eq(4)
+          end
+        end
+
+        context 'when number is not in range' do 
+          it 'raises error on out of range number' do
+            expect{ buffer.put_uint32(4294967296) }.to raise_error(RangeError)
+            expect{ buffer.put_uint32(-4294967296) }.to raise_error(RangeError)
+          end
+        end
       end
     end
+
 
     context 'when the byte buffer is initialized with some bytes' do
 
