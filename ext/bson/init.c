@@ -211,6 +211,9 @@ void Init_bson_native()
    * If the argument cannot be represented in 32 bits, raises RangeError.
    *
    * Returns the modified +self+.
+   *
+   * @api private
+   *
    */
   rb_define_method(rb_byte_buffer_class, "put_uint32", rb_bson_byte_buffer_put_uint32, 1);
 
