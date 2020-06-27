@@ -132,6 +132,23 @@ describe Array do
         end
       end
     end
+
+    context 'when array contains value of an unserializable class' do
+      class ArraySpecUnserializableClass
+      end
+
+      let(:obj) do
+        [ArraySpecUnserializableClass.new]
+      end
+
+      it 'raises UnserializableClass' do
+        lambda do
+          obj.to_bson
+        end.should raise_error(BSON::Error::UnserializableClass,
+          # C extension does not provide element position in the exception message.
+          /(Array element at position 0|Value) does not define its BSON serialized type:.*ArraySpecUnserializableClass/)
+      end
+    end
   end
 
   describe "#to_bson_normalized_value" do

@@ -47,6 +47,9 @@ module BSON
         position = buffer.length
         buffer.put_int32(0)
         each_with_index do |value, index|
+          unless value.respond_to?(:bson_type)
+            raise Error::UnserializableClass, "Array element at position #{index} does not define its BSON serialized type: #{value}"
+          end
           buffer.put_byte(value.bson_type)
           buffer.put_cstring(index.to_s)
           value.to_bson(buffer, validating_keys)

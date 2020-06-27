@@ -227,6 +227,23 @@ describe Hash do
         end
       end
     end
+
+    context 'when hash contains value of an unserializable class' do
+      class HashSpecUnserializableClass
+      end
+
+      let(:obj) do
+        {foo: HashSpecUnserializableClass.new}
+      end
+
+      it 'raises UnserializableClass' do
+        lambda do
+          obj.to_bson
+        end.should raise_error(BSON::Error::UnserializableClass,
+          # C extension does not provide hash key in the exception message.
+          /(Hash value for key 'foo'|Value) does not define its BSON serialized type:.*HashSpecUnserializableClass/)
+      end
+    end
   end
 
   describe '#to_bson' do
