@@ -29,3 +29,4 @@ gem-private_key.pem
 yard-docs
 lib/*.jar
 .yardoc
+.byebug_history
