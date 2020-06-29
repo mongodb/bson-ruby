@@ -97,6 +97,17 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "get_array", rb_bson_byte_buffer_get_array, -1);
 
   rb_define_method(rb_byte_buffer_class, "get_int32", rb_bson_byte_buffer_get_int32, 0);
+  
+  /*
+   * call-seq:
+   *   buffer.get_uint32(buffer) -> FixNum
+   *
+   * Reads an unsigned 32 bit number from the byte buffer..
+   *
+   * @return [ Fixnum ] The unsigned 32 bits integer from the buffer
+   *
+   * @api private
+   */
   rb_define_method(rb_byte_buffer_class, "get_uint32", rb_bson_byte_buffer_get_uint32, 0);
   rb_define_method(rb_byte_buffer_class, "get_int64", rb_bson_byte_buffer_get_int64, 0);
   rb_define_method(rb_byte_buffer_class, "get_string", rb_bson_byte_buffer_get_string, 0);

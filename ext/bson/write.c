@@ -388,6 +388,11 @@ void pvt_put_int32(byte_buffer_t *b, const int32_t i)
 VALUE rb_bson_byte_buffer_put_uint32(VALUE self, VALUE i)
 {
   byte_buffer_t *b;
+
+  if (RB_TYPE_P(i, T_FLOAT))
+    rb_raise(rb_eArgError, "put_uint32; incorrect type: float, expected: integer");
+
+
   const uint32_t i32 = NUM2UINT(i);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);

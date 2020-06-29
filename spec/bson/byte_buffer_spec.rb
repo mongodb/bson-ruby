@@ -51,9 +51,34 @@ describe BSON::ByteBuffer do
           end
         end
 
+        context 'when number doesn\'t fit in signed int32' do 
+          let(:modified) do
+            buffer.put_uint32(4294967295)
+          end
+
+          let(:expected) do
+            [ 4294967295 ].pack(BSON::Int32::PACK)
+          end
+
+          it 'appends the int32 to the byte buffer' do
+            expect(modified.to_s).to eq(expected)
+          end
+
+          it 'get returns correct number' do
+            expect(modified.get_uint32).to eq(4294967295)
+          end
+
+          it 'returns the length of the buffer' do
+            expect(modified.length).to eq(4)
+          end
+        end
+
         context 'when number is not in range' do 
-          it 'raises error on out of range number' do
+          it 'raises error on out of top range' do
             expect{ buffer.put_uint32(4294967296) }.to raise_error(RangeError)
+          end
+
+          it 'raises error on out of bottom range' do
             expect{ buffer.put_uint32(-4294967296) }.to raise_error(RangeError)
           end
         end

@@ -308,16 +308,16 @@ public class ByteBuf extends RubyObject {
 
   /**
    * Get a 32 bit integer from the buffer.
-   *
-   * @author Neil Shweky
-   * @since 2020.06.26
+   * 
    */
   @JRubyMethod(name = "get_uint32")
   public RubyFixnum getUInt32() {
     ensureBsonRead();
 
     long temp = this.buffer.getInt();
-    if (temp < 0) temp += Math.pow(2,32);
+    if (temp < 0) {
+      temp += Math.pow(2, 32);
+    }
     
     RubyFixnum int32 = new RubyFixnum(getRuntime(), temp);
     this.readPosition += 4;
@@ -510,25 +510,24 @@ public class ByteBuf extends RubyObject {
    * Put an unsigned 32 bit integer onto the buffer.
    *
    * @param value The integer to write.
-   *
-   * @author Neil Shweky
-   * @since 2020.06.26
+   * 
    */
   @JRubyMethod(name = "put_uint32")
   public ByteBuf putUInt32(ThreadContext context, IRubyObject value) {
     if (value instanceof RubyFloat) {
-      value = ((RubyFloat) value).truncate(context);
+      throw getRuntime().newArgumentError("put_uint32; incorrect type: float, expected: integer");
     }
     ensureBsonWrite(4);
 
     long temp = RubyNumeric.fix2long((RubyFixnum) value);
     
-    if (temp >= Math.pow(2, 32) || temp < 0)
+    if (temp >= Math.pow(2, 32) || temp < 0) {
       throw getRuntime().newRangeError(format("Number %d is out of range [0, 2^32)", temp));
+    }
     
-    if (temp > Math.pow(2,31)) temp -= Math.pow(2,32);
-
-
+    if (temp > Math.pow(2, 31)) {
+      temp -= Math.pow(2, 32);
+    }
 
     this.buffer.putInt((int) temp);
     this.writePosition += 4;
