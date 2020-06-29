@@ -154,8 +154,15 @@ void pvt_put_type_byte(byte_buffer_t *b, VALUE val){
     case T_FLOAT:
       type_byte = BSON_TYPE_DOUBLE;
       break;
-    default:{
-      VALUE type = rb_funcall(val, rb_intern("bson_type"), 0);
+    default: {
+      VALUE type;
+      VALUE responds = rb_funcall(val, rb_intern("respond_to?"), 1, ID2SYM(rb_intern("bson_type")));
+      if (!RTEST(responds)) {
+        VALUE klass = pvt_const_get_3("BSON", "Error", "UnserializableClass");
+        VALUE val_str = rb_funcall(val, rb_intern("to_s"), 0);
+        rb_raise(klass, "Value does not define its BSON serialized type: %s", RSTRING_PTR(val_str));
+      }
+      type = rb_funcall(val, rb_intern("bson_type"), 0);
       type_byte = *RSTRING_PTR(type);
       RB_GC_GUARD(type);
       break;
@@ -627,7 +634,7 @@ VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_ke
 
   for(int32_t index=0; index < RARRAY_LEN(array); index++, array_element++){
     pvt_put_type_byte(b, *array_element);
-    pvt_put_array_index(b,index);
+    pvt_put_array_index(b, index);
     pvt_put_field(b, self, *array_element, validating_keys);
   }
   pvt_put_byte(b, 0);

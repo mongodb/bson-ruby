@@ -44,6 +44,9 @@ module BSON
         position = buffer.length
         buffer.put_int32(0)
         each do |field, value|
+          unless value.respond_to?(:bson_type)
+            raise Error::UnserializableClass, "Hash value for key '#{field}' does not define its BSON serialized type: #{value}"
+          end
           buffer.put_byte(value.bson_type)
           key = field.to_bson_key(validating_keys)
           begin
