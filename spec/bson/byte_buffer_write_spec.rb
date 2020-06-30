@@ -644,11 +644,11 @@ describe BSON::ByteBuffer do
 
     context 'when number is not in range' do 
       it 'raises error on out of top range' do
-        expect{ buffer.put_uint32(4294967296) }.to raise_error(RangeError)
+        expect{ buffer.put_uint32(4294967296) }.to raise_error(RangeError, "Number 4294967296 is out of range [0, 2^32)")
       end
 
       it 'raises error on out of bottom range' do
-        expect{ buffer.put_uint32(-1) }.to raise_error(RangeError)
+        expect{ buffer.put_uint32(-1) }.to raise_error(RangeError, "Number -1 is out of range [0, 2^32)")
       end
     end
   end
