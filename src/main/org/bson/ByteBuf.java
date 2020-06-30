@@ -99,6 +99,11 @@ public class ByteBuf extends RubyObject {
   private int writePosition = 0;
 
   /**
+   * The size of an unsigned 32-bit integer: 2^32
+   */
+  private static long UINT32_SIZE = (long)Math.pow(2, 32);
+  
+  /**
    * Instantiate the ByteBuf - this is #allocate in Ruby.
    *
    * @author Durran Jordan
@@ -316,7 +321,7 @@ public class ByteBuf extends RubyObject {
 
     long temp = this.buffer.getInt();
     if (temp < 0) {
-      temp += Math.pow(2, 32);
+      temp += UINT32_SIZE;
     }
     
     RubyFixnum int32 = new RubyFixnum(getRuntime(), temp);
@@ -521,12 +526,12 @@ public class ByteBuf extends RubyObject {
 
     long temp = RubyNumeric.fix2long((RubyFixnum) value);
     
-    if (temp >= Math.pow(2, 32) || temp < 0) {
+    if (temp >= UINT32_SIZE || temp < 0) {
       throw getRuntime().newRangeError(format("Number %d is out of range [0, 2^32)", temp));
     }
     
     if (temp > Math.pow(2, 31)) {
-      temp -= Math.pow(2, 32);
+      temp -= UINT32_SIZE;
     }
 
     this.buffer.putInt((int) temp);
