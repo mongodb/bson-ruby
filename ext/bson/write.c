@@ -396,7 +396,7 @@ VALUE rb_bson_byte_buffer_put_uint32(VALUE self, VALUE i)
   }
 
   temp = NUM2LL(i);
-  if (temp < 0 || temp >= pow(2, 32)) {
+  if (temp < 0 || temp > UINT32_MAX) {
     rb_raise(rb_eRangeError, "Number %lld is out of range [0, 2^32)", (long long)temp);
   }
 
