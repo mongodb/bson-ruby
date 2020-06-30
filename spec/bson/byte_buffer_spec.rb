@@ -30,6 +30,7 @@ describe BSON::ByteBuffer do
       let(:buffer) do
         described_class.new
       end
+      
       context '#put_int32' do 
         before do
           buffer.put_int32(5)
@@ -79,7 +80,7 @@ describe BSON::ByteBuffer do
           end
 
           it 'raises error on out of bottom range' do
-            expect{ buffer.put_uint32(-4294967296) }.to raise_error(RangeError)
+            expect{ buffer.put_uint32(-1) }.to raise_error(RangeError)
           end
         end
       end

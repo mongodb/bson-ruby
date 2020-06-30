@@ -392,6 +392,9 @@ VALUE rb_bson_byte_buffer_put_uint32(VALUE self, VALUE i)
   if (RB_TYPE_P(i, T_FLOAT))
     rb_raise(rb_eArgError, "put_uint32; incorrect type: float, expected: integer");
 
+  if (NUM2LONG(i) < 0) {
+    rb_raise(rb_eRangeError, "put_uint32; inputted number cannot be less than 0");
+  }
 
   const uint32_t i32 = NUM2UINT(i);
 
