@@ -118,6 +118,7 @@ describe BSON::ByteBuffer do
       it 'increments the position by 4' do
         expect(buffer.read_position).to eq(4)
       end
+    end
     
     context 'when using 2^32-2' do
       let(:buffer) do
@@ -154,8 +155,6 @@ describe BSON::ByteBuffer do
         expect(buffer.read_position).to eq(4)
       end
     end
-  end
-
   end
 
   describe '#get_int64' do

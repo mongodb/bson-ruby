@@ -102,7 +102,7 @@ void Init_bson_native()
    * call-seq:
    *   buffer.get_uint32(buffer) -> FixNum
    *
-   * Reads an unsigned 32 bit number from the byte buffer..
+   * Reads an unsigned 32 bit number from the byte buffer.
    *
    * @return [ Fixnum ] The unsigned 32 bits integer from the buffer
    *
