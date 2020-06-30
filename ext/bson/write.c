@@ -395,7 +395,7 @@ VALUE rb_bson_byte_buffer_put_uint32(VALUE self, VALUE i)
 
   int64_t temp = NUM2LL(i);
   if (temp < 0 || temp >= pow(2, 32)) {
-    rb_raise(rb_eRangeError, "Number %ld is out of range [0, 2^32)", (long)temp);
+    rb_raise(rb_eRangeError, "Number %lld is out of range [0, 2^32)", (long long)temp);
   }
 
   const uint32_t i32 = NUM2UINT(i);
