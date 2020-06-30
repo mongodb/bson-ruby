@@ -515,7 +515,7 @@ public class ByteBuf extends RubyObject {
   @JRubyMethod(name = "put_uint32")
   public ByteBuf putUInt32(ThreadContext context, IRubyObject value) {
     if (value instanceof RubyFloat) {
-      throw getRuntime().newArgumentError("put_uint32; incorrect type: float, expected: integer");
+      throw getRuntime().newArgumentError("put_uint32: incorrect type: float, expected: integer");
     }
     ensureBsonWrite(4);
 

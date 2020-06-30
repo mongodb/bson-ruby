@@ -392,7 +392,7 @@ VALUE rb_bson_byte_buffer_put_uint32(VALUE self, VALUE i)
   uint32_t i32;
 
   if (RB_TYPE_P(i, T_FLOAT)) {
-    rb_raise(rb_eArgError, "put_uint32; incorrect type: float, expected: integer");
+    rb_raise(rb_eArgError, "put_uint32: incorrect type: float, expected: integer");
   }
 
   temp = NUM2LL(i);

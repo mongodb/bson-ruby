@@ -88,7 +88,7 @@ void Init_bson_native()
    * call-seq:
    *   buffer.get_array(**options) -> Array
    *
-   * Reads an array from the byte buffer..
+   * Reads an array from the byte buffer.
    *
    * @option options [ nil | :bson ] :mode Decoding mode to use.
    *
@@ -100,7 +100,7 @@ void Init_bson_native()
   
   /*
    * call-seq:
-   *   buffer.get_uint32(buffer) -> FixNum
+   *   buffer.get_uint32(buffer) -> Fixnum
    *
    * Reads an unsigned 32 bit number from the byte buffer.
    *

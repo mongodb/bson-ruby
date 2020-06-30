@@ -587,8 +587,8 @@ describe BSON::ByteBuffer do
 
   describe '#put_uint32' do
     context 'when argument is a float' do
-      it 'appends the int32 to the byte buffer' do
-        expect{ buffer.put_uint32(4.934) }.to raise_error(ArgumentError, "put_uint32; incorrect type: float, expected: integer")
+      it 'raises an Argument Error' do
+        expect{ buffer.put_uint32(4.934) }.to raise_error(ArgumentError, "put_uint32: incorrect type: float, expected: integer")
       end
     end
     
