@@ -388,17 +388,19 @@ void pvt_put_int32(byte_buffer_t *b, const int32_t i)
 VALUE rb_bson_byte_buffer_put_uint32(VALUE self, VALUE i)
 {
   byte_buffer_t *b;
+  int64_t temp;
+  uint32_t i32;
 
   if (RB_TYPE_P(i, T_FLOAT)) {
     rb_raise(rb_eArgError, "put_uint32; incorrect type: float, expected: integer");
   }
 
-  int64_t temp = NUM2LL(i);
+  temp = NUM2LL(i);
   if (temp < 0 || temp >= pow(2, 32)) {
     rb_raise(rb_eRangeError, "Number %lld is out of range [0, 2^32)", (long long)temp);
   }
 
-  const uint32_t i32 = NUM2UINT(i);
+  i32 = NUM2UINT(i);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   pvt_put_uint32(b, i32);
