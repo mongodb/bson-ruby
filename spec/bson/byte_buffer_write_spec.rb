@@ -642,6 +642,34 @@ describe BSON::ByteBuffer do
       end
     end
 
+    context 'when number is 2^31' do 
+      let(:modified) do
+        buffer.put_uint32(2147483648)
+      end
+
+      it 'returns gets the correct number from the buffer' do
+        expect(modified.get_uint32).to eq(2147483648)
+      end
+
+      it 'returns the length of the buffer' do
+        expect(modified.length).to eq(4)
+      end
+    end
+
+    context 'when number is 2^31-1' do 
+      let(:modified) do
+        buffer.put_uint32(2147483647)
+      end
+
+      it 'returns gets the correct number from the buffer' do
+        expect(modified.get_uint32).to eq(2147483647)
+      end
+
+      it 'returns the length of the buffer' do
+        expect(modified.length).to eq(4)
+      end
+    end
+
     context 'when number is not in range' do 
       it 'raises error on out of top range' do
         expect{ buffer.put_uint32(4294967296) }.to raise_error(RangeError, "Number 4294967296 is out of range [0, 2^32)")
