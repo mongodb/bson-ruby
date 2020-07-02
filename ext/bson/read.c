@@ -21,6 +21,7 @@ static void pvt_raise_decode_error(volatile VALUE msg);
 static int32_t pvt_validate_length(byte_buffer_t *b);
 static uint8_t pvt_get_type_byte(byte_buffer_t *b);
 static VALUE pvt_get_int32(byte_buffer_t *b);
+static VALUE pvt_get_uint32(byte_buffer_t *b);
 static VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv);
 static VALUE pvt_get_double(byte_buffer_t *b);
 static VALUE pvt_get_string(byte_buffer_t *b, const char *data_type);
@@ -258,6 +259,28 @@ VALUE pvt_get_int32(byte_buffer_t *b)
   b->read_position += 4;
   return INT2NUM(BSON_UINT32_FROM_LE(i32));
 }
+
+/**
+ * Get an unsigned int32 from the buffer.
+ */
+VALUE rb_bson_byte_buffer_get_uint32(VALUE self)
+{
+  byte_buffer_t *b;
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  return pvt_get_uint32(b);
+}
+
+VALUE pvt_get_uint32(byte_buffer_t *b)
+{
+  uint32_t i32;
+
+  ENSURE_BSON_READ(b, 4);
+  memcpy(&i32, READ_PTR(b), 4);
+  b->read_position += 4;
+  return UINT2NUM(BSON_UINT32_FROM_LE(i32));
+}
+
 
 /**
  * Get a int64 from the buffer.

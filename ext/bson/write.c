@@ -27,6 +27,7 @@ static void pvt_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval
 static void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validating_keys);
 static void pvt_put_byte(byte_buffer_t *b, const char byte);
 static void pvt_put_int32(byte_buffer_t *b, const int32_t i32);
+static void pvt_put_uint32(byte_buffer_t *b, const uint32_t i32);
 static void pvt_put_int64(byte_buffer_t *b, const int64_t i);
 static void pvt_put_double(byte_buffer_t *b, double f);
 static void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length, const char *data_type);
@@ -385,6 +386,37 @@ VALUE rb_bson_byte_buffer_put_int32(VALUE self, VALUE i)
 void pvt_put_int32(byte_buffer_t *b, const int32_t i)
 {
   const int32_t i32 = BSON_UINT32_TO_LE(i);
+  ENSURE_BSON_WRITE(b, 4);
+  memcpy(WRITE_PTR(b), &i32, 4);
+  b->write_position += 4;
+}
+
+/* The docstring is in init.c. */
+VALUE rb_bson_byte_buffer_put_uint32(VALUE self, VALUE i)
+{
+  byte_buffer_t *b;
+  int64_t temp;
+  uint32_t i32;
+
+  if (RB_TYPE_P(i, T_FLOAT)) {
+    rb_raise(rb_eArgError, "put_uint32: incorrect type: float, expected: integer");
+  }
+
+  temp = NUM2LL(i);
+  if (temp < 0 || temp > UINT32_MAX) {
+    rb_raise(rb_eRangeError, "Number %lld is out of range [0, 2^32)", (long long)temp);
+  }
+
+  i32 = NUM2UINT(i);
+
+  TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
+  pvt_put_uint32(b, i32);
+  return self;
+}
+
+void pvt_put_uint32(byte_buffer_t *b, const uint32_t i)
+{
+  const uint32_t i32 = BSON_UINT32_TO_LE(i);
   ENSURE_BSON_WRITE(b, 4);
   memcpy(WRITE_PTR(b), &i32, 4);
   b->write_position += 4;

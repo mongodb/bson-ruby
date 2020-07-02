@@ -88,7 +88,7 @@ void Init_bson_native()
    * call-seq:
    *   buffer.get_array(**options) -> Array
    *
-   * Reads an array from the byte buffer..
+   * Reads an array from the byte buffer.
    *
    * @option options [ nil | :bson ] :mode Decoding mode to use.
    *
@@ -97,6 +97,18 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "get_array", rb_bson_byte_buffer_get_array, -1);
 
   rb_define_method(rb_byte_buffer_class, "get_int32", rb_bson_byte_buffer_get_int32, 0);
+  
+  /*
+   * call-seq:
+   *   buffer.get_uint32(buffer) -> Fixnum
+   *
+   * Reads an unsigned 32 bit number from the byte buffer.
+   *
+   * @return [ Fixnum ] The unsigned 32 bits integer from the buffer
+   *
+   * @api private
+   */
+  rb_define_method(rb_byte_buffer_class, "get_uint32", rb_bson_byte_buffer_get_uint32, 0);
   rb_define_method(rb_byte_buffer_class, "get_int64", rb_bson_byte_buffer_get_int64, 0);
   rb_define_method(rb_byte_buffer_class, "get_string", rb_bson_byte_buffer_get_string, 0);
 
@@ -201,6 +213,21 @@ void Init_bson_native()
    * Returns the modified +self+.
    */
   rb_define_method(rb_byte_buffer_class, "put_int32", rb_bson_byte_buffer_put_int32, 1);
+
+  /*
+   * call-seq:
+   *   buffer.put_uint32(fixnum) -> ByteBuffer
+   *
+   * Writes an unsigned 32-bit integer value to the buffer.
+   *
+   * If the argument cannot be represented in 32 bits, raises RangeError.
+   *
+   * Returns the modified +self+.
+   *
+   * @api private
+   *
+   */
+  rb_define_method(rb_byte_buffer_class, "put_uint32", rb_bson_byte_buffer_put_uint32, 1);
 
   /*
    * call-seq:

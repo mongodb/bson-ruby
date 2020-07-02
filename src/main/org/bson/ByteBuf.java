@@ -99,6 +99,11 @@ public class ByteBuf extends RubyObject {
   private int writePosition = 0;
 
   /**
+   * The size of an unsigned 32-bit integer: 2^32 - 1
+   */
+  private static long UINT32_MAX = 4294967295L;
+  
+  /**
    * Instantiate the ByteBuf - this is #allocate in Ruby.
    *
    * @author Durran Jordan
@@ -307,6 +312,26 @@ public class ByteBuf extends RubyObject {
   }
 
   /**
+   * Get a 32 bit integer from the buffer.
+   * 
+   */
+  @JRubyMethod(name = "get_uint32")
+  public RubyFixnum getUInt32() {
+    ensureBsonRead();
+
+    long temp = this.buffer.getInt();
+    // if temp is a negative number, convert to an unsigned 32 bit number
+    // by adding 2^32. For example if temp is -1, convert it to 2^32-1.
+    if (temp < 0) {
+      temp += UINT32_MAX + 1;
+    }
+    
+    RubyFixnum int32 = new RubyFixnum(getRuntime(), temp);
+    this.readPosition += 4;
+    return int32;
+  }
+
+  /**
    * Get a UTF-8 string from the buffer.
    *
    * @author Durran Jordan
@@ -484,6 +509,33 @@ public class ByteBuf extends RubyObject {
     }
     ensureBsonWrite(4);
     this.buffer.putInt(RubyNumeric.fix2int((RubyFixnum) value));
+    this.writePosition += 4;
+    return this;
+  }
+
+  /**
+   * Put an unsigned 32 bit integer onto the buffer.
+   *
+   * @param value The integer to write.
+   * 
+   */
+  @JRubyMethod(name = "put_uint32")
+  public ByteBuf putUInt32(ThreadContext context, IRubyObject value) {
+    if (value instanceof RubyFloat) {
+      throw getRuntime().newArgumentError("put_uint32: incorrect type: float, expected: integer");
+    }
+    ensureBsonWrite(4);
+
+    long temp = RubyNumeric.fix2long((RubyFixnum) value);
+    
+    if (temp > UINT32_MAX || temp < 0) {
+      throw getRuntime().newRangeError(format("Number %d is out of range [0, 2^32)", temp));
+    }
+
+    // When a long is cast to an int, Java appears to take the bits of the long and 
+    // use them as is for the int value. For example, if temp is 2^32-1, (int) temp
+    // would be -1, and if temp is 2^31, (int) temp would be -2^31.
+    this.buffer.putInt((int) temp);
     this.writePosition += 4;
     return this;
   }

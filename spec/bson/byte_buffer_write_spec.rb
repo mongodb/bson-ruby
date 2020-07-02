@@ -585,6 +585,102 @@ describe BSON::ByteBuffer do
     end
   end
 
+  describe '#put_uint32' do
+    context 'when argument is a float' do
+      it 'raises an Argument Error' do
+        expect{ buffer.put_uint32(4.934) }.to raise_error(ArgumentError, "put_uint32: incorrect type: float, expected: integer")
+      end
+    end
+    
+    context 'when number is in range' do 
+      let(:modified) do
+        buffer.put_uint32(5)
+      end
+
+      it 'returns gets the correct number from the buffer' do
+        expect(modified.get_uint32).to eq(5)
+      end
+
+      it 'returns the length of the buffer' do
+        expect(modified.length).to eq(4)
+      end
+    end
+
+    context 'when number is 0' do 
+      let(:modified) do
+        buffer.put_uint32(0)
+      end
+
+      it 'returns gets the correct number from the buffer' do
+        expect(modified.get_uint32).to eq(0)
+      end
+
+      it 'returns the length of the buffer' do
+        expect(modified.length).to eq(4)
+      end
+    end
+
+    context 'when number doesn\'t fit in signed int32' do 
+      let(:modified) do
+        buffer.put_uint32(4294967295)
+      end
+
+      let(:expected) do
+        [ 4294967295 ].pack(BSON::Int32::PACK)
+      end
+
+      it 'appends the int32 to the byte buffer' do
+        expect(modified.to_s).to eq(expected)
+      end
+
+      it 'get returns correct number' do
+        expect(modified.get_uint32).to eq(4294967295)
+      end
+
+      it 'returns the length of the buffer' do
+        expect(modified.length).to eq(4)
+      end
+    end
+
+    context 'when number is 2^31' do 
+      let(:modified) do
+        buffer.put_uint32(2147483648)
+      end
+
+      it 'returns gets the correct number from the buffer' do
+        expect(modified.get_uint32).to eq(2147483648)
+      end
+
+      it 'returns the length of the buffer' do
+        expect(modified.length).to eq(4)
+      end
+    end
+
+    context 'when number is 2^31-1' do 
+      let(:modified) do
+        buffer.put_uint32(2147483647)
+      end
+
+      it 'returns gets the correct number from the buffer' do
+        expect(modified.get_uint32).to eq(2147483647)
+      end
+
+      it 'returns the length of the buffer' do
+        expect(modified.length).to eq(4)
+      end
+    end
+
+    context 'when number is not in range' do 
+      it 'raises error on out of top range' do
+        expect{ buffer.put_uint32(4294967296) }.to raise_error(RangeError, "Number 4294967296 is out of range [0, 2^32)")
+      end
+
+      it 'raises error on out of bottom range' do
+        expect{ buffer.put_uint32(-1) }.to raise_error(RangeError, "Number -1 is out of range [0, 2^32)")
+      end
+    end
+  end
+
   describe '#put_int64' do
 
     context 'when the integer is 64 bit' do

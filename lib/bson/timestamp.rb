@@ -124,8 +124,8 @@ module BSON
     #
     # @since 2.0.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      buffer.put_int32(increment)
-      buffer.put_int32(seconds)
+      buffer.put_uint32(increment)
+      buffer.put_uint32(seconds)
     end
 
     # Deserialize timestamp from BSON.
@@ -140,8 +140,8 @@ module BSON
     #
     # @since 2.0.0
     def self.from_bson(buffer, **options)
-      increment = buffer.get_int32
-      seconds = buffer.get_int32
+      increment = buffer.get_uint32
+      seconds = buffer.get_uint32
       new(seconds, increment)
     end
 

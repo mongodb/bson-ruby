@@ -66,7 +66,7 @@ describe BSON::ByteBuffer do
   describe '#get_double' do
 
     let(:buffer) do
-      described_class.new("#{12.5.to_bson.to_s}")
+      described_class.new(12.5.to_bson.to_s)
     end
 
     let!(:double) do
@@ -85,7 +85,7 @@ describe BSON::ByteBuffer do
   describe '#get_int32' do
 
     let(:buffer) do
-      described_class.new("#{12.to_bson.to_s}")
+      described_class.new(12.to_bson.to_s)
     end
 
     let!(:int32) do
@@ -101,10 +101,66 @@ describe BSON::ByteBuffer do
     end
   end
 
+  describe '#get_uint32' do
+    context 'when using 2^32-1' do
+      let(:buffer) do
+        described_class.new(4294967295.to_bson.to_s)
+      end
+
+      let!(:int32) do
+        buffer.get_uint32
+      end
+
+      it 'gets the uint32 from the buffer' do
+        expect(int32).to eq(4294967295)
+      end
+
+      it 'increments the position by 4' do
+        expect(buffer.read_position).to eq(4)
+      end
+    end
+    
+    context 'when using 2^32-2' do
+      let(:buffer) do
+        described_class.new(4294967294.to_bson.to_s)
+      end
+
+      let!(:int32) do
+        buffer.get_uint32
+      end
+
+      it 'gets the uint32 from the buffer' do
+        expect(int32).to eq(4294967294)
+      end
+
+      it 'increments the position by 4' do
+        expect(buffer.read_position).to eq(4)
+      end
+    end
+
+    context 'when using 0' do
+      let(:buffer) do
+        described_class.new(0.to_bson.to_s)
+      end
+
+      let!(:int32) do
+        buffer.get_uint32
+      end
+
+      it 'gets the uint32 from the buffer' do
+        expect(int32).to eq(0)
+      end
+
+      it 'increments the position by 4' do
+        expect(buffer.read_position).to eq(4)
+      end
+    end
+  end
+
   describe '#get_int64' do
 
     let(:buffer) do
-      described_class.new("#{(Integer::MAX_64BIT - 1).to_bson.to_s}")
+      described_class.new((Integer::MAX_64BIT - 1).to_bson.to_s)
     end
 
     let!(:int64) do

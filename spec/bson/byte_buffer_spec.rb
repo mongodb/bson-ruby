@@ -30,15 +30,18 @@ describe BSON::ByteBuffer do
       let(:buffer) do
         described_class.new
       end
+      
+      context '#put_int32' do 
+        before do
+          buffer.put_int32(5)
+        end
 
-      before do
-        buffer.put_int32(5)
-      end
-
-      it 'returns the length of the buffer' do
-        expect(buffer.length).to eq(4)
+        it 'returns the length of the buffer' do
+          expect(buffer.length).to eq(4)
+        end
       end
     end
+
 
     context 'when the byte buffer is initialized with some bytes' do
 
