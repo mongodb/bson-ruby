@@ -102,7 +102,6 @@ public class ByteBuf extends RubyObject {
    * The size of an unsigned 32-bit integer: 2^32 - 1
    */
   private static long UINT32_MAX = 4294967295L;
-
   
   /**
    * Instantiate the ByteBuf - this is #allocate in Ruby.
@@ -529,7 +528,7 @@ public class ByteBuf extends RubyObject {
 
     long temp = RubyNumeric.fix2long((RubyFixnum) value);
     
-    if (temp > UINT32_MAX || temp < 0) { // TODO: change to UINT32_MAX
+    if (temp > UINT32_MAX || temp < 0) {
       throw getRuntime().newRangeError(format("Number %d is out of range [0, 2^32)", temp));
     }
 
