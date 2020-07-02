@@ -99,14 +99,10 @@ public class ByteBuf extends RubyObject {
   private int writePosition = 0;
 
   /**
-   * The size of an unsigned 32-bit integer: 2^32
+   * The size of an unsigned 32-bit integer: 2^32 - 1
    */
-  private static long UINT32_SIZE = 4294967296L;
+  private static long UINT32_MAX = 4294967295L;
 
-  /**
-   * The max of an signed 32-bit integer: 2^31
-   */
-  private static long INT32_MAX = 2147483647L;
   
   /**
    * Instantiate the ByteBuf - this is #allocate in Ruby.
@@ -325,8 +321,10 @@ public class ByteBuf extends RubyObject {
     ensureBsonRead();
 
     long temp = this.buffer.getInt();
+    // if temp is a negative number, convert to an unsigned 32 bit number
+    // by adding 2^32. For example if temp is -1, convert it to 2^32-1.
     if (temp < 0) {
-      temp += UINT32_SIZE;
+      temp += UINT32_MAX + 1;
     }
     
     RubyFixnum int32 = new RubyFixnum(getRuntime(), temp);
@@ -531,14 +529,13 @@ public class ByteBuf extends RubyObject {
 
     long temp = RubyNumeric.fix2long((RubyFixnum) value);
     
-    if (temp >= UINT32_SIZE || temp < 0) {
+    if (temp > UINT32_MAX || temp < 0) { // TODO: change to UINT32_MAX
       throw getRuntime().newRangeError(format("Number %d is out of range [0, 2^32)", temp));
     }
-    
-    if (temp > INT32_MAX + 1) {
-      temp -= UINT32_SIZE;
-    }
 
+    // When a long is cast to an int, Java appears to take the bits of the long and 
+    // use them as is for the int value. For example, if temp is 2^32-1, (int) temp
+    // would be -1, and if temp is 2^31, (int) temp would be -2^31.
     this.buffer.putInt((int) temp);
     this.writePosition += 4;
     return this;
