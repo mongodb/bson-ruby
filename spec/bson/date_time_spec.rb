@@ -65,7 +65,7 @@ describe DateTime do
         end
       end
 
-      context "when putting and recieving from bson" do 
+      context "when putting and receiving from bson" do 
 
         let(:shakespeare) do
           Hash.from_bson(BSON::ByteBuffer.new({ a: shakespeare_datetime }.to_bson.to_s))
