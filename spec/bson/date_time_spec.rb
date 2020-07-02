@@ -36,7 +36,8 @@ describe DateTime do
       it_behaves_like "a serializable bson element"
     end
 
-    context "when the dates doesn't both use Gregorian" do
+    context "when the dates don't both use Gregorian" do
+      
       let(:shakespeare_datetime) do 
         DateTime.iso8601('1616-04-23', Date::ENGLAND)
       end
@@ -46,6 +47,7 @@ describe DateTime do
       end
 
       context "when putting to bson" do 
+        
         let(:shakespeare) do
           { a: shakespeare_datetime }.to_bson
         end
@@ -55,11 +57,11 @@ describe DateTime do
         end
 
         it "does not equal each other" do 
-          expect(shakespeare).to_not eq(gregorian)
+          expect(shakespeare.to_s).to_not eq(gregorian.to_s)
         end
 
         it "the english date is 10 days later" do 
-          expect(shakespeare).to_not eq(DateTime.iso8601('1616-05-03', Date::GREGORIAN).to_bson)
+          expect(shakespeare.to_s).to eq({ a: DateTime.iso8601('1616-05-03', Date::GREGORIAN) }.to_bson.to_s)
         end
       end
 
@@ -84,7 +86,6 @@ describe DateTime do
         it "the gregorian date is the same" do
           expect(gregorian[:a]).to eq(DateTime.iso8601('1616-04-23', Date::GREGORIAN).to_time)
         end
-
       end
     end
   end
