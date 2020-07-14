@@ -497,24 +497,24 @@ decodes BSON symbols into Ruby ``Symbol`` values:
 
   .. code-block:: ruby
 
-  {foo: :bar}.to_bson.to_s
-  # => "\x12\x00\x00\x00\x02foo\x00\x04\x00\x00\x00bar\x00\x00"
+    {foo: :bar}.to_bson.to_s
+    # => "\x12\x00\x00\x00\x02foo\x00\x04\x00\x00\x00bar\x00\x00"
 
-  # 0x02 is the string type
-  Hash.from_bson(BSON::ByteBuffer.new("\x12\x00\x00\x00\x02foo\x00\x04\x00\x00\x00bar\x00\x00".force_encoding('BINARY')))
-  # => {"foo"=>"bar"}
+    # 0x02 is the string type
+    Hash.from_bson(BSON::ByteBuffer.new("\x12\x00\x00\x00\x02foo\x00\x04\x00\x00\x00bar\x00\x00".force_encoding('BINARY')))
+    # => {"foo"=>"bar"}
 
-  # 0x0E is the symbol type
-  Hash.from_bson(BSON::ByteBuffer.new("\x12\x00\x00\x00\x0Efoo\x00\x04\x00\x00\x00bar\x00\x00".force_encoding('BINARY')))
-  # => {"foo"=>:bar}
+    # 0x0E is the symbol type
+    Hash.from_bson(BSON::ByteBuffer.new("\x12\x00\x00\x00\x0Efoo\x00\x04\x00\x00\x00bar\x00\x00".force_encoding('BINARY')))
+    # => {"foo"=>:bar}
 
 To force encoding of Ruby symbols to BSON symbols, wrap the Ruby symbols in
 ``BSON::Symbol::Raw``:
 
   .. code-block:: ruby
 
-  {foo: BSON::Symbol::Raw.new(:bar)}.to_bson.to_s
-  # => "\x12\x00\x00\x00\x0Efoo\x00\x04\x00\x00\x00bar\x00\x00"
+    {foo: BSON::Symbol::Raw.new(:bar)}.to_bson.to_s
+    # => "\x12\x00\x00\x00\x0Efoo\x00\x04\x00\x00\x00bar\x00\x00"
 
 JSON Serialization
 ------------------
@@ -571,11 +571,11 @@ millisecond.
 
   .. code-block:: ruby
 
-  time = Time.utc(1960, 1, 1, 0, 0, 0, 999_999)
-  time.to_f
-  # => -315619199.000001
-  time.floor(3).to_f
-  # => -315619199.001
+    time = Time.utc(1960, 1, 1, 0, 0, 0, 999_999)
+    time.to_f
+    # => -315619199.000001
+    time.floor(3).to_f
+    # => -315619199.001
 
 .. note::
 
