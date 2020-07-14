@@ -486,14 +486,11 @@ strings to be used instead.
 
   .. code-block:: ruby
 
-  Hash.from_bson({foo: 'bar'}.to_bson)
-  # => {"foo"=>"bar"}
+    Hash.from_bson({foo: 'bar'}.to_bson)
+    # => {"foo"=>"bar"}
 
-  Hash.from_bson({foo: 'bar'}.to_bson)
-  # => {"foo"=>"bar"}
-
-  Hash.from_bson({1 => 2}.to_bson)
-  # => {"1"=>2}
+    Hash.from_bson({1 => 2}.to_bson)
+    # => {"1"=>2}
 
 By default, the BSON library encodes ``Symbol`` hash values as strings and
 decodes BSON symbols into Ruby ``Symbol`` values:
