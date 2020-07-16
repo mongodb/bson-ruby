@@ -107,4 +107,20 @@ describe BSON::ByteBuffer do
       expect(buffer.write_position).to eq(1)
     end
   end
+
+  context "when doing reads/writes interrmittently" do
+
+    let(:buffer) do
+      described_class.new
+    end
+
+    it "gets the right values in order" do
+      buffer.put_int32(5)
+      buffer.put_int32(2)
+      expect(buffer.get_int32).to be(5)
+      buffer.put_int32(1)
+      expect(buffer.get_int32).to be(2)
+      expect(buffer.get_int32).to be(1)
+    end
+  end
 end
