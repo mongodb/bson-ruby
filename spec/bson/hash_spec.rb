@@ -250,7 +250,7 @@ describe Hash do
         {}.to_bson
       end
 
-      it 'has length 0' do 
+      it 'returns the empty hash when writing then reading from the buffer' do 
         expect(Hash.from_bson(buffer)).to eq({})
       end
     end
