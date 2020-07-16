@@ -244,6 +244,16 @@ describe Hash do
           /(Hash value for key 'foo'|Value) does not define its BSON serialized type:.*HashSpecUnserializableClass/)
       end
     end
+
+    context 'when hash is empty' do 
+      let(:buffer) do 
+        {}.to_bson
+      end
+
+      it 'has length 0' do 
+        expect(Hash.from_bson(buffer)).to eq({})
+      end
+    end
   end
 
   describe '#to_bson' do
