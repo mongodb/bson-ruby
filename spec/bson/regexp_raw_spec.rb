@@ -159,28 +159,6 @@ describe Regexp::Raw do
         end
       end
     end
-
-    context 'when options are not passed' do
-
-      let(:object) do
-        described_class.new(pattern)
-      end
-
-      it "sets no options on the raw regex" do
-        expect(object.options). to eq('')
-      end
-
-      context "When the raw regexp is compiled" do
-
-        let(:regexp) do
-          object.compile
-        end
-
-        it "sets the options on the compiled regexp object" do
-          expect(regexp.options).to eq(0)
-        end
-      end
-    end
   end
 
   describe "#from_bson" do
