@@ -174,10 +174,32 @@ describe Regexp::Raw do
 
     shared_examples 'does not have options' do
 
-      it 'does not have options' do
+      it 'does not have own options' do
         object.options.should == ''
         object.options_i.should == 0
         object.options_s.should == ''
+      end
+
+      context 'when options are passed in separately' do
+        context 'as integer' do
+          let(:options) { Regexp::MULTILINE }
+
+          it 'stores options' do
+            object.options.should == Regexp::MULTILINE
+            object.options_i.should == Regexp::MULTILINE
+            object.options_s.should == 'm'
+          end
+        end
+
+        context 'as string' do
+          let(:options) { 'm' }
+
+          it 'stores options' do
+            object.options.should == 'm'
+            object.options_i.should == Regexp::MULTILINE
+            object.options_s.should == 'm'
+          end
+        end
       end
     end
 

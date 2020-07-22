@@ -166,7 +166,7 @@ module BSON
           if pattern.options_i > 0 && options_i > 0
             raise ArgumentError, "BSON::Regexp::Raw argument to constructor may not contain options if options are also provided separately"
           end
-          if options_i.nil?
+          if options_i == 0
             @options_i = pattern.options_i
             @options_s = pattern.options_s
             @options = pattern.options_s
@@ -176,7 +176,7 @@ module BSON
           if pattern.options > 0 && options_i > 0
             raise ArgumentError, "Regexp argument to constructor may not contain options if options are also provided separately"
           end
-          if options_i.nil?
+          if options_i == 0
             @options_i = pattern.options
             @options = pattern.options
             @options_s = options_to_s
