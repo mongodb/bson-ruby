@@ -60,14 +60,7 @@ describe Regexp::Raw do
       described_class.new(pattern, options)
     end
 
-    context "when options are not passed" do
-
-      let(:options) { nil }
-
-      it "sets the options on the raw regex to empty string" do
-        expect(object.options).to eq('')
-      end
-
+    shared_examples 'uses default options' do
       context "When the raw regexp is compiled" do
 
         let(:regexp) do
@@ -80,7 +73,40 @@ describe Regexp::Raw do
       end
     end
 
-    context "when options are passed" do
+    context "when options are not passed" do
+
+      let(:options) { nil }
+
+      it "sets the options on the raw regex to empty string" do
+        expect(object.options).to eq('')
+      end
+
+      it_behaves_like 'uses default options'
+    end
+
+    context "when options are an empty string" do
+
+      let(:options) { '' }
+
+      it "sets the options on the raw regex to empty string" do
+        expect(object.options).to eq('')
+      end
+
+      it_behaves_like 'uses default options'
+    end
+
+    context "when options are 0" do
+
+      let(:options) { 0 }
+
+      it "sets the options on the raw regex to 0" do
+        expect(object.options).to eq(0)
+      end
+
+      it_behaves_like 'uses default options'
+    end
+
+    context "when options are provided" do
 
       context "when options are an Integer" do
 
