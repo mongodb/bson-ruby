@@ -172,12 +172,23 @@ describe Regexp::Raw do
       end
     end
 
+    shared_examples 'does not have options' do
+
+      it 'does not have options' do
+        object.options.should == ''
+        object.options_i.should == 0
+        object.options_s.should == ''
+      end
+    end
+
     context 'when pattern is a string' do
       let(:pattern) { 'foo...' }
 
       it 'stores pattern as string' do
         object.pattern.should == 'foo...'
       end
+
+      it_behaves_like 'does not have options'
     end
 
     context 'when pattern is a regexp' do
@@ -186,6 +197,8 @@ describe Regexp::Raw do
       it 'stores pattern as string' do
         object.pattern.should == 'foo...'
       end
+
+      it_behaves_like 'does not have options'
     end
 
     context 'when pattern is a bson regexp' do
@@ -194,6 +207,8 @@ describe Regexp::Raw do
       it 'stores pattern as string' do
         object.pattern.should == 'foo...'
       end
+
+      it_behaves_like 'does not have options'
     end
   end
 
