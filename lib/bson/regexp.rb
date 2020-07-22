@@ -122,24 +122,6 @@ module BSON
     class Raw
       include JSON
 
-      # @return [ String ] pattern The regex pattern.
-      attr_reader :pattern
-
-      # @return [ Integer ] options The options.
-      attr_reader :options
-
-      # Compile the Regular expression into the native type.
-      #
-      # @example Compile the regular expression.
-      #   raw.compile
-      #
-      # @return [ ::Regexp ] The compiled regular expression.
-      #
-      # @since 3.0.0
-      def compile
-        @compiled ||= ::Regexp.new(pattern, options_to_i)
-      end
-
       # Initialize the new raw regular expression.
       #
       # @example Initialize the raw regexp.
@@ -166,12 +148,13 @@ module BSON
         end
         @options = options || ''
         if options == '' || options == 0
-          @options_i = @options_s = nil
+          @options_i = 0
+          @options_s = ''
         elsif String === options
           @options_i = options_to_i
           @options_s = options
         else
-          @options_i = options
+          @options_i = options || 0
           @options_s = options_to_s
         end
 
@@ -197,7 +180,7 @@ module BSON
             @options_i = pattern.options
             @options = pattern.options
             @options_s = options_to_s
-            @options = pattern.options_s
+            @options = options_to_s
           end
           pattern = pattern.source
         when String
@@ -207,6 +190,18 @@ module BSON
         end
         @pattern = pattern
       end
+
+      # @return [ String ] pattern The regex pattern.
+      attr_reader :pattern
+
+      # @return [ Integer ] options The options.
+      attr_reader :options
+
+      # @return [ Integer ] options The options as an integer.
+      attr_reader :options_i
+
+      # @return [ String ] options The options as a string.
+      attr_reader :options_s
 
       # Allow automatic delegation of methods to the Regexp object
       # returned by +compile+.
@@ -222,6 +217,18 @@ module BSON
           # is initialized.
           super
         end
+      end
+
+      # Compile the Regular expression into the native type.
+      #
+      # @example Compile the regular expression.
+      #   raw.compile
+      #
+      # @return [ ::Regexp ] The compiled regular expression.
+      #
+      # @since 3.0.0
+      def compile
+        @compiled ||= ::Regexp.new(pattern, options_to_i)
       end
 
       # Encode the Raw Regexp object to BSON.

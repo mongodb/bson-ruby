@@ -61,6 +61,18 @@ describe Regexp::Raw do
     end
 
     shared_examples 'uses default options' do
+      context 'options_i' do
+        it 'is 0' do
+          object.options_i.should == 0
+        end
+      end
+
+      context 'options_s' do
+        it 'is empty string' do
+          object.options_s.should == ''
+        end
+      end
+
       context "When the raw regexp is compiled" do
 
         let(:regexp) do
