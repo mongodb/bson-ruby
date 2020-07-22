@@ -137,7 +137,7 @@ module BSON
       #
       # @since 3.0.0
       def compile
-        @compiled ||= ::Regexp.new(pattern, options_to_int)
+        @compiled ||= ::Regexp.new(pattern, options_to_i)
       end
 
       # Initialize the new raw regular expression.
@@ -146,7 +146,7 @@ module BSON
       #   Raw.new(pattern, options)
       #
       # @param [ String ] pattern The regular expression pattern.
-      # @param [ String, Integer ] options The options.
+      # @param [ nil | String | Integer ] options The options.
       #
       # @note The ability to specify options as an Integer is deprecated.
       #  Please specify options as a String. The ability to pass options as
@@ -154,8 +154,60 @@ module BSON
       #
       # @since 3.0.0
       def initialize(pattern, options = '')
-        @pattern = pattern
+        # Funky options handling for backwards compatibility.
+        # The options as given are written to @options and are exposed via the
+        # options attribute.
+        # String options are exposed as options_str.
+        # Integer options are exposed as options_int.
+        # If there are no options, options_str and options_int will be nil
+        # but options may be an empty string or 0.
+        unless options.nil? || String === options || Integer === options
+          raise ArgumentError, "Options must be a String or an Integer: #{options.inspect}"
+        end
         @options = options
+        if options == '' || options == 0
+          @options_i = @options_s = nil
+        elsif String === options
+          @options_i = options_to_i
+          @options_s = options
+        else
+          @options_i = options
+          @options_s = options_to_s
+        end
+
+        # MQL $regex operator can take separate $options as a peer hash key.
+        # To support this we allow our Regexp::Raw instances to be constructed
+        # from strings & options as well as from regexps & options.
+        case pattern
+        when self.class
+          if pattern.options_i && options_i
+            raise ArgumentError, "BSON::Regexp::Raw argument to constructor may not contain options if options are also provided separately"
+          end
+          if options_i.nil?
+            @options_i = pattern.options_i
+            @options_s = pattern.options_s
+            @options = pattern.options_s
+          end
+          pattern = pattern.pattern
+        when ::Regexp
+          if pattern.options > 0 && options_i
+            raise ArgumentError, "Regexp argument to constructor may not contain options if options are also provided separately"
+          end
+          if options_i.nil?
+            @options_i = pattern.options
+            @options = pattern.options
+            @options_s = options_to_s
+            @options = pattern.options_s
+          end
+          pattern = pattern.source
+        when String
+          # Nothing
+        else
+          raise ArgumentError, "Pattern must be a String, a Regexp or a BSON::Regexp::Raw instance: #{pattern.inspect}"
+        end
+
+        @pattern = pattern
+        @options = options || ''
       end
 
       # Allow automatic delegation of methods to the Regexp object
@@ -253,12 +305,23 @@ module BSON
         compile.send(method, *arguments)
       end
 
-      def options_to_int
+      def options_to_i
         return options if options.is_a?(Integer)
+        # TODO warn or fail on unhandled options
         opts = 0
         opts |= ::Regexp::IGNORECASE if options.include?(IGNORECASE_VALUE)
         opts |= ::Regexp::MULTILINE if options.include?(NEWLINE_VALUE)
         opts |= ::Regexp::EXTENDED if options.include?(EXTENDED_VALUE)
+        opts
+      end
+
+      def options_to_s
+        return options if options.is_a?(String)
+        # TODO warn or fail on unhandled options
+        opts = ''
+        opts << ::Regexp::IGNORECASE_VALUE if options & ::Regexp::IGNORECASE > 0
+        opts << ::Regexp::NEWLINE_VALUE if options & ::Regexp::MULTILINE > 0
+        opts << ::Regexp::EXTENDED_VALUE if options & ::Regexp::EXTENDED > 0
         opts
       end
     end
