@@ -74,7 +74,7 @@ describe Regexp::Raw do
           object.compile
         end
 
-        it "sets the options on the compiled regexp object" do
+        it "sets the options on the compiled regexp object to 0" do
           expect(regexp.options).to eq(0)
         end
       end
@@ -99,6 +99,17 @@ describe Regexp::Raw do
           it "sets the options on the compiled regexp object" do
             expect(regexp.options).to eq(options)
           end
+        end
+      end
+
+      context "when options are a float" do
+
+        let(:options) { 1.0 }
+
+        it 'raises ArgumentError' do
+          lambda do
+            object
+          end.should raise_error(ArgumentError, /Options must be a String or an Integer/)
         end
       end
 
