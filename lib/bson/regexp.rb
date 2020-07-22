@@ -164,7 +164,7 @@ module BSON
         unless options.nil? || String === options || Integer === options
           raise ArgumentError, "Options must be a String or an Integer: #{options.inspect}"
         end
-        @options = options
+        @options = options || ''
         if options == '' || options == 0
           @options_i = @options_s = nil
         elsif String === options
@@ -205,9 +205,7 @@ module BSON
         else
           raise ArgumentError, "Pattern must be a String, a Regexp or a BSON::Regexp::Raw instance: #{pattern.inspect}"
         end
-
         @pattern = pattern
-        @options = options || ''
       end
 
       # Allow automatic delegation of methods to the Regexp object
@@ -306,6 +304,7 @@ module BSON
       end
 
       def options_to_i
+        return 0 unless options
         return options if options.is_a?(Integer)
         # TODO warn or fail on unhandled options
         opts = 0

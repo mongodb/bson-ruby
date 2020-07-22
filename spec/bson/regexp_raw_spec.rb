@@ -62,8 +62,10 @@ describe Regexp::Raw do
 
     context "when options are not passed" do
 
-      it "sets the options on the raw regex" do
-        expect(object.options). to eq(options)
+      let(:options) { nil }
+
+      it "sets the options on the raw regex to empty string" do
+        expect(object.options).to eq('')
       end
 
       context "When the raw regexp is compiled" do
