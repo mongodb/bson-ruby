@@ -171,6 +171,30 @@ describe Regexp::Raw do
         end
       end
     end
+
+    context 'when pattern is a string' do
+      let(:pattern) { 'foo...' }
+
+      it 'stores pattern as string' do
+        object.pattern.should == 'foo...'
+      end
+    end
+
+    context 'when pattern is a regexp' do
+      let(:pattern) { /foo.../ }
+
+      it 'stores pattern as string' do
+        object.pattern.should == 'foo...'
+      end
+    end
+
+    context 'when pattern is a bson regexp' do
+      let(:pattern) { described_class.new('foo...') }
+
+      it 'stores pattern as string' do
+        object.pattern.should == 'foo...'
+      end
+    end
   end
 
   describe "#from_bson" do

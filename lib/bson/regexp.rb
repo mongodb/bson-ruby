@@ -163,7 +163,7 @@ module BSON
         # from strings & options as well as from regexps & options.
         case pattern
         when self.class
-          if pattern.options_i && options_i
+          if pattern.options_i > 0 && options_i > 0
             raise ArgumentError, "BSON::Regexp::Raw argument to constructor may not contain options if options are also provided separately"
           end
           if options_i.nil?
@@ -173,7 +173,7 @@ module BSON
           end
           pattern = pattern.pattern
         when ::Regexp
-          if pattern.options > 0 && options_i
+          if pattern.options > 0 && options_i > 0
             raise ArgumentError, "Regexp argument to constructor may not contain options if options are also provided separately"
           end
           if options_i.nil?
