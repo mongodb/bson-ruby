@@ -42,12 +42,12 @@ void pvt_raise_decode_error(volatile VALUE msg) {
 int32_t pvt_validate_length(byte_buffer_t *b)
 {
   int32_t length;
-  
+
   ENSURE_BSON_READ(b, 4);
   memcpy(&length, READ_PTR(b), 4);
   length = BSON_UINT32_TO_LE(length);
 
-  /* minimum valid length is 4 (byte count) + 1 (terminating byte) */ 
+  /* minimum valid length is 4 (byte count) + 1 (terminating byte) */
   if(length >= 5){
     ENSURE_BSON_READ(b, length);
 
@@ -60,7 +60,7 @@ int32_t pvt_validate_length(byte_buffer_t *b)
   else{
     rb_raise(rb_eRangeError, "Buffer contained invalid length %d at %zu", length, b->read_position);
   }
-  
+
   return length;
 }
 
@@ -176,13 +176,13 @@ VALUE pvt_get_string(byte_buffer_t *b, const char *data_type)
   }
   ENSURE_BSON_READ(b, 4 + length);
   str_ptr = READ_PTR(b) + 4;
-  last_byte = *(READ_PTR(b) + 4 + length_le - 1);
+  last_byte = *(READ_PTR(b) + 4 + length - 1);
   if (last_byte != 0) {
     pvt_raise_decode_error(rb_sprintf("Last byte of the string is not null: 0x%x", (int) last_byte));
   }
   rb_bson_utf8_validate(str_ptr, length - 1, true, data_type);
   string = rb_enc_str_new(str_ptr, length - 1, rb_utf8_encoding());
-  b->read_position += 4 + length_le;
+  b->read_position += 4 + length;
   return string;
 }
 
@@ -206,7 +206,7 @@ VALUE pvt_get_symbol(byte_buffer_t *b, VALUE rb_buffer, int argc, VALUE *argv)
     klass = rb_funcall(rb_bson_registry, rb_intern("get"), 1, INT2FIX(BSON_TYPE_SYMBOL));
     value = rb_funcall(klass, rb_intern("from_bson"), 1, rb_buffer);
   }
-  
+
   RB_GC_GUARD(klass);
   return value;
 }
@@ -307,7 +307,7 @@ VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv)
   memcpy(&i64, READ_PTR(b), 8);
   b->read_position += 8;
   num = LL2NUM(BSON_UINT64_FROM_LE(i64));
-  
+
   if (pvt_get_mode_option(argc, argv) == BSON_MODE_BSON) {
     VALUE klass = rb_funcall(rb_bson_registry,rb_intern("get"),1, INT2FIX(BSON_TYPE_INT64));
     VALUE value = rb_funcall(klass, rb_intern("new"), 1, num);
@@ -316,7 +316,7 @@ VALUE pvt_get_int64(byte_buffer_t *b, int argc, VALUE *argv)
   } else {
     return num;
   }
-  
+
   RB_GC_GUARD(num);
 }
 
@@ -376,11 +376,11 @@ VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
     rb_hash_aset(doc, field, pvt_read_field(b, self, type, argc, argv));
     RB_GC_GUARD(field);
   }
-  
+
   if (READ_PTR(b) - start_ptr != length) {
     pvt_raise_decode_error(rb_sprintf("Expected to read %d bytes for the hash but read %ld bytes", length, READ_PTR(b) - start_ptr));
   }
-  
+
   return doc;
 }
 
@@ -402,10 +402,10 @@ VALUE rb_bson_byte_buffer_get_array(int argc, VALUE *argv, VALUE self){
     rb_ary_push(array,  pvt_read_field(b, self, type, argc, argv));
   }
   RB_GC_GUARD(array);
-  
+
   if (READ_PTR(b) - start_ptr != length) {
     pvt_raise_decode_error(rb_sprintf("Expected to read %d bytes for the hash but read %ld bytes", length, READ_PTR(b) - start_ptr));
   }
-  
+
   return array;
 }
