@@ -609,7 +609,7 @@ BSON only supports storing the time as the number of seconds since the
 Unix epoch. Ruby's ``Date`` instances can be serialized to BSON, but when
 the BSON is deserialized the times will be returned as ``Time`` instances.
 
-When ``Date`` instances are serialized, the time value used is the midnight
+When ``Date`` instances are serialized, the time value used is midnight
 of the day that the ``Date`` refers to in UTC.
 
 
