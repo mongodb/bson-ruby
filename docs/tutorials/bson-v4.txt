@@ -596,6 +596,11 @@ Unix epoch. Ruby's ``DateTime`` instances can be serialized to BSON,
 but when the BSON is deserialized the times will be returned as
 ``Time`` instances.
 
+``DateTime`` class in Ruby supports non-Gregorian calendars. When non-Gregorian
+``DateTime`` instances are serialized, they are first converted to Gregorian
+calendar, and the respective date in the Gregorian calendar is stored in the
+database.
+
 
 Date Instances
 --------------
