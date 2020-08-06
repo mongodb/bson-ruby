@@ -5,11 +5,6 @@ git:
 
 before_install:
   - gem install bundler -v '<2'
-  - |
-    if [ "${COMMIT}" != "" ]; then
-      echo "Checking out ${COMMIT} ..."
-      git checkout "${COMMIT}"
-    fi
 
 rvm:
   - 2.3
@@ -23,20 +18,12 @@ jobs:
   include:
     - arch: s390x
       rvm: 2.7.1
-    - arch: s390x
-      rvm: 2.7.1
-      env:
-        - COMMIT=v4.9.0
-    - arch: s390x
-      rvm: 2.7.1
-      env:
-        - COMMIT=v4.8.2
 
 notifications:
   email: false
   flowdock: 1da4416b8ff98d1880986472428b1b1b
 
-# branches:
-#   only:
-#     - master
-#     - 5.0-dev
+branches:
+  only:
+    - master
+    - 5.0-dev
