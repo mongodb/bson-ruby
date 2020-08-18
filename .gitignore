@@ -30,3 +30,5 @@ yard-docs
 lib/*.jar
 .yardoc
 .byebug_history
+.env
+.env.private*
