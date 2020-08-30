@@ -310,4 +310,50 @@ describe Hash do
       end
     end
   end
+
+  describe '#from_bson' do
+    context 'when bson document has duplicate keys' do
+      let(:buf) do
+        buf = BSON::ByteBuffer.new
+        buf.put_int32(37)
+        buf.put_byte("\x02")
+        buf.put_cstring('foo')
+        buf.put_string('bar')
+        buf.put_byte("\x02")
+        buf.put_cstring('foo')
+        buf.put_string('overwrite')
+        buf.put_byte("\x00")
+
+        BSON::ByteBuffer.new(buf.to_s)
+      end
+
+      let(:doc) { Hash.from_bson(buf) }
+
+      it 'overwrites first value with second value' do
+        doc.should == {'foo' => 'overwrite'}
+      end
+    end
+
+    context 'when bson document has string and symbol keys of the same name' do
+      let(:buf) do
+        buf = BSON::ByteBuffer.new
+        buf.put_int32(31)
+        buf.put_byte("\x02")
+        buf.put_cstring('foo')
+        buf.put_string('bar')
+        buf.put_byte("\x0e")
+        buf.put_cstring('foo')
+        buf.put_string('bar')
+        buf.put_byte("\x00")
+
+        BSON::ByteBuffer.new(buf.to_s)
+      end
+
+      let(:doc) { Hash.from_bson(buf) }
+
+      it 'overwrites first value with second value' do
+        doc.should == {'foo' => :bar}
+      end
+    end
+  end
 end
