@@ -487,6 +487,11 @@ axes:
         run_on: ubuntu1404-test
         variables:
           MACHINE: "ubuntu1404"
+      - id: "ubuntu1604"
+        display_name: "Ubuntu 16.04"
+        run_on: ubuntu1604-test
+        variables:
+          MACHINE: "ubuntu1604"
       - id: "rhel70"
         display_name: "RHEL 7.0"
         run_on: rhel70-small
@@ -594,7 +599,7 @@ buildvariants:
      - name: "test"
 
 - matrix_name: "ruby-head"
-  matrix_spec: { ruby-head: "*", all-os: ["ubuntu1404"] }
+  matrix_spec: { ruby-head: "*", all-os: ["ubuntu1604"] }
   display_name: "${ruby-head}, ${all-os}"
   tasks:
      - name: "test"
