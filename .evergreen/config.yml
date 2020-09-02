@@ -479,17 +479,17 @@ axes:
     values:
       - id: "debian81"
         display_name: "Debian 8.1 x86"
-        run_on: debian81-test
+        run_on: debian81-small
         variables:
           MACHINE: "debian81"
       - id: "ubuntu1404"
         display_name: "Ubuntu 14.04"
-        run_on: ubuntu1404-test
+        run_on: ubuntu1404-small
         variables:
           MACHINE: "ubuntu1404"
       - id: "ubuntu1604"
         display_name: "Ubuntu 16.04"
-        run_on: ubuntu1604-test
+        run_on: ubuntu1604-small
         variables:
           MACHINE: "ubuntu1604"
       - id: "rhel70"
@@ -502,13 +502,13 @@ axes:
     values:
       #- id: "rhel71-ppc"
       #  display_name: "RHEL 7.1 PowerPC"
-      #  run_on: rhel71-power8-test
+      #  run_on: rhel71-power8-small
       #  variables:
       #    MACHINE: "rhel71-ppc"
 
       - id: "ubuntu1804-ppc"
         display_name: "Ubuntu 18.04 PowerPC"
-        run_on: ubuntu1804-power8-test
+        run_on: ubuntu1804-power8-small
         variables:
           MACHINE: ubuntu1804-ppc
 
