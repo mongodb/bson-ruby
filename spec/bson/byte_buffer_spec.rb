@@ -132,7 +132,9 @@ describe BSON::ByteBuffer do
 
     context 'mixed cycles' do
       it 'returns the written data' do
-        pending 'RUBY-2334'
+        if BSON::Environment.jruby?
+          pending 'RUBY-2334'
+        end
 
         buffer.put_int32(1)
         buffer.put_int32(2)
