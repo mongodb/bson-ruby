@@ -245,13 +245,13 @@ describe Hash do
       end
     end
 
-    context 'when hash is empty' do 
-      let(:buffer) do 
-        {}.to_bson
+    context 'when reading from a byte buffer that was previously written to' do
+      let(:buffer) do
+        {foo: 42}.to_bson
       end
 
-      it 'returns the empty hash when writing then reading from the buffer' do 
-        expect(Hash.from_bson(buffer)).to eq({})
+      it 'returns the original hash' do
+        expect(Hash.from_bson(buffer)).to eq('foo' => 42)
       end
     end
   end
