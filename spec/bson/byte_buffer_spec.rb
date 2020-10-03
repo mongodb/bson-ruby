@@ -30,8 +30,8 @@ describe BSON::ByteBuffer do
       let(:buffer) do
         described_class.new
       end
-      
-      context '#put_int32' do 
+
+      context '#put_int32' do
         before do
           buffer.put_int32(5)
         end
@@ -105,6 +105,29 @@ describe BSON::ByteBuffer do
       expect(buffer.write_position).to eq(1)
       buffer.rewind!
       expect(buffer.write_position).to eq(1)
+    end
+  end
+
+  describe 'write followed by read' do
+    let(:buffer) do
+      described_class.new
+    end
+
+    context 'one cycle' do
+      it 'returns the written data' do
+        buffer.put_cstring('hello')
+        buffer.get_cstring.should == 'hello'
+      end
+    end
+
+    context 'two cycles' do
+      it 'returns the written data' do
+        buffer.put_cstring('hello')
+        buffer.get_cstring.should == 'hello'
+
+        buffer.put_cstring('world')
+        buffer.get_cstring.should == 'world'
+      end
     end
   end
 end
