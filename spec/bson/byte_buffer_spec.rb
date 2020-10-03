@@ -129,5 +129,21 @@ describe BSON::ByteBuffer do
         buffer.get_cstring.should == 'world'
       end
     end
+
+    context 'mixed cycles' do
+      it 'returns the written data' do
+        pending 'RUBY-2334'
+
+        buffer.put_int32(1)
+        buffer.put_int32(2)
+
+        buffer.get_int32.should == 1
+
+        buffer.put_int32(3)
+
+        buffer.get_int32.should == 2
+        buffer.get_int32.should == 3
+      end
+    end
   end
 end
