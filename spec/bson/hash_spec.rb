@@ -244,6 +244,16 @@ describe Hash do
           /(Hash value for key 'foo'|Value) does not define its BSON serialized type:.*HashSpecUnserializableClass/)
       end
     end
+
+    context 'when reading from a byte buffer that was previously written to' do
+      let(:buffer) do
+        {foo: 42}.to_bson
+      end
+
+      it 'returns the original hash' do
+        expect(Hash.from_bson(buffer)).to eq('foo' => 42)
+      end
+    end
   end
 
   describe '#to_bson' do

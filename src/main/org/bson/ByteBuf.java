@@ -702,12 +702,14 @@ public class ByteBuf extends RubyObject {
   private void ensureBsonRead() {
     if (this.mode == Mode.WRITE) {
       this.buffer.flip();
+      this.mode = Mode.READ;
     }
   }
 
   private void ensureBsonWrite(int length) {
     if (this.mode == Mode.READ) {
       this.buffer.flip();
+      this.mode = mode.WRITE;
     }
     if (length > this.buffer.remaining()) {
       int size = (this.buffer.position() + length) * 2;
