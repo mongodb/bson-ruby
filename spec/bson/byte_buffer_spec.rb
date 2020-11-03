@@ -65,6 +65,37 @@ describe BSON::ByteBuffer do
         expect(buffer.length).to eq(1)
       end
     end
+
+    context 'after the byte buffer was converted to string' do
+
+      shared_examples 'returns the total buffer length' do
+        it 'returns the total buffer length' do
+          expect(buffer.length).to eq(5)
+          buffer.to_s.length.should == 5
+          expect(buffer.length).to eq(5)
+        end
+      end
+
+      context 'read buffer' do
+
+        let(:buffer) do
+          described_class.new({}.to_bson.to_s)
+        end
+
+        include_examples 'returns the total buffer length'
+      end
+
+      context 'write buffer' do
+
+        let(:buffer) do
+          described_class.new.tap do |buffer|
+            buffer.put_bytes('hello')
+          end
+        end
+
+        include_examples 'returns the total buffer length'
+      end
+    end
   end
 
   describe '#rewind!' do
@@ -157,6 +188,42 @@ describe BSON::ByteBuffer do
 
         buffer.get_int32.should == 2
         buffer.get_int32.should == 3
+      end
+    end
+  end
+
+  describe '#to_s' do
+    context 'read buffer' do
+      let(:buffer) do
+        described_class.new("\x18\x00\x00\x00*\x00\x00\x00")
+      end
+
+      it 'returns the data' do
+        buffer.to_s.should == "\x18\x00\x00\x00*\x00\x00\x00"
+      end
+
+      it 'returns the remaining buffer contents after a read' do
+        buffer.to_s.should == "\x18\x00\x00\x00*\x00\x00\x00"
+        buffer.get_int32.should == 24
+        buffer.to_s.should == "*\x00\x00\x00"
+      end
+    end
+
+    context 'write buffer' do
+      let(:buffer) do
+        described_class.new.tap do |buffer|
+          buffer.put_int32(24)
+        end
+      end
+
+      it 'returns the data' do
+        buffer.to_s.should == "\x18\x00\x00\x00".force_encoding('binary')
+      end
+
+      it 'returns the complete buffer contents after a write' do
+        buffer.to_s.should == "\x18\x00\x00\x00".force_encoding('binary')
+        buffer.put_int32(42)
+        buffer.to_s.should == "\x18\x00\x00\x00*\x00\x00\x00".force_encoding('binary')
       end
     end
   end

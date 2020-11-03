@@ -152,11 +152,15 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "length")
-  public RubyFixnum getLength() {
+  public RubyFixnum getLength(ThreadContext context) {
+    return new RubyFixnum(context.runtime, getLengthInternal());
+  }
+  
+  private int getLengthInternal() {
     if (this.mode == Mode.WRITE) {
-      return getWritePosition();
+      return this.writePosition;
     } else {
-      return new RubyFixnum(getRuntime(), this.buffer.remaining());
+      return this.buffer.remaining();
     }
   }
 
@@ -168,8 +172,8 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "read_position")
-  public RubyFixnum getReadPosition() {
-    return new RubyFixnum(getRuntime(), this.readPosition);
+  public RubyFixnum getReadPosition(ThreadContext context) {
+    return new RubyFixnum(context.runtime, this.readPosition);
   }
 
   /**
@@ -180,8 +184,8 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "write_position")
-  public RubyFixnum getWritePosition() {
-    return new RubyFixnum(getRuntime(), this.writePosition);
+  public RubyFixnum getWritePosition(ThreadContext context) {
+    return new RubyFixnum(context.runtime, this.writePosition);
   }
 
  /**
@@ -207,11 +211,16 @@ public class ByteBuf extends RubyObject {
    * @version 4.0.0
    */
   @JRubyMethod(name = "to_s")
-  public RubyString toRubyString() {
-    ensureBsonRead();
-    byte[] bytes = new byte[this.writePosition];
-    this.buffer.get(bytes, 0, this.writePosition);
-    return RubyString.newString(getRuntime(), bytes);
+  public RubyString toRubyString(ThreadContext context) {
+    ByteBuffer buffer_copy = this.buffer.duplicate();
+    if (this.mode == Mode.WRITE) {
+      buffer_copy.flip();
+    }
+    int length = this.getLengthInternal();
+    byte[] bytes = new byte[length];
+    buffer_copy.get(bytes, 0, length);
+    
+    return RubyString.newString(context.runtime, bytes);
   }
 
   /**

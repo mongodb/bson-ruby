@@ -276,7 +276,7 @@ void Init_bson_native()
 
   /*
    * call-seq:
-   *   buffer.put_hash(hash) -> ByteBuffer
+   *   buffer.put_hash(hash, validating_keys) -> ByteBuffer
    *
    * Writes a Hash into the byte buffer.
    *
@@ -328,6 +328,10 @@ void Init_bson_native()
    *   buffer.to_s -> String
    *
    * Returns the contents of the buffer as a binary string.
+   *
+   * If the buffer is used for reading, the returned contents is the data
+   * that was not yet read. If the buffer is used for writing, the returned
+   * contents is the complete data that has been written so far.
    *
    * Note: this method copies the buffer's contents into a newly allocated
    * +String+ instance. It does not return a reference to the data stored in
