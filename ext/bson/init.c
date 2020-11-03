@@ -56,6 +56,16 @@ void Init_bson_native()
 
   rb_define_alloc_func(rb_byte_buffer_class, rb_bson_byte_buffer_allocate);
   rb_define_method(rb_byte_buffer_class, "initialize", rb_bson_byte_buffer_initialize, -1);
+
+  /*
+   * call-seq:
+   *   buffer.length -> Fixnum
+   *
+   * Returns the number of bytes available to be read in the buffer.
+   *
+   * When a buffer is being written to, each added byte increases its length.
+   * When a buffer is being read from, each read byte decreases its length.
+   */
   rb_define_method(rb_byte_buffer_class, "length", rb_bson_byte_buffer_length, 0);
 
   /*
