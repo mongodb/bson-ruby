@@ -42,7 +42,6 @@ describe BSON::ByteBuffer do
       end
     end
 
-
     context 'when the byte buffer is initialized with some bytes' do
 
       let(:buffer) do
@@ -51,6 +50,19 @@ describe BSON::ByteBuffer do
 
       it 'returns the length' do
         expect(buffer.length).to eq(2)
+      end
+    end
+
+    context 'after the byte buffer was read from' do
+
+      let(:buffer) do
+        described_class.new({}.to_bson.to_s)
+      end
+
+      it 'returns the number of bytes remaining in the buffer' do
+        expect(buffer.length).to eq(5)
+        buffer.get_int32
+        expect(buffer.length).to eq(1)
       end
     end
   end
