@@ -311,6 +311,8 @@ module BSON
           return create_binary(hash['$binary'], hash['$type'])
         end
 
+# TODO: add logic for $uuid
+
         if last_key == '$regex'
           unless sorted_keys == %w($options $regex)
             raise Error::ExtJSONParseError, "Invalid $regex value: #{hash}"
