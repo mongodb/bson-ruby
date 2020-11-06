@@ -137,7 +137,6 @@ module BSON
       if hash.empty?
         return {}
       end
-
       if hash.key?('$ref')
         # Legacy dbref handling.
         # Note that according to extended json spec, only hash values (but
@@ -219,6 +218,14 @@ module BSON
             raise Error::ExtJSONParseError, "Invalid subType value in $binary: #{value}"
           end
           create_binary(encoded_value, subtype)
+
+        when '$uuid'
+          unless /\A[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\z/.match(hash['$uuid'])
+            raise Error::ExtJSONParseError, "Invalid $uuid value: #{hash}"
+          end
+
+          return Binary.from_uuid(hash['$uuid'])
+
         when '$code'
           unless value.is_a?(String)
             raise Error::ExtJSONParseError, "Invalid $code value: #{value}"
@@ -310,8 +317,6 @@ module BSON
 
           return create_binary(hash['$binary'], hash['$type'])
         end
-
-# TODO: add logic for $uuid
 
         if last_key == '$regex'
           unless sorted_keys == %w($options $regex)
