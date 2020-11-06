@@ -137,6 +137,7 @@ module BSON
       if hash.empty?
         return {}
       end
+
       if hash.key?('$ref')
         # Legacy dbref handling.
         # Note that according to extended json spec, only hash values (but
