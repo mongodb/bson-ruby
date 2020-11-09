@@ -219,6 +219,14 @@ module BSON
             raise Error::ExtJSONParseError, "Invalid subType value in $binary: #{value}"
           end
           create_binary(encoded_value, subtype)
+
+        when '$uuid'
+          unless /\A[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\z/.match(value)
+            raise Error::ExtJSONParseError, "Invalid $uuid value: #{value}"
+          end
+
+          return Binary.from_uuid(value)
+
         when '$code'
           unless value.is_a?(String)
             raise Error::ExtJSONParseError, "Invalid $code value: #{value}"
