@@ -290,6 +290,24 @@ module BSON
       end
     end
 
+    # Slices a document to remove the given keys.
+    # Will normalize symbol keys into strings.
+    # (this method is backported from ActiveSupport::Hash)
+    #
+    # @example Get a document/hash with only the `name` and `age` fields present
+    #   document # => { _id: <ObjectId>, :name => 'John', :age => 30, :location => 'Earth' }
+    #   document.except(:name, 'age') # => { _id: <ObjectId>, location: 'Earth' }
+    #
+    # @param [ Array<String, Symbol> ] *keys Keys, that will be removed in the resulting document
+    #
+    # @return [ BSON::Document ] The document without the removed keys
+    #
+    def except(*keys)
+      copy = dup
+      keys.each {|key| copy.delete(key)}
+      copy
+    end
+
     private
 
     def convert_key(key)
