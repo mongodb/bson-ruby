@@ -601,11 +601,11 @@ buildvariants:
   tasks:
      - name: "test"
 
-- matrix_name: "ruby-head"
-  matrix_spec: { ruby-head: "*", all-os: ["ubuntu1604"] }
-  display_name: "${ruby-head}, ${all-os}"
-  tasks:
-     - name: "test"
+# - matrix_name: "ruby-head"
+#   matrix_spec: { ruby-head: "*", all-os: ["ubuntu1604"] }
+#   display_name: "${ruby-head}, ${all-os}"
+#   tasks:
+#      - name: "test"
 
 - matrix_name: "jruby"
   matrix_spec: { jruby-rubies: "*", all-os: ["rhel70"] }
