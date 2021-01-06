@@ -9,7 +9,11 @@ group :development, :test do
 
   gem 'rspec', '~> 3'
   gem 'json'
-  gem 'activesupport'
+  if ENV['WITH_ACTIVE_SUPPORT'] =~ /[0-9]/ && ENV['WITH_ACTIVE_SUPPORT'] != '0'
+    gem 'activesupport', ENV['WITH_ACTIVE_SUPPORT']
+  else
+    gem 'activesupport'
+  end
   gem 'ruby-prof', platforms: :mri
 
   gem 'byebug', platforms: :mri

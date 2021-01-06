@@ -560,10 +560,18 @@ axes:
   - id: "as"
     display_name: ActiveSupport
     values:
-      - id: "as"
-        display_name: AS
+      - id: "5.2"
+        display_name: 5.2
         variables:
-          WITH_ACTIVE_SUPPORT: true
+          WITH_ACTIVE_SUPPORT: "~> 5.2.0"
+      - id: "6.0"
+        display_name: 6.0
+        variables:
+          WITH_ACTIVE_SUPPORT: "~> 6.0.0"
+      - id: "6.1"
+        display_name: 6.1
+        variables:
+          WITH_ACTIVE_SUPPORT: "~> 6.1.0"
   - id: "compact"
     display_name: GC.compact
     values:
@@ -590,8 +598,8 @@ buildvariants:
      - name: "test"
 
 - matrix_name: "activesupport"
-  matrix_spec: { mri-rubies: "ruby-2.6", all-os: "ubuntu1404", as: as }
-  display_name: "AS ${mri-rubies}, ${all-os}"
+  matrix_spec: { mri-rubies: "ruby-2.6", all-os: "ubuntu1404", as: '*' }
+  display_name: "AS ${as} ${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
 

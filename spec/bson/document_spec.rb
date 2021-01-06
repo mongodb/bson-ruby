@@ -229,6 +229,27 @@ describe BSON::Document do
     end
   end
 
+  describe "#except" do
+    let(:document) do
+      described_class.new("key1" => "value1", key2: "value2")
+    end
+
+    context "when provided string keys" do
+
+      it "returns the partial document" do
+        expect(document.except("key1")).to contain_exactly(['key2', 'value2'])
+      end
+    end
+
+    context "when provided symbol keys" do
+
+      it "returns the partial document" do
+        expect(document.except(:key1)).to contain_exactly(['key2', 'value2'])
+      end
+    end
+  end
+
+
   describe "#delete" do
 
     shared_examples_for "a document with deletable pairs" do

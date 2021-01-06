@@ -290,6 +290,29 @@ module BSON
       end
     end
 
+    # Returns a new document consisting of the current document minus the
+    # specified keys.
+    #
+    # The keys to be removed can be specified as either strings or symbols.
+    #
+    # @example Get a document/hash with only the `name` and `age` fields removed
+    #   document # => { _id: <ObjectId>, :name => 'John', :age => 30, :location => 'Earth' }
+    #   document.except(:name, 'age') # => { _id: <ObjectId>, location: 'Earth' }
+    #
+    # @param [ Array<String, Symbol> ] *keys Keys, that will be removed in the resulting document
+    #
+    # @return [ BSON::Document ] The document with the specified keys removed.
+    #
+    # @note This method is always defined, even if Hash already contains a
+    #   definition of #except, because ActiveSupport unconditionally defines
+    #   its version of #except which doesn't work for BSON::Document which
+    #   causes problems if ActiveSupport is loaded after bson-ruby is.
+    def except(*keys)
+      copy = dup
+      keys.each {|key| copy.delete(key)}
+      copy
+    end
+
     private
 
     def convert_key(key)
