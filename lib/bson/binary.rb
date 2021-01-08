@@ -230,7 +230,7 @@ module BSON
           hex
         else
           raise ArgumentError, "Invalid representation: #{representation}"
-        end.sub(/(.{8})(.{4})(.{4})(.{4})(.{12})/, '\1-\2-\3-\4-\5')
+        end.sub(/\A(.{8})(.{4})(.{4})(.{4})(.{12})\z/, '\1-\2-\3-\4-\5')
       else
         raise TypeError, "The type of Binary must be :uuid or :uuid_old, this object is: #{type.inspect}"
       end
