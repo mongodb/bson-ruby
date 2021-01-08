@@ -255,7 +255,7 @@ describe BSON::Binary do
     let(:obj) { described_class.new("\x00" * 16, :uuid) }
 
     it 'accepts symbol representation' do
-      expect(obj.to_uuid(:standard)).to eq('00000000-0000-0000-0000000000000000')
+      expect(obj.to_uuid(:standard)).to eq('00000000-0000-0000-0000-000000000000')
     end
 
     it 'rejects string representation' do

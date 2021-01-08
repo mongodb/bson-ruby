@@ -207,7 +207,8 @@ module BSON
         if representation && representation != :standard
           raise ArgumentError, "Binary of type :uuid can only be stringified to :standard representation, requested: #{representation.inspect}"
         end
-        data.split('').map { |n| '%02x' % n.ord }.join.sub(/(.{8})(.{4})(.{4})(.{12})/, '\1-\2-\3-\4')
+
+        data.split('').map { |n| '%02x' % n.ord }.join.sub(/\A(.{8})(.{4})(.{4})(.{4})(.{12})\z/, '\1-\2-\3-\4-\5')
       when :uuid_old
         if representation.nil?
           raise ArgumentError, 'Representation must be specified for BSON::Binary objects of type :uuid_old'
@@ -229,7 +230,7 @@ module BSON
           hex
         else
           raise ArgumentError, "Invalid representation: #{representation}"
-        end.sub(/(.{8})(.{4})(.{4})(.{12})/, '\1-\2-\3-\4')
+        end.sub(/\A(.{8})(.{4})(.{4})(.{4})(.{12})\z/, '\1-\2-\3-\4-\5')
       else
         raise TypeError, "The type of Binary must be :uuid or :uuid_old, this object is: #{type.inspect}"
       end
