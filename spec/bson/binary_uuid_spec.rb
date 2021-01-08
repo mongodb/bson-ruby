@@ -129,6 +129,14 @@ describe "BSON::Binary - UUID spec tests" do
         expect(binary.to_uuid(:csharp_legacy).gsub('-', '').upcase).to eq("00112233445566778899AABBCCDDEEFF")
       end
 
+      it 'decodes as java legacy' do
+        expect(binary.to_uuid(:java_legacy).gsub('-', '').upcase).not_to eq("00112233445566778899AABBCCDDEEFF")
+      end
+
+      it 'decodes as python legacy' do
+        expect(binary.to_uuid(:python_legacy).gsub('-', '').upcase).not_to eq("00112233445566778899AABBCCDDEEFF")
+      end
+
       it 'expects four dashes when output as String' do
         expect(binary.to_uuid(:csharp_legacy)).to eq("00112233-4455-6677-8899-aabbccddeeff")
       end
@@ -139,8 +147,16 @@ describe "BSON::Binary - UUID spec tests" do
 
       it_behaves_like 'a legacy uuid'
 
+      it 'decodes as csharp legacy' do
+        expect(binary.to_uuid(:csharp_legacy).gsub('-', '').upcase).not_to eq("00112233445566778899AABBCCDDEEFF")
+      end
+
       it 'decodes as java legacy' do
         expect(binary.to_uuid(:java_legacy).gsub('-', '').upcase).to eq("00112233445566778899AABBCCDDEEFF")
+      end
+
+      it 'decodes as python legacy' do
+        expect(binary.to_uuid(:python_legacy).gsub('-', '').upcase).not_to eq("00112233445566778899AABBCCDDEEFF")
       end
 
       it 'expects four dashes when output as String' do
@@ -152,6 +168,14 @@ describe "BSON::Binary - UUID spec tests" do
       let(:binary) { make_binary("00112233445566778899AABBCCDDEEFF", :uuid_old) }
 
       it_behaves_like 'a legacy uuid'
+
+      it 'decodes as csharp legacy' do
+        expect(binary.to_uuid(:csharp_legacy).gsub('-', '').upcase).not_to eq("00112233445566778899AABBCCDDEEFF")
+      end
+
+      it 'decodes as java legacy' do
+        expect(binary.to_uuid(:java_legacy).gsub('-', '').upcase).not_to eq("00112233445566778899AABBCCDDEEFF")
+      end
 
       it 'decodes as python legacy' do
         expect(binary.to_uuid(:python_legacy).gsub('-', '').upcase).to eq("00112233445566778899AABBCCDDEEFF")
