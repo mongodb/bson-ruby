@@ -130,7 +130,7 @@ describe "BSON::Binary - UUID spec tests" do
       end
 
       it 'expects four dashes when output as String' do
-        expect(binary.to_uuid(:csharp_legacy).scan(/(?=-)/).count).to eq(4)
+        expect(binary.to_uuid(:csharp_legacy)).to eq("00112233-4455-6677-8899-aabbccddeeff")
       end
     end
 
@@ -144,7 +144,7 @@ describe "BSON::Binary - UUID spec tests" do
       end
 
       it 'expects four dashes when output as String' do
-        expect(binary.to_uuid(:java_legacy).scan(/(?=-)/).count).to eq(4)
+        expect(binary.to_uuid(:java_legacy)).to eq("00112233-4455-6677-8899-aabbccddeeff")
       end
     end
 
@@ -158,7 +158,7 @@ describe "BSON::Binary - UUID spec tests" do
       end
 
       it 'expects four dashes when output as String' do
-        expect(binary.to_uuid(:python_legacy).scan(/(?=-)/).count).to eq(4)
+        expect(binary.to_uuid(:python_legacy)).to eq("00112233-4455-6677-8899-aabbccddeeff")
       end
     end
   end
