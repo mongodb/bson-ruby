@@ -285,8 +285,11 @@ module BSON
     #
     # @since 4.3.1
     def slice(*keys)
-      keys.map{|key| convert_key(key)}
-          .each_with_object(BSON::Document.new) {|key, hash| hash[key] = self[key] if has_key?(key)}
+      keys.each_with_object(self.class.new) do |key, hash|
+        if key?(key)
+          hash[key] = self[key]
+        end
+      end
     end
 
     # Returns a new document consisting of the current document minus the
