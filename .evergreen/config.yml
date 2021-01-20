@@ -548,6 +548,10 @@ axes:
         display_name: ruby-2.7
         variables:
            RVM_RUBY: "ruby-2.7"
+      - id: "ruby-3.0"
+        display_name: ruby-3.0
+        variables:
+           RVM_RUBY: "ruby-3.0"
   - id: "jruby-rubies"
     display_name: Ruby Version
     values:
@@ -590,25 +594,34 @@ axes:
           COMPACT: true
 
 buildvariants:
+
 - matrix_name: "mri-rhel"
-  matrix_spec: { mri-rubies: ["ruby-2.3", "ruby-2.7"], all-os: "rhel70" }
+  matrix_spec: { mri-rubies: [ruby-2.3, ruby-2.7], all-os: "rhel70" }
   display_name: "${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
+
 - matrix_name: "mri-debian"
-  matrix_spec: { mri-rubies: ["ruby-2.4"], all-os: "debian81" }
+  matrix_spec: { mri-rubies: [ruby-2.4], all-os: "debian81" }
   display_name: "${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
+
 - matrix_name: "mri-ubuntu"
-  matrix_spec: { mri-rubies: ["ruby-2.5"], all-os: "ubuntu1404" }
+  matrix_spec: { mri-rubies: [ruby-2.5], all-os: "ubuntu1404" }
+  display_name: "${mri-rubies}, ${all-os}"
+  tasks:
+     - name: "test"
+
+- matrix_name: "mri-ubuntu-ruby3"
+  matrix_spec: { mri-rubies: [ruby-3.0], all-os: ubuntu1604 }
   display_name: "${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
 
 - matrix_name: "activesupport"
   matrix_spec:
-    mri-rubies: [ruby-2.5, ruby-2.6, ruby-2.7]
+    mri-rubies: [ruby-2.5, ruby-2.6, ruby-2.7, ruby-3.0]
     all-os: "ubuntu1604"
     as: '*'
   display_name: "AS ${as} ${mri-rubies}, ${all-os}"
@@ -625,7 +638,7 @@ buildvariants:
      - name: "test"
 
 - matrix_name: "special-os"
-  matrix_spec: { mri-rubies: "ruby-2.6", special-os: "*" }
+  matrix_spec: { mri-rubies: [ruby-2.6, ruby-3.0], special-os: "*" }
   display_name: "${mri-rubies}, ${special-os}"
   tasks:
      - name: "test"
@@ -644,7 +657,7 @@ buildvariants:
 
 - matrix_name: "compact"
   matrix_spec:
-    mri-rubies: ["ruby-2.7"]
+    mri-rubies: [ruby-2.7, ruby-3.0]
     all-os: "ubuntu1404"
     compact: "on"
   display_name: "${mri-rubies} with GC.compact"
