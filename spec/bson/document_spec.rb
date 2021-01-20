@@ -215,6 +215,10 @@ describe BSON::Document do
 
       context "when provided string keys" do
 
+        it "is a BSON Document" do
+          expect(document.slice("key1")).to be_a(BSON::Document)
+        end
+
         it "returns the partial document" do
           expect(document.slice("key1")).to contain_exactly(['key1', 'value1'])
         end
@@ -222,8 +226,19 @@ describe BSON::Document do
 
       context "when provided symbol keys" do
 
+        it "is a BSON Document" do
+          expect(document.slice(:key1)).to be_a(BSON::Document)
+        end
+
         it "returns the partial document" do
           expect(document.slice(:key1)).to contain_exactly(['key1', 'value1'])
+        end
+      end
+
+      context "when provided keys that do not exist in the document" do
+
+        it "returns only the keys that exist in the document" do
+          expect(document.slice(:key1, :key3)).to contain_exactly(['key1', 'value1'])
         end
       end
     end
