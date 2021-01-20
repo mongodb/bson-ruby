@@ -32,9 +32,14 @@ functions:
     - command: git.get_project
       params:
         directory: "src"
-    # Applies the subitted patch, if any
-    # Deprecated. Should be removed. But still needed for certain agents (ZAP)
-    - command: git.apply_patch
+    - command: shell.exec
+      params:
+        working_dir: "src"
+        script: |
+          set -ex
+          
+          git submodule update --init --recursive
+    
     # Make an evergreen exapanstion file with dynamic values
     - command: shell.exec
       params:
