@@ -604,7 +604,7 @@ buildvariants:
 - matrix_name: "activesupport"
   matrix_spec:
     mri-rubies: [ruby-2.5, ruby-2.6, ruby-2.7]
-    all-os: "ubuntu1404"
+    all-os: "ubuntu1604"
     as: '*'
   display_name: "AS ${as} ${mri-rubies}, ${all-os}"
   tasks:
