@@ -519,12 +519,16 @@ axes:
         run_on: ubuntu1804-power8-small
         variables:
           MACHINE: ubuntu1804-ppc
-
       - id: "ubuntu1604-arm"
         display_name: "Ubuntu 16.04 ARM64"
         run_on: ubuntu1604-arm64-small
         variables:
           MACHINE: "ubuntu1604-arm"
+      - id: "ubuntu1804-arm"
+        display_name: "Ubuntu 18.04 ARM64"
+        run_on: ubuntu1804-arm64-small
+        variables:
+          MACHINE: "ubuntu1804-arm"
   - id: "mri-rubies"
     display_name: Ruby Version
     values:
@@ -638,7 +642,7 @@ buildvariants:
      - name: "test"
 
 - matrix_name: "special-os"
-  matrix_spec: { mri-rubies: [ruby-2.6, ruby-3.0], special-os: "*" }
+  matrix_spec: { mri-rubies: ruby-2.7, special-os: [ubuntu1804-arm, ubuntu1804-ppc] }
   display_name: "${mri-rubies}, ${special-os}"
   tasks:
      - name: "test"
