@@ -315,6 +315,10 @@ module BSON
       copy
     end
 
+    def symbolize_keys!
+      raise ArgumentError, 'symbolize_keys! is not supported on BSON::Document instances. Please convert the document to hash first (using #to_h), then call #symbolize_keys! on the Hash instance'
+    end
+
     private
 
     def convert_key(key)

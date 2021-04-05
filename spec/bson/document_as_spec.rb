@@ -14,44 +14,33 @@
 
 require "spec_helper"
 
-describe 'Hash ActiveSupport extensions' do
+# BSON::Document ActiveSupport extensions
+describe BSON::Document do
   require_active_support
 
   describe '#symbolize_keys' do
-    let(:symbolized) { hash.symbolize_keys }
-
-    shared_examples 'works correctly' do
-      it 'returns a hash' do
-        symbolized.class.should be Hash
+    context 'string keys' do
+      let(:doc) do
+        described_class.new('foo' => 'bar')
       end
 
       it 'works correctly' do
-        hash.symbolize_keys.should == {foo: 'bar'}
+        doc.symbolize_keys.should == {foo: 'bar'}
       end
     end
+  end
 
+  describe '#symbolize_keys!' do
     context 'string keys' do
-      let(:hash) do
-        {'foo' => 'bar'}
+      let(:doc) do
+        described_class.new('foo' => 'bar')
       end
 
-      include_examples 'works correctly'
-    end
-
-    context 'symbol keys' do
-      let(:hash) do
-        {foo: 'bar'}
+      it 'raises ArgumentError' do
+        lambda do
+          doc.symbolize_keys!
+        end.should raise_error(ArgumentError, /symbolize_keys! is not supported on BSON::Document instances/)
       end
-
-      include_examples 'works correctly'
-    end
-
-    context 'both string and symbol keys' do
-      let(:hash) do
-        {'foo' => 42, foo: 'bar'}
-      end
-
-      include_examples 'works correctly'
     end
   end
 end
