@@ -17,6 +17,7 @@ DRIVER_COMMON_BSON_TESTS = Dir.glob("#{CURRENT_PATH}/spec_tests/data/decimal128/
 BSON_CORPUS_TESTS = Dir.glob("#{CURRENT_PATH}/spec_tests/data/corpus/*.json").sort
 BSON_CORPUS_LEGACY_TESTS = Dir.glob("#{CURRENT_PATH}/spec_tests/data/corpus_legacy/*.json").sort
 
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "shared", "lib"))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
 
@@ -39,6 +40,8 @@ unless ENV['CI'] || BSON::Environment.jruby?
   rescue Exception
   end
 end
+
+require 'mrss/lite_constraints'
 
 Dir["./spec/support/**/*.rb"].each { |file| require file }
 
@@ -71,4 +74,6 @@ RSpec.configure do |config|
       end
     end
   end
+
+  config.extend Mrss::LiteConstraints
 end
