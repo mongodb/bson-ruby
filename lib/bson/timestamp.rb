@@ -76,17 +76,24 @@ module BSON
       [ a, b ].sort[0] == a ? -1 : 1
     end
 
+    # Compile the Timestamp into a native Time type.
+    #
+    # @example Compile the timestamp.
+    #   timestamp.compile
+    #
+    # @return [ ::Time ] The compiled timestamp.
+    def compile
+      ::Time.at(seconds).utc
+    end
+
     # Get the timestamp as JSON hash data.
     #
     # @example Get the timestamp as a JSON hash.
     #   timestamp.as_json
     #
-    # @return [ Hash ] The timestamp as a JSON hash.
-    #
-    # @since 2.0.0
-    # @deprecated Use as_extended_json instead.
+    # @return [ Time ] The timestamp as a JSON hash.
     def as_json(*args)
-      as_extended_json
+      compile
     end
 
     # Converts this object to a representation directly serializable to

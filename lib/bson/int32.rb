@@ -117,6 +117,10 @@ module BSON
     alias :eql? :==
     alias :=== :==
 
+    def as_json(**options)
+      value
+    end
+
     # Converts this object to a representation directly serializable to
     # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
     #

@@ -55,18 +55,6 @@ module BSON
     # @deprecated Will be removed in 5.0
     RUBY_MULTILINE_VALUE = 'ms'.freeze
 
-    # Get the regexp as JSON hash data.
-    #
-    # @example Get the regexp as a JSON hash.
-    #   regexp.as_json
-    #
-    # @return [ Hash ] The regexp as a JSON hash.
-    #
-    # @since 2.0.0
-    def as_json(*args)
-      { "$regex" => source, "$options" => bson_options }
-    end
-
     # Get the regular expression as encoded BSON.
     #
     # @example Get the regular expression as encoded BSON.
@@ -211,7 +199,7 @@ module BSON
       #
       # @since 4.2.0
       def as_json(*args)
-        as_extended_json(mode: :legacy)
+        compile.to_s
       end
 
       # Converts this object to a representation directly serializable to

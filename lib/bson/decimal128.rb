@@ -55,17 +55,16 @@ module BSON
     # @since 4.2.0
     NATIVE_TYPE = BigDecimal
 
-    # Get the Decimal128 as JSON hash data.
+    # Return a string representation of the Decimal128 use in standard
+    # application-level JSON serialization. This method is intentionally
+    # different from #as_extended_json.
     #
-    # @example Get the Decimal128 as a JSON hash.
+    # @example Get the Decimal128 as a JSON-serializable object.
     #   decimal.as_json
     #
-    # @return [ Hash ] The number as a JSON hash.
-    #
-    # @since 4.2.0
-    # @deprecated Use as_extended_json instead.
+    # @return [ String ] The object id as a string.
     def as_json(*args)
-      as_extended_json
+      to_s
     end
 
     # Converts this object to a representation directly serializable to
