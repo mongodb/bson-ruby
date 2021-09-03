@@ -41,7 +41,14 @@ unless ENV['CI'] || BSON::Environment.jruby?
   end
 end
 
-require 'mrss/lite_constraints'
+begin
+  require 'mrss/lite_constraints'
+rescue LoadError
+  raise LoadError.new <<~MSG.strip
+    The test suite requires shared tooling to be installed.
+    Please refer to spec/README.md for instructions.
+  MSG
+end
 
 Dir["./spec/support/**/*.rb"].each { |file| require file }
 
