@@ -220,11 +220,22 @@ describe BSON::ObjectId do
       described_class.new
     end
 
-    it "returns the object id with $oid key" do
-      expect(object.as_json).to eq({ "$oid" => object.to_s })
+    it "returns the object id as a string" do
+      expect(object.as_json).to eq(object.to_s)
     end
 
     it_behaves_like "a JSON serializable object"
+  end
+
+  describe "#as_extended_json" do
+
+    let(:object) do
+      described_class.new
+    end
+
+    it "returns the object id with $oid key" do
+      expect(object.as_extended_json).to eq({ "$oid" => object.to_s })
+    end
   end
 
   describe "::BSON_TYPE" do
