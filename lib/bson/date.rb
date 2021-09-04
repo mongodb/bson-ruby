@@ -54,6 +54,22 @@ module BSON
     def bson_type
       ::Time::BSON_TYPE
     end
+
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # @option opts [ nil | :relaxed | :legacy ] :mode Serialization mode
+    #   (default is canonical extended JSON)
+    #
+    # @return [ Hash ] The extended json representation.
+    def as_extended_json(**options)
+      value = if options[:mode] == :relaxed && (1970..9999).include?(year)
+                strftime('%Y-%m-%dT00:00:00Z')
+              else
+                { '$numberLong' => strftime('%Q') }
+              end
+      { '$date' => value }
+    end
   end
 
   # Enrich the core Date class with this module.

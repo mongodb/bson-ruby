@@ -37,6 +37,19 @@ module BSON
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       gregorian.to_time.to_bson(buffer)
     end
+
+    # Converts this object to a representation directly serializable to
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    #
+    # @note The time is floored to the nearest millisecond.
+    #
+    # @option opts [ nil | :relaxed | :legacy ] :mode Serialization mode
+    #   (default is canonical extended JSON)
+    #
+    # @return [ Hash ] The extended json representation.
+    def as_extended_json(**options)
+      to_time.utc.as_extended_json(**options)
+    end
   end
 
   # Enrich the core DateTime class with this module.

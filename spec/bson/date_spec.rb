@@ -38,4 +38,174 @@ describe Date do
       it_behaves_like "a serializable bson element"
     end
   end
+
+  describe '#as_extended_json' do
+
+    context 'canonical mode' do
+
+      let(:serialization) do
+        obj.as_extended_json
+      end
+
+      context 'when the time within epoch' do
+        let(:obj) { Date.new(2012, 1, 1) }
+
+        let(:expected_serialization) do
+          { "$date" => { "$numberLong" => "1325376000000" } }
+        end
+
+        it 'correctly serializes the date' do
+          expect(serialization).to eq expected_serialization
+        end
+      end
+
+      context "when the year precedes epoch" do
+        let(:obj) { Date.new(1960, 1, 1) }
+
+        let(:expected_serialization) do
+          { "$date" => { "$numberLong" => "-315619200000" } }
+        end
+
+        it 'correctly serializes the date' do
+          expect(serialization).to eq expected_serialization
+        end
+      end
+
+      context "when the year exceeds 9999" do
+        let(:obj) { Time.utc(10000, 1, 1) }
+
+        let(:expected_serialization) do
+          { "$date" => { "$numberLong" => "253402300800000" } }
+        end
+
+        it 'correctly serializes the date' do
+          expect(serialization).to eq expected_serialization
+        end
+      end
+    end
+
+    context 'relaxed mode' do
+
+      let(:serialization) do
+        obj.as_extended_json(mode: :relaxed)
+      end
+
+      context 'when the time within epoch' do
+        let(:obj) { Date.new(2012, 1, 1) }
+
+        let(:expected_serialization) do
+          { "$date" => "2012-01-01T00:00:00Z" }
+        end
+
+        it 'correctly serializes the date' do
+          expect(serialization).to eq expected_serialization
+        end
+      end
+
+      context "when the year precedes epoch" do
+        let(:obj) { Date.new(1960, 1, 1) }
+
+        let(:expected_serialization) do
+          { "$date" => { "$numberLong" => "-315619200000" } }
+        end
+
+        it 'correctly serializes the date' do
+          expect(serialization).to eq expected_serialization
+        end
+      end
+
+      context "when the year exceeds 9999" do
+        let(:obj) { Time.utc(10000, 1, 1) }
+
+        let(:expected_serialization) do
+          { "$date" => { "$numberLong" => "253402300800000" } }
+        end
+
+        it 'correctly serializes the date' do
+          expect(serialization).to eq expected_serialization
+        end
+      end
+    end
+  end
+
+  describe '#to_extended_json' do
+
+    context 'canonical mode' do
+
+      let(:serialization) do
+        obj.to_extended_json
+      end
+
+      context 'when the time within epoch' do
+        let(:obj) { Date.new(2012, 1, 1) }
+
+        let(:expected_serialization) do
+          %q`{"$date":{"$numberLong":"1325376000000"}}`
+        end
+
+        it 'correctly serializes the date' do
+          expect(serialization).to eq expected_serialization
+        end
+      end
+
+      context "when the year precedes epoch" do
+        let(:obj) { Date.new(1960, 1, 1) }
+
+        let(:expected_serialization) do
+          %q`{"$date":{"$numberLong":"-315619200000"}}`
+        end
+
+        it 'correctly serializes the date' do
+          expect(serialization).to eq expected_serialization
+        end
+      end
+
+      context "when the year exceeds 9999" do
+        let(:obj) { Time.utc(10000, 1, 1) }
+
+        let(:expected_serialization) do
+          %q`{"$date":{"$numberLong":"253402300800000"}}`
+        end
+
+        it 'correctly serializes the date' do
+          expect(serialization).to eq expected_serialization
+        end
+      end
+    end
+
+    context 'relaxed mode' do
+      let(:obj) { Time.utc(2012, 1, 1) }
+
+      let(:expected_serialization) do
+        %q`{"$date":"2012-01-01T00:00:00Z"}`
+      end
+
+      let(:serialization) do
+        obj.to_extended_json(mode: :relaxed)
+      end
+
+      it 'correctly serializes the date' do
+        expect(serialization).to eq expected_serialization
+      end
+    end
+  end
+
+  describe '#to_json' do
+
+    let(:obj) { Date.new(2012, 1, 1) }
+
+    let(:expected_serialization) do
+      %q`"2012-01-01"`
+    end
+
+    let(:serialization) do
+      obj.to_json
+    end
+
+    it 'correctly serializes the date' do
+      expect(serialization).to eq expected_serialization
+    end
+
+    it_behaves_like "a JSON serializable object"
+  end
 end
