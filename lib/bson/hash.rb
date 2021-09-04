@@ -88,9 +88,7 @@ module BSON
     #
     # @return [ Hash ] This hash converted to extended json representation.
     def as_extended_json(**options)
-      ::Hash[map do |key, value|
-        [key, value.as_extended_json(**options)]
-      end]
+      transform_values { |value| value.as_extended_json(**options) }
     end
 
     module ClassMethods
