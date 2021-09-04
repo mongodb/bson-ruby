@@ -63,7 +63,7 @@ module BSON
       super
     end
 
-    # Return a string representation of the object id for use in standard
+    # Return a string representation of the object id for use in
     # application-level JSON serialization. This method is intentionally
     # different from #as_extended_json.
     #
