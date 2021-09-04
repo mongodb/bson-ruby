@@ -61,5 +61,7 @@ describe Float do
         serialized.should be_within(0.00001).of(42)
       end
     end
+
+    it_behaves_like "an Extended JSON serializable object"
   end
 end

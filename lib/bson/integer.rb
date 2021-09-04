@@ -187,9 +187,9 @@ module BSON
       if options[:mode] == :relaxed || options[:mode] == :legacy
         self
       elsif bson_int32?
-        {'$numberInt' => to_s}
+        { '$numberInt' => to_s }
       else
-        {'$numberLong' => to_s}
+        { '$numberLong' => to_s }
       end
     end
 

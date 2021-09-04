@@ -69,31 +69,60 @@ describe Integer do
     end
   end
 
-  describe '#to_json' do
-    it 'returns integer' do
-      42.to_json.should == '42'
+  describe '#as_json' do
+    it 'returns an integer string' do
+      expect(42.to_json).to eq '42'
     end
   end
 
   describe '#as_extended_json' do
-    context 'canonical mode' do
-      it 'returns $numberInt' do
-        42.as_extended_json.should == {'$numberInt' => '42'}
+
+    context 'when 32-bit representable' do
+      let(:object) { 42 }
+
+      context 'canonical mode' do
+        it 'returns $numberInt when small' do
+          expect(object.as_extended_json).to eq({ '$numberInt' => '42' })
+        end
       end
+
+      context 'relaxed mode' do
+        it 'returns integer' do
+          expect(object.as_extended_json(mode: :relaxed)).to eq 42
+        end
+      end
+
+      context 'legacy mode' do
+        it 'returns integer' do
+          expect(object.as_extended_json(mode: :legacy)).to eq 42
+        end
+      end
+
+      it_behaves_like "an Extended JSON serializable object"
     end
 
-    context 'relaxed mode' do
-      it 'returns integer' do
-        42.as_extended_json(mode: :relaxed).should be 42
-      end
-    end
+    context 'when not 32-bit representable' do
+      let(:object) { 18014398241046527 }
 
-    context 'legacy mode' do
-      it 'returns integer' do
-        42.as_extended_json(mode: :legacy).should be 42
+      context 'canonical mode' do
+        it 'returns $numberInt when small' do
+          expect(object.as_extended_json).to eq({ '$numberLong' => '18014398241046527' })
+        end
       end
-    end
 
-    it_behaves_like "an Extended JSON serializable object"
+      context 'relaxed mode' do
+        it 'returns integer' do
+          expect(object.as_extended_json(mode: :relaxed)).to eq 18014398241046527
+        end
+      end
+
+      context 'legacy mode' do
+        it 'returns integer' do
+          expect(object.as_extended_json(mode: :legacy)).to eq 18014398241046527
+        end
+      end
+
+      it_behaves_like "an Extended JSON serializable object"
+    end
   end
 end
