@@ -93,5 +93,7 @@ describe Integer do
         42.as_extended_json(mode: :legacy).should be 42
       end
     end
+
+    it_behaves_like "an Extended JSON serializable object"
   end
 end

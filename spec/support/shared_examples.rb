@@ -63,6 +63,13 @@ shared_examples_for "a JSON serializable object" do
   end
 end
 
+shared_examples_for "an Extended JSON serializable object" do
+
+  it "serializes the Extended JSON from #as_extended_json" do
+    expect(object.to_extended_json).to eq(object.as_extended_json.to_json)
+  end
+end
+
 shared_examples_for "immutable when frozen" do |block|
 
   context "when the document is frozen" do

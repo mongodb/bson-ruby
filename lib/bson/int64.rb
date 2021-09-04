@@ -20,6 +20,7 @@ module BSON
   #
   # @since 2.0.0
   class Int64
+    include JSON
 
     # A boolean is type 0x08 in the BSON spec.
     #

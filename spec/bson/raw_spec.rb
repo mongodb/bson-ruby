@@ -38,6 +38,8 @@ describe Regexp::Raw do
         )
       end
     end
+
+    it_behaves_like "an Extended JSON serializable object"
   end
 
   describe "#to_bson/#from_bson" do

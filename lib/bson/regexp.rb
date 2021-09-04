@@ -61,7 +61,7 @@ module BSON
     #   regexp.as_extended_json
     #
     # @return [ Hash ] The regexp as a JSON hash.
-    def as_extended_json(*args)
+    def as_extended_json(*_options)
       { "$regex" => source, "$options" => bson_options }
     end
 
@@ -223,7 +223,7 @@ module BSON
         if opts[:mode] == :legacy
           { "$regex" => source, "$options" => options }
         else
-          {"$regularExpression" => {'pattern' => source, "options" => options}}
+          { "$regularExpression" => { 'pattern' => source, "options" => options } }
         end
       end
 
