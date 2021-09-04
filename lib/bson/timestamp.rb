@@ -76,17 +76,16 @@ module BSON
       [ a, b ].sort[0] == a ? -1 : 1
     end
 
-    # Get the timestamp as JSON hash data.
+    # Return a string representation of the timestamp for use in
+    # application-level JSON serialization. This method is intentionally
+    # different from #as_extended_json.
     #
-    # @example Get the timestamp as a JSON hash.
+    # @example Get the timestamp as a JSON-serializable object.
     #   timestamp.as_json
     #
-    # @return [ Hash ] The timestamp as a JSON hash.
-    #
-    # @since 2.0.0
-    # @deprecated Use as_extended_json instead.
+    # @return [ Time ] The timestamp as a Time object.
     def as_json(*args)
-      as_extended_json
+      ::Time.at(seconds).utc
     end
 
     # Converts this object to a representation directly serializable to

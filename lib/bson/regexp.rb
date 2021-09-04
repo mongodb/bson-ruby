@@ -58,12 +58,10 @@ module BSON
     # Get the regexp as JSON hash data.
     #
     # @example Get the regexp as a JSON hash.
-    #   regexp.as_json
+    #   regexp.as_extended_json
     #
     # @return [ Hash ] The regexp as a JSON hash.
-    #
-    # @since 2.0.0
-    def as_json(*args)
+    def as_extended_json(*args)
       { "$regex" => source, "$options" => bson_options }
     end
 
@@ -202,16 +200,16 @@ module BSON
         buffer.put_cstring(options.chars.sort.join)
       end
 
-      # Get the raw BSON regexp as JSON hash data.
+      # Return a string representation of the raw regexp for use in
+      # application-level JSON serialization. This method is intentionally
+      # different from #as_extended_json.
       #
-      # @example Get the raw regexp as a JSON hash.
+      # @example Get the raw regexp as a JSON-serializable object.
       #   raw_regexp.as_json
       #
-      # @return [ Hash ] The raw regexp as a JSON hash.
-      #
-      # @since 4.2.0
+      # @return [ String ] The raw regexp as a String.
       def as_json(*args)
-        as_extended_json(mode: :legacy)
+        compile.to_s
       end
 
       # Converts this object to a representation directly serializable to

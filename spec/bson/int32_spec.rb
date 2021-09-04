@@ -254,22 +254,28 @@ describe BSON::Int32 do
     end
   end
 
+  describe '#as_json' do
+    it 'returns an Integer' do
+      expect(described_class.new(42).as_json).to eq 42
+    end
+  end
+
   describe '#as_extended_json' do
     context 'canonical mode' do
-      it 'returns $numberInt' do
-        described_class.new(42).as_extended_json.should == {'$numberInt' => '42'}
+      it 'returns a Hash with key $numberInt' do
+        expect(described_class.new(42).as_extended_json).to eq({ '$numberInt' => '42' })
       end
     end
 
     context 'relaxed mode' do
-      it 'returns integer' do
-        described_class.new(42).as_extended_json(mode: :relaxed).should == 42
+      it 'returns an Integer' do
+        expect(described_class.new(42).as_extended_json(mode: :relaxed)).to eq 42
       end
     end
 
     context 'legacy mode' do
-      it 'returns integer' do
-        described_class.new(42).as_extended_json(mode: :legacy).should be 42
+      it 'returns an Integer' do
+        expect(described_class.new(42).as_extended_json(mode: :legacy)).to eq 42
       end
     end
   end

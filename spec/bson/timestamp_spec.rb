@@ -109,11 +109,22 @@ describe BSON::Timestamp do
       described_class.new(10, 50)
     end
 
-    it "returns the binary data plus type" do
-      expect(object.as_json).to eq({"$timestamp" => { "t" => 10, "i" => 50 } })
+    it "returns the timestamp as a Time object and omits ordinal information" do
+      expect(object.as_json).to eq(Time.parse('1970-01-01 00:00:10Z'))
     end
 
     it_behaves_like "a JSON serializable object"
+  end
+
+  describe "#as_extended_json" do
+
+    let(:object) do
+      described_class.new(10, 50)
+    end
+
+    it "returns the binary data plus type" do
+      expect(object.as_extended_json).to eq({ "$timestamp" => { "t" => 10, "i" => 50 } })
+    end
   end
 
   describe "#to_bson/#from_bson" do

@@ -25,8 +25,12 @@ describe 'Driver common bson tests' do
             expect(test.from_json_string).to eq(test.object)
           end
 
+          it 'serializes to a string', if: test.to_ext_json? do
+            expect(test.document_as_extended_json).to eq(test.ext_json)
+          end
+
           it 'creates the correct extended json document from the decoded object', if: test.to_ext_json? do
-            expect(test.document_as_json).to eq(test.ext_json)
+            expect(test.document_as_extended_json).to eq(test.ext_json)
           end
 
           it 'parses the string value to the same value as the decoded document', if: test.from_string? do
