@@ -20,6 +20,7 @@ module BSON
   #
   # @since 2.0.0
   class Undefined
+    include JSON
     include Specialized
 
     # Undefined is type 0x06 in the BSON spec.
@@ -39,6 +40,18 @@ module BSON
     # @since 2.0.0
     def ==(other)
       self.class == other.class
+    end
+
+    # Return a string representation of the BSON::Undefined for use in
+    # application-level JSON serialization. This method is intentionally
+    # different from #as_extended_json.
+    #
+    # @example Get the undefined as a JSON-serializable object.
+    #   undefined.as_json
+    #
+    # @return [ nil ] The undefined as nil.
+    def as_json(*args)
+      nil
     end
 
     # Converts this object to a representation directly serializable to

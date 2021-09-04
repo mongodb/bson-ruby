@@ -340,7 +340,7 @@ describe Hash do
       let(:doc) { Hash.from_bson(buf) }
 
       it 'overwrites first value with second value' do
-        doc.should == {'foo' => 'overwrite'}
+        expect(doc).to eq({ 'foo' => 'overwrite' })
       end
     end
 
@@ -362,8 +362,28 @@ describe Hash do
       let(:doc) { Hash.from_bson(buf) }
 
       it 'overwrites first value with second value' do
-        doc.should == {'foo' => :bar}
+        expect(doc).to eq({ 'foo' => :bar })
       end
     end
+  end
+
+  describe '#as_extended_json' do
+    let(:object) do
+      { 'foo' => :bar, 'baz' => ['qux', 1, 2.0, { 'lorem' => 1 }] }
+    end
+
+    let(:expected) do
+      { "foo" => { "$symbol" => "bar" },
+        "baz" => [ "qux",
+                   { "$numberInt" => "1" },
+                   { "$numberDouble" => "2.0" },
+                   { "lorem" => { "$numberInt" => "1" } } ] }
+    end
+
+    it "returns the binary data plus type" do
+      expect(object.as_extended_json).to eq(expected)
+    end
+
+    it_behaves_like 'an Extended JSON serializable object'
   end
 end

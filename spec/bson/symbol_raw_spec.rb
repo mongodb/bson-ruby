@@ -42,4 +42,28 @@ describe BSON::Symbol::Raw do
       one.should_not be_eql(three)
     end
   end
+
+  describe '#as_json' do
+    let(:object) do
+      described_class.new(:foobar)
+    end
+
+    it 'returns a string' do
+      expect(object.as_json).to eq('foobar')
+    end
+
+    it_behaves_like 'a JSON serializable object'
+  end
+
+  describe '#as_extended_json' do
+    let(:object) do
+      described_class.new(:foobar)
+    end
+
+    it 'returns the binary data plus type' do
+      expect(object.as_extended_json).to eq({ '$symbol' => 'foobar' })
+    end
+
+    it_behaves_like 'an Extended JSON serializable object'
+  end
 end

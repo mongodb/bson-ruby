@@ -92,15 +92,14 @@ module BSON
     # Converts this object to a representation directly serializable to
     # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
     #
-    # @option options [ true | false ] :relaxed Whether to produce relaxed
-    #   extended JSON representation.
-    #
     # @return [ Hash ] The extended json representation.
-    def as_extended_json(**options)
+    def as_extended_json(**_options)
       { "$symbol" => to_s }
     end
 
     class Raw
+      include JSON
+
       # Create a BSON Symbol
       #
       # @param [ String | Symbol ] str_or_sym The symbol represented by this
@@ -155,18 +154,24 @@ module BSON
         Symbol::BSON_TYPE
       end
 
+      # Return a string representation of the raw symbol for use in
+      # application-level JSON serialization. This method is intentionally
+      # different from #as_extended_json.
+      #
+      # @example Get the raw symbol as a JSON-serializable object.
+      #   raw_symbol.as_json
+      #
+      # @return [ String ] The raw symbol as a String.
+      def as_json(*args)
+        to_s
+      end
+
       # Converts this object to a representation directly serializable to
       # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
       #
-      # This method returns the integer value if relaxed representation is
-      # requested, otherwise a $numberLong hash.
-      #
-      # @option options [ true | false ] :relaxed Whether to produce relaxed
-      #   extended JSON representation.
-      #
-      # @return [ Hash | Integer ] The extended json representation.
-      def as_extended_json(**options)
-        {'$symbol' => to_s}
+      # @return [ Hash ] The extended json representation.
+      def as_extended_json(**_options)
+        { '$symbol' => to_s }
       end
     end
 

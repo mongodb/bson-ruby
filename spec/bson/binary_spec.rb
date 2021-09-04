@@ -55,19 +55,20 @@ describe BSON::Binary do
     expect(hash[not_testing]).to be_nil
   end
 
-  describe "#as_json" do
+  describe "#as_extended_json" do
 
     let(:object) do
       described_class.new("testing", :user)
     end
 
     it "returns the binary data plus type" do
-      expect(object.as_json).to eq(
+      expect(object.as_extended_json).to eq(
         { "$binary" => {'base64' => Base64.encode64("testing").strip, "subType" => '80' }}
       )
     end
 
-    it_behaves_like "a JSON serializable object"
+    it_behaves_like 'an Extended JSON serializable object'
+    it_behaves_like '#as_json calls #as_extended_json'
   end
 
   describe "#initialize" do

@@ -148,4 +148,11 @@ describe String do
       end
     end
   end
+
+  describe '#as_extended_json' do
+    let(:object) { 'Hello world!' }
+
+    it_behaves_like '#as_extended_json returns self'
+    it_behaves_like 'an Extended JSON serializable object'
+  end
 end

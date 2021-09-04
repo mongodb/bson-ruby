@@ -130,4 +130,16 @@ describe Symbol do
       end
     end
   end
+
+  describe '#as_extended_json' do
+    let(:object) do
+      :foobar
+    end
+
+    it 'returns the binary data plus type' do
+      expect(object.as_extended_json).to eq({ '$symbol' => 'foobar' })
+    end
+
+    it_behaves_like 'an Extended JSON serializable object'
+  end
 end
