@@ -57,8 +57,6 @@ limitations under the License.
 [rubygems-url]: http://badge.fury.io/rb/bson
 [ghactions-img]: https://github.com/mongodb/bson-ruby/actions/workflows/bson-ruby.yml/badge.svg?query=branch%3Amaster
 [ghactions-url]: https://github.com/mongodb/bson-ruby/actions/workflows/bson-ruby.yml?query=branch%3Amaster
-[appveyor-img]: https://ci.appveyor.com/api/projects/status/p5aqko7umsx351nm?svg=true
-[appveyor-url]: https://ci.appveyor.com/project/p-mongo/bson-ruby/branch/master
 [coveralls-img]: https://coveralls.io/repos/mongodb/bson-ruby/badge.svg?branch=master
 [coveralls-url]: https://coveralls.io/r/mongodb/bson-ruby?branch=master
 [inch-img]: http://inch-ci.org/github/mongodb/bson-ruby.svg?branch=master
