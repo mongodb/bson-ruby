@@ -1,7 +1,6 @@
 BSON
 [![Gem Version][rubygems-img]][rubygems-url]
-[![Build Status][travis-img]][travis-url]
-[![Build status Windows][appveyor-img]][appveyor-url]
+[![Build Status][ghactions-img]][ghactions-url]
 [![Coverage Status][coveralls-img]][coveralls-url]
 [![Inline docs][inch-img]][inch-url]
 ====
@@ -55,10 +54,8 @@ limitations under the License.
 
 [rubygems-img]: https://badge.fury.io/rb/bson.svg
 [rubygems-url]: http://badge.fury.io/rb/bson
-[travis-img]: https://secure.travis-ci.org/mongodb/bson-ruby.svg?branch=master
-[travis-url]: http://travis-ci.org/mongodb/bson-ruby
-[appveyor-img]: https://ci.appveyor.com/api/projects/status/p5aqko7umsx351nm?svg=true
-[appveyor-url]: https://ci.appveyor.com/project/p-mongo/bson-ruby/branch/master
+[ghactions-img]: https://github.com/mongodb/bson-ruby/actions/workflows/bson-ruby.yml/badge.svg?query=branch%3Amaster
+[ghactions-url]: https://github.com/mongodb/bson-ruby/actions/workflows/bson-ruby.yml?query=branch%3Amaster
 [coveralls-img]: https://coveralls.io/repos/mongodb/bson-ruby/badge.svg?branch=master
 [coveralls-url]: https://coveralls.io/r/mongodb/bson-ruby?branch=master
 [inch-img]: http://inch-ci.org/github/mongodb/bson-ruby.svg?branch=master
