@@ -1,7 +1,6 @@
 BSON
 [![Gem Version][rubygems-img]][rubygems-url]
 [![Build Status][ghactions-img]][ghactions-url]
-[![Build status Windows][appveyor-img]][appveyor-url]
 [![Coverage Status][coveralls-img]][coveralls-url]
 [![Inline docs][inch-img]][inch-url]
 ====
