@@ -43,10 +43,11 @@ end
 
 begin
   require 'mrss/lite_constraints'
-rescue LoadError
+rescue LoadError => exc
   raise LoadError.new <<~MSG.strip
     The test suite requires shared tooling to be installed.
-    Please refer to spec/README.md for instructions.
+      Please refer to spec/README.md for instructions.
+    #{exc.class}: #{exc}
   MSG
 end
 
