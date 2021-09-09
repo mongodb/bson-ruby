@@ -520,7 +520,13 @@ describe BSON::Document do
       context "when the document has been serialized" do
 
         let(:deserialized) do
-          YAML.load(YAML.dump(doc))
+          if YAML.respond_to?(:unsafe_load)
+            # In psych >= 4.0.0 `load` is basically an alias to `safe_load`,
+            # which will fail here.
+            YAML.unsafe_load(YAML.dump(doc))
+          else
+            YAML.load(YAML.dump(doc))
+          end
         end
 
         let!(:enum) do
