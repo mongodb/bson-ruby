@@ -57,14 +57,14 @@ module BSON
     #
     # @return [ Hash | Float ] The extended json representation.
     def as_extended_json(**options)
+      return self if options[:mode] == :relaxed || options[:mode] == :legacy
+
       value = if infinite? == 1
                 'Infinity'
               elsif infinite? == -1
                 '-Infinity'
               elsif nan?
                 'NaN'
-              elsif options[:mode] == :relaxed || options[:mode] == :legacy
-                self
               elsif BSON::Environment.jruby? && abs > 1e15
                 # Hack to make bson corpus spec tests pass.
                 # JRuby serializes -1.2345678901234568e+18 as
