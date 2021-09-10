@@ -63,17 +63,16 @@ module BSON
       super
     end
 
-    # Return the object id as a JSON hash representation.
+    # Return a string representation of the object id for use in
+    # application-level JSON serialization. This method is intentionally
+    # different from #as_extended_json.
     #
-    # @example Get the object id as JSON.
+    # @example Get the object id as a JSON-serializable object.
     #   object_id.as_json
     #
-    # @return [ Hash ] The object id as a JSON hash.
-    #
-    # @since 2.0.0
-    # @deprecated Use as_extended_json instead.
+    # @return [ String ] The object id as a string.
     def as_json(*args)
-      as_extended_json
+      to_s
     end
 
     # Converts this object to a representation directly serializable to
