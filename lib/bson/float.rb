@@ -57,26 +57,25 @@ module BSON
     #
     # @return [ Hash | Float ] The extended json representation.
     def as_extended_json(**options)
-      return self if options[:mode] == :relaxed || options[:mode] == :legacy
-
-      value = if infinite? == 1
-                'Infinity'
-              elsif infinite? == -1
-                '-Infinity'
-              elsif nan?
-                'NaN'
-              elsif BSON::Environment.jruby? && abs > 1e15
-                # Hack to make bson corpus spec tests pass.
-                # JRuby serializes -1.2345678901234568e+18 as
-                # -1234567890123456770.0, which is valid but differs from MRI
-                # serialization. Extended JSON spec does not define precise
-                # stringification of floats.
-                # https://jira.mongodb.org/browse/SPEC-1536
-                ('%.17g' % to_s).upcase
-              else
-                to_s.upcase
-              end
-      { '$numberDouble' => value }
+      if infinite? == 1
+        { '$numberDouble' => 'Infinity' }
+      elsif infinite? == -1
+        { '$numberDouble' => '-Infinity' }
+      elsif nan?
+        { '$numberDouble' => 'NaN' }
+      elsif options[:mode] == :relaxed || options[:mode] == :legacy
+        self
+      elsif BSON::Environment.jruby? && abs > 1e15
+        # Hack to make bson corpus spec tests pass.
+        # JRuby serializes -1.2345678901234568e+18 as
+        # -1234567890123456770.0, which is valid but differs from MRI
+        # serialization. Extended JSON spec does not define precise
+        # stringification of floats.
+        # https://jira.mongodb.org/browse/SPEC-1536
+        { '$numberDouble' => ('%.17g' % to_s).upcase }
+      else
+        { '$numberDouble' => to_s.upcase }
+      end
     end
 
     module ClassMethods
