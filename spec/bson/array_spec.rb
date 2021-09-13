@@ -190,4 +190,21 @@ describe Array do
       end
     end
   end
+
+  describe '#as_extended_json' do
+
+    let(:object) do
+      ['one', :two, 3, 4.0, nil]
+    end
+
+    let(:expected) do
+      ["one", { "$symbol" => "two" }, { "$numberInt" => "3" }, { "$numberDouble"=> "4.0" }, nil]
+    end
+
+    it 'returns the extended serialization' do
+      expect(object.as_extended_json).to eq(expected)
+    end
+
+    it_behaves_like 'an Extended JSON serializable object'
+  end
 end

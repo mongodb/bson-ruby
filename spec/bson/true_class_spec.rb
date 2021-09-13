@@ -25,4 +25,11 @@ describe TrueClass do
     it_behaves_like "a bson element"
     it_behaves_like "a serializable bson element"
   end
+
+  describe '#as_extended_json' do
+    let(:object) { true }
+
+    it_behaves_like '#as_extended_json returns self'
+    it_behaves_like 'an Extended JSON serializable object'
+  end
 end

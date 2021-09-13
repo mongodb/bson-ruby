@@ -587,7 +587,13 @@ describe Regexp::Raw do
     let(:regexp) { described_class.new('hello.world', 's') }
 
     it 'round-trips' do
-      actual = YAML.load(regexp.to_yaml)
+      actual = if YAML.respond_to?(:unsafe_load)
+        # In psych >= 4.0.0 `load` is basically an alias to `safe_load`,
+        # which will fail here.
+        YAML.unsafe_load(regexp.to_yaml)
+      else
+        YAML.load(regexp.to_yaml)
+      end
       actual.pattern.should == 'hello.world'
       actual.options.should == 's'
       actual.compile.should =~ "hello\nworld"

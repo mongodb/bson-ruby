@@ -70,6 +70,21 @@ shared_examples_for "an Extended JSON serializable object" do
   end
 end
 
+shared_examples_for '#as_extended_json returns self' do
+
+  it 'returns self' do
+    expect(object.as_extended_json).to eq(object)
+  end
+end
+
+shared_examples_for '#as_json calls #as_extended_json' do
+
+  it 'calls #as_extended_json' do
+    expect(object).to receive(:as_extended_json).with(no_args)
+    object.as_json
+  end
+end
+
 shared_examples_for "immutable when frozen" do |block|
 
   context "when the document is frozen" do

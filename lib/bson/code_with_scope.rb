@@ -51,16 +51,13 @@ module BSON
       javascript == other.javascript && scope == other.scope
     end
 
-    # Get the code with scope as JSON hash data.
+    # Return a representation of the object for use in
+    # application-level JSON serialization. Since BSON::CodeWithScope
+    # is used exclusively in BSON-related contexts, this
+    # method returns the canonical Extended JSON representation.
     #
-    # @example Get the code with scope as a JSON hash.
-    #   code_with_scope.as_json
-    #
-    # @return [ Hash ] The code with scope as a JSON hash.
-    #
-    # @since 2.0.0
-    # @deprecated Use as_extended_json instead.
-    def as_json(*args)
+    # @return [ Hash ] The extended json representation.
+    def as_json(*_args)
       as_extended_json
     end
 
