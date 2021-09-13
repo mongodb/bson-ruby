@@ -109,8 +109,14 @@ describe BSON::Timestamp do
       described_class.new(10, 50)
     end
 
+    let(:jsonified) { object.as_json }
+
     it "returns the timestamp as a Time object and omits ordinal information" do
-      expect(object.as_json).to eq(Time.parse('1970-01-01 00:00:10Z'))
+      expect(jsonified).to eq(Time.at(10))
+    end
+
+    it 'returns time in UTC' do
+      jsonified.zone.should == 'UTC'
     end
 
     it_behaves_like "a JSON serializable object"
