@@ -16,17 +16,18 @@ require "spec_helper"
 
 describe BSON::Code do
 
-  describe "#as_json" do
+  describe "#as_extended_json" do
 
     let(:object) do
       described_class.new("this.value = 5")
     end
 
     it "returns the binary data plus type" do
-      expect(object.as_json).to eq({ "$code" => "this.value = 5" })
+      expect(object.as_extended_json).to eq({ "$code" => "this.value = 5" })
     end
 
-    it_behaves_like "a JSON serializable object"
+    it_behaves_like 'an Extended JSON serializable object'
+    it_behaves_like '#as_json calls #as_extended_json'
   end
 
   describe "#to_bson/#from_bson" do

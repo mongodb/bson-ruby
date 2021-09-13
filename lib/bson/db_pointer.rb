@@ -53,24 +53,22 @@ module BSON
       ref == other.ref && id == other.id
     end
 
-    # Get the DBPointer as JSON hash data
+    # Return a representation of the object for use in
+    # application-level JSON serialization. Since BSON::DbPointer
+    # is used exclusively in BSON-related contexts, this
+    # method returns the canonical Extended JSON representation.
     #
-    # @return [ Hash ] The DBPointer as a JSON hash.
-    #
-    # @deprecated Use as_extended_json instead.
-    def as_json(*args)
+    # @return [ Hash ] The extended json representation.
+    def as_json(*_args)
       as_extended_json
     end
 
     # Converts this object to a representation directly serializable to
     # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
     #
-    # @option options [ true | false ] :relaxed Whether to produce relaxed
-    #   extended JSON representation.
-    #
     # @return [ Hash ] The extended json representation.
-    def as_extended_json(**options)
-      {'$dbPointer' => { "$ref" => ref, '$id' => id.as_extended_json }}
+    def as_extended_json(**_options)
+      { '$dbPointer' => { "$ref" => ref, '$id' => id.as_extended_json } }
     end
 
     # Encode the DBPointer.

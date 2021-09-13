@@ -47,16 +47,13 @@ module BSON
       javascript == other.javascript
     end
 
-    # Get the code as JSON hash data.
+    # Return a representation of the object for use in
+    # application-level JSON serialization. Since BSON::Code
+    # is used exclusively in BSON-related contexts, this
+    # method returns the canonical Extended JSON representation.
     #
-    # @example Get the code as a JSON hash.
-    #   code.as_json
-    #
-    # @return [ Hash ] The code as a JSON hash.
-    #
-    # @since 2.0.0
-    # @deprecated Use as_extended_json instead.
-    def as_json(*args)
+    # @return [ Hash ] The extended json representation.
+    def as_json(*_args)
       as_extended_json
     end
 
@@ -67,7 +64,7 @@ module BSON
     #   (default is canonical extended JSON)
     #
     # @return [ Hash ] The extended json representation.
-    def as_extended_json(**options)
+    def as_extended_json(**_options)
       { "$code" => javascript }
     end
 

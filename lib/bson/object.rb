@@ -78,11 +78,8 @@ module BSON
     # Subclasses should override this method to provide custom serialization
     # to Extended JSON.
     #
-    # @option options [ true | false ] :relaxed Whether to produce relaxed
-    #   extended JSON representation.
-    #
     # @return [ Object ] The extended json representation.
-    def as_extended_json(**options)
+    def as_extended_json(**_options)
       self
     end
   end

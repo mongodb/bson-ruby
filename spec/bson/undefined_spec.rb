@@ -26,4 +26,30 @@ describe BSON::Undefined do
     it_behaves_like "a serializable bson element"
     it_behaves_like "a deserializable bson element"
   end
+
+  describe "#as_json" do
+
+    let(:object) do
+      described_class.new
+    end
+
+    it "returns nil" do
+      expect(object.as_json).to eq(nil)
+    end
+
+    it_behaves_like 'a JSON serializable object'
+  end
+
+  describe "#as_extended_json" do
+
+    let(:object) do
+      described_class.new
+    end
+
+    it "returns the binary data plus type" do
+      expect(object.as_extended_json).to eq({ "$undefined" => true })
+    end
+
+    it_behaves_like 'an Extended JSON serializable object'
+  end
 end

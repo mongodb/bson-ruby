@@ -184,13 +184,13 @@ module BSON
       # The object as json, in a document with the test key.
       #
       # @example Get a document with the object at the test key.
-      #   test.document_as_json
+      #   test.document_as_extended_json
       #
-      # @return [ BSON::Document ] The json document.
+      # @return [ Hash ] The extended_json representation of document.
       #
       # @since 4.2.0
-      def document_as_json
-        { @test_key => object.as_json }
+      def document_as_extended_json
+        { @test_key => object.as_extended_json }
       end
 
       # Use the string in the extended json to instantiate the bson object.
