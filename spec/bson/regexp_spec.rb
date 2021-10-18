@@ -22,32 +22,13 @@ describe Regexp do
       /\W+/i
     end
 
-    if ENV['WITH_ACTIVE_SUPPORT']
-      it "is handled by ActiveSupport" do
-        expect(object.as_json).to eq "(?i-mx:\\W+)"
-      end
-
-      it_behaves_like "a JSON serializable object"
-    else
-      it "does not override the method since it is defined in ActiveSupport" do
-        expect(object).to_not respond_to(:as_json)
-      end
-    end
-  end
-
-  describe "#as_extended_json" do
-
-    let(:object) do
-      /\W+/i
-    end
-
     it "returns the binary data plus type" do
-      expect(object.as_extended_json).to eq(
+      expect(object.as_json).to eq(
         { "$regex" => "\\W+", "$options" => "im" }
       )
     end
 
-    it_behaves_like "an Extended JSON serializable object"
+    it_behaves_like "a JSON serializable object"
   end
 
   describe "#to_bson/#from_bson" do

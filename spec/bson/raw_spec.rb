@@ -12,8 +12,8 @@ describe Regexp::Raw do
       described_class.new(pattern, 'im')
     end
 
-    it "returns the regexp as a string using Ruby's string conversion" do
-      expect(object.as_json).to eq("(?i-mx:\\W+)")
+    it "returns the legacy serialization including regex pattern and options" do
+      expect(object.as_json).to eq({ "$regex" => "\\W+", "$options" => "im" })
     end
 
     it_behaves_like "a JSON serializable object"
@@ -38,8 +38,6 @@ describe Regexp::Raw do
         )
       end
     end
-
-    it_behaves_like "an Extended JSON serializable object"
   end
 
   describe "#to_bson/#from_bson" do
