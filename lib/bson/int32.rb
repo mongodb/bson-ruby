@@ -144,7 +144,7 @@ module BSON
       if options[:mode] == :relaxed || options[:mode] == :legacy
         value
       else
-        { '$numberInt' => value.to_s }
+        {'$numberInt' => value.to_s}
       end
     end
 
