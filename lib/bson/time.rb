@@ -63,8 +63,8 @@ module BSON
     #
     # @note The time is floored to the nearest millisecond.
     #
-    # @option options [ true | false ] :relaxed Whether to produce relaxed
-    #   extended JSON representation.
+    # @option opts [ nil | :relaxed | :legacy ] :mode Serialization mode
+    #   (default is canonical extended JSON)
     #
     # @return [ Hash ] The extended json representation.
     def as_extended_json(**options)
