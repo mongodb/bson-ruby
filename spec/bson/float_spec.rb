@@ -34,15 +34,17 @@ describe Float do
   end
 
   describe '#as_extended_json' do
+    let(:object) { 42.0 }
+
     context 'canonical mode' do
       it 'returns $numberDouble' do
-        42.0.as_extended_json.should == {'$numberDouble' => '42.0'}
+        object.as_extended_json.should == {'$numberDouble' => '42.0'}
       end
     end
 
     context 'relaxed mode' do
       let(:serialized) do
-        42.0.as_extended_json(mode: :relaxed)
+        object.as_extended_json(mode: :relaxed)
       end
 
       it 'returns float' do
@@ -53,7 +55,7 @@ describe Float do
 
     context 'legacy mode' do
       let(:serialized) do
-        42.0.as_extended_json(mode: :legacy)
+        object.as_extended_json(mode: :legacy)
       end
 
       it 'returns float' do
@@ -61,5 +63,7 @@ describe Float do
         serialized.should be_within(0.00001).of(42)
       end
     end
+
+    it_behaves_like "an Extended JSON serializable object"
   end
 end

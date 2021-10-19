@@ -1254,11 +1254,38 @@ describe BSON::Decimal128 do
       described_class.new(BigDecimal('1.23'))
     end
 
-    it "returns the decimal128 with $numberDecimal key" do
-      expect(object.as_json).to eq({ "$numberDecimal" => object.to_s })
+    it "returns the decimal128 as a string" do
+      expect(object.as_json).to eq('1.23')
+    end
+
+    %w[NaN -NaN SNaN -SNaN Infinity -Infinity].each do |value|
+      context "when special value #{value}" do
+
+        let(:object) do
+          described_class.new(value)
+        end
+
+        it "returns nil to be consistent with ActiveSupport" do
+          puts object.as_json
+          expect(object.as_json).to eq(nil)
+        end
+      end
     end
 
     it_behaves_like "a JSON serializable object"
+  end
+
+  describe "#as_extended_json" do
+
+    let(:object) do
+      described_class.new(BigDecimal('1.23'))
+    end
+
+    it "returns the decimal128 with $numberDecimal key" do
+      expect(object.as_extended_json).to eq({ "$numberDecimal" => '1.23' })
+    end
+
+    it_behaves_like "an Extended JSON serializable object"
   end
 
   describe "::BSON_TYPE" do

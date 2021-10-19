@@ -20,6 +20,7 @@ module BSON
   #
   # @since 2.0.0
   class Int32
+    include JSON
 
     # A boolean is type 0x08 in the BSON spec.
     #
@@ -116,6 +117,18 @@ module BSON
     end
     alias :eql? :==
     alias :=== :==
+
+    # Return a string representation of the Int32 for use in
+    # application-level JSON serialization. This method is intentionally
+    # different from #as_extended_json.
+    #
+    # @example Get the Int32 as a JSON-serializable object.
+    #   int32.as_json
+    #
+    # @return [ Integer ] The Int32 as an Integer.
+    def as_json(**options)
+      value
+    end
 
     # Converts this object to a representation directly serializable to
     # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
