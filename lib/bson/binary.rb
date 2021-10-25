@@ -46,7 +46,8 @@ module BSON
       :uuid => 4.chr,
       :md5 => 5.chr,
       :ciphertext => 6.chr,
-      :user => 128.chr
+      :column => 7.chr,
+      :user => 128.chr,
     }.freeze
 
     # The mappings of single byte subtypes to their symbol counterparts.
