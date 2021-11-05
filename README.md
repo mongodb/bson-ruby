@@ -10,7 +10,7 @@ An implementation of the BSON specification in Ruby.
 Compatibility
 -------------
 
-BSON is tested against MRI (2.4+) and JRuby (9.2+).
+BSON is tested against MRI (2.5) and JRuby (9.2+).
 
 Documentation
 -------------
