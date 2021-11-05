@@ -418,33 +418,6 @@ tasks:
         - func: "run tests"
 
 axes:
-  - id: "version"
-    display_name: MongoDB Version
-    values:
-      - id: "latest"
-        display_name: "latest"
-        variables:
-           VERSION: "latest"
-      - id: "3.4"
-        display_name: "3.4"
-        variables:
-           VERSION: "3.4"
-      - id: "3.2"
-        display_name: "3.2"
-        variables:
-           VERSION: "3.2"
-      - id: "3.0"
-        display_name: "3.0"
-        variables:
-           VERSION: "3.0"
-      - id: "2.6"
-        display_name: "2.6"
-        variables:
-           VERSION: "2.6"
-      - id: "2.4"
-        display_name: "2.4"
-        variables:
-           VERSION: "2.4"
   - id: "topology"
     display_name: Topology
     values:
@@ -485,11 +458,11 @@ axes:
   - id: "all-os"
     display_name: OS
     values:
-      - id: "debian81"
-        display_name: "Debian 8.1 x86"
-        run_on: debian81-small
+      - id: "debian92"
+        display_name: "Debian 9 x86"
+        run_on: debian92-small
         variables:
-          MACHINE: "debian81"
+          MACHINE: "debian92"
       - id: "ubuntu1404"
         display_name: "Ubuntu 14.04"
         run_on: ubuntu1404-small
@@ -500,6 +473,11 @@ axes:
         run_on: ubuntu1604-small
         variables:
           MACHINE: "ubuntu1604"
+      - id: "ubuntu1804"
+        display_name: "Ubuntu 18.04"
+        run_on: ubuntu1804-small
+        variables:
+          MACHINE: "ubuntu1804"
       - id: "rhel70"
         display_name: "RHEL 7.0"
         run_on: rhel70-small
@@ -532,10 +510,6 @@ axes:
   - id: "mri-rubies"
     display_name: Ruby Version
     values:
-      - id: "ruby-2.4"
-        display_name: ruby-2.4
-        variables:
-           RVM_RUBY: "ruby-2.4"
       - id: "ruby-2.5"
         display_name: ruby-2.5
         variables:
@@ -596,25 +570,25 @@ axes:
 buildvariants:
 
 - matrix_name: "mri-rhel"
-  matrix_spec: { mri-rubies: [ruby-2.4, ruby-2.7], all-os: "rhel70" }
+  matrix_spec: { mri-rubies: [ruby-2.5], all-os: "rhel70" }
   display_name: "${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
 
 - matrix_name: "mri-debian"
-  matrix_spec: { mri-rubies: [ruby-2.4], all-os: "debian81" }
+  matrix_spec: { mri-rubies: [ruby-2.7], all-os: "debian92" }
   display_name: "${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
 
 - matrix_name: "mri-ubuntu"
-  matrix_spec: { mri-rubies: [ruby-2.5], all-os: "ubuntu1404" }
+  matrix_spec: { mri-rubies: [ruby-2.5], all-os: "ubuntu1604" }
   display_name: "${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
 
 - matrix_name: "mri-ubuntu-ruby3"
-  matrix_spec: { mri-rubies: [ruby-3.0], all-os: ubuntu1604 }
+  matrix_spec: { mri-rubies: [ruby-3.0], all-os: ubuntu1804 }
   display_name: "${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
@@ -622,7 +596,7 @@ buildvariants:
 - matrix_name: "activesupport"
   matrix_spec:
     mri-rubies: [ruby-2.5, ruby-2.6, ruby-2.7, ruby-3.0]
-    all-os: "ubuntu1604"
+    all-os: "ubuntu1804"
     as: '*'
   display_name: "AS ${as} ${mri-rubies}, ${all-os}"
   tasks:
@@ -630,8 +604,8 @@ buildvariants:
 
 - matrix_name: "activesupport-old-rubies"
   matrix_spec:
-    mri-rubies: [ruby-2.4]
-    all-os: "ubuntu1404"
+    mri-rubies: [ruby-2.5]
+    all-os: "ubuntu1604"
     as: ['5.1', '5.2']
   display_name: "AS ${as} ${mri-rubies}, ${all-os}"
   tasks:
