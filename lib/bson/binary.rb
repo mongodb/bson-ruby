@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +28,7 @@ module BSON
     # A binary is type 0x05 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 5.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = -(5.chr.b)
 
     # The mappings of subtypes to their single byte identifiers.
     #

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +23,7 @@ module BSON
     include JSON
 
     # A DBPointer is type 0x0C in the BSON spec.
-    BSON_TYPE = 0x0C.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = -(0x0C.chr.b)
 
     # Create a new DBPointer object.
     #

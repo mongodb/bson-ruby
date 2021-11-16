@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +26,7 @@ module BSON
     # A false value in the BSON spec is 0x00.
     #
     # @since 2.0.0
-    FALSE_BYTE = 0.chr.force_encoding(BINARY).freeze
+    FALSE_BYTE = -(0.chr.b)
 
     # The BSON type for false values is the general boolean type of 0x08.
     #

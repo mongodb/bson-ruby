@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,13 +46,13 @@ module BSON
     # The BSON index size.
     #
     # @since 2.0.0
-    BSON_INDEX_SIZE = 1024.freeze
+    BSON_INDEX_SIZE = 1024
 
     # A hash of index values for array optimization.
     #
     # @since 2.0.0
     BSON_ARRAY_INDEXES = ::Array.new(BSON_INDEX_SIZE) do |i|
-      (i.to_s.force_encoding(BINARY) << NULL_BYTE).freeze
+      -(i.to_s.b << NULL_BYTE)
     end.freeze
 
     # Is this integer a valid BSON 32 bit value?

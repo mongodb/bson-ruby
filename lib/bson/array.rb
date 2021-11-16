@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +26,7 @@ module BSON
     # An array is type 0x04 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 4.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = -(4.chr.b)
 
     # Get the array as encoded BSON.
     #

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,12 +26,12 @@ module BSON
     # A floating point is type 0x01 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 1.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = -(1.chr.b)
 
     # The pack directive is for 8 byte floating points.
     #
     # @since 2.0.0
-    PACK = "E".freeze
+    PACK = "E"
 
     # Get the floating point as encoded BSON.
     #

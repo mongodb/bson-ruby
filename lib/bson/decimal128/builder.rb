@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2016-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,27 +27,27 @@ module BSON
       # Infinity mask.
       #
       # @since 4.2.0
-      INFINITY_MASK = 0x7800000000000000.freeze
+      INFINITY_MASK = 0x7800000000000000
 
       # NaN mask.
       #
       # @since 4.2.0
-      NAN_MASK = 0x7c00000000000000.freeze
+      NAN_MASK = 0x7c00000000000000
 
       # SNaN mask.
       #
       # @since 4.2.0
-      SNAN_MASK = (1 << 57).freeze
+      SNAN_MASK = (1 << 57)
 
       # Signed bit mask.
       #
       # @since 4.2.0
-      SIGN_BIT_MASK = (1 << 63).freeze
+      SIGN_BIT_MASK = (1 << 63)
 
       # The two highest bits of the 64 high order bits.
       #
       # @since 4.2.0
-      TWO_HIGHEST_BITS_SET = (3 << 61).freeze
+      TWO_HIGHEST_BITS_SET = (3 << 61)
 
       extend self
 
@@ -109,14 +110,14 @@ module BSON
         # @return [ Regex ] A regex matching a NaN string.
         #
         # @since 4.2.0
-        NAN_REGEX = /^(\-)?(S)?NaN$/i.freeze
+        NAN_REGEX = /^(\-)?(S)?NaN$/i
 
         # Regex matching a string representing positive or negative Infinity.
         #
         # @return [ Regex ] A regex matching a positive or negative Infinity string.
         #
         # @since 4.2.0
-        INFINITY_REGEX = /^(\+|\-)?Inf(inity)?$/i.freeze
+        INFINITY_REGEX = /^(\+|\-)?Inf(inity)?$/i
 
         # Regex for the fraction, including leading zeros.
         #
@@ -124,33 +125,33 @@ module BSON
         #   including leading zeros.
         #
         # @since 4.2.0
-        SIGNIFICAND_WITH_LEADING_ZEROS_REGEX = /(0*)(\d+)/.freeze
+        SIGNIFICAND_WITH_LEADING_ZEROS_REGEX = /(0*)(\d+)/
 
         # Regex for separating a negative sign from the significands.
         #
         # @return [ Regex ] The regex for separating a sign from significands.
         #
         # @since 4.2.0
-        SIGN_AND_DIGITS_REGEX = /^(\-)?(\S+)/.freeze
+        SIGN_AND_DIGITS_REGEX = /^(\-)?(\S+)/
 
         # Regex matching a scientific exponent.
         #
         # @return [ Regex ] A regex matching E, e, E+, e+.
         #
         # @since 4.2.0
-        SCIENTIFIC_EXPONENT_REGEX = /E\+?/i.freeze
+        SCIENTIFIC_EXPONENT_REGEX = /E\+?/i
 
         # Regex for capturing trailing zeros.
         #
         # @since 4.2.0
-        TRAILING_ZEROS_REGEX = /[1-9]*(0+)$/.freeze
+        TRAILING_ZEROS_REGEX = /[1-9]*(0+)$/
 
         # Regex for a valid decimal128 string format.
         #
         # @return [ Regex ] The regex for a valid decimal128 string.
         #
         # @since 4.2.0
-        VALID_DECIMAL128_STRING_REGEX = /^[\-\+]?(\d+(\.\d*)?|\.\d+)(E[\-\+]?\d+)?$/i.freeze
+        VALID_DECIMAL128_STRING_REGEX = /^[\-\+]?(\d+(\.\d*)?|\.\d+)(E[\-\+]?\d+)?$/i
 
         # Initialize the FromString Builder object.
         #
@@ -337,14 +338,14 @@ module BSON
         # @return [ String ] The string representing NaN.
         #
         # @since 4.2.0
-        NAN_STRING = 'NaN'.freeze
+        NAN_STRING = 'NaN'
 
         # String representing an Infinity value.
         #
         # @return [ String ] The string representing Infinity.
         #
         # @since 4.2.0
-        INFINITY_STRING = 'Infinity'.freeze
+        INFINITY_STRING = 'Infinity'
 
         # Initialize the FromBigDecimal Builder object.
         #
@@ -370,7 +371,7 @@ module BSON
         def string
           return NAN_STRING if nan?
           str = infinity? ? INFINITY_STRING : create_string
-          negative? ? '-' << str : str
+          negative? ? "-#{str}" : str
         end
 
         private

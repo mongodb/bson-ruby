@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,34 +27,34 @@ module BSON
     # A regular expression is type 0x0B in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 11.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = -(11.chr.b)
 
     # Extended value constant.
     #
     # @since 3.2.6
-    EXTENDED_VALUE = 'x'.freeze
+    EXTENDED_VALUE = 'x'
 
     # Ignore case constant.
     #
     # @since 3.2.6
-    IGNORECASE_VALUE = 'i'.freeze
+    IGNORECASE_VALUE = 'i'
 
     # Multiline constant.
     #
     # @since 3.2.6
-    MULTILINE_VALUE = 'm'.freeze
+    MULTILINE_VALUE = 'm'
 
     # Newline constant.
     #
     # @since 3.2.6
-    NEWLINE_VALUE = 's'.freeze
+    NEWLINE_VALUE = 's'
 
     # Ruby multiline constant.
     #
     # @since 3.2.6
     #
     # @deprecated Will be removed in 5.0
-    RUBY_MULTILINE_VALUE = 'ms'.freeze
+    RUBY_MULTILINE_VALUE = 'ms'
 
     # Get the regexp as JSON hash data.
     #

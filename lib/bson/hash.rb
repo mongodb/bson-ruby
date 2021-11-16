@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +26,7 @@ module BSON
     # A hash, also called an embedded document, is type 0x03 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 3.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = -(3.chr.b)
 
     # Get the hash as encoded BSON.
     #

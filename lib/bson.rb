@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,22 +39,22 @@ module BSON
   # Constant for binary string encoding.
   #
   # @since 2.0.0
-  BINARY = "BINARY".freeze
+  BINARY = "BINARY"
 
   # Constant for bson types that don't actually serialize a value.
   #
   # @since 2.0.0
-  NO_VALUE = "".force_encoding(BINARY).freeze
+  NO_VALUE = -("".b)
 
   # Constant for a null byte (0x00).
   #
   # @since 2.0.0
-  NULL_BYTE = 0.chr.force_encoding(BINARY).freeze
+  NULL_BYTE = -(0.chr.b)
 
   # Constant for UTF-8 string encoding.
   #
   # @since 2.0.0
-  UTF8 = "UTF-8".freeze
+  UTF8 = "UTF-8"
 end
 
 require "bson/config"

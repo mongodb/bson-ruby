@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +31,7 @@ module BSON
     # A object_id is type 0x07 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 7.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = -(7.chr.b)
 
     # Check equality of the object id with another object.
     #

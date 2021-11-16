@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +27,7 @@ module BSON
     # Undefined is type 0x06 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 6.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = -(6.chr.b)
 
     # Determine if undefined is equal to another object.
     #
