@@ -367,6 +367,8 @@ module BSON
         #
         # @return [ String ] The string representing the decimal128 object.
         #
+        # @note The returned string may be frozen.
+        #
         # @since 4.2.0
         def string
           return NAN_STRING if nan?
