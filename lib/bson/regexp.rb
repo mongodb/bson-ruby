@@ -156,7 +156,7 @@ module BSON
       def initialize(pattern, options = '')
         if pattern.include? NULL_BYTE
           raise Error::ExtJSONParseError, "Regex pattern cannot contian a null byte: #{key}"
-        elsif options.include? NULL_BYTE
+        elsif options.is_a?(String) && options.include?(NULL_BYTE)
           raise Error::ExtJSONParseError, "Regex options cannot contian a null byte: #{key}"
         end
 
