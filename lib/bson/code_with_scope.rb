@@ -27,7 +27,7 @@ module BSON
     # A code with scope is type 0x0F in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = -(15.chr.b)
+    BSON_TYPE = ::String.new(15.chr, encoding: BINARY).freeze
 
     # @!attribute javascript
     #   @return [ String ] The javascript code.

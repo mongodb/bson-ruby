@@ -29,7 +29,7 @@ module BSON
     # A $maxKey is type 0x7F in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = -(127.chr.b)
+    BSON_TYPE = ::String.new(127.chr, encoding: BINARY).freeze
 
     # Constant for always evaluating greater in a comparison.
     #

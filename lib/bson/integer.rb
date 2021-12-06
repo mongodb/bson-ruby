@@ -52,7 +52,7 @@ module BSON
     #
     # @since 2.0.0
     BSON_ARRAY_INDEXES = ::Array.new(BSON_INDEX_SIZE) do |i|
-      -(i.to_s.b << NULL_BYTE)
+      (i.to_s.b << NULL_BYTE).freeze
     end.freeze
 
     # Is this integer a valid BSON 32 bit value?

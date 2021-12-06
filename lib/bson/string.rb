@@ -27,7 +27,7 @@ module BSON
     # A string is type 0x02 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = -(2.chr.b)
+    BSON_TYPE = ::String.new(2.chr, encoding: BINARY).freeze
 
     # Regex for matching illegal BSON keys.
     #

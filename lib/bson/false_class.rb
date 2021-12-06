@@ -26,7 +26,7 @@ module BSON
     # A false value in the BSON spec is 0x00.
     #
     # @since 2.0.0
-    FALSE_BYTE = -(0.chr.b)
+    FALSE_BYTE = String.new(0.chr, encoding: BINARY).freeze
 
     # The BSON type for false values is the general boolean type of 0x08.
     #

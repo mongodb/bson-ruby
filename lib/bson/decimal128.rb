@@ -24,7 +24,7 @@ module BSON
     # A Decimal128 is type 0x13 in the BSON spec.
     #
     # @since 4.2.0
-    BSON_TYPE = -(19.chr.b)
+    BSON_TYPE = ::String.new(19.chr, encoding: BINARY).freeze
 
     # Exponent offset.
     #

@@ -26,7 +26,7 @@ module BSON
     # An array is type 0x04 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = -(4.chr.b)
+    BSON_TYPE = ::String.new(4.chr, encoding: BINARY).freeze
 
     # Get the array as encoded BSON.
     #

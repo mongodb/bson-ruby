@@ -27,7 +27,7 @@ module BSON
     # A nil is type 0x0A in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = -(10.chr.b)
+    BSON_TYPE = ::String.new(10.chr, encoding: BINARY).freeze
 
     module ClassMethods
 

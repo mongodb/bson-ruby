@@ -29,7 +29,7 @@ module BSON
     # A symbol is type 0x0E in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = -(14.chr.b)
+    BSON_TYPE = ::String.new(14.chr, encoding: BINARY).freeze
 
     # Symbols are serialized as strings as symbols are now removed from the
     # BSON specification. Therefore the bson_type when serializing must be a

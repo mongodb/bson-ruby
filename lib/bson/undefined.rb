@@ -27,7 +27,7 @@ module BSON
     # Undefined is type 0x06 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = -(6.chr.b)
+    BSON_TYPE = ::String.new(6.chr, encoding: BINARY).freeze
 
     # Determine if undefined is equal to another object.
     #

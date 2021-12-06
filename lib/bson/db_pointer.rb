@@ -23,7 +23,7 @@ module BSON
     include JSON
 
     # A DBPointer is type 0x0C in the BSON spec.
-    BSON_TYPE = -(0x0C.chr.b)
+    BSON_TYPE = ::String.new(0x0C.chr, encoding: BINARY).freeze
 
     # Create a new DBPointer object.
     #

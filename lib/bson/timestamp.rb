@@ -27,7 +27,7 @@ module BSON
     # A timestamp is type 0x11 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = -(17.chr.b)
+    BSON_TYPE = ::String.new(17.chr, encoding: BINARY).freeze
 
     # Error message if an object other than a Timestamp is compared with this object.
     #

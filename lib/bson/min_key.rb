@@ -29,7 +29,7 @@ module BSON
     # A $minKey is type 0xFF in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = -(255.chr.b)
+    BSON_TYPE = ::String.new(255.chr, encoding: BINARY).freeze
 
     # Constant for always evaluating lesser in a comparison.
     #

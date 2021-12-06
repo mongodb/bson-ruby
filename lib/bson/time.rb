@@ -40,7 +40,7 @@ module BSON
     # A time is type 0x09 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = -(9.chr.b)
+    BSON_TYPE = ::String.new(9.chr, encoding: BINARY).freeze
 
     # Get the time as encoded BSON.
     #

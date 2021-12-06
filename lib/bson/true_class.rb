@@ -26,7 +26,7 @@ module BSON
     # A true value in the BSON spec is 0x01.
     #
     # @since 2.0.0
-    TRUE_BYTE = -(1.chr.b)
+    TRUE_BYTE = ::String.new(1.chr, encoding: BINARY).freeze
 
     # The BSON type for true values is the general boolean type of 0x08.
     #

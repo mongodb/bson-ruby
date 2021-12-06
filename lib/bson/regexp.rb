@@ -27,7 +27,7 @@ module BSON
     # A regular expression is type 0x0B in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = -(11.chr.b)
+    BSON_TYPE = ::String.new(11.chr, encoding: BINARY).freeze
 
     # Extended value constant.
     #

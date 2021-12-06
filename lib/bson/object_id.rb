@@ -31,7 +31,7 @@ module BSON
     # A object_id is type 0x07 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = -(7.chr.b)
+    BSON_TYPE = ::String.new(7.chr, encoding: BINARY).freeze
 
     # Check equality of the object id with another object.
     #

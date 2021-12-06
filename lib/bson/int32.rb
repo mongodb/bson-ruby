@@ -26,7 +26,7 @@ module BSON
     # A boolean is type 0x08 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = -(16.chr.b)
+    BSON_TYPE = ::String.new(16.chr, encoding: BINARY).freeze
 
     # The number of bytes constant.
     #
