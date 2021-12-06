@@ -44,7 +44,7 @@ module BSON
   # Constant for bson types that don't actually serialize a value.
   #
   # @since 2.0.0
-  NO_VALUE = ::String.new("", encoding: BINARY).freeze
+  NO_VALUE = ::String.new(encoding: BINARY).freeze
 
   # Constant for a null byte (0x00).
   #
