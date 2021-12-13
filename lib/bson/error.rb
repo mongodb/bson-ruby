@@ -25,9 +25,9 @@ module BSON
     end
 
     # Exception raised when there is an invalid argument passed into the
-    # constructor of regexp object. This includes when the argument contians
+    # constructor of regexp object. This includes when the argument contains
     # a null byte.
-    class RegexpArgumentError < Error
+    class InvalidRegexpPattern < Error
     end
   end
 end
