@@ -166,7 +166,7 @@ module BSON
       #
       # @since 4.2.0
       def reencoded_hex
-        decoded_document.to_bson.to_s.unpack("H*").first.upcase
+        decoded_document.to_bson.to_s.unpack1("H*").upcase
       end
 
       # The object tested.

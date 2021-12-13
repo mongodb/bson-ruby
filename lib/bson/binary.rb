@@ -171,7 +171,7 @@ module BSON
     #
     # @since 2.3.0
     def inspect
-      "<BSON::Binary:0x#{object_id} type=#{type} data=0x#{data[0, 8].unpack('H*').first}...>"
+      "<BSON::Binary:0x#{object_id} type=#{type} data=0x#{data[0, 8].unpack1('H*')}...>"
     end
 
     # Returns a string representation of the UUID stored in this Binary.
