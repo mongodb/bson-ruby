@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,12 +29,12 @@ module BSON
     # A $maxKey is type 0x7F in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 127.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = ::String.new(127.chr, encoding: BINARY).freeze
 
     # Constant for always evaluating greater in a comparison.
     #
     # @since 2.0.0
-    GREATER = 1.freeze
+    GREATER = 1
 
     # When comparing a max key with any other object, the max key will always
     # be greater.

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2019-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

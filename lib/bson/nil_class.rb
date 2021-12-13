@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +27,7 @@ module BSON
     # A nil is type 0x0A in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 10.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = ::String.new(10.chr, encoding: BINARY).freeze
 
     module ClassMethods
 

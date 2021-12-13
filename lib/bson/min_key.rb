@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,12 +29,12 @@ module BSON
     # A $minKey is type 0xFF in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 255.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = ::String.new(255.chr, encoding: BINARY).freeze
 
     # Constant for always evaluating lesser in a comparison.
     #
     # @since 2.0.0
-    LESSER = -1.freeze
+    LESSER = -1
 
     # When comparing a min key with any other object, the min key will always
     # be lesser.
