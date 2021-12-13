@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,12 +25,12 @@ module BSON
     # A boolean is type 0x08 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 18.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = ::String.new(18.chr, encoding: BINARY).freeze
 
     # Constant for the int 64 pack directive.
     #
     # @since 2.0.0
-    PACK = "q<".freeze
+    PACK = "q<"
 
     # Deserialize an Integer from BSON.
     #

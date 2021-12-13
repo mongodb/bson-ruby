@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2016-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,32 +24,32 @@ module BSON
     # A Decimal128 is type 0x13 in the BSON spec.
     #
     # @since 4.2.0
-    BSON_TYPE = 19.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = ::String.new(19.chr, encoding: BINARY).freeze
 
     # Exponent offset.
     #
     # @since 4.2.0
-    EXPONENT_OFFSET = 6176.freeze
+    EXPONENT_OFFSET = 6176
 
     # Minimum exponent.
     #
     # @since 4.2.0
-    MIN_EXPONENT = -6176.freeze
+    MIN_EXPONENT = -6176
 
     # Maximum exponent.
     #
     # @since 4.2.0
-    MAX_EXPONENT = 6111.freeze
+    MAX_EXPONENT = 6111
 
     # Maximum digits of precision.
     #
     # @since 4.2.0
-    MAX_DIGITS_OF_PRECISION = 34.freeze
+    MAX_DIGITS_OF_PRECISION = 34
 
     # Key for this type when converted to extended json.
     #
     # @since 4.2.0
-    EXTENDED_JSON_KEY = "$numberDecimal".freeze
+    EXTENDED_JSON_KEY = "$numberDecimal"
 
     # The native type to which this object can be converted.
     #
@@ -262,7 +263,7 @@ module BSON
       # The custom error message for this error.
       #
       # @since 4.2.0
-      MESSAGE = 'A Decimal128 can only be created from a String or BigDecimal.'.freeze
+      MESSAGE = 'A Decimal128 can only be created from a String or BigDecimal.'
 
       # Get the custom error message for the exception.
       #
@@ -288,7 +289,7 @@ module BSON
       # The custom error message for this error.
       #
       # @since 4.2.0
-      MESSAGE = 'Invalid string format for creating a Decimal128 object.'.freeze
+      MESSAGE = 'Invalid string format for creating a Decimal128 object.'
 
       # Get the custom error message for the exception.
       #
@@ -313,7 +314,7 @@ module BSON
       # The custom error message for this error.
       #
       # @since 4.2.0
-      MESSAGE = 'Value out of range for Decimal128 representation.'.freeze
+      MESSAGE = 'Value out of range for Decimal128 representation.'
 
       # Get the custom error message for the exception.
       #

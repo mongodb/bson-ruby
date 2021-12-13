@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,12 +27,12 @@ module BSON
     # A string is type 0x02 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 2.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = ::String.new(2.chr, encoding: BINARY).freeze
 
     # Regex for matching illegal BSON keys.
     #
     # @since 4.1.0
-    ILLEGAL_KEY = /(\A[$])|(\.)/.freeze
+    ILLEGAL_KEY = /(\A[$])|(\.)/
 
     # Get the string as encoded BSON.
     #

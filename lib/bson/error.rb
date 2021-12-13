@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module BSON
   # Base exception class for all BSON-related errors.
   #

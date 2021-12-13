@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,12 +27,12 @@ module BSON
     # A timestamp is type 0x11 in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 17.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = ::String.new(17.chr, encoding: BINARY).freeze
 
     # Error message if an object other than a Timestamp is compared with this object.
     #
     # @since 4.3.0
-    COMPARISON_ERROR_MESSAGE = 'comparison of %s with Timestamp failed'.freeze
+    COMPARISON_ERROR_MESSAGE = 'comparison of %s with Timestamp failed'
 
     # @!attribute seconds
     #   @return [ Integer ] The number of seconds.

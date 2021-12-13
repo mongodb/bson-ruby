@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +26,7 @@ module BSON
     # A code is type 0x0D in the BSON spec.
     #
     # @since 2.0.0
-    BSON_TYPE = 13.chr.force_encoding(BINARY).freeze
+    BSON_TYPE = ::String.new(13.chr, encoding: BINARY).freeze
 
     # @!attribute javascript
     #   @return [ String ] The javascript code.
