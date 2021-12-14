@@ -363,6 +363,9 @@ module BSON
 
     module_function def map_hash(hash, **options)
       ::Hash[hash.map do |key, value|
+        if key.include? NULL_BYTE
+          raise Error::ExtJSONParseError, "Hash key cannot contain a null byte: #{key}"
+        end
         [key, parse_obj(value, **options)]
       end]
     end
