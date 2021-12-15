@@ -127,6 +127,33 @@ describe Regexp do
           expect(result).to eq(obj)
         end
       end
+
+      context "when the regexp options contains a null byte" do
+
+        let(:regexp) do
+          Regexp::Raw.new("pattern", "\x00")
+        end
+
+        it "raises an error" do
+          expect do
+            regexp
+          end.to raise_error(BSON::Error::InvalidRegexpPattern, /Regexp options cannot contain a null byte: .*/)
+        end
+      end
+    end
+
+    context "when the pattern contains a null byte" do
+
+      let(:regexp) do
+        Regexp::Raw.new("pattern\x00", "options")
+      end
+
+      it "raises an error" do
+        expect do
+          regexp
+        end.to raise_error(BSON::Error::InvalidRegexpPattern, /Regexp pattern cannot contain a null byte: .*/)
+      end
     end
   end
+  context
 end
