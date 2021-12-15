@@ -162,7 +162,7 @@ describe "BSON::ExtJSON.parse" do
 
     context 'when it contains a string key with a null byte' do
       let(:input) do
-        { "\x00" => 1 }
+        { "key\x00" => 1 }
       end
 
       it 'raises an exception' do
@@ -174,7 +174,7 @@ describe "BSON::ExtJSON.parse" do
 
     context 'when it contains a symbol key with a null byte' do
       let(:input) do
-        { "\x00".to_sym => 1 }
+        { "key\x00".to_sym => 1 }
       end
 
       it 'raises an exception' do
