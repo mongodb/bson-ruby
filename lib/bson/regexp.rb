@@ -157,7 +157,7 @@ module BSON
       def initialize(pattern, options = '')
         if pattern.include? NULL_BYTE
           raise Error::InvalidRegexpPattern, "Regexp pattern cannot contain a null byte: #{key}"
-        elsif options.to_s.include?(NULL_BYTE)
+        elsif options.to_s.include? NULL_BYTE
           raise Error::InvalidRegexpPattern, "Regexp options cannot contain a null byte: #{key}"
         end
 
