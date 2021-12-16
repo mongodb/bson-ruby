@@ -148,6 +148,7 @@ describe "BSON::ExtJSON.parse" do
     end
 
     let(:parsed) { BSON::ExtJSON.parse_obj(input, mode: mode) }
+    let(:mode) { :bson }
 
     context 'when mode is invalid' do
       let(:mode) { :foo }
@@ -156,6 +157,42 @@ describe "BSON::ExtJSON.parse" do
         lambda do
           parsed
         end.should raise_error(ArgumentError, /Invalid value for :mode option/)
+      end
+    end
+
+    context 'when it contains a string key with a null byte' do
+      let(:input) do
+        { "key\x00" => 1 }
+      end
+
+      it 'raises an exception' do
+        lambda do
+          parsed
+        end.should raise_error(BSON::Error::ExtJSONParseError, /Hash key cannot contain a null byte/)
+      end
+    end
+
+    context 'when it contains a symbol key with a null byte' do
+      let(:input) do
+        { "key\x00".to_sym => 1 }
+      end
+
+      it 'raises an exception' do
+        lambda do
+          parsed
+        end.should raise_error(BSON::Error::ExtJSONParseError, /Hash key cannot contain a null byte/)
+      end
+    end
+
+    context 'when it contains an integer key' do
+      let(:input) do
+        { 0 => 1 }
+      end
+
+      it 'does not raises an exception' do
+        lambda do
+          parsed
+        end.should_not raise_error
       end
     end
   end
