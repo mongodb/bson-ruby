@@ -143,6 +143,17 @@ describe BSON::DBRef do
         expect(dbref.to_json).to eq("{\"$ref\":\"users\",\"$id\":#{object_id.to_json},\"$db\":\"database\"}")
       end
     end
+
+    context 'when the other keys are provided' do
+
+      let(:dbref) do
+        described_class.new({ '$ref' => 'users', '$id' => object_id, '$db' => 'database', 'x' => 'y' })
+      end
+
+      it 'returns the json document with database' do
+        expect(dbref.to_json).to eq("{\"$ref\":\"users\",\"$id\":#{object_id.to_json},\"$db\":\"database\",\"x\":\"y\"}")
+      end
+    end
   end
 
   describe '#from_bson' do
@@ -190,6 +201,17 @@ describe BSON::DBRef do
 
       it 'sets the database to nil' do
         expect(decoded.database).to be_nil
+      end
+    end
+
+    context 'when other keys exist' do
+
+      let(:dbref) do
+        described_class.new({ '$ref' => 'users', '$id' => object_id, 'x' => 'y' })
+      end
+
+      it 'decodes the key' do
+        expect(decoded['x']).to eq('y')
       end
     end
   end
