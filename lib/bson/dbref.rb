@@ -68,7 +68,7 @@ module BSON
     # Instantiate a new DBRef.
     #
     # @example Create the DBRef.
-    #   Mongo::DBRef.new('users', id, 'database')
+    #   BSON::DBRef.new({'$ref' => 'users', '$id' => id, '$db' => 'database'})
     #
     # @param [ Hash ] hash the DBRef hash. It must contain $collection and $id.
     #
