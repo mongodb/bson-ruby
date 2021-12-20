@@ -100,7 +100,7 @@ module BSON
       #
       # @option options [ nil | :bson ] :mode Decoding mode to use.
       #
-      # @return [ Array ] The decoded hash.
+      # @return [ Hash ] The decoded hash.
       #
       # @see http://bsonspec.org/#/specification
       #
