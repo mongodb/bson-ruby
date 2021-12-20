@@ -144,13 +144,13 @@ describe BSON::DBRef do
       end
     end
 
-    context 'when the other keys are provided' do
+    context 'when other keys are provided' do
 
       let(:dbref) do
         described_class.new({ '$ref' => 'users', '$id' => object_id, '$db' => 'database', 'x' => 'y' })
       end
 
-      it 'returns the json document with database' do
+      it 'returns the json document with the other keys' do
         expect(dbref.to_json).to eq("{\"$ref\":\"users\",\"$id\":#{object_id.to_json},\"$db\":\"database\",\"x\":\"y\"}")
       end
     end
