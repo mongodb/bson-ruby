@@ -69,12 +69,12 @@ module BSON
       end
 
       unless hash[COLLECTION].is_a?(String)
-        raise ArgumentError, "The value for key $ref must be a string"
+        raise ArgumentError, "The value for key $ref must be a string, got: #{hash[COLLECTION]}"
       end
 
       if db = hash[DATABASE]
         unless db.is_a?(String)
-          raise ArgumentError, "The value for key $db must be a string"
+          raise ArgumentError, "The value for key $db must be a string, got: #{hash[DATABASE]}"
         end
       end
 
