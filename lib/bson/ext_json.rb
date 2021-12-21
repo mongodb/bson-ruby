@@ -139,7 +139,7 @@ module BSON
         return {}
       end
 
-      if hash.key?('$ref')
+      if hash.key?('$ref') && hash.key?('$id')
         # Legacy dbref handling.
         # Note that according to extended json spec, only hash values (but
         # not the top-level BSON document itself) may be of type "dbref".
