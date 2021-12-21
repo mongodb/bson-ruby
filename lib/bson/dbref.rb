@@ -67,6 +67,10 @@ module BSON
           raise ArgumentError, "DBRefs must have a #{key}"
         end
       end
+      unless hash[COLLECTION].is_a?(String)
+        raise ArgumentError, "The value for key $ref must be a string"
+      end
+
       super(hash)
     end
 
