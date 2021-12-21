@@ -160,11 +160,7 @@ module BSON
         out = {'$ref' => ref, '$id' => id}
         if hash.key?('$db')
           # $db must always be a string, if provided
-          db = hash.delete('$db')
-          unless db.is_a?(String)
-            raise Error::ExtJSONParseError, "Invalid $db value: #{db}"
-          end
-          out['$db'] = db
+          out['$db'] = hash.delete('$db')
         end
         return out.update(hash)
       end
