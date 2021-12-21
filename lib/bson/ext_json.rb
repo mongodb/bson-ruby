@@ -381,8 +381,10 @@ module BSON
     end
 
     module_function def is_dbref(hash)
-      if hash.key?('$db') && !hash['$db'].is_a?(String)
-        return false
+      if db = hash.key?('$db')
+        unless db.is_a?(String)
+          return false
+        end
       end
       return hash['$ref']&.is_a?(String) && hash.key?('$id')
     end

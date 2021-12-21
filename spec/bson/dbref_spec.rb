@@ -119,6 +119,18 @@ describe BSON::DBRef do
         end.to raise_error(ArgumentError, /The value for key \$ref must be a string/)
       end
     end
+
+    context 'when providing an invalid type for database' do
+      let(:hash) do
+        { '$ref' => 'users', '$id' => object_id, '$db' => 1 }
+      end
+
+      it 'raises an error' do
+        expect do
+          dbref
+        end.to raise_error(ArgumentError, /The value for key \$db must be a string/)
+      end
+    end
   end
 
   describe '#to_bson' do
