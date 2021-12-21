@@ -94,7 +94,7 @@ module BSON
       # @see http://bsonspec.org/#/specification
       def from_bson(buffer, **options)
         decoded = super
-        if decoded[COLLECTION] && decoded[ID]
+        if decoded[COLLECTION]
           decoded = DBRef.new(decoded)
         end
         decoded
