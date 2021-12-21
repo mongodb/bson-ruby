@@ -162,7 +162,7 @@ module BSON
           # $db must always be a string, if provided
           out['$db'] = hash.delete('$db')
         end
-        return out.update(hash)
+        return out.update(parse_hash(hash))
       end
 
       if hash.length == 1
