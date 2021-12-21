@@ -18,24 +18,16 @@
 module BSON
 
   # Represents a DBRef document in the database.
-  #
-  # @since 2.1.0
   class DBRef < Document
     include JSON
 
     # The constant for the collection reference field.
-    #
-    # @since 2.1.0
     COLLECTION = '$ref'.freeze
 
     # The constant for the id field.
-    #
-    # @since 2.1.0
     ID = '$id'.freeze
 
     # The constant for the database field.
-    #
-    # @since 2.1.0
     DATABASE = '$db'.freeze
 
     # @return [ String ] collection The collection name.
@@ -59,10 +51,8 @@ module BSON
     #   dbref.as_json
     #
     # @return [ Hash ] The max key as a JSON hash.
-    #
-    # @since 2.1.0
     def as_json(*args)
-      {}.merge(self)
+      {}.update(self)
     end
 
     # Instantiate a new DBRef.
@@ -71,8 +61,6 @@ module BSON
     #   BSON::DBRef.new({'$ref' => 'users', '$id' => id, '$db' => 'database'})
     #
     # @param [ Hash ] hash the DBRef hash. It must contain $collection and $id.
-    #
-    # @since 2.1.0
     def initialize(hash)
       [COLLECTION, ID].each do |key|
         unless hash[key]
@@ -91,8 +79,6 @@ module BSON
     # @param [ true, false ] validating_keys Whether keys should be validated when serializing.
     #
     # @return [ String ] The raw BSON.
-    #
-    # @since 2.1.0
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       as_json.to_bson(buffer)
     end
@@ -106,21 +92,11 @@ module BSON
       # @return [ Hash, DBRef ] The decoded hash or DBRef.
       #
       # @see http://bsonspec.org/#/specification
-      #
-      # @since 2.0.0
       def from_bson(buffer, **options)
-        # bson-ruby 4.8.0 changes #from_bson API to take **options.
-        # However older bsons fail if invoked with a plain super here,
-        # even if options are empty.
-        decoded = if options.empty?
-          super(buffer)
-        else
-          super
-        end
+        decoded = super
         if ref = decoded[COLLECTION]
           decoded = DBRef.new(decoded)
         end
-
         decoded
       end
     end
