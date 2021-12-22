@@ -71,7 +71,7 @@ module BSON
     # @example Convert the hash to a normalized value.
     #   hash.to_bson_normalized_value
     #
-    # @return [ BSON::Document ] The normazlied hash.
+    # @return [ BSON::Document ] The normalized hash.
     #
     # @since 3.0.0
     def to_bson_normalized_value

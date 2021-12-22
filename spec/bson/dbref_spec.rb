@@ -361,7 +361,7 @@ describe BSON::DBRef do
     context 'when nesting a dbref inside a dbref' do
       context 'when it is a valid dbref' do
         let(:hash) do
-          { 'dbref' => { '$ref' => 'users', '$id' => object_id, 'dbref' => { '$ref' => 'users', '$id' => object_id } } }
+          { 'dbref1' => { '$ref' => 'users', '$id' => object_id, 'dbref2' => { '$ref' => 'users', '$id' => object_id } } }
         end
 
         it 'should not raise' do
@@ -371,8 +371,8 @@ describe BSON::DBRef do
         end
 
         it 'has the correct class' do
-          expect(decoded['dbref']).to be_a described_class
-          expect(decoded['dbref']['dbref']).to be_a described_class
+          expect(decoded['dbref1']).to be_a described_class
+          expect(decoded['dbref1']['dbref2']).to be_a described_class
         end
       end
 
