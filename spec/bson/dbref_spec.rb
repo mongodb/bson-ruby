@@ -251,7 +251,52 @@ describe BSON::DBRef do
       end
     end
 
+    context 'when it is an invalid dbref' do
+
+      shared_examples 'bson document' do
+        it 'should not raise' do
+          expect do
+            decoded
+          end.to_not raise_error
+        end
+
+        it 'has the correct class' do
+          expect(decoded).to be_a BSON::Document
+          expect(decoded).to_not be_a described_class
+        end
+      end
+
+      context 'when the hash has invalid collection type' do
+        let(:hash) do
+          { '$ref' => 1, '$id' => object_id }
+        end
+        include_examples 'bson document'
+      end
+
+      context 'when the hash has an invalid database type' do
+        let(:hash) do
+          { '$ref' => 'users', '$id' => object_id, '$db' => 1 }
+        end
+        include_examples 'bson document'
+      end
+
+      context 'when the hash is missing a collection' do
+        let(:hash) do
+          { '$id' => object_id }
+        end
+        include_examples 'bson document'
+      end
+
+      context 'when the hash is missing an id' do
+        let(:hash) do
+          { '$ref' => 'users' }
+        end
+        include_examples 'bson document'
+      end
+    end
+
     context 'when nesting the dbref' do
+
       context 'when it is a valid dbref' do
         let(:hash) do
           { 'dbref' => { '$ref' => 'users', '$id' => object_id } }
@@ -269,18 +314,46 @@ describe BSON::DBRef do
       end
 
       context 'when it is an invalid dbref' do
-        let(:hash) do
-          { 'dbref' => { '$ref' => 1, '$id' => object_id } }
+
+        shared_examples 'nested bson document' do
+          it 'should not raise' do
+            expect do
+              decoded
+            end.to_not raise_error
+          end
+
+          it 'has the correct class' do
+            expect(decoded['dbref']).to be_a BSON::Document
+            expect(decoded['dbref']).to_not be_a described_class
+          end
         end
 
-        it 'should not raise' do
-          expect do
-            decoded
-          end.to_not raise_error
+        context 'when the hash has invalid collection type' do
+          let(:hash) do
+            { 'dbref' => { '$ref' => 1, '$id' => object_id } }
+          end
+          include_examples 'nested bson document'
         end
 
-        it 'has the correct class' do
-          expect(decoded['dbref']).to be_a BSON::Document
+        context 'when the hash has an invalid database type' do
+          let(:hash) do
+            { 'dbref' => { '$ref' => 'users', '$id' => object_id, '$db' => 1 } }
+          end
+          include_examples 'nested bson document'
+        end
+
+        context 'when the hash is missing a collection' do
+          let(:hash) do
+            { 'dbref' => { '$id' => object_id } }
+          end
+          include_examples 'nested bson document'
+        end
+
+        context 'when the hash is missing an id' do
+          let(:hash) do
+            { 'dbref' => { '$ref' => 'users' } }
+          end
+          include_examples 'nested bson document'
         end
       end
     end
