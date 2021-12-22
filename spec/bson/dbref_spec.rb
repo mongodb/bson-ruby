@@ -183,7 +183,7 @@ describe BSON::DBRef do
   describe '#from_bson' do
 
     let(:buffer) do
-      dbref.to_bson
+      hash.to_bson
     end
 
     let(:decoded) do
@@ -192,8 +192,8 @@ describe BSON::DBRef do
 
     context 'when a database exists' do
 
-      let(:dbref) do
-        described_class.new({ '$ref' => 'users', '$id' => object_id, '$db' => 'database' })
+      let(:hash) do
+        { '$ref' => 'users', '$id' => object_id, '$db' => 'database' }
       end
 
       it 'decodes the ref' do
@@ -207,12 +207,16 @@ describe BSON::DBRef do
       it 'decodes the database' do
         expect(decoded.database).to eq('database')
       end
+
+      it 'is of class DBRef' do
+        expect(decoded).to be_a described_class
+      end
     end
 
     context 'when no database exists' do
 
-      let(:dbref) do
-        described_class.new({ '$ref' => 'users', '$id' => object_id })
+      let(:hash) do
+        { '$ref' => 'users', '$id' => object_id }
       end
 
       it 'decodes the ref' do
@@ -226,23 +230,31 @@ describe BSON::DBRef do
       it 'sets the database to nil' do
         expect(decoded.database).to be_nil
       end
+
+      it 'is of class DBRef' do
+        expect(decoded).to be_a described_class
+      end
     end
 
     context 'when other keys exist' do
 
-      let(:dbref) do
-        described_class.new({ '$ref' => 'users', '$id' => object_id, 'x' => 'y' })
+      let(:hash) do
+        { '$ref' => 'users', '$id' => object_id, 'x' => 'y' }
       end
 
       it 'decodes the key' do
         expect(decoded['x']).to eq('y')
       end
+
+      it 'is of class DBRef' do
+        expect(decoded).to be_a described_class
+      end
     end
 
     context 'when nesting the dbref' do
       context 'when it is a valid dbref' do
-        let(:buffer) do
-          { 'dbref' => { '$ref' => 'users', '$id' => object_id } }.to_bson
+        let(:hash) do
+          { 'dbref' => { '$ref' => 'users', '$id' => object_id } }
         end
 
         it 'should not raise' do
@@ -257,8 +269,8 @@ describe BSON::DBRef do
       end
 
       context 'when it is an invalid dbref' do
-        let(:buffer) do
-          { 'dbref' => { '$ref' => 1, '$id' => object_id } }.to_bson
+        let(:hash) do
+          { 'dbref' => { '$ref' => 1, '$id' => object_id } }
         end
 
         it 'should not raise' do
