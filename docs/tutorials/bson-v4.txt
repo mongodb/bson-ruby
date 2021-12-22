@@ -450,9 +450,9 @@ access to them with symbol keys.
 
 .. note::
 
-  All BSON documents (assuming they're not valid DBRefs) are deserialized into
-  instances of BSON::Document, even when the invocation is made from the
-  ``Hash`` class:
+  All BSON documents are deserialized into instances of BSON::Document
+  (or BSON::DBRef, if they happen to be a valid DBRef), even when the
+  invocation is made from the ``Hash`` class:
 
   .. code-block:: ruby
 
