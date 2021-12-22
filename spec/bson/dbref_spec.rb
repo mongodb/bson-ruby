@@ -238,5 +238,39 @@ describe BSON::DBRef do
         expect(decoded['x']).to eq('y')
       end
     end
+
+    context 'when nesting the dbref' do
+      context 'when it is a valid dbref' do
+        let(:buffer) do
+          { 'dbref' => { '$ref' => 'users', '$id' => object_id } }.to_bson
+        end
+
+        it 'should not raise' do
+          expect do
+            buffer
+          end.to_not raise_error
+        end
+
+        it 'has the correct class' do
+          expect(decoded['dbref']).to be_a described_class
+        end
+      end
+
+      context 'when it is an invalid dbref' do
+        let(:buffer) do
+          { 'dbref' => { '$ref' => 1, '$id' => object_id } }.to_bson
+        end
+
+        it 'should not raise' do
+          expect do
+            decoded
+          end.to_not raise_error
+        end
+
+        it 'has the correct class' do
+          expect(decoded['dbref']).to be_a BSON::Document
+        end
+      end
+    end
   end
 end

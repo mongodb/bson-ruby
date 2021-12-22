@@ -105,8 +105,13 @@ module BSON
       # @see http://bsonspec.org/#/specification
       def from_bson(buffer, **options)
         decoded = super
-        if decoded[COLLECTION]
-          decoded = DBRef.new(decoded)
+        if decoded[COLLECTION] && decoded[ID]
+          # We're doing implicit decoding here. If the document is an invalid
+          # dbref, we should decode it as a BSON::Document.
+          begin
+            decoded = DBRef.new(decoded)
+          rescue ArgumentError => e
+          end
         end
         decoded
       end
