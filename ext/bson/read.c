@@ -356,6 +356,30 @@ VALUE rb_bson_byte_buffer_get_decimal128_bytes(VALUE self)
   return bytes;
 }
 
+/**
+ * This duplicates the DBRef validation code in DBRef constructor.
+ */
+static int pvt_is_dbref(VALUE doc) {
+  VALUE ref, id, db;
+
+  ref = rb_hash_aref(doc, _ref_str);
+  if (NIL_P(ref) || !RB_TYPE_P(ref, T_STRING)) {
+    return 0;
+  }
+  
+  id = rb_hash_aref(doc, _id_str);
+  if (NIL_P(id)) {
+    return 0;
+  }
+  
+  db = rb_hash_aref(doc, _db_str);
+  if (!NIL_P(db) && !RB_TYPE_P(db, T_STRING)) {
+    return 0;
+  }
+  
+  return 1;
+}
+
 VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
   VALUE doc = Qnil;
   byte_buffer_t *b = NULL;
@@ -379,6 +403,11 @@ VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
 
   if (READ_PTR(b) - start_ptr != length) {
     pvt_raise_decode_error(rb_sprintf("Expected to read %d bytes for the hash but read %ld bytes", length, READ_PTR(b) - start_ptr));
+  }
+  
+  if (pvt_is_dbref(doc)) {
+    VALUE cDBRef = pvt_const_get_2("BSON", "DBRef");
+    doc = rb_funcall(cDBRef, rb_intern("new"), 1, doc);
   }
 
   return doc;

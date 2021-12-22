@@ -123,3 +123,5 @@ extern VALUE rb_bson_registry;
 extern VALUE rb_bson_illegal_key;
 
 extern const rb_data_type_t rb_byte_buffer_data_type;
+
+extern VALUE _ref_str, _id_str, _db_str;
