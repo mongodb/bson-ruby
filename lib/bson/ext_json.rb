@@ -139,7 +139,7 @@ module BSON
         return {}
       end
 
-      if is_dbref(hash)
+      if dbref?(hash)
         # Legacy dbref handling.
         # Note that according to extended json spec, only hash values (but
         # not the top-level BSON document itself) may be of type "dbref".
@@ -376,7 +376,7 @@ module BSON
       Regexp::Raw.new(pattern, options)
     end
 
-    module_function def is_dbref(hash)
+    module_function def dbref?(hash)
       if db = hash.key?('$db')
         unless db.is_a?(String)
           return false
