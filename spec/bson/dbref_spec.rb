@@ -92,7 +92,7 @@ describe BSON::DBRef do
       it 'raises an error' do
         expect do
           dbref
-        end.to raise_error(ArgumentError, /DBRefs must have a \$ref/)
+        end.to raise_error(ArgumentError, /DBRef must have \$ref/)
       end
     end
 
@@ -104,7 +104,7 @@ describe BSON::DBRef do
       it 'raises an error' do
         expect do
           dbref
-        end.to raise_error(ArgumentError, /DBRefs must have a \$id/)
+        end.to raise_error(ArgumentError, /DBRef must have \$id/)
       end
     end
 

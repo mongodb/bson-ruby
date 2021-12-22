@@ -22,27 +22,33 @@ module BSON
     include JSON
 
     # The constant for the collection reference field.
+    #
+    # @deprecated
     COLLECTION = '$ref'.freeze
 
     # The constant for the id field.
+    #
+    # @deprecated
     ID = '$id'.freeze
 
     # The constant for the database field.
+    #
+    # @deprecated
     DATABASE = '$db'.freeze
 
     # @return [ String ] collection The collection name.
     def collection
-      self[COLLECTION]
+      self['$ref']
     end
 
     # @return [ BSON::ObjectId ] id The referenced document id.
     def id
-      self[ID]
+      self['$id']
     end
 
     # @return [ String ] database The database name.
     def database
-      self[DATABASE]
+      self['$db']
     end
 
     # Get the DBRef as a JSON document
@@ -62,19 +68,19 @@ module BSON
     #
     # @param [ Hash ] hash the DBRef hash. It must contain $collection and $id.
     def initialize(hash)
-      [COLLECTION, ID].each do |key|
+      %w($ref $id).each do |key|
         unless hash[key]
-          raise ArgumentError, "DBRefs must have a #{key}"
+          raise ArgumentError, "DBRef must have #{key}: #{hash}"
         end
       end
 
-      unless hash[COLLECTION].is_a?(String)
-        raise ArgumentError, "The value for key $ref must be a string, got: #{hash[COLLECTION]}"
+      unless hash['$ref'].is_a?(String)
+        raise ArgumentError, "The value for key $ref must be a string, got: #{hash['$ref']}"
       end
 
-      if db = hash[DATABASE]
+      if db = hash['$db']
         unless db.is_a?(String)
-          raise ArgumentError, "The value for key $db must be a string, got: #{hash[DATABASE]}"
+          raise ArgumentError, "The value for key $db must be a string, got: #{hash['$db']}"
         end
       end
 
@@ -105,7 +111,7 @@ module BSON
       # @see http://bsonspec.org/#/specification
       def from_bson(buffer, **options)
         decoded = super
-        if decoded[COLLECTION] && decoded[ID]
+        if decoded['$ref'] && decoded['$id']
           # We're doing implicit decoding here. If the document is an invalid
           # dbref, we should decode it as a BSON::Document.
           begin
