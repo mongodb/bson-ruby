@@ -284,5 +284,41 @@ describe BSON::DBRef do
         end
       end
     end
+
+    context 'when nesting a dbref inside a dbref' do
+      context 'when it is a valid dbref' do
+        let(:hash) do
+          { 'dbref' => { '$ref' => 'users', '$id' => object_id, 'dbref' => { '$ref' => 'users', '$id' => object_id } } }
+        end
+
+        it 'should not raise' do
+          expect do
+            buffer
+          end.to_not raise_error
+        end
+
+        it 'has the correct class' do
+          expect(decoded['dbref']).to be_a described_class
+          expect(decoded['dbref']['dbref']).to be_a described_class
+        end
+      end
+
+      context 'when it is an invalid dbref' do
+        let(:hash) do
+          { 'dbref' => { '$ref' => 'users', '$id' => object_id, 'dbref' => { '$ref' => 1, '$id' => object_id } } }
+        end
+
+        it 'should not raise' do
+          expect do
+            decoded
+          end.to_not raise_error
+        end
+
+        it 'has the correct class' do
+          expect(decoded['dbref']).to be_a described_class
+          expect(decoded['dbref']['dbref']).to be_a BSON::Document
+        end
+      end
+    end
   end
 end
