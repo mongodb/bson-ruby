@@ -116,7 +116,7 @@ module BSON
           # dbref, we should decode it as a BSON::Document.
           begin
             decoded = DBRef.new(decoded)
-          rescue ArgumentError => e
+          rescue ArgumentError
           end
         end
         decoded
