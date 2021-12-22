@@ -32,3 +32,4 @@ lib/*.jar
 .byebug_history
 .env
 .env.private*
+docs/_build
