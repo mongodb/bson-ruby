@@ -66,8 +66,9 @@ module BSON
     # @example Create the DBRef.
     #   BSON::DBRef.new({'$ref' => 'users', '$id' => id, '$db' => 'database'})
     #
-    # @param [ Hash ] hash the DBRef hash. It must contain $collection and $id.
+    # @param [ Hash ] hash the DBRef hash. It must contain $ref and $id.
     def initialize(hash)
+      hash = reorder_fields(hash)
       %w($ref $id).each do |key|
         unless hash[key]
           raise ArgumentError, "DBRef must have #{key}: #{hash}"
@@ -84,7 +85,7 @@ module BSON
         end
       end
 
-      super(hash)
+      super
     end
 
     # Converts the DBRef to raw BSON.
@@ -98,6 +99,27 @@ module BSON
     # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       as_json.to_bson(buffer, validating_keys)
+    end
+
+    private
+
+    # Reorder the fields of the given Hash to have $ref first, $id second,
+    # and $db third. The rest of the fields in the hash can come in any
+    # order after that.
+    #
+    # @param [ Hash ] hash The input hash. Must be a valid dbref.
+    #
+    # @return [ Hash ] The hash with it's fields reordered.
+    def reorder_fields(hash)
+      hash = BSON::Document.new(hash)
+      reordered = {}
+      reordered['$ref'] = hash.delete('$ref')
+      reordered['$id'] = hash.delete('$id')
+      if db = hash.delete('$db')
+        reordered['$db'] = db
+      end
+
+      reordered.update(hash)
     end
   end
 end
