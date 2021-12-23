@@ -14,7 +14,6 @@ tmp/*
 *.bundle
 *.so
 core
-Makefile
 .idea/
 *.gem
 perf/profile.rb
