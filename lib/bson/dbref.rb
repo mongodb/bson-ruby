@@ -85,7 +85,7 @@ module BSON
         end
       end
 
-      super(hash)
+      super
     end
 
     # Converts the DBRef to raw BSON.
