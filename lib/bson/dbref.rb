@@ -68,6 +68,7 @@ module BSON
     #
     # @param [ Hash ] hash the DBRef hash. It must contain $collection and $id.
     def initialize(hash)
+      hash = BSON::Document.new(hash)
       %w($ref $id).each do |key|
         unless hash[key]
           raise ArgumentError, "DBRef must have #{key}: #{hash}"

@@ -132,6 +132,18 @@ describe BSON::DBRef do
       end
     end
 
+    context 'when providing the fieds as symbols' do
+      let(:hash) do
+        { :$ref => 'users', :$id => object_id, :$db => 'db' }
+      end
+
+      it 'does not raise an error' do
+        expect do
+          dbref
+        end.to_not raise_error
+      end
+    end
+
     context 'when testing the ordering of the fields' do
       context 'when the fields are in order' do
         let(:hash) do
