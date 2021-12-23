@@ -95,7 +95,7 @@ module BSON
     # @param [ BSON::ByteBuffer ] buffer The encoded BSON buffer to append to.
     # @param [ true, false ] validating_keys Whether keys should be validated when serializing.
     #
-    # @return [ String ] The raw BSON.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       as_json.to_bson(buffer, validating_keys)
     end
