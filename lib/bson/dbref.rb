@@ -97,7 +97,7 @@ module BSON
     #
     # @return [ String ] The raw BSON.
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      as_json.to_bson(buffer)
+      as_json.to_bson(buffer, validating_keys)
     end
   end
 end
