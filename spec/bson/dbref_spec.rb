@@ -131,6 +131,70 @@ describe BSON::DBRef do
         end.to raise_error(ArgumentError, /The value for key \$db must be a string/)
       end
     end
+
+    context 'when providing the fieds as symbols' do
+      let(:hash) do
+        { :$ref => 'users', :$id => object_id, :$db => 'db' }
+      end
+
+      it 'does not raise an error' do
+        expect do
+          dbref
+        end.to_not raise_error
+      end
+    end
+
+    context 'when testing the ordering of the fields' do
+      context 'when the fields are in order' do
+        let(:hash) do
+          { '$ref' => 'users', '$id' => object_id, '$db' => 'db' }
+        end
+
+        it 'has the correct order' do
+          expect(dbref.keys).to eq(['$ref', '$id', '$db'])
+        end
+      end
+
+      context 'when the fields are out of order' do
+        let(:hash) do
+          { '$db' => 'db', '$id' => object_id, '$ref' => 'users' }
+        end
+
+        it 'has the correct order' do
+          expect(dbref.keys).to eq(['$ref', '$id', '$db'])
+        end
+      end
+
+      context 'when there is no db' do
+        let(:hash) do
+          { '$id' => object_id, '$ref' => 'users' }
+        end
+
+        it 'has the correct order' do
+          expect(dbref.keys).to eq(['$ref', '$id'])
+        end
+      end
+
+      context 'when the there are other fields in order' do
+        let(:hash) do
+          { '$ref' => 'users', '$id' => object_id, '$db' => 'db', 'x' => 'y', 'y' => 'z' }
+        end
+
+        it 'has the correct order' do
+          expect(dbref.keys).to eq(['$ref', '$id', '$db', 'x', 'y'])
+        end
+      end
+
+      context 'when the there are other fields out of order' do
+        let(:hash) do
+          { 'y' => 'z', '$db' => 'db', '$id' => object_id, 'x' => 'y', '$ref' => 'users' }
+        end
+
+        it 'has the correct order' do
+          expect(dbref.keys).to eq(['$ref', '$id', '$db', 'y', 'x'])
+        end
+      end
+    end
   end
 
   describe '#to_bson' do
