@@ -320,6 +320,19 @@ module BSON
       raise ArgumentError, 'symbolize_keys! is not supported on BSON::Document instances. Please convert the document to hash first (using #to_h), then call #symbolize_keys! on the Hash instance'
     end
 
+    # Override the Hash implementation of to_bson_normalized_value.
+    #
+    # BSON::Document is already of the correct type and already provides
+    # indifferent access to keys, hence no further conversions are necessary.
+    #
+    # Attempting to perform Hash's conversion on Document instances converts
+    # DBRefs to Documents which is wrong.
+    #
+    # @return [ BSON::Document ] The normalized hash.
+    def to_bson_normalized_value
+      self
+    end
+
     private
 
     def convert_key(key)

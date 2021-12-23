@@ -30,12 +30,21 @@ const rb_data_type_t rb_byte_buffer_data_type = {
   { NULL, rb_bson_byte_buffer_free, rb_bson_byte_buffer_memsize }
 };
 
+VALUE _ref_str, _id_str, _db_str;
+
 /**
  * Initialize the bson_native extension.
  */
 void Init_bson_native()
 {
   char rb_bson_machine_id[256];
+
+  _ref_str = rb_str_new_cstr("$ref");
+  rb_gc_register_mark_object(_ref_str);
+  _id_str = rb_str_new_cstr("$id");
+  rb_gc_register_mark_object(_id_str);
+  _db_str = rb_str_new_cstr("$db");
+  rb_gc_register_mark_object(_db_str);
 
   VALUE rb_bson_module = rb_define_module("BSON");
 

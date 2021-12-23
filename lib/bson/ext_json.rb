@@ -139,7 +139,7 @@ module BSON
         return {}
       end
 
-      if hash.key?('$ref')
+      if dbref?(hash)
         # Legacy dbref handling.
         # Note that according to extended json spec, only hash values (but
         # not the top-level BSON document itself) may be of type "dbref".
@@ -148,10 +148,6 @@ module BSON
         # logic to top level hashes doesn't cause harm.
         hash = hash.dup
         ref = hash.delete('$ref')
-        # $ref can be a string value or an ObjectId
-        unless ref.is_a?(String)
-          raise Error::ExtJSONParseError, "Invalid $ref value: #{ref}"
-        end
         # $id, if present, can be anything
         id = hash.delete('$id')
         if id.is_a?(Hash)
@@ -164,13 +160,9 @@ module BSON
         out = {'$ref' => ref, '$id' => id}
         if hash.key?('$db')
           # $db must always be a string, if provided
-          db = hash.delete('$db')
-          unless db.is_a?(String)
-            raise Error::ExtJSONParseError, "Invalid $db value: #{db}"
-          end
-          out['$db'] = db
+          out['$db'] = hash.delete('$db')
         end
-        return out.update(hash)
+        return out.update(parse_hash(hash))
       end
 
       if hash.length == 1
@@ -382,6 +374,15 @@ module BSON
 
     module_function def create_regexp(pattern, options)
       Regexp::Raw.new(pattern, options)
+    end
+
+    module_function def dbref?(hash)
+      if db = hash.key?('$db')
+        unless db.is_a?(String)
+          return false
+        end
+      end
+      return hash['$ref']&.is_a?(String) && hash.key?('$id')
     end
   end
 end
