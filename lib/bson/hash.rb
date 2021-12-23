@@ -71,7 +71,7 @@ module BSON
     # @example Convert the hash to a normalized value.
     #   hash.to_bson_normalized_value
     #
-    # @return [ BSON::Document ] The normazlied hash.
+    # @return [ BSON::Document ] The normalized hash.
     #
     # @since 3.0.0
     def to_bson_normalized_value
@@ -128,6 +128,16 @@ module BSON
           if actual_byte_size != expected_byte_size
             raise Error::BSONDecodeError, "Expected hash to take #{expected_byte_size} bytes but it took #{actual_byte_size} bytes"
           end
+
+          if hash['$ref'] && hash['$id']
+            # We're doing implicit decoding here. If the document is an invalid
+            # dbref, we should decode it as a BSON::Document.
+            begin
+              hash = DBRef.new(hash)
+            rescue ArgumentError
+            end
+          end
+
           hash
         end
       end

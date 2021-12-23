@@ -22,27 +22,33 @@ module BSON
     include JSON
 
     # The constant for the collection reference field.
+    #
+    # @deprecated
     COLLECTION = '$ref'.freeze
 
     # The constant for the id field.
+    #
+    # @deprecated
     ID = '$id'.freeze
 
     # The constant for the database field.
+    #
+    # @deprecated
     DATABASE = '$db'.freeze
 
     # @return [ String ] collection The collection name.
     def collection
-      self[COLLECTION]
+      self['$ref']
     end
 
     # @return [ BSON::ObjectId ] id The referenced document id.
     def id
-      self[ID]
+      self['$id']
     end
 
     # @return [ String ] database The database name.
     def database
-      self[DATABASE]
+      self['$db']
     end
 
     # Get the DBRef as a JSON document
@@ -62,11 +68,22 @@ module BSON
     #
     # @param [ Hash ] hash the DBRef hash. It must contain $collection and $id.
     def initialize(hash)
-      [COLLECTION, ID].each do |key|
+      %w($ref $id).each do |key|
         unless hash[key]
-          raise ArgumentError, "DBRefs must have a #{key}"
+          raise ArgumentError, "DBRef must have #{key}: #{hash}"
         end
       end
+
+      unless hash['$ref'].is_a?(String)
+        raise ArgumentError, "The value for key $ref must be a string, got: #{hash['$ref']}"
+      end
+
+      if db = hash['$db']
+        unless db.is_a?(String)
+          raise ArgumentError, "The value for key $db must be a string, got: #{hash['$db']}"
+        end
+      end
+
       super(hash)
     end
 
@@ -78,29 +95,9 @@ module BSON
     # @param [ BSON::ByteBuffer ] buffer The encoded BSON buffer to append to.
     # @param [ true, false ] validating_keys Whether keys should be validated when serializing.
     #
-    # @return [ String ] The raw BSON.
+    # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      as_json.to_bson(buffer)
-    end
-
-    module ClassMethods
-
-      # Deserialize the hash from BSON, converting to a DBRef if appropriate.
-      #
-      # @param [ String ] buffer The bson representing a hash.
-      #
-      # @return [ Hash, DBRef ] The decoded hash or DBRef.
-      #
-      # @see http://bsonspec.org/#/specification
-      def from_bson(buffer, **options)
-        decoded = super
-        if decoded[COLLECTION]
-          decoded = DBRef.new(decoded)
-        end
-        decoded
-      end
+      as_json.to_bson(buffer, validating_keys)
     end
   end
-
-  ::Hash.send(:extend, DBRef::ClassMethods)
 end
