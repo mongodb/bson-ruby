@@ -99,5 +99,30 @@ module BSON
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
       as_json.to_bson(buffer, validating_keys)
     end
+
+    module ClassMethods
+
+      # Deserialize the hash from BSON, converting to a DBRef if appropriate.
+      #
+      # @param [ String ] buffer The bson representing a hash.
+      #
+      # @return [ Hash, DBRef ] The decoded hash or DBRef.
+      #
+      # @see http://bsonspec.org/#/specification
+      def from_bson(buffer, **options)
+        decoded = super
+        if decoded['$ref'] && decoded['$id']
+          # We're doing implicit decoding here. If the document is an invalid
+          # dbref, we should decode it as a BSON::Document.
+          begin
+            decoded = DBRef.new(decoded)
+          rescue ArgumentError
+          end
+        end
+        decoded
+      end
+    end
   end
+
+  ::Hash.send(:extend, DBRef::ClassMethods)
 end
