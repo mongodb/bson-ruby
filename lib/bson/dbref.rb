@@ -84,7 +84,7 @@ module BSON
         end
       end
 
-      super(hash)
+      super(reorder_fields(hash))
     end
 
     # Converts the DBRef to raw BSON.
@@ -121,6 +121,26 @@ module BSON
         end
         decoded
       end
+    end
+
+    private
+
+    # Reorder the fields of the given Hash to have $ref first, $id second,
+    # and $db third. The rest of the fields in the hash can come in any
+    # order after that.
+    #
+    # @param [ Hash ] hash The input hash. Must be a valid dbref.
+    #
+    # @return [ Hash ] The hash with it's fields reordered.
+    def reorder_fields(hash)
+      reordered = {}
+      reordered['$ref'] = hash.delete('$ref')
+      reordered['$id'] = hash.delete('$id')
+      if db = hash.delete('$db')
+        reordered['$db'] = db
+      end
+
+      reordered.update(hash)
     end
   end
 
