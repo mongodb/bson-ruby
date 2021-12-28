@@ -12,7 +12,7 @@ group :development, :test do
   if ENV['WITH_ACTIVE_SUPPORT'] =~ /[0-9]/ && ENV['WITH_ACTIVE_SUPPORT'] != '0'
     gem 'activesupport', ENV['WITH_ACTIVE_SUPPORT']
   else
-    gem 'activesupport'
+    gem 'activesupport', '<7'
   end
   gem 'ruby-prof', platforms: :mri
 
