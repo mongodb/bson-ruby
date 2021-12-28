@@ -25,6 +25,7 @@ jobs:
           - { os: windows , ruby: mingw }
         exclude:
           - { os: windows , ruby: head }
+          - { os: windows , ruby: 3.1 }
 
     steps:
       - name: repo checkout

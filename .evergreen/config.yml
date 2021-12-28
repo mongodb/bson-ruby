@@ -526,10 +526,6 @@ axes:
         display_name: ruby-3.0
         variables:
            RVM_RUBY: "ruby-3.0"
-      - id: "ruby-3.1"
-        display_name: ruby-3.1
-        variables:
-          RVM_RUBY: "ruby-3.1"
   - id: "jruby-rubies"
     display_name: Ruby Version
     values:
@@ -592,14 +588,14 @@ buildvariants:
      - name: "test"
 
 - matrix_name: "mri-ubuntu-ruby3"
-  matrix_spec: { mri-rubies: [ruby-3.1], all-os: ubuntu1804 }
+  matrix_spec: { mri-rubies: [ruby-3.0], all-os: ubuntu1804 }
   display_name: "${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
 
 - matrix_name: "activesupport"
   matrix_spec:
-    mri-rubies: [ruby-2.5, ruby-2.6, ruby-2.7, ruby-3.0, ruby-3.1]
+    mri-rubies: [ruby-2.5, ruby-2.6, ruby-2.7, ruby-3.0]
     all-os: "ubuntu1804"
     as: '*'
   display_name: "AS ${as} ${mri-rubies}, ${all-os}"
@@ -635,7 +631,7 @@ buildvariants:
 
 - matrix_name: "compact"
   matrix_spec:
-    mri-rubies: [ruby-2.7, ruby-3.0, ruby-3.1]
+    mri-rubies: [ruby-2.7, ruby-3.0]
     all-os: "ubuntu1404"
     compact: "on"
   display_name: "${mri-rubies} with GC.compact"
