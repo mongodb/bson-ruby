@@ -14,7 +14,6 @@ tmp/*
 *.bundle
 *.so
 core
-Makefile
 .idea/
 *.gem
 perf/profile.rb
@@ -32,3 +31,4 @@ lib/*.jar
 .byebug_history
 .env
 .env.private*
+docs/_build
