@@ -334,8 +334,6 @@ module BSON
     # @note This class derives from InvalidRange for backwards compatibility,
     #   however when RUBY-1806 is implemented it should be changed to derive
     #   from the base BSON exception class.
-    #
-    # @since 4.2.0
     class UnrepresentablePrecision < InvalidRange
 
       # Get the custom error message for the exception.
