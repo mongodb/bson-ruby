@@ -222,8 +222,8 @@ Supported Classes
 
 Core Ruby classes that have representations in the BSON specification and
 will have a ``to_bson`` method defined for them are: ``Object``, ``Array``,
-``FalseClass``, ``Float``, ``Hash``, ``Integer``, ``NilClass``, ``Regexp``,
-``String``, ``Symbol`` (deprecated), ``Time``, ``TrueClass``.
+``FalseClass``, ``Float``, ``Hash``, ``Integer``, ``BigDecimal``, ``NilClass``,
+``Regexp``, ``String``, ``Symbol`` (deprecated), ``Time``, ``TrueClass``.
 
 In addition to the core Ruby objects, BSON also provides some special types
 specific to the specification:
