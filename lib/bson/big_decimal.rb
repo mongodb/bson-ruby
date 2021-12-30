@@ -30,7 +30,7 @@ module BSON
     #
     # @see http://bsonspec.org/#/specification
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      BSON::Decimal128.new(to_s).to_bson
+      BSON::Decimal128.new(to_s).to_bson(buffer, validating_keys)
     end
 
     module ClassMethods
