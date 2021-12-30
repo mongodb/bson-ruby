@@ -23,19 +23,19 @@ describe BSON::BigDecimal do
         BSON::Decimal128.new(argument)
       end
 
-      let(:from_bson) do
+      let(:deserialized_big_decimal) do
         BigDecimal.from_bson(decimal128.to_bson)
       end
 
-      let(:expected_from_bson) do
+      let(:deserialized_decimal128) do
         BSON::Decimal128.from_bson(decimal128.to_bson)
       end
 
       it 'deserializes Decimal128 encoded bson correctly' do
-        if expected_from_bson.to_s == "NaN"
-          expect(from_bson.nan?).to be true
+        if deserialized_decimal128.to_s == "NaN"
+          expect(deserialized_big_decimal.nan?).to be true
         else
-          expect(from_bson).to eq(expected_from_bson.to_big_decimal)
+          expect(deserialized_big_decimal).to eq(deserialized_decimal128.to_big_decimal)
         end
       end
     end
@@ -218,7 +218,7 @@ describe BSON::BigDecimal do
     context "when passing a number with too much precision for Decimal128" do
       let(:argument) { "1.000000000000000000000000000000000000000000000000001" }
 
-      # TODO: Change error based on Oleg's ticket
+      # TODO: RUBY-2683 update this error
       it "raises an error" do
         expect do
           BigDecimal(argument).to_bson
@@ -230,23 +230,23 @@ describe BSON::BigDecimal do
   describe "#from_bson/#to_bson" do
     shared_examples_for 'a BSON::BigDecimal round trip' do
 
-      let(:expected_big_decimal) do
+      let(:big_decimal) do
         BigDecimal(argument)
       end
 
       let(:big_decimal_bson) do
-        expected_big_decimal.to_bson
+        big_decimal.to_bson
       end
 
-      let(:big_decimal) do
+      let(:deserialized_big_decimal) do
         BigDecimal.from_bson(big_decimal_bson)
       end
 
       it 'serializes BigDecimals correctly' do
-        if expected_big_decimal.nan?
-          expect(big_decimal.nan?).to be true
+        if big_decimal.nan?
+          expect(deserialized_big_decimal.nan?).to be true
         else
-          expect(big_decimal).to eq(expected_big_decimal)
+          expect(deserialized_big_decimal).to eq(big_decimal)
         end
       end
     end

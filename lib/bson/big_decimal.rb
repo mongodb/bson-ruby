@@ -38,7 +38,7 @@ module BSON
       # Deserialize the BigDecimal from raw BSON bytes.
       #
       # @example Get the BigDecimal from BSON.
-      #   BigDecimal(1).from_bson(bson)
+      #   BigDecimal.from_bson(bson)
       #
       # @param [ ByteBuffer ] buffer The byte buffer.
       #
@@ -52,8 +52,6 @@ module BSON
   end
 
   # Enrich the core BigDecimal class with this module.
-  #
-  # @since 2.0.0
   ::BigDecimal.send(:include, BigDecimal)
   ::BigDecimal.send(:extend, BigDecimal::ClassMethods)
 end
