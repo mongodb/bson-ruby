@@ -205,9 +205,20 @@ describe BSON::BigDecimal do
       it_behaves_like 'a BSON::BigDecimal serializer'
     end
 
-    context "when passing an invalid Decimal128" do
-      let(:argument) { "1E10000" }
+    context "when passing an out of range Decimal128" do
+      let(:argument) { "1E1000000" }
 
+      it "raises an error" do
+        expect do
+          BigDecimal(argument).to_bson
+        end.to raise_error(BSON::Decimal128::InvalidRange)
+      end
+    end
+
+    context "when passing a number with too much precision for Decimal128" do
+      let(:argument) { "1.000000000000000000000000000000000000000000000000001" }
+
+      # TODO: Change error based on Oleg's ticket
       it "raises an error" do
         expect do
           BigDecimal(argument).to_bson
