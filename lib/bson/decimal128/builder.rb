@@ -306,11 +306,11 @@ module BSON
 
         def to_special_bits
           case @big_decimal.sign
-            when BigDecimal::SIGN_POSITIVE_INFINITE
+            when ::BigDecimal::SIGN_POSITIVE_INFINITE
               high = INFINITY_MASK
-            when BigDecimal::SIGN_NEGATIVE_INFINITE
+            when ::BigDecimal::SIGN_NEGATIVE_INFINITE
               high = INFINITY_MASK | SIGN_BIT_MASK
-            when BigDecimal::SIGN_NaN
+            when ::BigDecimal::SIGN_NaN
               high = NAN_MASK
           end
           [ 0, high ]
@@ -319,7 +319,7 @@ module BSON
         def to_bits
           sign, significand_str, base, exp = @big_decimal.split
           exponent = @big_decimal.zero? ? 0 : exp - significand_str.length
-          is_negative = (sign == BigDecimal::SIGN_NEGATIVE_FINITE || sign == BigDecimal::SIGN_NEGATIVE_ZERO)
+          is_negative = (sign == ::BigDecimal::SIGN_NEGATIVE_FINITE || sign == ::BigDecimal::SIGN_NEGATIVE_ZERO)
           Builder.parts_to_bits(significand_str.to_i,
                                 exponent,
                                 is_negative)
