@@ -64,7 +64,8 @@ describe 'Driver common bson tests' do
           let(:valid_errors) do
             [
               BSON::Decimal128::InvalidString,
-              BSON::Decimal128::InvalidRange
+              BSON::Decimal128::InvalidRange,
+              BSON::Decimal128::UnrepresentablePrecision,
             ]
           end
 

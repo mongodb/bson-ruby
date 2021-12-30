@@ -304,9 +304,7 @@ module BSON
       end
     end
 
-    # Raised when the exponent or significand provided is outside the valid range.
-    #
-    # @api private
+    # Raised when the exponent is outside the valid range.
     #
     # @since 4.2.0
     class InvalidRange < RuntimeError
@@ -314,6 +312,7 @@ module BSON
       # The custom error message for this error.
       #
       # @since 4.2.0
+      # @deprecated
       MESSAGE = 'Value out of range for Decimal128 representation.'
 
       # Get the custom error message for the exception.
@@ -326,6 +325,21 @@ module BSON
       # @since 4.2.0
       def message
         MESSAGE
+      end
+    end
+
+    # Raised when the significand provided is outside the valid range.
+    #
+    # @note This class derives from InvalidRange for backwards compatibility,
+    #   however when RUBY-1806 is implemented it should be changed to derive
+    #   from the base BSON exception class.
+    class UnrepresentablePrecision < InvalidRange
+
+      # Get the custom error message for the exception.
+      #
+      # @return [ String ] The error message.
+      def message
+        'The value contains too much precision for Decimal128 representation'
       end
     end
 

@@ -309,6 +309,22 @@ describe BSON::Decimal128 do
         it_behaves_like 'an initialized BSON::Decimal128'
       end
     end
+
+    context 'when range is exceeded' do
+      it 'raises InvalidRange' do
+        lambda do
+          described_class.new('1e10000')
+        end.should raise_error(BSON::Decimal128::InvalidRange, /Value out of range/)
+      end
+    end
+
+    context 'when precision is exceeded' do
+      it 'raises UnrepresentablePrecision' do
+        lambda do
+          described_class.new('1.000000000000000000000000000000000000000000000000001')
+        end.should raise_error(BSON::Decimal128::UnrepresentablePrecision, /The value contains too much precision/)
+      end
+    end
   end
 
   context 'when deserializing' do
