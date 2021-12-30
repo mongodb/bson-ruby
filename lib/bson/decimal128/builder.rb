@@ -85,8 +85,12 @@ module BSON
       private
 
       def validate_range!(exponent, significand)
-        unless valid_significand?(significand) && valid_exponent?(exponent)
+        unless valid_exponent?(exponent)
           raise Decimal128::InvalidRange.new
+        end
+
+        unless valid_significand?(significand)
+          raise Decimal128::UnrepresentablePrecision.new
         end
       end
 
