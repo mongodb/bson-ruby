@@ -523,6 +523,25 @@ decimal rounding with exact precision.
   d = BigDecimal(1.28, 3)
   BSON::Decimal128.new(d)
 
+BSON::Decimal128 vs BigDecimal
+``````````````````````````````
+The ``BigDecimal`` ``from_bson`` and ``to_bson`` methods use the same
+``BSON::Decimal128`` methods under the hood. This leads to some limitations
+that are imposed on the ``BigDecimal`` values that can be serialized to BSON
+and those that can be deserialized from existing ``BSON::Decimal128`` BSON
+objects. This change was made because serializing ``BigDecimal``s as
+``BSON::Decimal128``s allows for more flexibility in terms of querying and
+aggregation in MongoDB. The limitations imposed on ``BigDecimal`` are as follows:
+
+- ``BSON::Decimal128``s have a limited range and precision, while ``BigDecimal``s
+have no restrictions in terms of range and precision. ``BSON::Decimal128``s have
+a max value of approximately ``10^6145`` and a min value of approximately
+``-10^6145``, and have a maximum of 34 bits of precision.
+
+- ``BSON::Decimal128``s are able to accept signed ``NaN``s, while ``BigDecimal``s
+are not. All signed ``NaN``s that are deserialized into a ``BigDecimal`` will be
+unsigned.
+
 ``Symbol``
 ----------
 
