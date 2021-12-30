@@ -16,7 +16,7 @@
 module BSON
 
   # Injects behaviour for encoding and decoding floating point values
-  # to and from # raw bytes as specified by the BSON spec.
+  # to and from raw bytes as specified by the BSON spec.
   #
   # @see http://bsonspec.org/#/specification
   #
