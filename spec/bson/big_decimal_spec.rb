@@ -218,11 +218,10 @@ describe BSON::BigDecimal do
     context "when passing a number with too much precision for Decimal128" do
       let(:argument) { "1.000000000000000000000000000000000000000000000000001" }
 
-      # TODO: RUBY-2683 update this error
       it "raises an error" do
         expect do
           BigDecimal(argument).to_bson
-        end.to raise_error(BSON::Decimal128::InvalidRange)
+        end.to raise_error(BSON::Decimal128::UnrepresentablePrecision)
       end
     end
   end
