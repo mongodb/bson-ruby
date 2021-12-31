@@ -21,6 +21,9 @@ module BSON
   # @see http://bsonspec.org/#/specification
   module BigDecimal
 
+    # A Decimal128 is type 0x13 in the BSON spec.
+    BSON_TYPE = ::String.new(19.chr, encoding: BINARY).freeze
+
     # Get the BigDecimal as encoded BSON.
     #
     # @example Get the BigDecimal as encoded BSON.
@@ -47,6 +50,10 @@ module BSON
       # @return [ BigDecimal ] The decimal object.
       def from_bson(buffer, **options)
         Decimal128.from_bson(buffer, **options).to_big_decimal
+      end
+
+      def deserialize_decimal128_to_big_decimal
+        Registry.register(BSON_TYPE, self)
       end
     end
   end

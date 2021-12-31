@@ -365,6 +365,17 @@ describe Hash do
         expect(doc).to eq({ 'foo' => :bar })
       end
     end
+
+    context 'when deserializing a Decimal128 with deserialize to BigDecimal turned on' do
+      let (:from_bson) do
+        BigDecimal.deserialize_decimal128_to_big_decimal
+        Hash.from_bson({x:BSON::Decimal128.new('1')}.to_bson)
+      end
+
+      it 'deserializes a Decimal128 to a BigDecimal' do
+        expect(from_bson).to eq({"x" => BigDecimal(1)})
+      end
+    end
   end
 
   describe '#as_extended_json' do
