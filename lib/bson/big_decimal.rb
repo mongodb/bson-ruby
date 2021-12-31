@@ -52,6 +52,9 @@ module BSON
         Decimal128.from_bson(buffer, **options).to_big_decimal
       end
 
+      # Temporary method to demonstrate functionality. I'm not sure
+      # what we decided in terms of how to provide this functionality,
+      # so this is here for the tests.
       def deserialize_decimal128_to_big_decimal
         Registry.register(BSON_TYPE, self)
       end

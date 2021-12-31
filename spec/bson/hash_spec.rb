@@ -367,8 +367,15 @@ describe Hash do
     end
 
     context 'when deserializing a Decimal128 with deserialize to BigDecimal turned on' do
-      let (:from_bson) do
+      before do
         BigDecimal.deserialize_decimal128_to_big_decimal
+      end
+
+      after do
+        BSON::Registry::MAPPINGS[19] = BSON::Decimal128 # undo changing the registry
+      end
+
+      let (:from_bson) do
         Hash.from_bson({x:BSON::Decimal128.new('1')}.to_bson)
       end
 
