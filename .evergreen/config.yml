@@ -559,6 +559,10 @@ axes:
         display_name: 6.1
         variables:
           WITH_ACTIVE_SUPPORT: "~> 6.1.0"
+      - id: "7.0"
+        display_name: 7.0
+        variables:
+          WITH_ACTIVE_SUPPORT: "~> 7.0.0"
   - id: "compact"
     display_name: GC.compact
     values:
