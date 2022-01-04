@@ -14,7 +14,7 @@
 
 require "spec_helper"
 
-describe BSON::BigDecimal do
+describe BigDecimal do
 
   describe '#from_bson' do
     shared_examples_for 'a BSON::BigDecimal deserializer' do
@@ -311,6 +311,17 @@ describe BSON::BigDecimal do
       let(:argument) { "-1234567890123456789012345678901234" }
 
       it_behaves_like 'a BSON::BigDecimal round trip'
+    end
+  end
+
+  context "when the class is loaded" do
+
+    let(:registered) do
+      BSON::Registry.get(described_class::BSON_TYPE, 'field')
+    end
+
+    it "registers the type" do
+      expect(registered).to eq(described_class)
     end
   end
 end
