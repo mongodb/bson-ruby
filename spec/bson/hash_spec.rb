@@ -319,6 +319,18 @@ describe Hash do
         end.not_to raise_error
       end
     end
+
+    context 'when serializing a hash with a BigDecimal' do
+      let(:hash) do
+        {'foo' => BigDecimal('1')}
+      end
+
+      it 'works' do
+        expect do
+          hash.to_bson
+        end.not_to raise_error
+      end
+    end
   end
 
   describe '#from_bson' do
