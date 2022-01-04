@@ -58,7 +58,6 @@ module BSON
       # @return [ BigDecimal | BSON::Decimal128 ] The decimal object.
       def from_bson(buffer, **options)
         dec128 = Decimal128.from_bson(buffer, **options)
-        byebug
         if options[:mode] == :bson
           dec128
         else

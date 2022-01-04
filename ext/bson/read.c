@@ -80,8 +80,13 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, 
     case BSON_TYPE_BOOLEAN: return pvt_get_boolean(b);
     default:
     {
-      VALUE klass = rb_funcall(rb_bson_registry,rb_intern("get"),1, INT2FIX(type));
-      VALUE value = rb_funcall(klass, rb_intern("from_bson"),1, rb_buffer);
+      VALUE klass = rb_funcall(rb_bson_registry, rb_intern("get"), 1, INT2FIX(type));
+      VALUE value;
+      if (argc == 1) {
+        value = rb_funcall(klass, rb_intern("from_bson"), 2, rb_buffer, *argv);
+      } else {
+        value = rb_funcall(klass, rb_intern("from_bson"), 1, rb_buffer);
+      }
       RB_GC_GUARD(klass);
       return value;
     }
@@ -366,17 +371,17 @@ static int pvt_is_dbref(VALUE doc) {
   if (NIL_P(ref) || !RB_TYPE_P(ref, T_STRING)) {
     return 0;
   }
-  
+
   id = rb_hash_aref(doc, _id_str);
   if (NIL_P(id)) {
     return 0;
   }
-  
+
   db = rb_hash_aref(doc, _db_str);
   if (!NIL_P(db) && !RB_TYPE_P(db, T_STRING)) {
     return 0;
   }
-  
+
   return 1;
 }
 
@@ -404,7 +409,7 @@ VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
   if (READ_PTR(b) - start_ptr != length) {
     pvt_raise_decode_error(rb_sprintf("Expected to read %d bytes for the hash but read %ld bytes", length, READ_PTR(b) - start_ptr));
   }
-  
+
   if (pvt_is_dbref(doc)) {
     VALUE cDBRef = pvt_const_get_2("BSON", "DBRef");
     doc = rb_funcall(cDBRef, rb_intern("new"), 1, doc);
