@@ -21,7 +21,8 @@ module BSON
   # @see http://bsonspec.org/#/specification
   module BigDecimal
 
-    # A Decimal128 is type 0x13 in the BSON spec.
+    # BigDecimals are serialized as Decimal128s under the hood. A Decimal128 
+    # is type 0x13 in the BSON spec.
     BSON_TYPE = ::String.new(19.chr, encoding: BINARY).freeze
 
     # Get the BigDecimal as encoded BSON.
