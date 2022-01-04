@@ -543,6 +543,10 @@ follows:
   ``BigDecimal`` is not. All signed ``NaN`` values that are deserialized into
   ``BigDecimal`` instances will be unsigned.
 
+- ``BSON::Decimal128`` maintains trailing zeroes when serializing to and
+  deserializing from BSON. ``BigDecimal``, however, does not maintain trailing
+  zeroes and therefore using ``BigDecimal`` may result in a lack of precision.
+
 ``Symbol``
 ----------
 
