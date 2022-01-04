@@ -547,6 +547,12 @@ follows:
   deserializing from BSON. ``BigDecimal``, however, does not maintain trailing
   zeroes and therefore using ``BigDecimal`` may result in a lack of precision.
 
+.. note::
+
+  In BSON 5.0 ``BSON::Decimal128`` will be deserialized into ``BigDecimal`` by
+  default. In order to have ``BSON::Decimal128`` be deserialized into
+  ``BigDecimal``, the ``mode: :bson`` option can be set on ``from_bson``.
+
 ``Symbol``
 ----------
 
