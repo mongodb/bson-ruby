@@ -30,6 +30,13 @@ require "yaml"
 require 'support/spec_config'
 
 if SpecConfig.instance.active_support?
+  require "active_support/version"
+  if ActiveSupport.version >= Gem::Version.new(7)
+    # ActiveSupport wants us to require ALL of it all of the time.
+    # See: https://github.com/rails/rails/issues/43851,
+    # https://github.com/rails/rails/issues/43889, etc.
+    require 'active_support'
+  end
   require "active_support/time"
   require 'bson/active_support'
 end
