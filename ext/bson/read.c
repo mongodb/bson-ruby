@@ -82,8 +82,18 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, 
     {
       VALUE klass = rb_funcall(rb_bson_registry, rb_intern("get"), 1, INT2FIX(type));
       VALUE value;
-      if (argc == 1) {
-        value = rb_funcall(klass, rb_intern("from_bson"), 2, rb_buffer, *argv);
+      if (argc > 0) {
+        VALUE *call_args = calloc(argc + 1, sizeof(VALUE));
+        if (call_args == NULL) {
+          rb_raise(rb_eNoMemError, "Stack memory allocation failed, argument list too long?");
+        }
+        call_args[0] = rb_buffer;
+        memcpy(&call_args[1], argv, argc * sizeof(VALUE));
+        /* Here we specify that the last argument is a keyword hash, but */
+        /* we haven't verified this for the input arguments. */
+        /* This might fail (or perhaps even crash) if the last argument is, */
+        /* for example, not a hash at all. */
+        value = rb_funcallv_kw(klass, rb_intern("from_bson"), argc + 1, call_args, RB_PASS_KEYWORDS);
       } else {
         value = rb_funcall(klass, rb_intern("from_bson"), 1, rb_buffer);
       }
