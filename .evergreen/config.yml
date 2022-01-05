@@ -559,6 +559,10 @@ axes:
         display_name: 6.1
         variables:
           WITH_ACTIVE_SUPPORT: "~> 6.1.0"
+      - id: "7.0"
+        display_name: 7.0
+        variables:
+          WITH_ACTIVE_SUPPORT: "~> 7.0.0"
   - id: "compact"
     display_name: GC.compact
     values:
@@ -593,11 +597,21 @@ buildvariants:
   tasks:
      - name: "test"
 
-- matrix_name: "activesupport"
+- matrix_name: "activesupport-5-6"
   matrix_spec:
     mri-rubies: [ruby-2.5, ruby-2.6, ruby-2.7, ruby-3.0]
     all-os: "ubuntu1804"
-    as: '*'
+    as: ['5.1', '5.2', '6.0', '6.1']
+  display_name: "AS ${as} ${mri-rubies}, ${all-os}"
+  tasks:
+     - name: "test"
+
+- matrix_name: "activesupport-7"
+  matrix_spec:
+    # Rails 7 requires Ruby 2.7
+    mri-rubies: [ruby-2.7, ruby-3.0]
+    all-os: "ubuntu1804"
+    as: ['7.0']
   display_name: "AS ${as} ${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
