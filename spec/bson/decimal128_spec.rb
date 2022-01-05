@@ -46,7 +46,7 @@ describe BSON::Decimal128 do
       end
 
       let(:from_bson) do
-        described_class.from_bson(buffer)
+        described_class.from_bson(buffer, mode: :bson)
       end
 
       let(:expected_bson) do
@@ -344,7 +344,7 @@ describe BSON::Decimal128 do
       end
 
       let(:decimal128) do
-        BSON::Document.from_bson(buffer)['d']
+        BSON::Document.from_bson(buffer, mode: :bson)['d']
       end
 
       let(:object_from_string) do
@@ -1616,17 +1616,6 @@ describe BSON::Decimal128 do
       end
 
       it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
-    end
-  end
-
-  context "when the class is loaded" do
-
-    let(:registered) do
-      BSON::Registry.get(described_class::BSON_TYPE, 'field')
-    end
-
-    it "registers the type" do
-      expect(registered).to eq(described_class)
     end
   end
 end

@@ -270,8 +270,28 @@ describe Hash do
         end.to_not raise_error
       end
 
-      it 'deserializes as a BSON::Decimal128' do
-        expect(from_bson).to eq({"x" => BSON::Decimal128.new('1')})
+      it 'deserializes as a BigDecimal' do
+        expect(from_bson).to eq({"x" => BigDecimal(1)})
+      end
+    end
+
+    context 'when deserializing round-tripping a Decimal128' do
+      let(:to_bson) do
+        {x:BSON::Decimal128.new('1')}.to_bson
+      end
+
+      let(:from_bson) do
+        Hash.from_bson(to_bson)
+      end
+
+      it 'doesn\'t raise on serialization' do
+        expect do
+          to_bson
+        end.to_not raise_error
+      end
+
+      it 'deserializes as a BigDecimal' do
+        expect(from_bson).to eq({"x" => BigDecimal(1)})
       end
     end
   end
@@ -348,7 +368,7 @@ describe Hash do
       it 'works' do
         expect do
           hash.to_bson
-        end.not_to raise_error
+        end.to_not raise_error
       end
     end
   end
@@ -395,6 +415,34 @@ describe Hash do
 
       it 'overwrites first value with second value' do
         expect(doc).to eq({ 'foo' => :bar })
+      end
+    end
+
+    context 'when deserializing a hash with a BigDecimal' do
+      let(:to_bson) do
+        {x: BigDecimal('1')}.to_bson
+      end
+
+      context 'when it has mode: :bson' do
+
+        let(:from_bson) do
+          Hash.from_bson(to_bson, mode: :bson)
+        end
+
+        it 'deserializes as a BigDecimal' do
+          expect(from_bson).to eq({"x" => BSON::Decimal128.new('1')})
+        end
+      end
+
+      context 'when it doesn\'t have mode: :bson' do
+
+        let(:from_bson) do
+          Hash.from_bson(to_bson)
+        end
+
+        it 'deserializes as a BigDecimal' do
+          expect(from_bson).to eq({"x" => BigDecimal(1)})
+        end
       end
     end
   end

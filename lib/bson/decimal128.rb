@@ -119,6 +119,11 @@ module BSON
       end
     end
 
+    # Get the BSON type for Decimal128.
+    def bson_type
+      BSON_TYPE
+    end
+
     # Get the decimal128 as its raw BSON data.
     #
     # @example Get the raw bson bytes in a buffer.
@@ -343,7 +348,5 @@ module BSON
         'The value contains too much precision for Decimal128 representation'
       end
     end
-
-    Registry.register(BSON_TYPE, self)
   end
 end

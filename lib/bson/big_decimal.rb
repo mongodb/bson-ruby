@@ -21,7 +21,7 @@ module BSON
   # @see http://bsonspec.org/#/specification
   module BigDecimal
 
-    # BigDecimals are serialized as Decimal128s under the hood. A Decimal128 
+    # BigDecimals are serialized as Decimal128s under the hood. A Decimal128
     # is type 0x13 in the BSON spec.
     BSON_TYPE = ::String.new(19.chr, encoding: BINARY).freeze
 
@@ -45,7 +45,8 @@ module BSON
 
     module ClassMethods
 
-      # Deserialize the BigDecimal from raw BSON bytes.
+      # Deserialize the BigDecimal from raw BSON bytes. If the :mode option
+      # is set to BSON, this will return a BSON::Decimal128
       #
       # @example Get the BigDecimal from BSON.
       #   BigDecimal.from_bson(bson)
@@ -54,11 +55,19 @@ module BSON
       #
       # @option options [ nil | :bson ] :mode Decoding mode to use.
       #
-      # @return [ BigDecimal ] The decimal object.
+      # @return [ BigDecimal | BSON::Decimal128 ] The decimal object.
       def from_bson(buffer, **options)
-        Decimal128.from_bson(buffer, **options).to_big_decimal
+        dec128 = Decimal128.from_bson(buffer, **options)
+        if options[:mode] == :bson
+          dec128
+        else
+          dec128.to_big_decimal
+        end
       end
     end
+
+    # Register this type when the module is loaded.
+    Registry.register(BSON_TYPE, ::BigDecimal)
   end
 
   # Enrich the core BigDecimal class with this module.

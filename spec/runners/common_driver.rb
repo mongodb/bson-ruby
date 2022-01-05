@@ -340,7 +340,7 @@ module BSON
       def decoded_document
         @document ||= (data = [ @subject ].pack('H*')
           buffer = BSON::ByteBuffer.new(data)
-          BSON::Document.from_bson(buffer))
+          BSON::Document.from_bson(buffer, mode: :bson))
       end
     end
   end
