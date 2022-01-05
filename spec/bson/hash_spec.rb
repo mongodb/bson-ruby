@@ -254,6 +254,26 @@ describe Hash do
         expect(Hash.from_bson(buffer)).to eq('foo' => 42)
       end
     end
+
+    context 'when round-tripping a BigDecimal' do
+      let(:to_bson) do
+        {"x" => BigDecimal('1')}.to_bson
+      end
+
+      let(:from_bson) do
+        Hash.from_bson(to_bson)
+      end
+
+      it 'doesn\'t raise on serialization' do
+        expect do
+          to_bson
+        end.to_not raise_error
+      end
+
+      it 'deserializes as a BSON::Decimal128' do
+        expect(from_bson).to eq({"x" => BSON::Decimal128.new('1')})
+      end
+    end
   end
 
   describe '#to_bson' do
@@ -311,6 +331,18 @@ describe Hash do
     context 'when a value contains null bytes' do
       let(:hash) do
         {'foo' => "\x00".force_encoding('BINARY')}
+      end
+
+      it 'works' do
+        expect do
+          hash.to_bson
+        end.not_to raise_error
+      end
+    end
+
+    context 'when serializing a hash with a BigDecimal' do
+      let(:hash) do
+        {'foo' => BigDecimal('1')}
       end
 
       it 'works' do
