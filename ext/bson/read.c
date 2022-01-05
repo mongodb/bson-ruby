@@ -89,11 +89,15 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, 
         }
         call_args[0] = rb_buffer;
         memcpy(&call_args[1], argv, argc * sizeof(VALUE));
+#ifdef RB_PASS_KEYWORDS /* Ruby 2.7+ */
         /* Here we specify that the last argument is a keyword hash, but */
         /* we haven't verified this for the input arguments. */
         /* This might fail (or perhaps even crash) if the last argument is, */
         /* for example, not a hash at all. */
         value = rb_funcallv_kw(klass, rb_intern("from_bson"), argc + 1, call_args, RB_PASS_KEYWORDS);
+#else /* Ruby 2.6 and below */
+        value = rb_funcallv(klass, rb_intern("from_bson"), argc + 1, call_args);
+#endif
       } else {
         value = rb_funcall(klass, rb_intern("from_bson"), 1, rb_buffer);
       }
