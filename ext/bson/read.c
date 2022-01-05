@@ -82,21 +82,17 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, 
     {
       VALUE klass = rb_funcall(rb_bson_registry, rb_intern("get"), 1, INT2FIX(type));
       VALUE value;
-      if (argc > 0) {
-        VALUE *call_args = calloc(argc + 1, sizeof(VALUE));
-        if (call_args == NULL) {
-          rb_raise(rb_eNoMemError, "Stack memory allocation failed, argument list too long?");
-        }
+      if (argc > 1) {
+        rb_raise(rb_eArgError, "At most one argument is allowed");
+      } else if (argc > 0) {
+        VALUE call_args[2];
         call_args[0] = rb_buffer;
-        memcpy(&call_args[1], argv, argc * sizeof(VALUE));
+        Check_Type(argv[0], T_HASH);
+        call_args[1] = argv[0];
 #ifdef RB_PASS_KEYWORDS /* Ruby 2.7+ */
-        /* Here we specify that the last argument is a keyword hash, but */
-        /* we haven't verified this for the input arguments. */
-        /* This might fail (or perhaps even crash) if the last argument is, */
-        /* for example, not a hash at all. */
-        value = rb_funcallv_kw(klass, rb_intern("from_bson"), argc + 1, call_args, RB_PASS_KEYWORDS);
+        value = rb_funcallv_kw(klass, rb_intern("from_bson"), 2, call_args, RB_PASS_KEYWORDS);
 #else /* Ruby 2.6 and below */
-        value = rb_funcallv(klass, rb_intern("from_bson"), argc + 1, call_args);
+        value = rb_funcallv(klass, rb_intern("from_bson"), 2, call_args);
 #endif
       } else {
         value = rb_funcall(klass, rb_intern("from_bson"), 1, rb_buffer);
