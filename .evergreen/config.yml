@@ -650,7 +650,7 @@ buildvariants:
 - matrix_name: "compact"
   matrix_spec:
     mri-rubies: [ruby-2.7, ruby-3.0]
-    all-os: "ubuntu1404"
+    all-os: "ubuntu1804"
     compact: "on"
   display_name: "${mri-rubies} with GC.compact"
   tasks:
