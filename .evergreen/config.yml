@@ -37,9 +37,9 @@ functions:
         working_dir: "src"
         script: |
           set -ex
-          
+
           git submodule update --init --recursive
-    
+
     # Make an evergreen exapanstion file with dynamic values
     - command: shell.exec
       params:
@@ -463,11 +463,6 @@ axes:
         run_on: debian92-small
         variables:
           MACHINE: "debian92"
-      - id: "ubuntu1404"
-        display_name: "Ubuntu 14.04"
-        run_on: ubuntu1404-small
-        variables:
-          MACHINE: "ubuntu1404"
       - id: "ubuntu1604"
         display_name: "Ubuntu 16.04"
         run_on: ubuntu1604-small
@@ -526,6 +521,10 @@ axes:
         display_name: ruby-3.0
         variables:
            RVM_RUBY: "ruby-3.0"
+      - id: "ruby-3.1"
+        display_name: ruby-3.1
+        variables:
+           RVM_RUBY: "ruby-3.1"
   - id: "jruby-rubies"
     display_name: Ruby Version
     values:
@@ -596,7 +595,7 @@ buildvariants:
      - name: "test"
 
 - matrix_name: "mri-ubuntu-ruby3"
-  matrix_spec: { mri-rubies: [ruby-3.0], all-os: ubuntu1804 }
+  matrix_spec: { mri-rubies: ["ruby-3.0", "ruby-3.1"], all-os: ubuntu1804 }
   display_name: "${mri-rubies}, ${all-os}"
   tasks:
      - name: "test"
@@ -630,7 +629,7 @@ buildvariants:
      - name: "test"
 
 - matrix_name: "special-os"
-  matrix_spec: { mri-rubies: ruby-2.7, special-os: [ubuntu1804-arm, ubuntu1804-ppc] }
+  matrix_spec: { mri-rubies: ruby-2.7, special-os: [ubuntu1604-arm, ubuntu1804-ppc] }
   display_name: "${mri-rubies}, ${special-os}"
   tasks:
      - name: "test"
