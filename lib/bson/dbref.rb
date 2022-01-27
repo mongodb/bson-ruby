@@ -63,11 +63,38 @@ module BSON
 
     # Instantiate a new DBRef.
     #
-    # @example Create the DBRef.
+    # @example Create the DBRef - hash API.
     #   BSON::DBRef.new({'$ref' => 'users', '$id' => id, '$db' => 'database'})
     #
-    # @param [ Hash ] hash the DBRef hash. It must contain $ref and $id.
-    def initialize(hash)
+    # @example Create the DBRef - legacy API.
+    #   BSON::DBRef.new('users', id, 'database')
+    #
+    # @param [ Hash | String ] hash_or_collection The DBRef hash, when using
+    #   the hash API. It must contain $ref and $id. When using the legacy API,
+    #   this parameter must be a String containing the collection name.
+    # @param [ Object ] id The object id, when using the legacy API.
+    # @param [ String ] database The database name, when using the legacy API.
+    def initialize(hash_or_collection, id = nil, database = nil)
+      if hash_or_collection.is_a?(Hash)
+        hash = hash_or_collection
+
+        unless id.nil? && database.nil?
+          raise ArgumentError, 'When using the hash API, DBRef constructor accepts only one argument'
+        end
+      else
+        warn("BSON::DBRef constructor called with the legacy API - please use the hash API instead")
+
+        if id.nil?
+          raise ArgumentError, 'When using the legacy constructor API, id must be provided'
+        end
+
+        hash = {
+          :$ref => hash_or_collection,
+          :$id => id,
+          :$db => database,
+        }
+      end
+
       hash = reorder_fields(hash)
       %w($ref $id).each do |key|
         unless hash[key]
@@ -85,7 +112,7 @@ module BSON
         end
       end
 
-      super
+      super(hash)
     end
 
     # Converts the DBRef to raw BSON.
