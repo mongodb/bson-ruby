@@ -73,6 +73,32 @@ describe BSON::DBRef do
       expect(dbref.id).to eq(object_id)
     end
 
+    context 'when first argument is a hash and two arguments are provided' do
+
+      let(:dbref) do
+        described_class.new({:$ref => 'users', :$id => object_id}, object_id)
+      end
+
+      it 'raises ArgumentError' do
+        lambda do
+          dbref
+        end.should raise_error(ArgumentError)
+      end
+    end
+
+    context 'when first argument is a hash and three arguments are provided' do
+
+      let(:dbref) do
+        described_class.new({:$ref => 'users', :$id => object_id}, object_id, 'db')
+      end
+
+      it 'raises ArgumentError' do
+        lambda do
+          dbref
+        end.should raise_error(ArgumentError)
+      end
+    end
+
     context 'when a database is provided' do
 
       let(:hash) do
