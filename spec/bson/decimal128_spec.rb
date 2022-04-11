@@ -1618,4 +1618,219 @@ describe BSON::Decimal128 do
       it_behaves_like 'a decimal128 convertible to a Ruby BigDecimal'
     end
   end
+
+  %w(== ===).each do |eq_op|
+    let(:lhs) { described_class.new('1.2e12') }
+
+    describe "##{eq_op}" do
+      context 'when rhs is equal to lhs' do
+        context 'when both are Decimal128 instances' do
+          let(:rhs) { described_class.new('1.2e12') }
+
+          it 'is true' do
+            (lhs == rhs).should be true
+          end
+        end
+
+        context 'when rhs is of a different type' do
+          [
+            1200000000000,
+            1200000000000.0,
+            BigDecimal('1.2e12'),
+          ].each do |rhs|
+            context "when rhs is #{rhs.class}" do
+              it 'is true' do
+                pending 'RUBY-2952'
+
+                (lhs == rhs).should be true
+              end
+            end
+          end
+        end
+      end
+
+      context 'when rhs is not equal to lhs' do
+        context 'when both are Decimal128 instances' do
+          let(:rhs) { described_class.new('1.21e12') }
+
+          it 'is false' do
+            (lhs == rhs).should be false
+          end
+        end
+
+        context 'when rhs is of a different type' do
+
+          [
+            1200000000001,
+            1200000000001.0,
+            BigDecimal('1.21e12'),
+          ].each do |rhs|
+            context "when rhs is #{rhs.class}" do
+              it 'is false' do
+                (lhs == rhs).should be false
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  describe "#<=>" do
+
+    let(:lhs) { described_class.new('1.2e12') }
+
+    context 'when lhs is less than rhs' do
+      context 'when both are Decimal128 instances' do
+        let(:rhs) { described_class.new('1.21e12') }
+
+        it 'is -1' do
+          (lhs <=> rhs).should be -1
+        end
+      end
+
+      context 'when rhs is of a different type' do
+        [
+          1200000000001,
+          1200000000001.0,
+          BigDecimal('1.21e12'),
+        ].each do |rhs|
+          context "when rhs is #{rhs.class}" do
+            it 'is -1' do
+              (lhs <=> rhs).should be -1
+            end
+          end
+        end
+      end
+    end
+
+    context 'when rhs is equal to lhs' do
+      context 'when both are Decimal128 instances' do
+        let(:rhs) { described_class.new('1.2e12') }
+
+        it 'is 0' do
+          (lhs <=> rhs).should be 0
+        end
+      end
+
+      context 'when rhs is of a different type' do
+
+        [
+          1200000000000,
+          1200000000000.0,
+          BigDecimal('1.2e12'),
+        ].each do |rhs|
+          context "when rhs is #{rhs.class}" do
+            it 'is 0' do
+              (lhs <=> rhs).should be 0
+            end
+          end
+        end
+      end
+    end
+
+    context 'when rhs is greater than lhs' do
+      context 'when both are Decimal128 instances' do
+        let(:rhs) { described_class.new('1.1e12') }
+
+        it 'is 1' do
+          (lhs <=> rhs).should be 1
+        end
+      end
+
+      context 'when rhs is of a different type' do
+
+        [
+          1100000000000,
+          1100000000000.0,
+          BigDecimal('1.1e12'),
+        ].each do |rhs|
+          context "when rhs is #{rhs.class}" do
+            it 'is 1' do
+              (lhs <=> rhs).should be 1
+            end
+          end
+        end
+      end
+    end
+  end
+
+  describe "#<" do
+
+    let(:lhs) { described_class.new('1.2e12') }
+
+    context 'when lhs is less than rhs' do
+      context 'when both are Decimal128 instances' do
+        let(:rhs) { described_class.new('1.21e12') }
+
+        it 'is true' do
+          (lhs < rhs).should be true
+        end
+      end
+
+      context 'when rhs is of a different type' do
+        [
+          1200000000001,
+          1200000000001.0,
+          BigDecimal('1.21e12'),
+        ].each do |rhs|
+          context "when rhs is #{rhs.class}" do
+            it 'is true' do
+              (lhs < rhs).should be true
+            end
+          end
+        end
+      end
+    end
+
+    context 'when rhs is equal to lhs' do
+      context 'when both are Decimal128 instances' do
+        let(:rhs) { described_class.new('1.2e12') }
+
+        it 'is false' do
+          (lhs < rhs).should be false
+        end
+      end
+
+      context 'when rhs is of a different type' do
+
+        [
+          1200000000000,
+          1200000000000.0,
+          BigDecimal('1.2e12'),
+        ].each do |rhs|
+          context "when rhs is #{rhs.class}" do
+            it 'is false' do
+              (lhs < rhs).should be false
+            end
+          end
+        end
+      end
+    end
+
+    context 'when rhs is greater than lhs' do
+      context 'when both are Decimal128 instances' do
+        let(:rhs) { described_class.new('1.1e12') }
+
+        it 'is false' do
+          (lhs < rhs).should be false
+        end
+      end
+
+      context 'when rhs is of a different type' do
+
+        [
+          1100000000000,
+          1100000000000.0,
+          BigDecimal('1.1e12'),
+        ].each do |rhs|
+          context "when rhs is #{rhs.class}" do
+            it 'is false' do
+              (lhs < rhs).should be false
+            end
+          end
+        end
+      end
+    end
+  end
 end
