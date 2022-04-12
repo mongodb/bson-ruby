@@ -20,6 +20,7 @@ module BSON
 
   class Decimal128
     include JSON
+    include Comparable
 
     # A Decimal128 is type 0x13 in the BSON spec.
     #
@@ -97,7 +98,16 @@ module BSON
     end
     alias :eql? :==
 
-    # Create a new Decimal128 from a BigDecimal.
+    def <=>(other)
+      to_big_decimal <=> case other
+        when Decimal128
+          other.to_big_decimal
+        else
+          other
+        end
+    end
+
+    # Create a new Decimal128 from a string or a BigDecimal instance.
     #
     # @example Create a Decimal128 from a BigDecimal.
     #   Decimal128.new(big_decimal)
@@ -105,7 +115,7 @@ module BSON
     # @param [ String, BigDecimal ] object The BigDecimal or String to use for
     #   instantiating a Decimal128.
     #
-    # @raise [ InvalidBigDecimal ] Raise error unless object argument is a BigDecimal.
+    # @raise [ InvalidArgument ] When argument is not a String or BigDecimal.
     #
     # @since 4.2.0
     def initialize(object)
