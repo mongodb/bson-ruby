@@ -335,6 +335,16 @@ functions:
           ${PREPARE_SHELL}
           RVM_RUBY="${RVM_RUBY}" .evergreen/run-tests.sh
 
+  "run static analysis":
+    - command: shell.exec
+      type: test
+      params:
+        shell: bash
+        working_dir: "src"
+        script: |
+          ${PREPARE_SHELL}
+          RVM_RUBY="${RVM_RUBY}" TEST_CMD=bundle exec rubocop .evergreen/run-tests.sh
+
   "cleanup":
     - command: shell.exec
       params:
@@ -416,6 +426,9 @@ tasks:
     - name: "test"
       commands:
         - func: "run tests"
+    - name: "rubocop"
+      commands:
+        - func: "run static analysis"
 
 axes:
   - id: "topology"
@@ -654,3 +667,12 @@ buildvariants:
   display_name: "${mri-rubies} with GC.compact"
   tasks:
     - name: "test"
+
+- matrix_name: "rubocop"
+  matrix_spec:
+    mri-rubies: [ruby-3.0]
+    all-os: "ubuntu1804"
+    compact: "on"
+  display_name: "Rubocop"
+  tasks:
+    - name: "rubocop"

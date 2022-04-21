@@ -17,8 +17,13 @@ set_env_ruby
 
 install_deps
 
-echo "Running specs"
-bundle exec rake spec
+echo "Running tests"
+if test -n "$TEST_CMD"; then
+  eval $TEST_CMD
+else
+  bundle exec rake spec
+fi
+
 test_status=$?
 echo "TEST STATUS"
 echo ${test_status}

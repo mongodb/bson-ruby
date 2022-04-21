@@ -19,9 +19,18 @@ group :development, :test do
   gem 'byebug', platforms: :mri
   # https://github.com/jruby/jruby/wiki/UsingTheJRubyDebugger
   gem 'ruby-debug', platforms: :jruby
+
+  gem 'rubocop', '~> 1.27.0'
+  gem 'rubocop-performance', '~> 1.13.3'
+  gem 'rubocop-rails', '~> 2.14.2'
+  gem 'rubocop-rake', '~> 0.6.0'
+  gem 'rubocop-rspec', '~> 2.9.0'
 end
 
 group :test do
   gem 'fuubar'
   gem 'rfc'
 end
+
+require 'rubocop/rake_task'
+RuboCop::RakeTask.new
