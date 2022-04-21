@@ -133,3 +133,6 @@ namespace :docs do
     system "yardoc -o #{out} --title bson-#{BSON::VERSION}"
   end
 end
+
+require 'rubocop/rake_task'
+RuboCop::RakeTask.new

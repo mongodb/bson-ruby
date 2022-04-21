@@ -31,6 +31,3 @@ group :test do
   gem 'fuubar'
   gem 'rfc'
 end
-
-require 'rubocop/rake_task'
-RuboCop::RakeTask.new
