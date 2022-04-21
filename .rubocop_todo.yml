@@ -960,12 +960,6 @@ Naming/MemoizedInstanceVariableName:
     - 'lib/bson/regexp.rb'
     - 'spec/runners/common_driver.rb'
 
-# Offense count: 1
-# Configuration parameters: IgnoredPatterns.
-# SupportedStyles: snake_case, camelCase
-Naming/MethodName:
-  EnforcedStyle: snake_case
-
 # Offense count: 3
 # Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
 # AllowedNames: at, by, db, id, in, io, ip, of, on, os, pp, to
@@ -1542,6 +1536,7 @@ Style/Dir:
 # Offense count: 30
 # Configuration parameters: AllowedConstants.
 Style/Documentation:
+  Enabled: false
   Exclude:
     - 'lib/bson/array.rb'
     - 'lib/bson/big_decimal.rb'

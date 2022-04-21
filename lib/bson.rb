@@ -32,7 +32,7 @@ module BSON
   # @return [ BSON::ObjectId ] The new object id.
   #
   # @see ObjectId.from_string
-  def self.ObjectId(string)
+  def self.ObjectId(string) # rubocop:disable Naming/MethodName
     self::ObjectId.from_string(string)
   end
 
