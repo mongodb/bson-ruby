@@ -10,6 +10,7 @@ AllCops:
   NewCops: enable
   Exclude:
     - 'spec/shared/lib/mrss/**/*'
+    - 'vendor/**/*'
 
 Bundler/OrderedGems:
   Enabled: false
