@@ -1,68 +1,31 @@
-inherit_from: .rubocop_todo.yml
-
-require:
-  - rubocop-performance
-  - rubocop-rake
-  - rubocop-rspec
-
 AllCops:
   TargetRubyVersion: 2.5
-  NewCops: enable
+  NewCops: disable
   Exclude:
-    - 'spec/shared/lib/mrss/**/*'
+    - 'perf/**/*'
+    - 'spec/**/*'
     - 'vendor/**/*'
 
-Bundler/OrderedGems:
+Bundler:
   Enabled: false
 
-Gemspec/OrderedDependencies:
+Gemspec:
   Enabled: false
 
-Gemspec/RequiredRubyVersion:
+Layout:
   Enabled: false
 
-Gemspec/RequireMFA:
+Lint:
   Enabled: false
 
-Layout/EmptyLineAfterGuardClause:
+Metrics:
   Enabled: false
 
-Layout/EmptyLinesAroundBlockBody:
+Naming:
   Enabled: false
 
-Layout/EmptyLinesAroundClassBody:
+Security:
+  Enabled: true
+
+Style:
   Enabled: false
-
-Layout/EmptyLinesAroundExceptionHandlingKeywords:
-  Enabled: false
-
-Layout/EmptyLinesAroundModuleBody:
-  Enabled: false
-
-Layout/SpaceInsideArrayLiteralBrackets:
-  Enabled: false
-
-Layout/SpaceInsideBlockBraces:
-  SpaceBeforeBlockParameters: false
-
-Metrics/BlockLength:
-  Enabled: false
-
-Metrics/BlockNesting:
-  Enabled: false
-
-Metrics/ClassLength:
-  Enabled: false
-
-Metrics/MethodLength:
-  Enabled: false
-
-Metrics/ModuleLength:
-  Enabled: false
-
-Metrics/ParameterLists:
-  Enabled: false
-
-Style/Documentation:
-  Exclude:
-    - 'spec/**/*'
