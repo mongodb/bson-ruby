@@ -20,7 +20,7 @@ group :development, :test do
   # https://github.com/jruby/jruby/wiki/UsingTheJRubyDebugger
   gem 'ruby-debug', platforms: :jruby
 
-  gem 'rubocop', '~> 1.27'
+  gem 'rubocop', '~> 1.27.0'
 end
 
 group :test do
