@@ -335,7 +335,7 @@ functions:
           ${PREPARE_SHELL}
           RVM_RUBY="${RVM_RUBY}" .evergreen/run-tests.sh
 
-  "run static analysis":
+  "run rubocop":
     - command: shell.exec
       type: test
       params:
@@ -428,7 +428,7 @@ tasks:
         - func: "run tests"
     - name: "rubocop"
       commands:
-        - func: "run static analysis"
+        - func: "run rubocop"
 
 axes:
   - id: "topology"
