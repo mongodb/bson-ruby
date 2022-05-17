@@ -343,7 +343,7 @@ functions:
         working_dir: "src"
         script: |
           ${PREPARE_SHELL}
-          RVM_RUBY="${RVM_RUBY}" TEST_CMD="bundle exec rake rubocop -c .rubocop.yml" .evergreen/run-tests.sh
+          RVM_RUBY="${RVM_RUBY}" TEST_CMD="bundle exec rubocop -c .rubocop.yml" .evergreen/run-tests.sh
 
   "cleanup":
     - command: shell.exec
