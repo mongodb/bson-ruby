@@ -670,9 +670,8 @@ buildvariants:
 
 - matrix_name: "rubocop"
   matrix_spec:
-    mri-rubies: [ruby-3.0]
+    mri-rubies: [ruby-3.1]
     all-os: "ubuntu1804"
-    compact: "on"
   display_name: "Rubocop"
   tasks:
     - name: "rubocop"
