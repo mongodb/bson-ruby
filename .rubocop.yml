@@ -2,7 +2,7 @@ AllCops:
   TargetRubyVersion: 2.5
   NewCops: disable
   Include:
-    - '/lib/**/*'
+    - './lib/**/*'
 
 Bundler:
   Enabled: false
