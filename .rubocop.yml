@@ -5,6 +5,7 @@ AllCops:
     - 'lib/**/*'
   Exclude:
     - 'spec/**/*'
+    - 'vendor/**/*'
 
 Bundler:
   Enabled: false
