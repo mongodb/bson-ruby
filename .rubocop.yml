@@ -1,11 +1,9 @@
 AllCops:
   TargetRubyVersion: 2.5
   NewCops: disable
-  Include:
-    - 'lib/**/*'
   Exclude:
-    - 'spec/**/*'
-    - 'vendor/**/*'
+    # exclude everything except lib dir
+    - !ruby/regexp /^(?!lib\/)/
 
 Bundler:
   Enabled: false
