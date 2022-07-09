@@ -2,7 +2,8 @@ AllCops:
   TargetRubyVersion: 2.5
   NewCops: disable
   Exclude:
-    # exclude all files except lib dir
+    # Workaround to exclude all files except lib dir
+    # Pending https://github.com/rubocop/rubocop/issues/10802
     <% Dir.glob('**/*').grep_v(/^lib\//).each do |path| %>
     - <%= path %>
     <% end %>
