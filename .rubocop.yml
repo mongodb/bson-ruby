@@ -2,6 +2,7 @@ AllCops:
   TargetRubyVersion: 2.5
   NewCops: disable
   Exclude:
+    # exclude all files except lib dir
     <% Dir.glob('**/*').grep_v(/^lib\//).each do |path| %>
     - <%= path %>
     <% end %>
