@@ -2,8 +2,9 @@ AllCops:
   TargetRubyVersion: 2.5
   NewCops: disable
   Exclude:
-    # exclude everything except lib dir
-    - !ruby/regexp /^(?!lib\/)/
+    <% Dir.glob('**/*').grep_v(/^lib\//).each do |path| %>
+    - <%= path %>
+    <% end %>
 
 Bundler:
   Enabled: false
