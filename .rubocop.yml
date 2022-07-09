@@ -4,6 +4,7 @@ AllCops:
   Include:
     - 'lib/**/*'
   Exclude:
+    - 'rubies/**/*'
     - 'spec/**/*'
     - 'vendor/**/*'
 
