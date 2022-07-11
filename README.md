@@ -16,13 +16,13 @@ Documentation
 -------------
 
 Current documentation can be found
-[here](http://docs.mongodb.org/ecosystem/tutorial/ruby-bson-tutorial/#ruby-bson-tutorial).
+[here](https://www.mongodb.com/docs/ruby-driver/current/bson-tutorials/).
 
 API Documentation
 -----------------
 
-The [API Documentation](https://api.mongodb.com/bson-ruby/current/) is
-located at api.mongodb.com.
+The [API Documentation](https://www.mongodb.com/docs/ruby-driver/master/api/) is
+located at mongodb.com/docs.
 
 BSON Specification
 ------------------
