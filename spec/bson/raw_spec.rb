@@ -84,19 +84,10 @@ describe Regexp::Raw do
 
         let(:options) { ::Regexp::EXTENDED }
 
-        it "sets the options on the raw regex" do
-          expect(object.options). to eq(options)
-        end
-
-        context "When the raw regexp is compiled" do
-
-          let(:regexp) do
-            object.compile
-          end
-
-          it "sets the options on the compiled regexp object" do
-            expect(regexp.options).to eq(options)
-          end
+        it "raises an error" do
+          expect do
+            object
+          end.to raise_error(ArgumentError, /Regexp options must be a String or Symbol/)
         end
       end
 
@@ -320,8 +311,10 @@ describe Regexp::Raw do
         let(:options) { ::Regexp::EXTENDED }
         let(:bson) { "#{pattern}#{BSON::NULL_BYTE}mx#{BSON::NULL_BYTE}" }
 
-        it "sets the option on the serialized bson object" do
-          expect(serialized).to eq(bson)
+        it "raises an error" do
+          expect do
+            serialized
+          end.to raise_error(ArgumentError, /Regexp options must be a String or Symbol/)
         end
       end
 

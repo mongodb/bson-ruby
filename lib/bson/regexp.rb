@@ -159,7 +159,7 @@ module BSON
             raise Error::InvalidRegexpPattern, "Regexp options cannot contain a null byte: #{options}"
           end
         else
-          raise ArgumentError, "Regexp options must be a String, Symbol, or Integer"
+          raise ArgumentError, "Regexp options must be a String or Symbol"
         end
 
         @pattern = pattern
