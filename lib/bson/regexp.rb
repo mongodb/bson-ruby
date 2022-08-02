@@ -148,7 +148,6 @@ module BSON
       #
       # @param [ String ] pattern The regular expression pattern.
       # @param [ String ] options The options.
-
       #
       # @since 3.0.0
       def initialize(pattern, options = '')
