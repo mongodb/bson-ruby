@@ -13,6 +13,5 @@ Java extensions for speed depending on the runtime enviroment.
    :titlesonly:
 
    /tutorials/bson-v4
-   /tutorials/bson-v3
 
 .. seealso:: `BSON Source Code on GitHub <https://github.com/mongodb/bson-ruby>`_
