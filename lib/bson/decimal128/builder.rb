@@ -189,9 +189,9 @@ module BSON
         private
 
         def to_bits
-          original, sign, digits_str = SIGN_AND_DIGITS_REGEX.match(@string).to_a
-          digits, e, scientific_exp = digits_str.partition(SCIENTIFIC_EXPONENT_REGEX)
-          before_decimal, decimal, after_decimal = digits.partition('.')
+          _, sign, digits_str = SIGN_AND_DIGITS_REGEX.match(@string).to_a
+          digits, _, scientific_exp = digits_str.partition(SCIENTIFIC_EXPONENT_REGEX)
+          before_decimal, _, after_decimal = digits.partition('.')
 
           significand_str = before_decimal << after_decimal
           significand_str = SIGNIFICAND_WITH_LEADING_ZEROS_REGEX.match(significand_str).to_a[2]
@@ -317,7 +317,7 @@ module BSON
         end
 
         def to_bits
-          sign, significand_str, base, exp = @big_decimal.split
+          sign, significand_str, _, exp = @big_decimal.split
           exponent = @big_decimal.zero? ? 0 : exp - significand_str.length
           is_negative = (sign == ::BigDecimal::SIGN_NEGATIVE_FINITE || sign == ::BigDecimal::SIGN_NEGATIVE_ZERO)
           Builder.parts_to_bits(significand_str.to_i,
