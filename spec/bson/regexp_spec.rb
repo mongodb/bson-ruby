@@ -147,10 +147,10 @@ describe Regexp do
           Regexp::Raw.new("pattern", 1)
         end
 
-        it "doesn't raise an error" do
+        it "raises an error" do
           expect do
             regexp
-          end.to_not raise_error
+          end.to raise_error(ArgumentError, /Regexp options must be a String or Symbol/)
         end
       end
 
@@ -163,7 +163,7 @@ describe Regexp do
         it "raises an error" do
           expect do
             regexp
-          end.to raise_error(ArgumentError, /Regexp options must be a String, Symbol, or Integer/)
+          end.to raise_error(ArgumentError, /Regexp options must be a String or Symbol/)
         end
       end
     end

@@ -147,11 +147,7 @@ module BSON
       #   Raw.new(pattern, options)
       #
       # @param [ String ] pattern The regular expression pattern.
-      # @param [ String, Integer ] options The options.
-      #
-      # @note The ability to specify options as an Integer is deprecated.
-      #  Please specify options as a String. The ability to pass options as
-      #  as Integer will be removed in version 5.0.0.
+      # @param [ String ] options The options.
       #
       # @since 3.0.0
       def initialize(pattern, options = '')
@@ -161,8 +157,8 @@ module BSON
           if options.to_s.include?(NULL_BYTE)
             raise Error::InvalidRegexpPattern, "Regexp options cannot contain a null byte: #{options}"
           end
-        elsif !options.is_a?(Integer)
-          raise ArgumentError, "Regexp options must be a String, Symbol, or Integer"
+        else
+          raise ArgumentError, "Regexp options must be a String or Symbol"
         end
 
         @pattern = pattern
