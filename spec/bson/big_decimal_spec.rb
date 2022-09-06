@@ -211,7 +211,7 @@ describe BigDecimal do
       it "raises an error" do
         expect do
           BigDecimal(argument).to_bson
-        end.to raise_error(BSON::Decimal128::InvalidRange)
+        end.to raise_error(BSON::Error::InvalidDecimal128Range)
       end
     end
 
@@ -221,7 +221,7 @@ describe BigDecimal do
       it "raises an error" do
         expect do
           BigDecimal(argument).to_bson
-        end.to raise_error(BSON::Decimal128::UnrepresentablePrecision)
+        end.to raise_error(BSON::Error::UnrepresentablePrecision)
       end
     end
   end

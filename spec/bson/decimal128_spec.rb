@@ -28,10 +28,10 @@ describe BSON::Decimal128 do
 
     context 'when the argument is neither a BigDecimal or String' do
 
-      it 'raises an ArgumentError' do
+      it 'raises an InvalidDecimal128Argument error' do
         expect {
           described_class.new(:invalid)
-        }.to raise_exception(ArgumentError)
+        }.to raise_exception(BSON::Error::InvalidDecimal128Argument, /A Decimal128 can only be created from a String or BigDecimal./ )
       end
     end
 
@@ -314,7 +314,7 @@ describe BSON::Decimal128 do
       it 'raises InvalidRange' do
         lambda do
           described_class.new('1e10000')
-        end.should raise_error(BSON::Decimal128::InvalidRange, /Value out of range/)
+        end.should raise_error(BSON::Error::InvalidDecimal128Range, /Value out of range/)
       end
     end
 
@@ -322,7 +322,7 @@ describe BSON::Decimal128 do
       it 'raises UnrepresentablePrecision' do
         lambda do
           described_class.new('1.000000000000000000000000000000000000000000000000001')
-        end.should raise_error(BSON::Decimal128::UnrepresentablePrecision, /The value contains too much precision/)
+        end.should raise_error(BSON::Error::UnrepresentablePrecision, /The value contains too much precision/)
       end
     end
   end

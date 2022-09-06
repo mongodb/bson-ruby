@@ -73,7 +73,7 @@ module BSON
     # @since 2.0.0
     def to_bson_key(validating_keys = Config.validating_keys?)
       if validating_keys
-        raise BSON::String::IllegalKey.new(self) if BSON::String::ILLEGAL_KEY =~ self
+        raise BSON::Error::IllegalKey.new(self) if BSON::String::ILLEGAL_KEY =~ self
       end
       self
     end

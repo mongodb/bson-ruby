@@ -116,7 +116,7 @@ module BSON
     # @param [ String, BigDecimal ] object The BigDecimal or String to use for
     #   instantiating a Decimal128.
     #
-    # @raise [ InvalidArgument ] When argument is not a String or BigDecimal.
+    # @raise [ BSON::Error::InvalidDecimal128Argument ] When argument is not a String or BigDecimal.
     #
     # @since 4.2.0
     def initialize(object)
@@ -125,7 +125,7 @@ module BSON
       elsif object.is_a?(BigDecimal)
         set_bits(*Builder::FromBigDecimal.new(object).bits)
       else
-        raise InvalidArgument.new
+        raise Error::InvalidDecimal128Argument.new
       end
     end
 
@@ -242,7 +242,7 @@ module BSON
       #
       # @param [ String ] string The string to parse.
       #
-      # @raise [ BSON::Decimal128::InvalidString ] If the provided string is invalid.
+      # @raise [ BSON::Error:InvalidDecimal128String ] If the provided string is invalid.
       #
       # @return [ BSON::Decimal128 ] The new decimal128.
       #
@@ -266,96 +266,6 @@ module BSON
         decimal = allocate
         decimal.send(:set_bits, low, high)
         decimal
-      end
-    end
-
-    # Raised when trying to create a Decimal128 from an object that is neither a String nor a BigDecimal.
-    #
-    # @api private
-    #
-    # @since 4.2.0
-    class InvalidArgument < ArgumentError
-
-      # The custom error message for this error.
-      #
-      # @since 4.2.0
-      MESSAGE = 'A Decimal128 can only be created from a String or BigDecimal.'
-
-      # Get the custom error message for the exception.
-      #
-      # @example Get the message.
-      #   error.message
-      #
-      # @return [ String ] The error message.
-      #
-      # @since 4.2.0
-      def message
-        MESSAGE
-      end
-    end
-
-    # Raised when trying to create a Decimal128 from a string with
-    #   an invalid format.
-    #
-    # @api private
-    #
-    # @since 4.2.0
-    class InvalidString < RuntimeError
-
-      # The custom error message for this error.
-      #
-      # @since 4.2.0
-      MESSAGE = 'Invalid string format for creating a Decimal128 object.'
-
-      # Get the custom error message for the exception.
-      #
-      # @example Get the message.
-      #   error.message
-      #
-      # @return [ String ] The error message.
-      #
-      # @since 4.2.0
-      def message
-        MESSAGE
-      end
-    end
-
-    # Raised when the exponent is outside the valid range.
-    #
-    # @since 4.2.0
-    class InvalidRange < RuntimeError
-
-      # The custom error message for this error.
-      #
-      # @since 4.2.0
-      # @deprecated
-      MESSAGE = 'Value out of range for Decimal128 representation.'
-
-      # Get the custom error message for the exception.
-      #
-      # @example Get the message.
-      #   error.message
-      #
-      # @return [ String ] The error message.
-      #
-      # @since 4.2.0
-      def message
-        MESSAGE
-      end
-    end
-
-    # Raised when the significand provided is outside the valid range.
-    #
-    # @note This class derives from InvalidRange for backwards compatibility,
-    #   however when RUBY-1806 is implemented it should be changed to derive
-    #   from the base BSON exception class.
-    class UnrepresentablePrecision < InvalidRange
-
-      # Get the custom error message for the exception.
-      #
-      # @return [ String ] The error message.
-      def message
-        'The value contains too much precision for Decimal128 representation'
       end
     end
   end

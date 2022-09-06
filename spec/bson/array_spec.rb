@@ -49,7 +49,7 @@ describe Array do
           it "raises an error" do
             expect {
               obj.to_bson
-            }.to raise_error(BSON::String::IllegalKey)
+            }.to raise_error(BSON::Error::IllegalKey)
           end
         end
 
@@ -58,7 +58,7 @@ describe Array do
           it "raises an error" do
             expect {
               obj.to_bson(BSON::ByteBuffer.new, true)
-            }.to raise_error(BSON::String::IllegalKey)
+            }.to raise_error(BSON::Error::IllegalKey)
           end
 
           context "when serializing different types" do
@@ -87,7 +87,7 @@ describe Array do
             it "raises an error" do
               expect {
                 obj.to_bson(BSON::ByteBuffer.new, true)
-              }.to raise_error(BSON::String::IllegalKey)
+              }.to raise_error(BSON::Error::IllegalKey)
             end
           end
         end
@@ -186,7 +186,7 @@ describe Array do
       it "raises an exception" do
         expect {
           [ 1 ].to_bson_object_id
-        }.to raise_error(BSON::ObjectId::Invalid)
+        }.to raise_error(BSON::Error::InvalidObjectId)
       end
     end
   end

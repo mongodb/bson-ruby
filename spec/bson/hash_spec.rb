@@ -73,7 +73,7 @@ describe Hash do
           it "raises an error" do
             expect {
               obj.to_bson
-            }.to raise_error(BSON::String::IllegalKey)
+            }.to raise_error(BSON::Error::IllegalKey)
           end
 
           context "when the hash contains an array of documents containing invalid keys" do
@@ -85,7 +85,7 @@ describe Hash do
             it "raises an error" do
               expect {
                 obj.to_bson
-              }.to raise_error(BSON::String::IllegalKey)
+              }.to raise_error(BSON::Error::IllegalKey)
             end
           end
         end
@@ -95,7 +95,7 @@ describe Hash do
           it "raises an error" do
             expect {
               obj.to_bson(BSON::ByteBuffer.new, true)
-            }.to raise_error(BSON::String::IllegalKey)
+            }.to raise_error(BSON::Error::IllegalKey)
           end
 
           context "when the hash contains an array of documents containing invalid keys" do
@@ -107,7 +107,7 @@ describe Hash do
             it "raises an error" do
               expect {
                 obj.to_bson(BSON::ByteBuffer.new, true)
-              }.to raise_error(BSON::String::IllegalKey)
+              }.to raise_error(BSON::Error::IllegalKey)
             end
           end
         end

@@ -322,7 +322,7 @@ describe BSON::ObjectId do
       it "raises an error" do
         expect {
           described_class.from_string("asadsf")
-        }.to raise_error(BSON::ObjectId::Invalid)
+        }.to raise_error(BSON::Error::InvalidObjectId)
       end
     end
   end
@@ -603,7 +603,7 @@ describe BSON::ObjectId do
     it "raises an exception on serialization" do
       expect {
         hash.to_bson
-      }.to raise_error(BSON::InvalidKey)
+      }.to raise_error(BSON::Error::InvalidKey)
     end
   end
 end

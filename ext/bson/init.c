@@ -60,7 +60,7 @@ void Init_bson_native()
   VALUE rb_digest_class = rb_const_get(rb_cObject, rb_intern("Digest"));
   VALUE rb_md5_class = rb_const_get(rb_digest_class, rb_intern("MD5"));
 
-  rb_bson_illegal_key = rb_const_get(rb_const_get(rb_bson_module, rb_intern("String")),rb_intern("IllegalKey"));
+  rb_bson_illegal_key = rb_const_get(rb_const_get(rb_bson_module, rb_intern("Error")),rb_intern("IllegalKey"));
   rb_gc_register_mark_object(rb_bson_illegal_key);
 
   rb_define_alloc_func(rb_byte_buffer_class, rb_bson_byte_buffer_allocate);
@@ -116,7 +116,7 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "get_array", rb_bson_byte_buffer_get_array, -1);
 
   rb_define_method(rb_byte_buffer_class, "get_int32", rb_bson_byte_buffer_get_int32, 0);
-  
+
   /*
    * call-seq:
    *   buffer.get_uint32(buffer) -> Fixnum

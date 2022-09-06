@@ -27,13 +27,13 @@ module BSON
     # @example Convert the object to a BSON key.
     #   object.to_bson_key
     #
-    # @raise [ InvalidKey ] Always raises an exception.
+    # @raise [ BSON::Error::InvalidKey ] Always raises an exception.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.2.4
     def to_bson_key(validating_keys = Config.validating_keys?)
-      raise InvalidKey.new(self)
+      raise Error::InvalidKey.new(self)
     end
 
     # Converts the object to a normalized key in a BSON document.
@@ -82,24 +82,6 @@ module BSON
     # @return [ Object ] The extended json representation.
     def as_extended_json(**_options)
       self
-    end
-  end
-
-  # Raised when trying to serialize an object into a key.
-  #
-  # @since 2.2.4
-  class InvalidKey < RuntimeError
-
-    # Instantiate the exception.
-    #
-    # @example Instantiate the exception.
-    #   BSON::Object::InvalidKey.new(object)
-    #
-    # @param [ Object ] object The object that was meant for the key.
-    #
-    # @since 2.2.4
-    def initialize(object)
-      super("#{object.class} instances are not allowed as keys in a BSON document.")
     end
   end
 

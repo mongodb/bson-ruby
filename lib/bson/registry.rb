@@ -64,11 +64,6 @@ module BSON
       define_type_reader(type)
     end
 
-    # Raised when trying to get a type from the registry that doesn't exist.
-    #
-    # @since 4.1.0
-    class UnsupportedType < RuntimeError; end
-
     private
 
     def define_type_reader(type)
@@ -81,7 +76,7 @@ module BSON
       message = "Detected unknown BSON type #{byte.inspect} "
       message += (field ? "for fieldname \"#{field}\". " : "in array. ")
       message +="Are you using the latest BSON version?"
-      raise UnsupportedType.new(message)
+      raise Error::UnsupportedType.new(message)
     end
   end
 end

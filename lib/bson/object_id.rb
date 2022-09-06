@@ -198,11 +198,6 @@ module BSON
     end
     alias :to_str :to_s
 
-    # Raised when trying to create an object id with invalid data.
-    #
-    # @since 2.0.0
-    class Invalid < RuntimeError; end
-
     private
 
     def initialize_copy(other)
@@ -261,14 +256,14 @@ module BSON
       #
       # @param [ String ] string The string to create the id from.
       #
-      # @raise [ BSON::ObjectId::Invalid ] If the provided string is invalid.
+      # @raise [ BSON::Error::InvalidObjectId ] If the provided string is invalid.
       #
       # @return [ BSON::ObjectId ] The new object id.
       #
       # @since 2.0.0
       def from_string(string)
         unless legal?(string)
-          raise Invalid.new("'#{string}' is an invalid ObjectId.")
+          raise Error::InvalidObjectId.new("'#{string}' is an invalid ObjectId.")
         end
         from_data([ string ].pack("H*"))
       end
@@ -316,7 +311,7 @@ module BSON
       #
       # @param [ String, Array ] object The object to repair.
       #
-      # @raise [ Invalid ] If the array is not 12 elements.
+      # @raise [ BSON::Error::InvalidObjectId ] If the array is not 12 elements.
       #
       # @return [ String ] The result of the block.
       #
@@ -325,7 +320,7 @@ module BSON
         if object.size == 12
           block_given? ? yield(object) : object
         else
-          raise Invalid.new("#{object.inspect} is not a valid object id.")
+          raise Error::InvalidObjectId.new("#{object.inspect} is not a valid object id.")
         end
       end
     end

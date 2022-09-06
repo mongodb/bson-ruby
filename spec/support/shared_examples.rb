@@ -155,7 +155,7 @@ shared_examples_for "a validated BSON key" do
       it "raises an exception" do
         expect {
           validated
-        }.to raise_error(BSON::String::IllegalKey)
+        }.to raise_error(BSON::Error::IllegalKey)
       end
     end
 
@@ -168,7 +168,7 @@ shared_examples_for "a validated BSON key" do
       it "raises an exception" do
         expect {
           validated
-        }.to raise_error(BSON::String::IllegalKey)
+        }.to raise_error(BSON::Error::IllegalKey)
       end
     end
   end
