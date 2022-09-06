@@ -74,18 +74,21 @@ module BSON
     #   this parameter must be a String containing the collection name.
     # @param [ Object ] id The object id, when using the legacy API.
     # @param [ String ] database The database name, when using the legacy API.
+    #
+    # @raise [ BSON::Error::InvalidDBRefArgument ] if giving invalid arguments
+    #   to the constructor.
     def initialize(hash_or_collection, id = nil, database = nil)
       if hash_or_collection.is_a?(Hash)
         hash = hash_or_collection
 
         unless id.nil? && database.nil?
-          raise ArgumentError, 'When using the hash API, DBRef constructor accepts only one argument'
+          raise Error::InvalidDBRefArgument, 'When using the hash API, DBRef constructor accepts only one argument'
         end
       else
         warn("BSON::DBRef constructor called with the legacy API - please use the hash API instead")
 
         if id.nil?
-          raise ArgumentError, 'When using the legacy constructor API, id must be provided'
+          raise Error::InvalidDBRefArgument, 'When using the legacy constructor API, id must be provided'
         end
 
         hash = {
@@ -98,17 +101,17 @@ module BSON
       hash = reorder_fields(hash)
       %w($ref $id).each do |key|
         unless hash[key]
-          raise ArgumentError, "DBRef must have #{key}: #{hash}"
+          raise Error::InvalidDBRefArgument, "DBRef must have #{key}: #{hash}"
         end
       end
 
       unless hash['$ref'].is_a?(String)
-        raise ArgumentError, "The value for key $ref must be a string, got: #{hash['$ref']}"
+        raise Error::InvalidDBRefArgument, "The value for key $ref must be a string, got: #{hash['$ref']}"
       end
 
       if db = hash['$db']
         unless db.is_a?(String)
-          raise ArgumentError, "The value for key $db must be a string, got: #{hash['$db']}"
+          raise Error::InvalidDBRefArgument, "The value for key $db must be a string, got: #{hash['$db']}"
         end
       end
 
