@@ -126,8 +126,8 @@ module BSON
     # @param [ BSON::ByteBuffer ] buffer The encoded BSON buffer to append to.
     #
     # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
-    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      as_json.to_bson(buffer, validating_keys)
+    def to_bson(buffer = ByteBuffer.new)
+      as_json.to_bson(buffer)
     end
 
     private
