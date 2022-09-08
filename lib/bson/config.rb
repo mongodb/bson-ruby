@@ -21,32 +21,5 @@ module BSON
   module Config
     extend self
 
-    # Set the configuration option for BSON to validate keys or not.
-    #
-    # @example Set the config option.
-    #   BSON::Config.validating_keys = true
-    #
-    # @param [ true, false ] value The value to set.
-    #
-    # @return [ true, false ] The value.
-    #
-    # @since 4.1.0
-    def validating_keys=(value)
-      @validating_keys = value
-    end
-
-    # Returns true if BSON will validate the document keys on serialization to
-    # determine if they contain invalid MongoDB values. Invalid keys start with
-    # '$' or contain a '.' in them.
-    #
-    # @example Is BSON validating keys?
-    #   BSON::Config.validating_keys?
-    #
-    # @return [ true, false ] If BSON is validating keys?
-    #
-    # @since 4.1.0
-    def validating_keys?
-      !!(@validating_keys||=nil)
-    end
   end
 end

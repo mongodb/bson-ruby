@@ -33,12 +33,12 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 4.2.0
-    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+    def to_bson(buffer = ByteBuffer.new)
       if Environment.ruby_1_9?
         marshal_dump.dup
       else
         to_h
-      end.to_bson(buffer, validating_keys)
+      end.to_bson(buffer)
     end
 
     # The BSON type for OpenStruct objects is the Hash type of 0x03.

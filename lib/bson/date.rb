@@ -45,7 +45,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.1.0
-    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+    def to_bson(buffer = ByteBuffer.new)
       buffer.put_int64((jd - DATE_REFERENCE) * MILLISECONDS_IN_DAY)
     end
 

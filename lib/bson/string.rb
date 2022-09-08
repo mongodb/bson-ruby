@@ -46,7 +46,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+    def to_bson(buffer = ByteBuffer.new)
       buffer.put_string(self)
     end
 
@@ -57,18 +57,12 @@ module BSON
     #
     # @raise [ EncodingError ] If the string is not UTF-8.
     #
-    # @raise [ BSON::Error::IllegalKey ] If validating keys and it contains a
-    #   '.' or starts with '$'.
-    #
     # @return [ String ] The encoded string.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson_key(validating_keys = Config.validating_keys?)
-      if validating_keys
-        raise Error::IllegalKey.new(self) if ILLEGAL_KEY =~ self
-      end
+    def to_bson_key
       self
     end
 

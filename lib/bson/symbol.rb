@@ -57,7 +57,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+    def to_bson(buffer = ByteBuffer.new)
       buffer.put_symbol(self)
     end
 
@@ -71,10 +71,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson_key(validating_keys = Config.validating_keys?)
-      if validating_keys
-        raise BSON::Error::IllegalKey.new(self) if BSON::String::ILLEGAL_KEY =~ self
-      end
+    def to_bson_key
       self
     end
 
@@ -147,7 +144,7 @@ module BSON
       # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
       #
       # @see http://bsonspec.org/#/specification
-      def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+      def to_bson(buffer = ByteBuffer.new)
         buffer.put_string(to_s)
       end
 

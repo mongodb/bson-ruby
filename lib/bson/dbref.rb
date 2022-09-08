@@ -124,7 +124,6 @@ module BSON
     #   dbref.to_bson
     #
     # @param [ BSON::ByteBuffer ] buffer The encoded BSON buffer to append to.
-    # @param [ true, false ] validating_keys Whether keys should be validated when serializing.
     #
     # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)

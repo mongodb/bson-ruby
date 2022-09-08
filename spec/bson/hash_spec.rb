@@ -52,92 +52,35 @@ describe Hash do
       end
     end
 
-    context "when the hash has invalid keys" do
+    context "when the hash has dollar keys" do
 
       let(:obj) do
         { "$testing" => "value" }
       end
 
-      context "when validating keys" do
 
-        context "when validating globally" do
-
-          before do
-            BSON::Config.validating_keys = true
-          end
-
-          after do
-            BSON::Config.validating_keys = false
-          end
-
-          it "raises an error" do
-            expect {
-              obj.to_bson
-            }.to raise_error(BSON::Error::IllegalKey)
-          end
-
-          context "when the hash contains an array of documents containing invalid keys" do
-
-            let(:obj) do
-              { "array" =>  [{ "$testing" => "value" }] }
-            end
-
-            it "raises an error" do
-              expect {
-                obj.to_bson
-              }.to raise_error(BSON::Error::IllegalKey)
-            end
-          end
-        end
-
-        context "when validating locally" do
-
-          it "raises an error" do
-            expect {
-              obj.to_bson(BSON::ByteBuffer.new, true)
-            }.to raise_error(BSON::Error::IllegalKey)
-          end
-
-          context "when the hash contains an array of documents containing invalid keys" do
-
-            let(:obj) do
-              { "array" =>  [{ "$testing" => "value" }] }
-            end
-
-            it "raises an error" do
-              expect {
-                obj.to_bson(BSON::ByteBuffer.new, true)
-              }.to raise_error(BSON::Error::IllegalKey)
-            end
-          end
-        end
+      let(:bson) do
+        "#{25.to_bson.to_s}#{String::BSON_TYPE}$testing#{BSON::NULL_BYTE}" +
+        "#{6.to_bson.to_s}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
       end
 
-      context "when not validating keys" do
+      it "serializes the hash" do
+        expect(obj.to_bson.to_s).to eq(bson)
+      end
+
+      context "when the hash contains an array of documents containing invalid keys" do
+
+        let(:obj) do
+          { "array" =>  [{ "$testing" => "value" }] }
+        end
 
         let(:bson) do
-          "#{25.to_bson.to_s}#{String::BSON_TYPE}$testing#{BSON::NULL_BYTE}" +
-          "#{6.to_bson.to_s}value#{BSON::NULL_BYTE}#{BSON::NULL_BYTE}"
+          "#{45.to_bson.to_s}#{Array::BSON_TYPE}array#{BSON::NULL_BYTE}" +
+          "#{[{ "$testing" => "value" }].to_bson.to_s}#{BSON::NULL_BYTE}"
         end
 
         it "serializes the hash" do
           expect(obj.to_bson.to_s).to eq(bson)
-        end
-
-        context "when the hash contains an array of documents containing invalid keys" do
-
-          let(:obj) do
-            { "array" =>  [{ "$testing" => "value" }] }
-          end
-
-          let(:bson) do
-            "#{45.to_bson.to_s}#{Array::BSON_TYPE}array#{BSON::NULL_BYTE}" +
-              "#{[{ "$testing" => "value" }].to_bson.to_s}#{BSON::NULL_BYTE}"
-          end
-
-          it "serializes the hash" do
-            expect(obj.to_bson.to_s).to eq(bson)
-          end
         end
       end
     end

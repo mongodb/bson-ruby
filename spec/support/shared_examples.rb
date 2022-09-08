@@ -144,7 +144,7 @@ shared_examples_for "a validated BSON key" do
     end
   end
 
-  context "when the string is invalid" do
+  context "when the string has dots/dollars" do
 
     context "when the string starts with $" do
 
@@ -152,10 +152,10 @@ shared_examples_for "a validated BSON key" do
         "$testing"
       end
 
-      it "raises an exception" do
+      it "does not raise an exception" do
         expect {
           validated
-        }.to raise_error(BSON::Error::IllegalKey)
+        }.to_not raise_error
       end
     end
 
@@ -165,10 +165,10 @@ shared_examples_for "a validated BSON key" do
         "testing.testing"
       end
 
-      it "raises an exception" do
+      it "does not raise an exception" do
         expect {
           validated
-        }.to raise_error(BSON::Error::IllegalKey)
+        }.to_not raise_error
       end
     end
   end

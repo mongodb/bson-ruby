@@ -34,65 +34,6 @@ describe Array do
         [ { "$testing" => "value" } ]
       end
 
-      context "when validating keys" do
-
-        context "when validating globally" do
-
-          before do
-            BSON::Config.validating_keys = true
-          end
-
-          after do
-            BSON::Config.validating_keys = false
-          end
-
-          it "raises an error" do
-            expect {
-              obj.to_bson
-            }.to raise_error(BSON::Error::IllegalKey)
-          end
-        end
-
-        context "when validating locally" do
-
-          it "raises an error" do
-            expect {
-              obj.to_bson(BSON::ByteBuffer.new, true)
-            }.to raise_error(BSON::Error::IllegalKey)
-          end
-
-          context "when serializing different types" do
-
-            let(:obj) do
-              [ BSON::Binary.new("testing", :generic),
-                BSON::Code.new("this.value = 5"),
-                BSON::CodeWithScope.new("this.value = val", "test"),
-                Date.new(2012, 1, 1),
-                Time.utc(2012, 1, 1),
-                DateTime.new(2012, 1, 1, 0, 0, 0),
-                false,
-                1.2332,
-                Integer::MAX_32BIT - 1,
-                BSON::ObjectId.new,
-                /\W+/i,
-                'a string',
-                :a_symbol,
-                Time.utc(2012, 1, 1, 0, 0, 0),
-                BSON::Timestamp.new(1, 10),
-                true,
-                { "$testing" => "value" }
-              ]
-            end
-
-            it "raises an error" do
-              expect {
-                obj.to_bson(BSON::ByteBuffer.new, true)
-              }.to raise_error(BSON::Error::IllegalKey)
-            end
-          end
-        end
-      end
-
       context "when not validating keys" do
 
         let(:bson) do

@@ -33,8 +33,8 @@ module BSON
     # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
-    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
-      BSON::Decimal128.new(to_s).to_bson(buffer, validating_keys)
+    def to_bson(buffer = ByteBuffer.new)
+      BSON::Decimal128.new(to_s).to_bson(buffer)
     end
 
     # Get the BSON type for BigDecimal. This is the same BSON type as

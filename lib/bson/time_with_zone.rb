@@ -35,7 +35,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 4.4.0
-    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+    def to_bson(buffer = ByteBuffer.new)
       buffer.put_int64((to_i * 1000) + (usec / 1000))
     end
 

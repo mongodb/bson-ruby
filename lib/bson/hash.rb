@@ -38,9 +38,9 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+    def to_bson(buffer = ByteBuffer.new)
       if buffer.respond_to?(:put_hash)
-        buffer.put_hash(self, validating_keys)
+        buffer.put_hash(self)
       else
         position = buffer.length
         buffer.put_int32(0)
@@ -49,7 +49,7 @@ module BSON
             raise Error::UnserializableClass, "Hash value for key '#{field}' does not define its BSON serialized type: #{value}"
           end
           buffer.put_byte(value.bson_type)
-          key = field.to_bson_key(validating_keys)
+          key = field.to_bson_key
           begin
             buffer.put_cstring(key)
           rescue ArgumentError => e
@@ -59,7 +59,7 @@ module BSON
             # EncodingError to EncodingError itself
             raise EncodingError, "Error serializing key #{key}: #{e.class}: #{e}"
           end
-          value.to_bson(buffer, validating_keys)
+          value.to_bson(buffer)
         end
         buffer.put_byte(NULL_BYTE)
         buffer.replace_int32(position, buffer.length - position)
