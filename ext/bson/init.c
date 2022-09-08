@@ -285,13 +285,13 @@ void Init_bson_native()
 
   /*
    * call-seq:
-   *   buffer.put_hash(hash, validating_keys) -> ByteBuffer
+   *   buffer.put_hash(hash) -> ByteBuffer
    *
    * Writes a Hash into the byte buffer.
    *
    * Returns the modified +self+.
    */
-  rb_define_method(rb_byte_buffer_class, "put_hash", rb_bson_byte_buffer_put_hash, 2);
+  rb_define_method(rb_byte_buffer_class, "put_hash", rb_bson_byte_buffer_put_hash, 1);
 
   /*
    * call-seq:
@@ -301,7 +301,7 @@ void Init_bson_native()
    *
    * Returns the modified +self+.
    */
-  rb_define_method(rb_byte_buffer_class, "put_array", rb_bson_byte_buffer_put_array, 2);
+  rb_define_method(rb_byte_buffer_class, "put_array", rb_bson_byte_buffer_put_array, 1);
 
   /*
    * call-seq:

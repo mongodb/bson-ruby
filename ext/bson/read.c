@@ -143,7 +143,7 @@ VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i)
 }
 
 VALUE pvt_get_boolean(byte_buffer_t *b){
-  VALUE result;
+  VALUE result = 0;
   char byte_value;
   ENSURE_BSON_READ(b, 1);
   byte_value = *READ_PTR(b);
