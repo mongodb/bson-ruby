@@ -134,7 +134,7 @@ module BSON
             # dbref, we should decode it as a BSON::Document.
             begin
               hash = DBRef.new(hash)
-            rescue ArgumentError
+            rescue Error::InvalidDBRefArgument
             end
           end
 
