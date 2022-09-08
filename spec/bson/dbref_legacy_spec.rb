@@ -76,7 +76,7 @@ describe BSON::DBRef do
         it 'raises ArgumentError' do
           lambda do
             dbref
-          end.should raise_error(ArgumentError)
+          end.should raise_error(BSON::Error::InvalidDBRefArgument)
         end
       end
     end
