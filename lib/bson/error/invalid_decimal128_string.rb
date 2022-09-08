@@ -5,8 +5,6 @@ module BSON
 
     # Raised when trying to create a Decimal128 from a string with
     #   an invalid format.
-    #
-    # @api private
     class InvalidDecimal128String < Error
 
       # The custom error message for this error.
