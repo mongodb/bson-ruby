@@ -4,7 +4,7 @@ module BSON
   class Error
 
     # Raised when validating keys and a key is illegal in MongoDB
-    class IllegalKey < RuntimeError
+    class IllegalKey < Error
 
       # Instantiate the exception.
       #

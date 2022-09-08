@@ -4,7 +4,7 @@ module BSON
   class Error
 
     # Raised when the exponent is outside the valid range.
-    class InvalidDecimal128Range < RuntimeError
+    class InvalidDecimal128Range < Error
 
       # The custom error message for this error.
       #
