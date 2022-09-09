@@ -1,34 +1,21 @@
 # frozen_string_literal: true
 module BSON
   # Base exception class for all BSON-related errors.
-  #
-  # @note Many existing exceptions raised by bson-ruby do not derive from
-  #   this base class. This will change in the next major version (5.0).
   class Error < StandardError
-
-    # Exception raised when Extended JSON parsing fails.
-    class ExtJSONParseError < Error
-    end
-
-    # Exception raised when decoding BSON and the data contains an
-    # unsupported binary subtype.
-    class UnsupportedBinarySubtype < Error
-    end
-
-    # Exception raised when BSON decoding fails.
-    class BSONDecodeError < Error
-    end
-
-    # Exception raised when serializing an Array or Hash to BSON and an
-    # array or hash element is of a class that does not define how to serialize
-    # itself to BSON.
-    class UnserializableClass < Error
-    end
-
-    # Exception raised when there is an invalid argument passed into the
-    # constructor of regexp object. This includes when the argument contains
-    # a null byte.
-    class InvalidRegexpPattern < Error
-    end
   end
 end
+
+require 'bson/error/bson_decode_error'
+require 'bson/error/ext_json_parse_error'
+require 'bson/error/illegal_key'
+require 'bson/error/invalid_binary_type'
+require 'bson/error/invalid_decimal128_argument'
+require 'bson/error/invalid_decimal128_range'
+require 'bson/error/invalid_decimal128_string'
+require 'bson/error/invalid_key'
+require 'bson/error/invalid_object_id'
+require 'bson/error/invalid_regexp_pattern'
+require 'bson/error/unrepresentable_precision'
+require 'bson/error/unserializable_class'
+require 'bson/error/unsupported_binary_subtype'
+require 'bson/error/unsupported_type'

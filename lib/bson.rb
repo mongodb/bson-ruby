@@ -27,7 +27,7 @@ module BSON
   #
   # @param [ String ] string The string to create the id from.
   #
-  # @raise [ BSON::ObjectId::Invalid ] If the provided string is invalid.
+  # @raise [ BSON::Error::InvalidObjectId ] If the provided string is invalid.
   #
   # @return [ BSON::ObjectId ] The new object id.
   #

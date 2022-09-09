@@ -68,7 +68,7 @@ module BSON
     #
     # @note This is used for repairing legacy bson data.
     #
-    # @raise [ BSON::ObjectId::Invalid ] If the array is not 12 elements.
+    # @raise [ BSON::Error::InvalidObjectId ] If the array is not 12 elements.
     #
     # @return [ String ] The raw object id bytes.
     #

@@ -38,7 +38,7 @@ describe BSON::Registry do
       it "raises an error" do
         expect {
           described_class.get(25.chr, "field")
-        }.to raise_error(BSON::Registry::UnsupportedType)
+        }.to raise_error(BSON::Error::UnsupportedType)
       end
     end
   end

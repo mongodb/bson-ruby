@@ -86,11 +86,11 @@ module BSON
 
       def validate_range!(exponent, significand)
         unless valid_exponent?(exponent)
-          raise Decimal128::InvalidRange.new
+          raise Error::InvalidDecimal128Range.new
         end
 
         unless valid_significand?(significand)
-          raise Decimal128::UnrepresentablePrecision.new
+          raise Error::UnrepresentablePrecision.new
         end
       end
 
@@ -262,7 +262,7 @@ module BSON
         end
 
         def validate_format!
-          raise BSON::Decimal128::InvalidString.new unless @string =~ VALID_DECIMAL128_STRING_REGEX
+          raise Error::InvalidDecimal128String.new unless @string =~ VALID_DECIMAL128_STRING_REGEX
         end
       end
 

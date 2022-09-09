@@ -115,7 +115,7 @@ describe Symbol do
       it "raises an exception" do
         expect {
           symbol.to_bson_key(true)
-        }.to raise_error(BSON::String::IllegalKey)
+        }.to raise_error(BSON::Error::IllegalKey)
       end
     end
 

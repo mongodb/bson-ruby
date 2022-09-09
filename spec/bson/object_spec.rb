@@ -25,7 +25,7 @@ describe BSON::Object do
     it "raises an exception" do
       expect {
         object.to_bson_key
-      }.to raise_error(BSON::InvalidKey)
+      }.to raise_error(BSON::Error::InvalidKey)
     end
   end
 end

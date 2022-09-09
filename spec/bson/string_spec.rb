@@ -51,7 +51,7 @@ describe String do
       it "raises an exception" do
         expect {
           "test".to_bson_object_id
-        }.to raise_error(BSON::ObjectId::Invalid)
+        }.to raise_error(BSON::Error::InvalidObjectId)
       end
     end
   end

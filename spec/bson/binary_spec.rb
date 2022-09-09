@@ -87,7 +87,7 @@ describe BSON::Binary do
         expect {
           described_class.new("testing", :error)
         }.to raise_error { |error|
-          expect(error).to be_a(BSON::Binary::InvalidType)
+          expect(error).to be_a(BSON::Error::InvalidBinaryType)
           expect(error.message).to match /is not a valid binary type/
         }
       end
