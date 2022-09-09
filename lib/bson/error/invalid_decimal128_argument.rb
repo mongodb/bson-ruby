@@ -2,6 +2,7 @@
 
 module BSON
   class Error
+
     # Raised when trying to create a Decimal128 from an object that is neither a String nor a BigDecimal.
     #
     # @api private

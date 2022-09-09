@@ -12,6 +12,8 @@ module BSON
       #   BSON::Object::InvalidKey.new(object)
       #
       # @param [ Object ] object The object that was meant for the key.
+      #
+      # @api private
       def initialize(object)
         super("#{object.class} instances are not allowed as keys in a BSON document.")
       end

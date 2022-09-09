@@ -4,8 +4,6 @@ module BSON
   class Error
 
     # Raised when providing an invalid type to the Binary.
-    #
-    # @since 2.0.0
     class InvalidBinaryType < Error
 
       # @return [ Object ] The invalid type.
@@ -17,6 +15,8 @@ module BSON
       #   InvalidBinaryType.new(:error)
       #
       # @param [ Object ] type The invalid type.
+      #
+      # @api private
       def initialize(type)
         @type = type
       end
