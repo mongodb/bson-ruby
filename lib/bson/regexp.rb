@@ -125,7 +125,7 @@ module BSON
       # @return [ String ] pattern The regex pattern.
       attr_reader :pattern
 
-      # @return [ Integer ] options The options.
+      # @return [ String ] options The options.
       attr_reader :options
 
       # Compile the Regular expression into the native type.
@@ -146,7 +146,7 @@ module BSON
       #   Raw.new(pattern, options)
       #
       # @param [ String ] pattern The regular expression pattern.
-      # @param [ String ] options The options.
+      # @param [ String | Symbol ] options The options.
       #
       # @since 3.0.0
       def initialize(pattern, options = '')
@@ -161,7 +161,7 @@ module BSON
         end
 
         @pattern = pattern
-        @options = options
+        @options = options.to_s
       end
 
       # Allow automatic delegation of methods to the Regexp object
@@ -201,8 +201,7 @@ module BSON
       # @see http://bsonspec.org/#/specification
       #
       # @since 4.2.0
-      def to_bson(buffer = ByteBuffer.new)
-        return compile.to_bson(buffer) if options.is_a?(Integer)
+      def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
         buffer.put_cstring(source)
         buffer.put_cstring(options.chars.sort.join)
       end
@@ -259,7 +258,6 @@ module BSON
       end
 
       def options_to_int
-        return options if options.is_a?(Integer)
         opts = 0
         opts |= ::Regexp::IGNORECASE if options.include?(IGNORECASE_VALUE)
         opts |= ::Regexp::MULTILINE if options.include?(NEWLINE_VALUE)
