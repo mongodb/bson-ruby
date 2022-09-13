@@ -201,7 +201,7 @@ module BSON
       # @see http://bsonspec.org/#/specification
       #
       # @since 4.2.0
-      def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+      def to_bson(buffer = ByteBuffer.new)
         buffer.put_cstring(source)
         buffer.put_cstring(options.chars.sort.join)
       end
