@@ -20,18 +20,17 @@
 typedef struct{
   byte_buffer_t *b;
   VALUE buffer;
-  VALUE validating_keys;
 } put_hash_context;
 
 static void pvt_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval);
-static void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validating_keys);
+static void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val);
 static void pvt_put_byte(byte_buffer_t *b, const char byte);
 static void pvt_put_int32(byte_buffer_t *b, const int32_t i32);
 static void pvt_put_uint32(byte_buffer_t *b, const uint32_t i32);
 static void pvt_put_int64(byte_buffer_t *b, const int64_t i);
 static void pvt_put_double(byte_buffer_t *b, double f);
 static void pvt_put_cstring(byte_buffer_t *b, const char *str, int32_t length, const char *data_type);
-static void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys);
+static void pvt_put_bson_key(byte_buffer_t *b, VALUE string);
 static VALUE pvt_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length);
 static VALUE pvt_bson_byte_buffer_put_binary_string(VALUE self, const char *str, int32_t length);
 
@@ -39,7 +38,7 @@ static int fits_int32(int64_t i64){
   return i64 >= INT32_MIN && i64 <= INT32_MAX;
 }
 
-void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validating_keys){
+void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val){
   switch(TYPE(val)){
     case T_BIGNUM:
     case T_FIXNUM:{
@@ -55,7 +54,7 @@ void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validatin
       pvt_put_double(b, NUM2DBL(val));
       break;
     case T_ARRAY:
-      rb_bson_byte_buffer_put_array(rb_buffer, val, validating_keys);
+      rb_bson_byte_buffer_put_array(rb_buffer, val);
       break;
     case T_TRUE:
       pvt_put_byte(b, 1);
@@ -64,10 +63,10 @@ void pvt_put_field(byte_buffer_t *b, VALUE rb_buffer, VALUE val, VALUE validatin
       pvt_put_byte(b, 0);
       break;
     case T_HASH:
-      rb_bson_byte_buffer_put_hash(rb_buffer, val, validating_keys);
+      rb_bson_byte_buffer_put_hash(rb_buffer, val);
       break;
     default:{
-      rb_funcall(val, rb_intern("to_bson"), 2, rb_buffer, validating_keys);
+      rb_funcall(val, rb_intern("to_bson"), 1, rb_buffer);
       break;
     }
   }
@@ -93,7 +92,7 @@ VALUE rb_bson_byte_buffer_put_byte(VALUE self, VALUE byte)
 
   str = RSTRING_PTR(byte);
   length = RSTRING_LEN(byte);
-  
+
   if (length != 1) {
     rb_raise(rb_eArgError, "put_byte requires a string of length 1");
   }
@@ -129,7 +128,7 @@ VALUE rb_bson_byte_buffer_put_bytes(VALUE self, VALUE bytes)
 /* write the byte denoting the BSON type for the passed object */
 void pvt_put_type_byte(byte_buffer_t *b, VALUE val){
   char type_byte;
-  
+
   switch (TYPE(val)){
     case T_BIGNUM:
     case T_FIXNUM:
@@ -169,7 +168,7 @@ void pvt_put_type_byte(byte_buffer_t *b, VALUE val){
       break;
     }
   }
-  
+
   pvt_put_byte(b, type_byte);
 }
 
@@ -213,24 +212,24 @@ static VALUE pvt_bson_encode_to_utf8(VALUE string) {
   VALUE utf8_string;
   const char *str;
   int32_t length;
-  
+
   existing_encoding_name = rb_funcall(
     rb_funcall(string, rb_intern("encoding"), 0),
     rb_intern("name"), 0);
-  
+
   if (strcmp(RSTRING_PTR(existing_encoding_name), "UTF-8") == 0) {
     utf8_string = string;
-  
+
     str = RSTRING_PTR(utf8_string);
     length = RSTRING_LEN(utf8_string);
-    
+
     rb_bson_utf8_validate(str, length, true, "String");
   } else {
     encoding = rb_enc_str_new_cstr("UTF-8", rb_utf8_encoding());
     utf8_string = rb_funcall(string, rb_intern("encode"), 1, encoding);
     RB_GC_GUARD(encoding);
   }
-  
+
   return utf8_string;
 }
 
@@ -240,15 +239,15 @@ VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
   VALUE utf8_string;
   const char *str;
   int32_t length;
-  
+
   utf8_string = pvt_bson_encode_to_utf8(string);
   /* At this point utf8_string contains valid utf-8 byte sequences only */
-  
+
   str = RSTRING_PTR(utf8_string);
   length = RSTRING_LEN(utf8_string);
 
   RB_GC_GUARD(utf8_string);
-  
+
   return pvt_bson_byte_buffer_put_binary_string(self, str, length);
 }
 
@@ -287,7 +286,7 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE obj)
   default:
     rb_raise(rb_eTypeError, "Invalid type for put_cstring");
   }
-  
+
   str = RSTRING_PTR(string);
   length = RSTRING_LEN(string);
   RB_GC_GUARD(string);
@@ -327,15 +326,9 @@ VALUE rb_bson_byte_buffer_put_symbol(VALUE self, VALUE symbol)
 /**
  * Write a hash key to the byte buffer, validating it if requested
  */
-void pvt_put_bson_key(byte_buffer_t *b, VALUE string, VALUE validating_keys){
+void pvt_put_bson_key(byte_buffer_t *b, VALUE string){
   char *c_str = RSTRING_PTR(string);
   size_t length = RSTRING_LEN(string);
-  
-  if (RTEST(validating_keys)) {
-    if (length > 0 && (c_str[0] == '$' || memchr(c_str, '.', length))) {
-      rb_exc_raise(rb_funcall(rb_bson_illegal_key, rb_intern("new"), 1, string));
-    }
-  }
 
   pvt_put_cstring(b, c_str, length, "Key");
 }
@@ -351,18 +344,18 @@ VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE position, VALUE newval
 {
   byte_buffer_t *b;
   long _position;
-  
+
   _position = NUM2LONG(position);
   if (_position < 0) {
     rb_raise(rb_eArgError, "Position given to replace_int32 cannot be negative: %ld", _position);
   }
-  
+
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  
+
   if (b->write_position < 4) {
     rb_raise(rb_eArgError, "Buffer does not have enough data to use replace_int32");
   }
-  
+
   if ((size_t) _position > b->write_position - 4) {
     rb_raise(rb_eArgError, "Position given to replace_int32 is out of bounds: %ld", _position);
   }
@@ -481,7 +474,6 @@ VALUE rb_bson_byte_buffer_put_decimal128(VALUE self, VALUE low, VALUE high)
 
 static int put_hash_callback(VALUE key, VALUE val, VALUE context){
   VALUE buffer = ((put_hash_context*)context)->buffer;
-  VALUE validating_keys = ((put_hash_context*)context)->validating_keys;
   byte_buffer_t *b = ((put_hash_context*)context)->b;
   VALUE key_str;
 
@@ -489,23 +481,23 @@ static int put_hash_callback(VALUE key, VALUE val, VALUE context){
 
   switch(TYPE(key)){
     case T_STRING:
-      pvt_put_bson_key(b, key, validating_keys);
+      pvt_put_bson_key(b, key);
       break;
     case T_SYMBOL:
       key_str = rb_sym_to_s(key);
       RB_GC_GUARD(key_str);
-      pvt_put_bson_key(b, key_str, validating_keys);
+      pvt_put_bson_key(b, key_str);
       break;
     default:
-      rb_bson_byte_buffer_put_cstring(buffer, rb_funcall(key, rb_intern("to_bson_key"), 1, validating_keys));
+      rb_bson_byte_buffer_put_cstring(buffer, rb_funcall(key, rb_intern("to_bson_key"), 0));
   }
 
-  pvt_put_field(b, buffer, val, validating_keys);
+  pvt_put_field(b, buffer, val);
   return ST_CONTINUE;
 }
 
 /* The docstring is in init.c. */
-VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys){
+VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash){
   byte_buffer_t *b = NULL;
   put_hash_context context = { NULL };
   size_t position = 0;
@@ -520,7 +512,6 @@ VALUE rb_bson_byte_buffer_put_hash(VALUE self, VALUE hash, VALUE validating_keys
   /* insert length placeholder */
   pvt_put_int32(b, 0);
   context.buffer = self;
-  context.validating_keys = validating_keys;
   context.b = b;
 
   rb_hash_foreach(hash, put_hash_callback, (VALUE)&context);
@@ -649,7 +640,7 @@ void pvt_put_array_index(byte_buffer_t *b, int32_t index)
 }
 
 /* The docstring is in init.c. */
-VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_keys){
+VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array){
   byte_buffer_t *b = NULL;
   size_t new_position = 0;
   int32_t new_length = 0;
@@ -667,7 +658,7 @@ VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array, VALUE validating_ke
   for(int32_t index=0; index < RARRAY_LEN(array); index++, array_element++){
     pvt_put_type_byte(b, *array_element);
     pvt_put_array_index(b, index);
-    pvt_put_field(b, self, *array_element, validating_keys);
+    pvt_put_field(b, self, *array_element);
   }
   pvt_put_byte(b, 0);
 

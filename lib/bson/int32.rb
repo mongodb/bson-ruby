@@ -87,7 +87,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 4.2.0
-    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+    def to_bson(buffer = ByteBuffer.new)
       buffer.put_int32(value)
     end
 
@@ -96,12 +96,10 @@ module BSON
     # @example Convert the integer to a BSON key string.
     #   int.to_bson_key
     #
-    # @param [ true, false ] validating_keys If BSON should validate the key.
-    #
     # @return [ String ] The string key.
     #
     # @since 4.2.0
-    def to_bson_key(validating_keys = Config.validating_keys?)
+    def to_bson_key
       value
     end
 

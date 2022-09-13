@@ -23,8 +23,6 @@ uint32_t rb_bson_object_id_counter;
 
 VALUE rb_bson_registry;
 
-VALUE rb_bson_illegal_key;
-
 const rb_data_type_t rb_byte_buffer_data_type = {
   "bson/byte_buffer",
   { NULL, rb_bson_byte_buffer_free, rb_bson_byte_buffer_memsize }
@@ -59,9 +57,6 @@ void Init_bson_native()
   VALUE rb_bson_object_id_generator_class = rb_const_get(rb_bson_object_id_class, rb_intern("Generator"));
   VALUE rb_digest_class = rb_const_get(rb_cObject, rb_intern("Digest"));
   VALUE rb_md5_class = rb_const_get(rb_digest_class, rb_intern("MD5"));
-
-  rb_bson_illegal_key = rb_const_get(rb_const_get(rb_bson_module, rb_intern("Error")),rb_intern("IllegalKey"));
-  rb_gc_register_mark_object(rb_bson_illegal_key);
 
   rb_define_alloc_func(rb_byte_buffer_class, rb_bson_byte_buffer_allocate);
   rb_define_method(rb_byte_buffer_class, "initialize", rb_bson_byte_buffer_initialize, -1);
@@ -285,13 +280,13 @@ void Init_bson_native()
 
   /*
    * call-seq:
-   *   buffer.put_hash(hash, validating_keys) -> ByteBuffer
+   *   buffer.put_hash(hash) -> ByteBuffer
    *
    * Writes a Hash into the byte buffer.
    *
    * Returns the modified +self+.
    */
-  rb_define_method(rb_byte_buffer_class, "put_hash", rb_bson_byte_buffer_put_hash, 2);
+  rb_define_method(rb_byte_buffer_class, "put_hash", rb_bson_byte_buffer_put_hash, 1);
 
   /*
    * call-seq:
@@ -301,7 +296,7 @@ void Init_bson_native()
    *
    * Returns the modified +self+.
    */
-  rb_define_method(rb_byte_buffer_class, "put_array", rb_bson_byte_buffer_put_array, 2);
+  rb_define_method(rb_byte_buffer_class, "put_array", rb_bson_byte_buffer_put_array, 1);
 
   /*
    * call-seq:

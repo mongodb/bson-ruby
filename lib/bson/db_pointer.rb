@@ -77,9 +77,9 @@ module BSON
     # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
-    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+    def to_bson(buffer = ByteBuffer.new)
       buffer.put_string(ref)
-      id.to_bson(buffer, validating_keys)
+      id.to_bson(buffer)
       buffer
     end
 

@@ -83,14 +83,13 @@ module BSON
     #   and 'u' to make \w, \W, etc. match unicode.
     #
     # @param [ BSON::ByteBuffer ] buffer The byte buffer to append to.
-    # @param [ true, false ] validating_keys
     #
     # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+    def to_bson(buffer = ByteBuffer.new)
       buffer.put_cstring(source)
       buffer.put_cstring(bson_options)
     end
@@ -196,14 +195,13 @@ module BSON
       #   and 'u' to make \w, \W, etc. match unicode.
       #
       # @param [ BSON::ByteBuffer ] buffer The byte buffer to append to.
-      # @param [ true, false ] validating_keys
       #
       # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
       #
       # @see http://bsonspec.org/#/specification
       #
       # @since 4.2.0
-      def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+      def to_bson(buffer = ByteBuffer.new)
         buffer.put_cstring(source)
         buffer.put_cstring(options.chars.sort.join)
       end

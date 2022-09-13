@@ -79,10 +79,10 @@ describe BSON::DBRef do
         described_class.new({:$ref => 'users', :$id => object_id}, object_id)
       end
 
-      it 'raises ArgumentError' do
+      it 'raises InvalidDBRefArgument' do
         lambda do
           dbref
-        end.should raise_error(ArgumentError)
+        end.should raise_error(BSON::Error::InvalidDBRefArgument)
       end
     end
 
@@ -92,10 +92,10 @@ describe BSON::DBRef do
         described_class.new({:$ref => 'users', :$id => object_id}, object_id, 'db')
       end
 
-      it 'raises ArgumentError' do
+      it 'raises InvalidDBRefArgument' do
         lambda do
           dbref
-        end.should raise_error(ArgumentError)
+        end.should raise_error(BSON::Error::InvalidDBRefArgument)
       end
     end
 
@@ -118,7 +118,7 @@ describe BSON::DBRef do
       it 'raises an error' do
         expect do
           dbref
-        end.to raise_error(ArgumentError, /DBRef must have \$ref/)
+        end.to raise_error(BSON::Error::InvalidDBRefArgument, /DBRef must have \$ref/)
       end
     end
 
@@ -130,7 +130,7 @@ describe BSON::DBRef do
       it 'raises an error' do
         expect do
           dbref
-        end.to raise_error(ArgumentError, /DBRef must have \$id/)
+        end.to raise_error(BSON::Error::InvalidDBRefArgument, /DBRef must have \$id/)
       end
     end
 
@@ -142,7 +142,7 @@ describe BSON::DBRef do
       it 'raises an error' do
         expect do
           dbref
-        end.to raise_error(ArgumentError, /The value for key \$ref must be a string/)
+        end.to raise_error(BSON::Error::InvalidDBRefArgument, /The value for key \$ref must be a string/)
       end
     end
 
@@ -154,7 +154,7 @@ describe BSON::DBRef do
       it 'raises an error' do
         expect do
           dbref
-        end.to raise_error(ArgumentError, /The value for key \$db must be a string/)
+        end.to raise_error(BSON::Error::InvalidDBRefArgument, /The value for key \$db must be a string/)
       end
     end
 

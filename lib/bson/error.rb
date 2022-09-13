@@ -7,8 +7,8 @@ end
 
 require 'bson/error/bson_decode_error'
 require 'bson/error/ext_json_parse_error'
-require 'bson/error/illegal_key'
 require 'bson/error/invalid_binary_type'
+require 'bson/error/invalid_dbref_argument'
 require 'bson/error/invalid_decimal128_argument'
 require 'bson/error/invalid_decimal128_range'
 require 'bson/error/invalid_decimal128_string'

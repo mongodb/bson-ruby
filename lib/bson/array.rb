@@ -41,9 +41,9 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+    def to_bson(buffer = ByteBuffer.new)
       if buffer.respond_to?(:put_array)
-        buffer.put_array(self, validating_keys)
+        buffer.put_array(self)
       else
         position = buffer.length
         buffer.put_int32(0)
@@ -53,7 +53,7 @@ module BSON
           end
           buffer.put_byte(value.bson_type)
           buffer.put_cstring(index.to_s)
-          value.to_bson(buffer, validating_keys)
+          value.to_bson(buffer)
         end
         buffer.put_byte(NULL_BYTE)
         buffer.replace_int32(position, buffer.length - position)

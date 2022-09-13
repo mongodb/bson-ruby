@@ -35,7 +35,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.1.0
-    def to_bson(buffer = ByteBuffer.new, validating_keys = Config.validating_keys?)
+    def to_bson(buffer = ByteBuffer.new)
       gregorian.to_time.to_bson(buffer)
     end
   end
