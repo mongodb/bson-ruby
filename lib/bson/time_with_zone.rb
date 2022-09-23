@@ -47,6 +47,7 @@ module BSON
       ::Time::BSON_TYPE
     end
 
+    # @api private
     def _bson_to_i
       # Workaround for JRuby's #to_i rounding negative timestamps up
       # rather than down (https://github.com/jruby/jruby/issues/6104)
