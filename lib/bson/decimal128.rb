@@ -93,9 +93,12 @@ module BSON
     #
     # @since 4.2.0
     def ==(other)
-      return false unless other.is_a?(Decimal128)
-      @high == other.instance_variable_get(:@high) &&
+      case other
+      when Decimal128
+        @high == other.instance_variable_get(:@high) &&
           @low == other.instance_variable_get(:@low)
+      else super
+      end
     end
     alias :eql? :==
 

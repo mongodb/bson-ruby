@@ -1640,9 +1640,14 @@ describe BSON::Decimal128 do
           ].each do |rhs|
             context "when rhs is #{rhs.class}" do
               it 'is true' do
-                pending 'RUBY-2952'
-
                 (lhs == rhs).should be true
+              end
+            end
+
+            context "when when lhs is #{rhs.class}" do
+              it 'is true' do
+                pending "RUBY-2846" if rhs.is_a?(BigDecimal)
+                (rhs == lhs).should be true
               end
             end
           end
