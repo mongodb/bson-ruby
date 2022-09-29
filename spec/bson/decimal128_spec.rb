@@ -1646,7 +1646,6 @@ describe BSON::Decimal128 do
 
             context "when when lhs is #{rhs.class}" do
               it 'is true' do
-                pending "RUBY-2846" if rhs.is_a?(BigDecimal)
                 (rhs == lhs).should be true
               end
             end

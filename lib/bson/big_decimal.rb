@@ -74,3 +74,13 @@ module BSON
   ::BigDecimal.send(:include, BigDecimal)
   ::BigDecimal.send(:extend, BigDecimal::ClassMethods)
 end
+
+class ::BigDecimal
+  def ==(other)
+    case other
+    when BSON::Decimal128 then super(other.to_big_decimal)
+    else super
+    end
+  end
+  alias :eql? :==
+end
