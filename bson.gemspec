@@ -5,7 +5,8 @@ require 'bson/version'
 Gem::Specification.new do |s|
   s.name              = 'bson'
   s.version           = BSON::VERSION
-  s.authors           = ['Tyler Brock', 'Durran Jordan', 'Brandon Black', 'Emily Stolfo', 'Gary Murakami']
+  s.authors           = ["The MongoDB Ruby Team"]
+  s.email             = "dbx-ruby@mongodb.com"
   s.homepage          = 'https://www.mongodb.com/docs/ruby-driver/current/tutorials/bson-v4/'
   s.summary           = 'Ruby implementation of the BSON specification'
   s.description       = 'A fully featured BSON specification implementation in Ruby'
