@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.name              = 'bson'
   s.version           = BSON::VERSION
   s.authors           = ['Tyler Brock', 'Durran Jordan', 'Brandon Black', 'Emily Stolfo', 'Gary Murakami']
-  s.homepage          = 'https://docs.mongodb.com/ruby-driver/current/tutorials/bson-v4/'
+  s.homepage          = 'https://www.mongodb.com/docs/ruby-driver/current/tutorials/bson-v4/'
   s.summary           = 'Ruby implementation of the BSON specification'
   s.description       = 'A fully featured BSON specification implementation in Ruby'
   s.license           = 'Apache-2.0'
@@ -14,8 +14,8 @@ Gem::Specification.new do |s|
   s.metadata = {
     'bug_tracker_uri' => 'https://jira.mongodb.org/projects/RUBY',
     'changelog_uri' => 'https://github.com/mongodb/bson-ruby/releases',
-    'documentation_uri' => 'https://docs.mongodb.com/ruby-driver/current/tutorials/bson-v4/',
-    'homepage_uri' => 'https://docs.mongodb.com/ruby-driver/current/tutorials/bson-v4/',
+    'documentation_uri' => 'https://www.mongodb.com/docs/ruby-driver/current/tutorials/bson-v4/',
+    'homepage_uri' => 'https://www.mongodb.com/docs/ruby-driver/current/tutorials/bson-v4/',
     'source_code_uri' => 'https://github.com/mongodb/bson-ruby'
   }
 
