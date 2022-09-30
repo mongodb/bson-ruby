@@ -100,9 +100,9 @@ module BSON
     alias :eql? :==
 
     def <=>(other)
-      to_big_decimal <=> case other
+      to_d <=> case other
         when Decimal128
-          other.to_big_decimal
+          other.to_d
         else
           other
         end
@@ -195,7 +195,7 @@ module BSON
     # @example
     #  decimal128 = BSON::Decimal128.new("0.200")
     #    => BSON::Decimal128('0.200')
-    #  big_decimal = decimal128.to_big_decimal
+    #  big_decimal = decimal128.to_d
     #    => #<BigDecimal:7fc619c95388,'0.2E0',9(18)>
     #  big_decimal.to_s
     #    => "0.2E0"
@@ -204,11 +204,10 @@ module BSON
     # and -sNaN while Ruby's BigDecimal cannot.
     #
     # @return [ BigDecimal ] The decimal as a BigDecimal.
-    #
-    # @since 4.2.0
-    def to_big_decimal
+    def to_d
       @big_decimal ||= BigDecimal(to_s)
     end
+    alias :to_big_decimal :to_d
 
     private
 

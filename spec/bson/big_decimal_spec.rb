@@ -35,7 +35,7 @@ describe BigDecimal do
         if deserialized_decimal128.to_s == "NaN"
           expect(deserialized_big_decimal.nan?).to be true
         else
-          expect(deserialized_big_decimal).to eq(deserialized_decimal128.to_big_decimal)
+          expect(deserialized_big_decimal).to eq(deserialized_decimal128.to_d)
         end
       end
     end
