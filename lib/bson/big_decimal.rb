@@ -61,7 +61,7 @@ module BSON
         if options[:mode] == :bson
           dec128
         else
-          dec128.to_big_decimal
+          dec128.to_d
         end
       end
     end

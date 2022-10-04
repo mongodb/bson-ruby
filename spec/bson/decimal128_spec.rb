@@ -1388,7 +1388,7 @@ describe BSON::Decimal128 do
     end
   end
 
-  describe "#to_big_decimal" do
+  describe "#to_d" do
 
     shared_examples_for 'a decimal128 convertible to a Ruby BigDecimal' do
 
@@ -1397,6 +1397,10 @@ describe BSON::Decimal128 do
       end
 
       it 'properly converts the Decimal128 to a BigDecimal' do
+        expect(decimal128.to_d).to eq(expected_big_decimal)
+      end
+
+      it 'permits the alias #to_big_decimal' do
         expect(decimal128.to_big_decimal).to eq(expected_big_decimal)
       end
     end
