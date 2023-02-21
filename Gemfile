@@ -19,6 +19,10 @@ group :development, :test do
   gem 'byebug', platforms: :mri
   # https://github.com/jruby/jruby/wiki/UsingTheJRubyDebugger
   gem 'ruby-debug', platforms: :jruby
+
+  gem 'rubocop', '~> 1.45.1'
+  gem 'rubocop-performance', '~> 1.16.0'
+  gem 'rubocop-rspec', '~> 2.18.1'
 end
 
 group :test do
