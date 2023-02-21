@@ -76,7 +76,7 @@ end
 
 RSpec.configure do |config|
   config.expect_with :rspec do |c|
-    c.syntax = [:should, :expect]
+    c.syntax = :expect
   end
 
   # To ensure that calling GC.compact does not produce unexpected behavior,

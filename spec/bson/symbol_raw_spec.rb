@@ -21,11 +21,11 @@ describe BSON::Symbol::Raw do
     let(:three) { described_class.new('bar') }
 
     it 'compares equal' do
-      one.should == two
+      expect(one).to eq(two)
     end
 
     it 'compares not equal' do
-      one.should_not == three
+      expect(one).not_to eq(three)
     end
   end
 
@@ -35,11 +35,11 @@ describe BSON::Symbol::Raw do
     let(:three) { described_class.new('bar') }
 
     it 'compares equal' do
-      one.should be_eql(two)
+      expect(one).to be_eql(two)
     end
 
     it 'compares not equal' do
-      one.should_not be_eql(three)
+      expect(one).not_to be_eql(three)
     end
   end
 

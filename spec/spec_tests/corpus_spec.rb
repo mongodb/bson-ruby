@@ -21,7 +21,7 @@ describe 'BSON Corpus spec tests' do
           end
 
           it 'round-trips canonical bson' do
-            decoded_canonical_bson.to_bson.to_s.should == test.canonical_bson
+            expect(decoded_canonical_bson.to_bson.to_s).to eq(test.canonical_bson)
           end
 
 =begin
@@ -32,12 +32,12 @@ describe 'BSON Corpus spec tests' do
 =end
 
           it 'converts bson to canonical extended json' do
-            decoded_canonical_bson.as_extended_json.should == test.canonical_extjson_doc
+            expect(decoded_canonical_bson.as_extended_json).to eq(test.canonical_extjson_doc)
           end
 
           if test.relaxed_extjson
             it 'converts bson to relaxed extended json' do
-              decoded_canonical_bson.as_extended_json(mode: :relaxed).should == test.relaxed_extjson_doc
+              expect(decoded_canonical_bson.as_extended_json(mode: :relaxed)).to eq(test.relaxed_extjson_doc)
             end
 
             let(:parsed_relaxed_extjson) do
@@ -54,7 +54,7 @@ describe 'BSON Corpus spec tests' do
             # But round-tripping extended json back to extjson should produce
             # the same representation we started with.
             it 'round-trips relaxed extended json' do
-              round_tripped_relaxed_extjson.should == test.relaxed_extjson_doc
+              expect(round_tripped_relaxed_extjson).to eq(test.relaxed_extjson_doc)
             end
           end
 
@@ -65,7 +65,7 @@ describe 'BSON Corpus spec tests' do
             end
 
             it 'round-trips degenerate bson to canonical bson' do
-              decoded_degenerate_bson.to_bson.to_s.should == test.canonical_bson
+              expect(decoded_degenerate_bson.to_bson.to_s).to eq(test.canonical_bson)
             end
           end
 
@@ -75,7 +75,7 @@ describe 'BSON Corpus spec tests' do
 
           unless test.lossy?
             it 'converts canonical extended json to bson' do
-              parsed_canonical_extjson.to_bson.to_s.should == test.canonical_bson
+              expect(parsed_canonical_extjson.to_bson.to_s).to eq(test.canonical_bson)
             end
           end
 

@@ -71,7 +71,7 @@ describe BSON::ByteBuffer do
       shared_examples 'returns the total buffer length' do
         it 'returns the total buffer length' do
           expect(buffer.length).to eq(5)
-          buffer.to_s.length.should == 5
+          expect(buffer.to_s.length).to eq(5)
           expect(buffer.length).to eq(5)
         end
       end
@@ -159,17 +159,17 @@ describe BSON::ByteBuffer do
     context 'one cycle' do
       it 'returns the written data' do
         buffer.put_cstring('hello')
-        buffer.get_cstring.should == 'hello'
+        expect(buffer.get_cstring).to eq('hello')
       end
     end
 
     context 'two cycles' do
       it 'returns the written data' do
         buffer.put_cstring('hello')
-        buffer.get_cstring.should == 'hello'
+        expect(buffer.get_cstring).to eq('hello')
 
         buffer.put_cstring('world')
-        buffer.get_cstring.should == 'world'
+        expect(buffer.get_cstring).to eq('world')
       end
     end
 
@@ -182,12 +182,12 @@ describe BSON::ByteBuffer do
         buffer.put_int32(1)
         buffer.put_int32(2)
 
-        buffer.get_int32.should == 1
+        expect(buffer.get_int32).to eq(1)
 
         buffer.put_int32(3)
 
-        buffer.get_int32.should == 2
-        buffer.get_int32.should == 3
+        expect(buffer.get_int32).to eq(2)
+        expect(buffer.get_int32).to eq(3)
       end
     end
   end
@@ -199,13 +199,13 @@ describe BSON::ByteBuffer do
       end
 
       it 'returns the data' do
-        buffer.to_s.should == "\x18\x00\x00\x00*\x00\x00\x00"
+        expect(buffer.to_s).to eq("\x18\x00\x00\x00*\x00\x00\x00")
       end
 
       it 'returns the remaining buffer contents after a read' do
-        buffer.to_s.should == "\x18\x00\x00\x00*\x00\x00\x00"
-        buffer.get_int32.should == 24
-        buffer.to_s.should == "*\x00\x00\x00"
+        expect(buffer.to_s).to eq("\x18\x00\x00\x00*\x00\x00\x00")
+        expect(buffer.get_int32).to eq(24)
+        expect(buffer.to_s).to eq("*\x00\x00\x00")
       end
     end
 
@@ -217,13 +217,13 @@ describe BSON::ByteBuffer do
       end
 
       it 'returns the data' do
-        buffer.to_s.should == "\x18\x00\x00\x00".force_encoding('binary')
+        expect(buffer.to_s).to eq("\x18\x00\x00\x00".force_encoding('binary'))
       end
 
       it 'returns the complete buffer contents after a write' do
-        buffer.to_s.should == "\x18\x00\x00\x00".force_encoding('binary')
+        expect(buffer.to_s).to eq("\x18\x00\x00\x00".force_encoding('binary'))
         buffer.put_int32(42)
-        buffer.to_s.should == "\x18\x00\x00\x00*\x00\x00\x00".force_encoding('binary')
+        expect(buffer.to_s).to eq("\x18\x00\x00\x00*\x00\x00\x00".force_encoding('binary'))
       end
     end
   end

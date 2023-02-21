@@ -64,7 +64,7 @@ describe Time do
       end
 
       it 'truncates to milliseconds when round-tripping' do
-        round_tripped_obj.should == expected_round_tripped_obj
+        expect(round_tripped_obj).to eq(expected_round_tripped_obj)
       end
     end
   end
@@ -85,7 +85,7 @@ describe Time do
 
         shared_examples_for 'truncates to milliseconds when serializing' do
           it 'truncates to milliseconds when serializing' do
-            serialization.should == expected_serialization
+            expect(serialization).to eq(expected_serialization)
           end
         end
 
@@ -123,7 +123,7 @@ describe Time do
 
         shared_examples_for 'truncates to milliseconds when serializing' do
           it 'truncates to milliseconds when serializing' do
-            serialization.should == expected_serialization
+            expect(serialization).to eq(expected_serialization)
           end
         end
 
@@ -164,7 +164,7 @@ describe Time do
 
         shared_examples_for 'truncates to milliseconds when serializing' do
           it 'truncates to milliseconds when serializing' do
-            serialization.should == expected_serialization
+            expect(serialization).to eq(expected_serialization)
           end
         end
 
@@ -202,7 +202,7 @@ describe Time do
 
         shared_examples_for 'truncates to milliseconds when serializing' do
           it 'truncates to milliseconds when serializing' do
-            serialization.should == expected_serialization
+            expect(serialization).to eq(expected_serialization)
           end
         end
 
@@ -232,7 +232,7 @@ describe Time do
 
       shared_examples_for 'truncates to milliseconds when serializing' do
         it 'truncates to milliseconds when serializing' do
-          serialization.should == expected_serialization
+          expect(serialization).to eq(expected_serialization)
         end
       end
 

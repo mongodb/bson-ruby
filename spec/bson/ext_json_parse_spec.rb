@@ -22,7 +22,7 @@ describe "BSON::ExtJSON.parse" do
     let(:input) { true }
 
     it 'returns true' do
-      parsed.should == true
+      expect(parsed).to eq(true)
     end
   end
 
@@ -30,7 +30,7 @@ describe "BSON::ExtJSON.parse" do
     let(:input) { false }
 
     it 'returns false' do
-      parsed.should == false
+      expect(parsed).to eq(false)
     end
   end
 
@@ -38,7 +38,7 @@ describe "BSON::ExtJSON.parse" do
     let(:input) { nil }
 
     it 'returns nil' do
-      parsed.should be nil
+      expect(parsed).to be nil
     end
   end
 
@@ -46,7 +46,7 @@ describe "BSON::ExtJSON.parse" do
     let(:input) { 'hello' }
 
     it 'returns the string' do
-      parsed.should == 'hello'
+      expect(parsed).to eq('hello')
     end
   end
 
@@ -54,7 +54,7 @@ describe "BSON::ExtJSON.parse" do
     let(:input) { {'$timestamp' => {'t' => 12345, 'i' => 42}} }
 
     it 'returns a BSON::Timestamp instance' do
-      parsed.should == BSON::Timestamp.new(12345, 42)
+      expect(parsed).to eq(BSON::Timestamp.new(12345, 42))
     end
   end
 
@@ -62,15 +62,15 @@ describe "BSON::ExtJSON.parse" do
     let(:input) { {'$date' => '1970-01-01T00:00:04Z'} }
 
     it 'returns a Time instance ' do
-      parsed.should be_a(Time)
+      expect(parsed).to be_a(Time)
     end
 
     it 'returns a Time instance with correct value' do
-      parsed.should == Time.at(4)
+      expect(parsed).to eq(Time.at(4))
     end
 
     it 'returns a Time instance in UTC' do
-      parsed.zone.should == 'UTC'
+      expect(parsed.zone).to eq('UTC')
     end
   end
 
@@ -78,15 +78,15 @@ describe "BSON::ExtJSON.parse" do
     let(:input) { {'$date' => {'$numberLong' => '4000'}} }
 
     it 'returns a Time instance ' do
-      parsed.should be_a(Time)
+      expect(parsed).to be_a(Time)
     end
 
     it 'returns a Time instance with correct value' do
-      parsed.should == Time.at(4)
+      expect(parsed).to eq(Time.at(4))
     end
 
     it 'returns a Time instance in UTC' do
-      parsed.zone.should == 'UTC'
+      expect(parsed.zone).to eq('UTC')
     end
   end
 
@@ -101,8 +101,8 @@ describe "BSON::ExtJSON.parse" do
       let(:mode) { nil }
 
       it 'returns Integer instance' do
-        parsed.should be_a(Integer)
-        parsed.should == 42
+        expect(parsed).to be_a(Integer)
+        expect(parsed).to eq(42)
       end
     end
 
@@ -110,8 +110,8 @@ describe "BSON::ExtJSON.parse" do
       let(:mode) { :bson }
 
       it 'returns Integer instance' do
-        parsed.should be_a(Integer)
-        parsed.should == 42
+        expect(parsed).to be_a(Integer)
+        expect(parsed).to eq(42)
       end
     end
   end
@@ -127,8 +127,8 @@ describe "BSON::ExtJSON.parse" do
       let(:mode) { nil }
 
       it 'returns Integer instance' do
-        parsed.should be_a(Integer)
-        parsed.should == 42
+        expect(parsed).to be_a(Integer)
+        expect(parsed).to eq(42)
       end
     end
 
@@ -136,8 +136,8 @@ describe "BSON::ExtJSON.parse" do
       let(:mode) { :bson }
 
       it 'returns Int64 instance' do
-        parsed.should be_a(BSON::Int64)
-        parsed.value.should == 42
+        expect(parsed).to be_a(BSON::Int64)
+        expect(parsed.value).to eq(42)
       end
     end
   end
@@ -154,9 +154,9 @@ describe "BSON::ExtJSON.parse" do
       let(:mode) { :foo }
 
       it 'raises an exception' do
-        lambda do
+        expect do
           parsed
-        end.should raise_error(ArgumentError, /Invalid value for :mode option/)
+        end.to raise_error(ArgumentError, /Invalid value for :mode option/)
       end
     end
 
@@ -166,9 +166,9 @@ describe "BSON::ExtJSON.parse" do
       end
 
       it 'raises an exception' do
-        lambda do
+        expect do
           parsed
-        end.should raise_error(BSON::Error::ExtJSONParseError, /Hash key cannot contain a null byte/)
+        end.to raise_error(BSON::Error::ExtJSONParseError, /Hash key cannot contain a null byte/)
       end
     end
 
@@ -178,9 +178,9 @@ describe "BSON::ExtJSON.parse" do
       end
 
       it 'raises an exception' do
-        lambda do
+        expect do
           parsed
-        end.should raise_error(BSON::Error::ExtJSONParseError, /Hash key cannot contain a null byte/)
+        end.to raise_error(BSON::Error::ExtJSONParseError, /Hash key cannot contain a null byte/)
       end
     end
 
@@ -190,9 +190,9 @@ describe "BSON::ExtJSON.parse" do
       end
 
       it 'does not raises an exception' do
-        lambda do
+        expect do
           parsed
-        end.should_not raise_error
+        end.not_to raise_error
       end
     end
   end
@@ -211,8 +211,8 @@ describe "BSON::ExtJSON.parse" do
         let(:mode) { nil }
 
         it 'returns BSON::Binary instance' do
-          parsed.should be_a(BSON::Binary)
-          parsed.data.should == data
+          expect(parsed).to be_a(BSON::Binary)
+          expect(parsed.data).to eq(data)
         end
       end
 
@@ -220,8 +220,8 @@ describe "BSON::ExtJSON.parse" do
         let(:mode) { :bson }
 
         it 'returns BSON::Binary instance' do
-          parsed.should be_a(BSON::Binary)
-          parsed.data.should == data
+          expect(parsed).to be_a(BSON::Binary)
+          expect(parsed.data).to eq(data)
         end
       end
     end
@@ -235,8 +235,8 @@ describe "BSON::ExtJSON.parse" do
         let(:mode) { nil }
 
         it 'returns BSON::Binary instance' do
-          parsed.should be_a(BSON::Binary)
-          parsed.data.should == data
+          expect(parsed).to be_a(BSON::Binary)
+          expect(parsed.data).to eq(data)
         end
       end
 
@@ -244,8 +244,8 @@ describe "BSON::ExtJSON.parse" do
         let(:mode) { :bson }
 
         it 'returns BSON::Binary instance' do
-          parsed.should be_a(BSON::Binary)
-          parsed.data.should == data
+          expect(parsed).to be_a(BSON::Binary)
+          expect(parsed.data).to eq(data)
         end
       end
     end
@@ -264,9 +264,9 @@ describe "BSON::ExtJSON.parse" do
         let(:mode) { nil }
 
         it 'returns a BSON::Regexp::Raw instance' do
-          parsed.should be_a(BSON::Regexp::Raw)
-          parsed.pattern.should == pattern
-          parsed.options.should == options
+          expect(parsed).to be_a(BSON::Regexp::Raw)
+          expect(parsed.pattern).to eq(pattern)
+          expect(parsed.options).to eq(options)
         end
       end
 
@@ -274,9 +274,9 @@ describe "BSON::ExtJSON.parse" do
         let(:mode) { :bson }
 
         it 'returns a BSON::Regexp::Raw instance' do
-          parsed.should be_a(BSON::Regexp::Raw)
-          parsed.pattern.should == pattern
-          parsed.options.should == options
+          expect(parsed).to be_a(BSON::Regexp::Raw)
+          expect(parsed.pattern).to eq(pattern)
+          expect(parsed.options).to eq(options)
         end
       end
     end
@@ -290,9 +290,9 @@ describe "BSON::ExtJSON.parse" do
         let(:mode) { nil }
 
         it 'returns a BSON::Regexp::Raw instance' do
-          parsed.should be_a(BSON::Regexp::Raw)
-          parsed.pattern.should == pattern
-          parsed.options.should == options
+          expect(parsed).to be_a(BSON::Regexp::Raw)
+          expect(parsed.pattern).to eq(pattern)
+          expect(parsed.options).to eq(options)
         end
       end
 
@@ -300,9 +300,9 @@ describe "BSON::ExtJSON.parse" do
         let(:mode) { :bson }
 
         it 'returns a BSON::Regexp::Raw instance' do
-          parsed.should be_a(BSON::Regexp::Raw)
-          parsed.pattern.should == pattern
-          parsed.options.should == options
+          expect(parsed).to be_a(BSON::Regexp::Raw)
+          expect(parsed.pattern).to eq(pattern)
+          expect(parsed.options).to eq(options)
         end
       end
     end
@@ -319,9 +319,9 @@ describe "BSON::ExtJSON.parse" do
         end
 
         it 'parses' do
-          parsed.should == {
+          expect(parsed).to eq({
             '$regex' => BSON::Regexp::Raw.new('foo*'), '$options' => 'ix'
-          }
+          })
         end
       end
 
@@ -335,9 +335,9 @@ describe "BSON::ExtJSON.parse" do
         end
 
         it 'parses' do
-          parsed.should == {
+          expect(parsed).to eq({
             '$regex' => BSON::Regexp::Raw.new('foo*'),
-          }
+          })
         end
       end
     end

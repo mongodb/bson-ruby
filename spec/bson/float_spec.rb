@@ -29,7 +29,7 @@ describe Float do
 
   describe '#to_json' do
     it 'returns float' do
-      42.0.to_json.should == '42.0'
+      expect(42.0.to_json).to eq('42.0')
     end
   end
 
@@ -38,7 +38,7 @@ describe Float do
 
     context 'canonical mode' do
       it 'returns $numberDouble' do
-        object.as_extended_json.should == {'$numberDouble' => '42.0'}
+        expect(object.as_extended_json).to eq({'$numberDouble' => '42.0'})
       end
     end
 
@@ -48,8 +48,8 @@ describe Float do
       end
 
       it 'returns float' do
-        serialized.should be_a(Float)
-        serialized.should be_within(0.00001).of(42)
+        expect(serialized).to be_a(Float)
+        expect(serialized).to be_within(0.00001).of(42)
       end
     end
 
@@ -59,8 +59,8 @@ describe Float do
       end
 
       it 'returns float' do
-        serialized.should be_a(Float)
-        serialized.should be_within(0.00001).of(42)
+        expect(serialized).to be_a(Float)
+        expect(serialized).to be_within(0.00001).of(42)
       end
     end
 

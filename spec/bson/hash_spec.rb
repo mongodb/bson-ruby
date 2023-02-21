@@ -142,13 +142,13 @@ describe Hash do
         end
 
         it 'serializes to BSON symbol' do
-          perform_test(bson_type_to_use) do
+          expect(perform_test(bson_type_to_use) do
             serialized
-          end.should == expected
+          end).to eq(expected)
         end
 
         it 'deserializes to Symbol' do
-          deserialized.should == {'foo' => :bar}
+          expect(deserialized).to eq({'foo' => :bar})
         end
       end
 
@@ -160,13 +160,13 @@ describe Hash do
         end
 
         it 'serializes to BSON string' do
-          perform_test(bson_type_to_use) do
+          expect(perform_test(bson_type_to_use) do
             serialized
-          end.should == expected
+          end).to eq(expected)
         end
 
         it 'deserializes to Symbol' do
-          deserialized.should == {'foo' => :bar}
+          expect(deserialized).to eq({'foo' => :bar})
         end
       end
     end
@@ -180,9 +180,9 @@ describe Hash do
       end
 
       it 'raises UnserializableClass' do
-        lambda do
+        expect do
           obj.to_bson
-        end.should raise_error(BSON::Error::UnserializableClass,
+        end.to raise_error(BSON::Error::UnserializableClass,
           # C extension does not provide hash key in the exception message.
           /(Hash value for key 'foo'|Value) does not define its BSON serialized type:.*HashSpecUnserializableClass/)
       end

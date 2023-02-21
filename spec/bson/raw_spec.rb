@@ -585,9 +585,9 @@ describe Regexp::Raw do
       else
         YAML.load(regexp.to_yaml)
       end
-      actual.pattern.should == 'hello.world'
-      actual.options.should == 's'
-      actual.compile.should =~ "hello\nworld"
+      expect(actual.pattern).to eq('hello.world')
+      expect(actual.options).to eq('s')
+      expect(actual.compile).to match("hello\nworld")
     end
   end
 end

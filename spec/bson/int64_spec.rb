@@ -83,11 +83,11 @@ describe BSON::Int64 do
       end
 
       it 'deserializes to BSON::Int64' do
-        deserialized.class.should be BSON::Int64
+        expect(deserialized.class).to be BSON::Int64
       end
 
       it 'has the correct value' do
-        deserialized.value.should == 42
+        expect(deserialized.value).to eq(42)
       end
     end
 

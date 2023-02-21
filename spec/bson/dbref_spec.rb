@@ -80,9 +80,9 @@ describe BSON::DBRef do
       end
 
       it 'raises InvalidDBRefArgument' do
-        lambda do
+        expect do
           dbref
-        end.should raise_error(BSON::Error::InvalidDBRefArgument)
+        end.to raise_error(BSON::Error::InvalidDBRefArgument)
       end
     end
 
@@ -93,9 +93,9 @@ describe BSON::DBRef do
       end
 
       it 'raises InvalidDBRefArgument' do
-        lambda do
+        expect do
           dbref
-        end.should raise_error(BSON::Error::InvalidDBRefArgument)
+        end.to raise_error(BSON::Error::InvalidDBRefArgument)
       end
     end
 

@@ -25,7 +25,7 @@ describe BSON::Document do
       end
 
       it 'works correctly' do
-        doc.symbolize_keys.should == {foo: 'bar'}
+        expect(doc.symbolize_keys).to eq({foo: 'bar'})
       end
     end
   end
@@ -37,9 +37,9 @@ describe BSON::Document do
       end
 
       it 'raises ArgumentError' do
-        lambda do
+        expect do
           doc.symbolize_keys!
-        end.should raise_error(ArgumentError, /symbolize_keys! is not supported on BSON::Document instances/)
+        end.to raise_error(ArgumentError, /symbolize_keys! is not supported on BSON::Document instances/)
       end
     end
   end

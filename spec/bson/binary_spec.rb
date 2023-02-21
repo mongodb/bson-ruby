@@ -140,8 +140,8 @@ describe BSON::Binary do
       let(:bson) { [3, 0, 0, 0, 1].map(&:chr).join.force_encoding('BINARY') + 'foo' }
 
       it 'works' do
-        obj.should be_a(described_class)
-        obj.type.should be :function
+        expect(obj).to be_a(described_class)
+        expect(obj.type).to be :function
       end
     end
 
@@ -149,9 +149,9 @@ describe BSON::Binary do
       let(:bson) { [3, 0, 0, 0, 16].map(&:chr).join.force_encoding('BINARY') + 'foo' }
 
       it 'raises an exception' do
-        lambda do
+        expect do
           obj
-        end.should raise_error(BSON::Error::UnsupportedBinarySubtype,
+        end.to raise_error(BSON::Error::UnsupportedBinarySubtype,
           /BSON data contains unsupported binary subtype 0x10/)
       end
     end

@@ -312,17 +312,17 @@ describe BSON::Decimal128 do
 
     context 'when range is exceeded' do
       it 'raises InvalidRange' do
-        lambda do
+        expect do
           described_class.new('1e10000')
-        end.should raise_error(BSON::Error::InvalidDecimal128Range, /Value out of range/)
+        end.to raise_error(BSON::Error::InvalidDecimal128Range, /Value out of range/)
       end
     end
 
     context 'when precision is exceeded' do
       it 'raises UnrepresentablePrecision' do
-        lambda do
+        expect do
           described_class.new('1.000000000000000000000000000000000000000000000000001')
-        end.should raise_error(BSON::Error::UnrepresentablePrecision, /The value contains too much precision/)
+        end.to raise_error(BSON::Error::UnrepresentablePrecision, /The value contains too much precision/)
       end
     end
   end
@@ -1632,7 +1632,7 @@ describe BSON::Decimal128 do
           let(:rhs) { described_class.new('1.2e12') }
 
           it 'is true' do
-            (lhs == rhs).should be true
+            expect(lhs == rhs).to be true
           end
         end
 
@@ -1646,7 +1646,7 @@ describe BSON::Decimal128 do
               it 'is true' do
                 pending 'RUBY-2952'
 
-                (lhs == rhs).should be true
+                expect(lhs == rhs).to be true
               end
             end
           end
@@ -1658,7 +1658,7 @@ describe BSON::Decimal128 do
           let(:rhs) { described_class.new('1.21e12') }
 
           it 'is false' do
-            (lhs == rhs).should be false
+            expect(lhs == rhs).to be false
           end
         end
 
@@ -1671,7 +1671,7 @@ describe BSON::Decimal128 do
           ].each do |rhs|
             context "when rhs is #{rhs.class}" do
               it 'is false' do
-                (lhs == rhs).should be false
+                expect(lhs == rhs).to be false
               end
             end
           end
@@ -1689,7 +1689,7 @@ describe BSON::Decimal128 do
         let(:rhs) { described_class.new('1.21e12') }
 
         it 'is -1' do
-          (lhs <=> rhs).should be -1
+          expect(lhs <=> rhs).to be -1
         end
       end
 
@@ -1701,7 +1701,7 @@ describe BSON::Decimal128 do
         ].each do |rhs|
           context "when rhs is #{rhs.class}" do
             it 'is -1' do
-              (lhs <=> rhs).should be -1
+              expect(lhs <=> rhs).to be -1
             end
           end
         end
@@ -1713,7 +1713,7 @@ describe BSON::Decimal128 do
         let(:rhs) { described_class.new('1.2e12') }
 
         it 'is 0' do
-          (lhs <=> rhs).should be 0
+          expect(lhs <=> rhs).to be 0
         end
       end
 
@@ -1726,7 +1726,7 @@ describe BSON::Decimal128 do
         ].each do |rhs|
           context "when rhs is #{rhs.class}" do
             it 'is 0' do
-              (lhs <=> rhs).should be 0
+              expect(lhs <=> rhs).to be 0
             end
           end
         end
@@ -1738,7 +1738,7 @@ describe BSON::Decimal128 do
         let(:rhs) { described_class.new('1.1e12') }
 
         it 'is 1' do
-          (lhs <=> rhs).should be 1
+          expect(lhs <=> rhs).to be 1
         end
       end
 
@@ -1751,7 +1751,7 @@ describe BSON::Decimal128 do
         ].each do |rhs|
           context "when rhs is #{rhs.class}" do
             it 'is 1' do
-              (lhs <=> rhs).should be 1
+              expect(lhs <=> rhs).to be 1
             end
           end
         end
@@ -1768,7 +1768,7 @@ describe BSON::Decimal128 do
         let(:rhs) { described_class.new('1.21e12') }
 
         it 'is true' do
-          (lhs < rhs).should be true
+          expect(lhs < rhs).to be true
         end
       end
 
@@ -1780,7 +1780,7 @@ describe BSON::Decimal128 do
         ].each do |rhs|
           context "when rhs is #{rhs.class}" do
             it 'is true' do
-              (lhs < rhs).should be true
+              expect(lhs < rhs).to be true
             end
           end
         end
@@ -1792,7 +1792,7 @@ describe BSON::Decimal128 do
         let(:rhs) { described_class.new('1.2e12') }
 
         it 'is false' do
-          (lhs < rhs).should be false
+          expect(lhs < rhs).to be false
         end
       end
 
@@ -1805,7 +1805,7 @@ describe BSON::Decimal128 do
         ].each do |rhs|
           context "when rhs is #{rhs.class}" do
             it 'is false' do
-              (lhs < rhs).should be false
+              expect(lhs < rhs).to be false
             end
           end
         end
@@ -1817,7 +1817,7 @@ describe BSON::Decimal128 do
         let(:rhs) { described_class.new('1.1e12') }
 
         it 'is false' do
-          (lhs < rhs).should be false
+          expect(lhs < rhs).to be false
         end
       end
 
@@ -1830,7 +1830,7 @@ describe BSON::Decimal128 do
         ].each do |rhs|
           context "when rhs is #{rhs.class}" do
             it 'is false' do
-              (lhs < rhs).should be false
+              expect(lhs < rhs).to be false
             end
           end
         end

@@ -83,9 +83,9 @@ describe Array do
       end
 
       it 'raises UnserializableClass' do
-        lambda do
+        expect do
           obj.to_bson
-        end.should raise_error(BSON::Error::UnserializableClass,
+        end.to raise_error(BSON::Error::UnserializableClass,
           # C extension does not provide element position in the exception message.
           /(Array element at position 0|Value) does not define its BSON serialized type:.*ArraySpecUnserializableClass/)
       end

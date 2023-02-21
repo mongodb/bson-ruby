@@ -22,11 +22,11 @@ describe 'Hash ActiveSupport extensions' do
 
     shared_examples 'works correctly' do
       it 'returns a hash' do
-        symbolized.class.should be Hash
+        expect(symbolized.class).to be Hash
       end
 
       it 'works correctly' do
-        hash.symbolize_keys.should == {foo: 'bar'}
+        expect(hash.symbolize_keys).to eq({foo: 'bar'})
       end
     end
 

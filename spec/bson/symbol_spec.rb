@@ -43,11 +43,11 @@ describe Symbol do
       end
 
       it 'deserializes to BSON::Symbol::Raw' do
-        deserialized.class.should be BSON::Symbol::Raw
+        expect(deserialized.class).to be BSON::Symbol::Raw
       end
 
       it 'has the correct value' do
-        deserialized.to_sym.should be obj
+        expect(deserialized.to_sym).to be obj
       end
     end
 
@@ -78,17 +78,17 @@ describe Symbol do
 
       context 'when bson_type is set to symbol' do
         it 'serializes to BSON string' do
-          perform_test(BSON::Symbol::BSON_TYPE) do
+          expect(perform_test(BSON::Symbol::BSON_TYPE) do
             serialized
-          end.should == "\x04\x00\x00\x00foo\x00".force_encoding('binary')
+          end).to eq("\x04\x00\x00\x00foo\x00".force_encoding('binary'))
         end
       end
 
       context 'when bson_type is set to string' do
         it 'serializes to BSON string' do
-          perform_test(BSON::String::BSON_TYPE) do
+          expect(perform_test(BSON::String::BSON_TYPE) do
             serialized
-          end.should == "\x04\x00\x00\x00foo\x00".force_encoding('binary')
+          end).to eq("\x04\x00\x00\x00foo\x00".force_encoding('binary'))
         end
       end
     end
