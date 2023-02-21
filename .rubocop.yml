@@ -37,8 +37,7 @@ RSpec:
   Enabled: false
 
 Security:
-  Exclude:
-    - 'spec/**/*'
+  Enabled: false
 
 Style:
   Enabled: false
