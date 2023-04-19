@@ -1,0 +1,55 @@
+require:
+  - rubocop-performance
+  - rubocop-rake
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 2.5
+  NewCops: enable
+  Exclude:
+    - 'spec/shared/**/*'
+
+Gemspec:
+  Enabled: true
+
+Layout:
+  Enabled: true
+
+Lint:
+  Enabled: true
+
+Metrics:
+  Enabled: true
+
+Naming:
+  Enabled: true
+
+Performance:
+  Enabled: true
+
+Rake:
+  Enabled: true
+
+RSpec:
+  Enabled: true
+
+Security:
+  Exclude:
+    - 'spec/**/*'
+
+Style:
+  Enabled: true
+
+# --------------------------------------
+# Cops below this line set intentionally
+# --------------------------------------
+
+Bundler/OrderedGems:
+  Enabled: false
+
+Gemspec/OrderedDependencies:
+  Enabled: false
+
+Style/Documentation:
+  Exclude:
+    - 'spec/**/*'

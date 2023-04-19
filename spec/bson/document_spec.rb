@@ -1,4 +1,4 @@
-# encoding: utf-8
+# rubocop:todo all
 
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
