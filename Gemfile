@@ -23,10 +23,14 @@ group :development, :test do
   # https://github.com/jruby/jruby/wiki/UsingTheJRubyDebugger
   gem 'ruby-debug', platforms: :jruby
 
-  gem 'rubocop', '~> 1.45.1'
-  gem 'rubocop-performance', '~> 1.16.0'
-  gem 'rubocop-rake', '~> 0.6.0'
-  gem 'rubocop-rspec', '~> 2.18.1'
+  # Ruby 2.5 wants an older version of rubocop. Rather than try to
+  # please everybody, we'll just not install rubocop for Ruby 2.5.
+  if RUBY_VERSION > "2.5.99"
+    gem 'rubocop', '~> 1.45.1'
+    gem 'rubocop-performance', '~> 1.16.0'
+    gem 'rubocop-rake', '~> 0.6.0'
+    gem 'rubocop-rspec', '~> 2.18.1'
+  end
 end
 
 group :test do
