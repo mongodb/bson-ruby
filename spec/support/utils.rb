@@ -1,3 +1,4 @@
+# rubocop:todo all
 module Utils
   # JRuby chokes when strings like "\xfe\x00\xff", which are not valid UTF-8,
   # appear in the source. Use this method to build such strings.
