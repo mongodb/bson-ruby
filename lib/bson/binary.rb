@@ -52,6 +52,9 @@ module BSON
       :user => 128.chr,
     }.freeze
 
+    # The starting point of the user-defined subtype range.
+    USER_SUBTYPE = 0x80
+
     # The mappings of single byte subtypes to their symbol counterparts.
     #
     # @since 2.0.0
@@ -65,9 +68,10 @@ module BSON
     attr_reader :data
 
     # @return [ Symbol ] The binary type.
-    #
-    # @since 2.0.0
     attr_reader :type
+
+    # @return [ String ] The raw type value, as an encoded integer.
+    attr_reader :raw_type
 
     # Determine if this binary object is equal to another object.
     #
@@ -114,7 +118,7 @@ module BSON
     #
     # @return [ Hash ] The extended json representation.
     def as_extended_json(**options)
-      subtype = SUBTYPES[type].each_byte.map { |c| c.to_s(16) }.join
+      subtype = @raw_type.each_byte.map { |c| c.to_s(16) }.join
       if subtype.length == 1
         subtype = "0#{subtype}"
       end
@@ -145,7 +149,7 @@ module BSON
     #
     # @since 2.0.0
     def initialize(data = "", type = :generic)
-      validate_type!(type)
+      @type = validate_type!(type)
 
       # The Binary class used to force encoding to BINARY when serializing to
       # BSON. Instead of doing that during serialization, perform this
@@ -157,7 +161,6 @@ module BSON
       end
 
       @data = data
-      @type = type
     end
 
     # Get a nice string for use with object inspection.
@@ -249,7 +252,7 @@ module BSON
     def to_bson(buffer = ByteBuffer.new)
       position = buffer.length
       buffer.put_int32(0)
-      buffer.put_byte(SUBTYPES[type])
+      buffer.put_byte(@raw_type)
       buffer.put_int32(data.bytesize) if type == :old
       buffer.put_bytes(data)
       buffer.replace_int32(position, buffer.length - position - 5)
@@ -269,10 +272,16 @@ module BSON
     def self.from_bson(buffer, **options)
       length = buffer.get_int32
       type_byte = buffer.get_byte
-      type = TYPES[type_byte]
-      if type.nil?
-        raise Error::UnsupportedBinarySubtype,
-          "BSON data contains unsupported binary subtype #{'0x%02x' % type_byte.ord}"
+
+      if type_byte.bytes.first < USER_SUBTYPE
+        type = TYPES[type_byte]
+
+        if type.nil?
+          raise Error::UnsupportedBinarySubtype,
+            "BSON data contains unsupported binary subtype #{'0x%02x' % type_byte.ord}"
+        end
+      else
+        type = type_byte
       end
 
       length = buffer.get_int32 if type == :old
@@ -338,13 +347,57 @@ module BSON
     # @example Validate the type.
     #   binary.validate_type!(:user)
     #
-    # @param [ Object ] type The provided type.
+    # @param [ Symbol | String | Integer ] type The provided type.
+    #
+    # @return [ Symbol ] the symbolic type corresponding to the argument.
     #
     # @raise [ BSON::Error::InvalidBinaryType ] The the type is invalid.
     #
     # @since 2.0.0
     def validate_type!(type)
-      raise BSON::Error::InvalidBinaryType.new(type) unless SUBTYPES.has_key?(type)
+      case type
+      when Integer then validate_integer_type!(type)
+      when String then
+        if type.length > 1
+          validate_symbol_type!(type.to_sym)
+        else
+          validate_integer_type!(type.bytes.first)
+        end
+      when Symbol then validate_symbol_type!(type)
+      else raise BSON::Error::InvalidBinaryType.new(type)
+      end
+    end
+
+    # Test that the given integer type is valid.
+    #
+    # @param [ Integer ] type the provided type
+    #
+    # @return [ Symbol ] the symbolic type corresponding to the argument.
+    #
+    # @raise [ BSON::Error::InvalidBinaryType] if the type is invalid.
+    def validate_integer_type!(type)
+      @raw_type = type.chr.force_encoding('BINARY').freeze
+
+      if type < USER_SUBTYPE
+        raise BSON::Error::InvalidBinaryType.new(type) unless TYPES.key?(@raw_type)
+        return TYPES[@raw_type]
+      end
+
+      :user
+    end
+
+    # Test that the given symbol type is valid.
+    #
+    # @param [ Symbol ] type the provided type
+    #
+    # @return [ Symbol ] the symbolic type corresponding to the argument.
+    #
+    # @raise [ BSON::Error::InvalidBinaryType] if the type is invalid.
+    def validate_symbol_type!(type)
+      raise BSON::Error::InvalidBinaryType.new(type) unless SUBTYPES.key?(type)
+      @raw_type = SUBTYPES[type]
+
+      type
     end
 
     # Register this type when the module is loaded.
