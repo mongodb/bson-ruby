@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bson;
+package org.bson_ruby;
 
 import java.lang.management.ManagementFactory;
 import java.net.NetworkInterface;
