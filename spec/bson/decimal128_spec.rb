@@ -1283,7 +1283,6 @@ describe BSON::Decimal128 do
         end
 
         it "returns nil to be consistent with ActiveSupport" do
-          puts object.as_json
           expect(object.as_json).to eq(nil)
         end
       end
