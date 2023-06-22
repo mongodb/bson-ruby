@@ -325,6 +325,14 @@ module BSON
           raise Error::InvalidObjectId.new("#{object.inspect} is not a valid object id.")
         end
       end
+
+      # Returns an integer timestamp (seconds since the Epoch). Primarily used
+      # by the generator to produce object ids.
+      #
+      # @return [ Integer ] the number of seconds since the Epoch.
+      def timestamp
+        ::Time.now.to_i
+      end
     end
 
     # Inner class that encapsulates the behaviour of actually generating each

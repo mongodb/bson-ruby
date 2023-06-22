@@ -351,8 +351,8 @@ void Init_bson_native()
   rb_bson_machine_id[255] = '\0';
   rb_bson_generate_machine_id(rb_md5_class, rb_bson_machine_id);
 
-  // Set the object id counter to a random number
-  rb_bson_object_id_counter = FIX2INT(rb_funcall(rb_mKernel, rb_intern("rand"), 1, INT2FIX(0x1000000)));
+  // Set the object id counter to a random 3-byte integer
+  rb_bson_object_id_counter = arc4random() % 0xFFFFFF;
 
   rb_bson_registry = rb_const_get(rb_bson_module, rb_intern("Registry"));
   rb_gc_register_mark_object(rb_bson_registry);

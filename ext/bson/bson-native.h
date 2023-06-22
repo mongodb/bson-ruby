@@ -17,6 +17,7 @@
 #include <ruby.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
 #include "bson-endian.h"
@@ -112,6 +113,10 @@ VALUE pvt_const_get_3(const char *c1, const char *c2, const char *c3);
 #define BSON_MODE_BSON          1
 
 int pvt_get_mode_option(int argc, VALUE *argv);
+
+#define BSON_OBJECT_ID_RANDOM_VALUE_LENGTH  ( 5 )
+
+uint8_t* pvt_get_object_id_random_value();
 
 /**
  * The counter for incrementing object ids.

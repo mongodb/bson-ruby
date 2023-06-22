@@ -29,28 +29,51 @@ void rb_bson_generate_machine_id(VALUE rb_md5_class, char *rb_bson_machine_id)
 
 /**
  * Generate the next object id.
+ *
+ * Specification:
+ * https://github.com/mongodb/specifications/blob/master/source/objectid.rst
+ *
+ * The ObjectID BSON type is a 12-byte value consisting of three different portions (fields):
+ *   * a 4-byte value representing the seconds since the Unix epoch in the highest order bytes,
+ *   * a 5-byte random number unique to a machine and process,
+ *   * a 3-byte counter, starting with a random value.
  */
 VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
 {
   char bytes[12];
-  uint32_t t;
-  uint32_t c;
-  uint16_t pid = BSON_UINT16_TO_BE(getpid());
+  uint32_t time_component;
+  uint8_t* random_component;
+  uint32_t counter_component;
+  VALUE timestamp;
+  VALUE rb_bson_object_id_class;
 
-  if (argc == 0 || (argc == 1 && *args == Qnil)) {
-    t = BSON_UINT32_TO_BE((int) time(NULL));
-  }
-  else {
-    t = BSON_UINT32_TO_BE(NUM2ULONG(rb_funcall(*args, rb_intern("to_i"), 0)));
-  }
+  rb_bson_object_id_class = pvt_const_get_2("BSON", "ObjectId");
 
-  c = BSON_UINT32_TO_BE(rb_bson_object_id_counter << 8);
+  /* "Drivers SHOULD have an accessor method on an ObjectID class for
+   * obtaining the timestamp value." */
 
-  memcpy(&bytes, &t, 4);
-  memcpy(&bytes[4], rb_bson_machine_id_hash, 3);
-  memcpy(&bytes[7], &pid, 2);
-  memcpy(&bytes[9], &c, 3);
-  rb_bson_object_id_counter++;
+  timestamp = rb_funcall(rb_bson_object_id_class, rb_intern("timestamp"), 0);
+  time_component = BSON_UINT32_TO_BE(NUM2INT(timestamp));
+
+  /* "A 5-byte field consisting of a random value generated once per process.
+   * This random value is unique to the machine and process.
+   *
+   * "Drivers MUST NOT have an accessor method on an ObjectID class for
+   * obtaining this value."
+   */
+
+  random_component = pvt_get_object_id_random_value();
+
+  /* shift left 8 bits, so that the first three bytes of the result are
+   * the meaningful ones */
+  counter_component = BSON_UINT32_TO_BE(rb_bson_object_id_counter << 8);
+
+  memcpy(&bytes, &time_component, 4);
+  memcpy(&bytes[4], random_component, 5);
+  memcpy(&bytes[9], &counter_component, 3);
+
+  rb_bson_object_id_counter = (rb_bson_object_id_counter + 1) % 0xFFFFFF;
+
   return rb_str_new(bytes, 12);
 }
 
@@ -77,7 +100,7 @@ VALUE pvt_const_get_3(const char *c1, const char *c2, const char *c3) {
 int pvt_get_mode_option(int argc, VALUE *argv) {
   VALUE opts;
   VALUE mode;
-  
+
   rb_scan_args(argc, argv, ":", &opts);
   if (NIL_P(opts)) {
     return BSON_MODE_DEFAULT;
@@ -92,4 +115,31 @@ int pvt_get_mode_option(int argc, VALUE *argv) {
         RSTRING_PTR(rb_funcall(mode, rb_intern("inspect"), 0)));
     }
   }
+}
+
+/**
+ * Returns the random number associated with this host and process. If the
+ * process ID changes (e.g. via fork), this will detect the change and
+ * generate another random number.
+ *
+ * "The random number does not have to be cryptographic. If possible, use a
+ * PRNG with OS supplied entropy that SHOULD NOT block to wait for more
+ * entropy to become available. Otherwise, seed a deterministic PRNG to
+ * ensure uniqueness of process and machine by combining time, process ID,
+ * and hostname."
+ *
+ * The use of arc4random() from stdlib.h meets the recommendation of a PRNG
+ * with OS-uspplied entropy.
+ */
+uint8_t* pvt_get_object_id_random_value() {
+  static pid_t remembered_pid = 0;
+  static uint8_t remembered_value[BSON_OBJECT_ID_RANDOM_VALUE_LENGTH] = {0};
+  pid_t pid = getpid();
+
+  if (remembered_pid != pid) {
+    remembered_pid = pid;
+    arc4random_buf(remembered_value, BSON_OBJECT_ID_RANDOM_VALUE_LENGTH);
+  }
+
+  return remembered_value;
 }
