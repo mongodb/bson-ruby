@@ -155,7 +155,7 @@ uint8_t* pvt_get_object_id_random_value() {
  * otherwise a less-ideal fallback is used.
  */
 void pvt_rand_buf(uint8_t* bytes, int len, int pid) {
-#if HAVE_ARC4RANDOMx
+#if HAVE_ARC4RANDOM
   arc4random_buf(bytes, len);
 #else
   time_t t;
@@ -169,9 +169,9 @@ void pvt_rand_buf(uint8_t* bytes, int len, int pid) {
 
   while (ofs < len) {
     int n = rand();
-    int remaining = len - ofs;
+    unsigned remaining = len - ofs;
 
-    if (remaining > 4) remaining = 4;
+    if (remaining > sizeof(n)) remaining = sizeof(n);
     memcpy(bytes+ofs, &n, remaining);
 
     ofs += remaining;
