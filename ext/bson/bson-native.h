@@ -99,7 +99,9 @@ VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i);
 VALUE rb_bson_byte_buffer_rewind(VALUE self);
 VALUE rb_bson_byte_buffer_write_position(VALUE self);
 VALUE rb_bson_byte_buffer_to_s(VALUE self);
+
 VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self);
+VALUE rb_bson_object_id_generator_reset_counter(int argc, VALUE* args, VALUE self);
 
 size_t rb_bson_byte_buffer_memsize(const void *ptr);
 void rb_bson_byte_buffer_free(void *ptr);

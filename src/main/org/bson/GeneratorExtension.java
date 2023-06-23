@@ -121,6 +121,34 @@ public class GeneratorExtension {
     return nextObjectId(generator, (int) ((RubyInteger) time).getLongValue() / 1000);
   }
 
+ /**
+   * Reset the counter to zero. This is used only by tests.
+   *
+   * @param generator The generator instance.
+   * @param value The integer value to set the counter to.
+   *
+   * @api private
+   */
+  @JRubyMethod(name = { "reset_counter" })
+  public static IRubyObject resetCounter(final IRubyObject generator) {
+    counter.set(0);
+    return generator;
+  }
+
+  /**
+   * Reset the counter. This is used only by tests.
+   *
+   * @param generator The generator instance.
+   * @param value The integer value to set the counter to.
+   *
+   * @api private
+   */
+  @JRubyMethod(name = { "reset_counter" })
+  public static IRubyObject resetCounter(final IRubyObject generator, final IRubyObject value) {
+    counter.set((int) ((RubyInteger) value).getLongValue());
+    return generator;
+  }
+
   /**
    * Generate the next object id in the sequence, per the ObjectId spec:
    * https://github.com/mongodb/specifications/blob/master/source/objectid.rst#specification

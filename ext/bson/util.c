@@ -72,9 +72,24 @@ VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
   memcpy(&bytes[4], random_component, 5);
   memcpy(&bytes[9], &counter_component, 3);
 
-  rb_bson_object_id_counter = (rb_bson_object_id_counter + 1) % 0xFFFFFF;
+  rb_bson_object_id_counter = (rb_bson_object_id_counter + 1) % 0x1000000;
 
   return rb_str_new(bytes, 12);
+}
+
+/**
+ * Reset the counter. This is purely as an aid for testing.
+ *
+ * @param [ Integer ] i the value to set the counter to (default is 0)
+ */
+VALUE rb_bson_object_id_generator_reset_counter(int argc, VALUE* args, VALUE self) {
+  switch(argc) {
+    case 0: rb_bson_object_id_counter = 0; break;
+    case 1: rb_bson_object_id_counter = FIX2INT(args[0]); break;
+    default: rb_raise(rb_eArgError, "Expected 0 or 1 arguments, got %d", argc);
+  }
+
+  return T_NIL;
 }
 
 /**

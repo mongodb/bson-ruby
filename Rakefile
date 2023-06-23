@@ -35,6 +35,8 @@ if jruby?
     ext.name = "bson-ruby"
     ext.ext_dir = "src"
     ext.lib_dir = "lib"
+    ext.target_version = "1.9"
+    ext.source_version = "1.9"
   end
 else
   require "rake/extensiontask"

@@ -344,6 +344,7 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "to_s", rb_bson_byte_buffer_to_s, 0);
 
   rb_define_method(rb_bson_object_id_generator_class, "next_object_id", rb_bson_object_id_generator_next, -1);
+  rb_define_method(rb_bson_object_id_generator_class, "reset_counter", rb_bson_object_id_generator_reset_counter, -1);
 
   // Get the object id machine id and hash it.
   rb_require("digest/md5");
