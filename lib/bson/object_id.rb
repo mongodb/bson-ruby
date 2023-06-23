@@ -335,79 +335,10 @@ module BSON
       end
     end
 
-    # Inner class that encapsulates the behaviour of actually generating each
-    # part of the ObjectId.
+    # Extended by native code (see init.c, util.c, GeneratorExtension.java)
     #
     # @api private
-    #
-    # @since 2.0.0
     class Generator
-
-      # @!attribute machine_id
-      #   @return [ String ] The unique machine id.
-      #   @since 2.0.0
-      attr_reader :machine_id
-
-      # Instantiate the new object id generator. Will set the machine id once
-      # on the initial instantiation.
-      #
-      # @example Instantiate the generator.
-      #   BSON::ObjectId::Generator.new
-      #
-      # @since 2.0.0
-      def initialize
-        @counter = ::SecureRandom.rand(0x1000000)
-        @machine_id = Digest::MD5.digest(Socket.gethostname).unpack1("N")
-        @mutex = Mutex.new
-      end
-
-      # Return object id data based on the current time, incrementing the
-      # object id counter. Will use the provided time if not nil.
-      #
-      # @example Get the next object id data.
-      #   generator.next_object_id
-      #
-      # @param [ Time ] time The optional time to generate with.
-      #
-      # @return [ String ] The raw object id bytes.
-      #
-      # @since 2.0.0
-      def next_object_id(time = nil)
-        @mutex.lock
-        begin
-          count = @counter = (@counter + 1) % 0xFFFFFF
-        ensure
-          @mutex.unlock rescue nil
-        end
-        generate(time || ::Time.new.to_i, count)
-      end
-
-      # Generate object id data for a given time using the provided counter.
-      #
-      # @example Generate the object id bytes.
-      #   generator.generate(time)
-      #
-      # @param [ Integer ] time The time since epoch in seconds.
-      # @param [ Integer ] counter The optional counter.
-      #
-      # @return [ String ] The raw object id bytes.
-      #
-      # @since 2.0.0
-      def generate(time, counter = 0)
-        [ time, machine_id, process_id, counter << 8 ].pack("N NX lXX NX")
-      end
-
-      private
-
-      if Environment.jruby?
-        def process_id
-          "#{Process.pid}#{Thread.current.object_id}".hash % 0xFFFF
-        end
-      else
-        def process_id
-          Process.pid % 0xFFFF
-        end
-      end
     end
 
     # We keep one global generator for object ids.
