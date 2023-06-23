@@ -119,6 +119,8 @@ int pvt_get_mode_option(int argc, VALUE *argv);
 #define BSON_OBJECT_ID_RANDOM_VALUE_LENGTH  ( 5 )
 
 uint8_t* pvt_get_object_id_random_value();
+void pvt_rand_buf(uint8_t* bytes, int len, int pid);
+int pvt_rand();
 
 /**
  * The counter for incrementing object ids.

@@ -136,15 +136,6 @@ int pvt_get_mode_option(int argc, VALUE *argv) {
  * Returns the random number associated with this host and process. If the
  * process ID changes (e.g. via fork), this will detect the change and
  * generate another random number.
- *
- * "The random number does not have to be cryptographic. If possible, use a
- * PRNG with OS supplied entropy that SHOULD NOT block to wait for more
- * entropy to become available. Otherwise, seed a deterministic PRNG to
- * ensure uniqueness of process and machine by combining time, process ID,
- * and hostname."
- *
- * The use of arc4random() from stdlib.h meets the recommendation of a PRNG
- * with OS-uspplied entropy.
  */
 uint8_t* pvt_get_object_id_random_value() {
   static pid_t remembered_pid = 0;
@@ -153,8 +144,46 @@ uint8_t* pvt_get_object_id_random_value() {
 
   if (remembered_pid != pid) {
     remembered_pid = pid;
-    arc4random_buf(remembered_value, BSON_OBJECT_ID_RANDOM_VALUE_LENGTH);
+    pvt_rand_buf(remembered_value, BSON_OBJECT_ID_RANDOM_VALUE_LENGTH, pid);
   }
 
   return remembered_value;
+}
+
+/**
+ * Fills the buffer with random bytes. If arc4random is available, it is used,
+ * otherwise a less-ideal fallback is used.
+ */
+void pvt_rand_buf(uint8_t* bytes, int len, int pid) {
+#if HAVE_ARC4RANDOM
+  arc4random_buf(bytes, len);
+#else
+  time_t t;
+  uint32_t seed;
+  uint32_t a, b;
+
+  /* TODO: spec says to include hostname as part of the seed */
+  t = time(NULL);
+  seed = ((uint32_t)t << 16) + ((uint32_t)pid % 0xFFFF);
+  srand(seed);
+
+  a = rand();
+  b = rand();
+
+  memcpy(bytes, &a, 4);
+  memcpy(bytes+4, &b, 1);
+#endif
+}
+
+/**
+ * Returns a random integer between 0 and INT_MAX. If arc4random is available,
+ * it is used, otherwise a less-ideal fallback is used.
+ */
+int pvt_rand() {
+#if HAVE_ARC4RANDOM
+  return arc4random();
+#else
+  srand((unsigned)time(NULL));
+  return rand();
+#endif
 }
