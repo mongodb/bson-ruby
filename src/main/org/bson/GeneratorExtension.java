@@ -16,7 +16,6 @@
 
 package org.bson;
 
-import java.lang.ProcessHandle;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
@@ -72,9 +71,10 @@ public class GeneratorExtension {
   private static byte[] randomValue = new byte[5];
 
   /**
-   * The process id for the process that last generated the randomValue.
+   * A flag indicating whether the random value has been generated for the
+   * process or not.
    */
-  private static long pid = 0;
+  private static boolean randomValueGenerated = false;
 
   /**
    * Load the method definitions into the generator class.
@@ -181,10 +181,8 @@ public class GeneratorExtension {
    * @return The 5-byte array
    */
   private static byte[] uniqueIdentifier() {
-    final long currentPid = ProcessHandle.current().pid();
-
-    if (currentPid != pid) {
-      pid = currentPid;
+    if (!randomValueGenerated) {
+      randomValueGenerated = true;
       new SecureRandom().nextBytes(randomValue);
     }
 
