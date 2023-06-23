@@ -155,23 +155,27 @@ uint8_t* pvt_get_object_id_random_value() {
  * otherwise a less-ideal fallback is used.
  */
 void pvt_rand_buf(uint8_t* bytes, int len, int pid) {
-#if HAVE_ARC4RANDOM
+#if HAVE_ARC4RANDOMx
   arc4random_buf(bytes, len);
 #else
   time_t t;
   uint32_t seed;
-  uint32_t a, b;
+  int ofs = 0;
 
   /* TODO: spec says to include hostname as part of the seed */
   t = time(NULL);
   seed = ((uint32_t)t << 16) + ((uint32_t)pid % 0xFFFF);
   srand(seed);
 
-  a = rand();
-  b = rand();
+  while (ofs < len) {
+    int n = rand();
+    int remaining = len - ofs;
 
-  memcpy(bytes, &a, 4);
-  memcpy(bytes+4, &b, 1);
+    if (remaining > 4) remaining = 4;
+    memcpy(bytes+ofs, &n, remaining);
+
+    ofs += remaining;
+  }
 #endif
 }
 
