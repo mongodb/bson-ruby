@@ -110,6 +110,11 @@ module BSON
 
       # Deserialize the array from BSON.
       #
+      # @note If the argument cannot be parsed, an exception will be raised
+      #   and the argument will be left in an undefined state. The caller
+      #   must explicitly call `rewind` on the buffer before trying to parse
+      #   it again.
+      #
       # @param [ ByteBuffer ] buffer The byte buffer.
       #
       # @option options [ nil | :bson ] :mode Decoding mode to use.
