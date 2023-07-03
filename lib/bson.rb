@@ -104,7 +104,7 @@ require "bson/version"
 begin
   if BSON::Environment.jruby?
     require "bson-ruby.jar"
-    JRuby::Util.load_ext("org.bson.NativeService")
+    JRuby::Util.load_ext("org.bson_ruby.NativeService")
   else
     require "bson_native"
   end

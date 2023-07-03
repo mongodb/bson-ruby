@@ -268,6 +268,10 @@
           "string": "9Inf"
        },
        {
+          "description": "[basx512] The 'baddies' tests from DiagBigDecimal, plus some new ones (Conversion_syntax)",
+          "string": "12 "
+       },
+       {
           "description": "[basx517] The 'baddies' tests from DiagBigDecimal, plus some new ones (Conversion_syntax)",
           "string": "12-"
        },

@@ -344,6 +344,7 @@ void Init_bson_native()
   rb_define_method(rb_byte_buffer_class, "to_s", rb_bson_byte_buffer_to_s, 0);
 
   rb_define_method(rb_bson_object_id_generator_class, "next_object_id", rb_bson_object_id_generator_next, -1);
+  rb_define_method(rb_bson_object_id_generator_class, "reset_counter", rb_bson_object_id_generator_reset_counter, -1);
 
   // Get the object id machine id and hash it.
   rb_require("digest/md5");
@@ -351,8 +352,8 @@ void Init_bson_native()
   rb_bson_machine_id[255] = '\0';
   rb_bson_generate_machine_id(rb_md5_class, rb_bson_machine_id);
 
-  // Set the object id counter to a random number
-  rb_bson_object_id_counter = FIX2INT(rb_funcall(rb_mKernel, rb_intern("rand"), 1, INT2FIX(0x1000000)));
+  // Set the object id counter to a random 3-byte integer
+  rb_bson_object_id_counter = pvt_rand() % 0x1000000;
 
   rb_bson_registry = rb_const_get(rb_bson_module, rb_intern("Registry"));
   rb_gc_register_mark_object(rb_bson_registry);

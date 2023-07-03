@@ -58,6 +58,10 @@ module BSON
         @spec['test_key']
       end
 
+      def bson_type
+        @bson_type ||= @spec['bson_type'].to_i(16).chr
+      end
+
       def valid_tests
         @valid_tests ||=
           @spec['valid']&.map do |test_spec|
@@ -180,6 +184,7 @@ module BSON
         @string = test_params['string']
       end
 
+      attr_reader :spec
       attr_reader :description, :string
     end
   end
