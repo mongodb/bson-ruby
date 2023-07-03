@@ -17,6 +17,7 @@
 #include <ruby.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
 #include "bson-endian.h"
@@ -98,7 +99,9 @@ VALUE rb_bson_byte_buffer_replace_int32(VALUE self, VALUE index, VALUE i);
 VALUE rb_bson_byte_buffer_rewind(VALUE self);
 VALUE rb_bson_byte_buffer_write_position(VALUE self);
 VALUE rb_bson_byte_buffer_to_s(VALUE self);
+
 VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self);
+VALUE rb_bson_object_id_generator_reset_counter(int argc, VALUE* args, VALUE self);
 
 size_t rb_bson_byte_buffer_memsize(const void *ptr);
 void rb_bson_byte_buffer_free(void *ptr);
@@ -112,6 +115,12 @@ VALUE pvt_const_get_3(const char *c1, const char *c2, const char *c3);
 #define BSON_MODE_BSON          1
 
 int pvt_get_mode_option(int argc, VALUE *argv);
+
+#define BSON_OBJECT_ID_RANDOM_VALUE_LENGTH  ( 5 )
+
+uint8_t* pvt_get_object_id_random_value();
+void pvt_rand_buf(uint8_t* bytes, int len, int pid);
+int pvt_rand();
 
 /**
  * The counter for incrementing object ids.

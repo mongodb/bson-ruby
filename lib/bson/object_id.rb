@@ -200,6 +200,26 @@ module BSON
     end
     alias :to_str :to_s
 
+    # Extract the process-specific part of the object id. This is used only
+    # internally, for testing, and should not be used elsewhere.
+    #
+    # @return [ String ] The process portion of the id.
+    #
+    # @api private
+    def _process_part
+      to_s[8,10]
+    end
+
+    # Extract the counter-specific part of the object id. This is used only
+    # internally, for testing, and should not be used elsewhere.
+    #
+    # @return [ String ] The counter portion of the id.
+    #
+    # @api private
+    def _counter_part
+      to_s[18,6]
+    end
+
     private
 
     def initialize_copy(other)
@@ -325,6 +345,14 @@ module BSON
           raise Error::InvalidObjectId.new("#{object.inspect} is not a valid object id.")
         end
       end
+
+      # Returns an integer timestamp (seconds since the Epoch). Primarily used
+      # by the generator to produce object ids.
+      #
+      # @return [ Integer ] the number of seconds since the Epoch.
+      def timestamp
+        ::Time.now.to_i
+      end
     end
 
     # Extended by native code (see init.c, util.c, GeneratorExtension.java)
@@ -334,9 +362,14 @@ module BSON
     end
 
     # We keep one global generator for object ids.
-    #
-    # @since 2.0.0
     @@generator = Generator.new
+
+    # Accessor for querying the generator directly; used in testing.
+    #
+    # @api private
+    def self._generator
+      @@generator
+    end
 
     # Register this type when the module is loaded.
     #

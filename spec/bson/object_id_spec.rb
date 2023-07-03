@@ -607,4 +607,31 @@ describe BSON::ObjectId do
       }.to raise_error(BSON::Error::InvalidKey)
     end
   end
+
+  context 'when the counter wraps' do
+    before do
+      BSON::ObjectId._generator.reset_counter(0xFFFFFF)
+    end
+
+    let(:before) { BSON::ObjectId.new }
+    let(:after) { BSON::ObjectId.new }
+
+    it 'resets the counter portion to 0' do
+      expect(before._counter_part).to be == "ffffff"
+      expect(after._counter_part).to be == "000000"
+    end
+  end
+
+  context 'when fork changes the pid' do
+    before do
+      skip 'requires Process.fork' unless Process.respond_to?(:fork)
+    end
+
+    let(:parent_id) { BSON::ObjectId.new }
+    let(:child_id) { Utils.perform_in_child { BSON::ObjectId.new } }
+
+    it 'changes the process portion of the object-id' do
+      expect(child_id._process_part).not_to be == parent_id._process_part
+    end
+  end
 end
