@@ -112,6 +112,54 @@
        {
           "description": "[basx563] Near-specials (Conversion_syntax)",
           "string": "NaNs"
+       },
+       {
+          "description": "[dqbas939] overflow results at different rounding modes (Overflow & Inexact & Rounded)",
+          "string": "-7e10000"
+       },
+       {
+          "description": "[dqbsr534] negatives (Rounded & Inexact)",
+          "string": "-1.11111111111111111111111111111234650"
+       },
+       {
+          "description": "[dqbsr535] negatives (Rounded & Inexact)",
+          "string": "-1.11111111111111111111111111111234551"
+       },
+       {
+          "description": "[dqbsr533] negatives (Rounded & Inexact)",
+          "string": "-1.11111111111111111111111111111234550"
+       },
+       {
+          "description": "[dqbsr532] negatives (Rounded & Inexact)",
+          "string": "-1.11111111111111111111111111111234549"
+       },
+       {
+          "description": "[dqbsr432] check rounding modes heeded (Rounded & Inexact)",
+          "string": "1.11111111111111111111111111111234549"
+       },
+       {
+          "description": "[dqbsr433] check rounding modes heeded (Rounded & Inexact)",
+          "string": "1.11111111111111111111111111111234550"
+       },
+       {
+          "description": "[dqbsr435] check rounding modes heeded (Rounded & Inexact)",
+          "string": "1.11111111111111111111111111111234551"
+       },
+       {
+          "description": "[dqbsr434] check rounding modes heeded (Rounded & Inexact)",
+          "string": "1.11111111111111111111111111111234650"
+       },
+       {
+          "description": "[dqbas938] overflow results at different rounding modes (Overflow & Inexact & Rounded)",
+          "string": "7e10000"
+       },
+       {
+          "description": "Inexact rounding#1",
+          "string": "100000000000000000000000000000000000000000000000000000000001"
+       },
+       {
+          "description": "Inexact rounding#2",
+          "string": "1E-6177"
        }
     ]
 }

@@ -8,7 +8,24 @@ require 'json'
 # class, and are intended to verify that the current DBRef implementation is
 # compatible with the legacy driver DBRef interface.
 
-describe BSON::DBRef do
+# For testing a class that emits warnings, without spamming the terminal
+# with them.
+def silenced_version_of(klass)
+  Class.new(klass) do
+    class <<self
+      def name
+        "#{superclass.name} (silenced)"
+      end
+
+      alias to_s name
+    end
+
+    def warn(*_args)
+    end
+  end
+end
+
+describe silenced_version_of BSON::DBRef do
 
   let(:object_id) do
     BSON::ObjectId.new

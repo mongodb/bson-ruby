@@ -86,7 +86,7 @@ public class GeneratorExtension {
    *
    * @since 2.0.0
    */
-  @JRubyMethod(name = "next")
+  @JRubyMethod(name = { "next", "next_object_id" })
   public static IRubyObject next(final IRubyObject generator) {
     return nextObjectId(generator, (int) System.currentTimeMillis() / 1000);
   }
@@ -101,7 +101,7 @@ public class GeneratorExtension {
    *
    * @since 2.0.0
    */
-  @JRubyMethod(name = "next")
+  @JRubyMethod(name = { "next", "next_object_id" })
   public static IRubyObject next(final IRubyObject generator, final IRubyObject time) {
     return nextObjectId(generator, (int) ((RubyInteger) time).getLongValue() / 1000);
   }

@@ -76,6 +76,18 @@
             "string": ""
         },
         {
+            "description": "leading white space positive number",
+            "string": " 1"
+        },
+        {
+            "description": "leading white space negative number",
+            "string": " -1"
+        },
+        {
+            "description": "trailing white space",
+            "string": "1 "
+        },
+        {
             "description": "Invalid",
             "string": "E"
         },
