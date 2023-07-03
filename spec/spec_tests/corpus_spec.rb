@@ -106,8 +106,17 @@ describe 'BSON Corpus spec tests' do
 
         context("parse error: #{test.description}") do
 
-          let(:parsed_extjson) do
-            BSON::ExtJSON.parse(test.string, mode: :bson)
+          # As per:
+          #   https://github.com/mongodb/specifications/blob/e7ee829329400786e01279b4f37d4e440d1e9cfa/source/bson-corpus/bson-corpus.rst#decimal128-type-0x13
+          #
+          # Values under test must be parsed in a type-specific manner.
+          let(:parsed_value) do
+            case spec.bson_type
+            when BSON::Decimal128::BSON_TYPE
+              BSON::Decimal128.new(test.string)
+            else
+              BSON::ExtJSON.parse(test.string, mode: :bson)
+            end
           end
 
           # Until bson-ruby gets an exception hierarchy, we can only rescue
@@ -115,7 +124,7 @@ describe 'BSON Corpus spec tests' do
           # https://jira.mongodb.org/browse/RUBY-1806
           it 'raises an exception' do
             expect do
-              parsed_extjson
+              parsed_value
             end.to raise_error(Exception)
           end
         end
