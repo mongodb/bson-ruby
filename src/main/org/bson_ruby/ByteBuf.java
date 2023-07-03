@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bson;
+package org.bson_ruby;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -102,7 +102,7 @@ public class ByteBuf extends RubyObject {
    * The size of an unsigned 32-bit integer: 2^32 - 1
    */
   private static long UINT32_MAX = 4294967295L;
-  
+
   /**
    * Instantiate the ByteBuf - this is #allocate in Ruby.
    *
@@ -155,7 +155,7 @@ public class ByteBuf extends RubyObject {
   public RubyFixnum getLength(ThreadContext context) {
     return new RubyFixnum(context.runtime, getLengthInternal());
   }
-  
+
   private int getLengthInternal() {
     if (this.mode == Mode.WRITE) {
       return this.writePosition;
@@ -219,7 +219,7 @@ public class ByteBuf extends RubyObject {
     int length = this.getLengthInternal();
     byte[] bytes = new byte[length];
     buffer_copy.get(bytes, 0, length);
-    
+
     return RubyString.newString(context.runtime, bytes);
   }
 
@@ -322,7 +322,7 @@ public class ByteBuf extends RubyObject {
 
   /**
    * Get a 32 bit integer from the buffer.
-   * 
+   *
    */
   @JRubyMethod(name = "get_uint32")
   public RubyFixnum getUInt32() {
@@ -334,7 +334,7 @@ public class ByteBuf extends RubyObject {
     if (temp < 0) {
       temp += UINT32_MAX + 1;
     }
-    
+
     RubyFixnum int32 = new RubyFixnum(getRuntime(), temp);
     this.readPosition += 4;
     return int32;
@@ -526,7 +526,7 @@ public class ByteBuf extends RubyObject {
    * Put an unsigned 32 bit integer onto the buffer.
    *
    * @param value The integer to write.
-   * 
+   *
    */
   @JRubyMethod(name = "put_uint32")
   public ByteBuf putUInt32(ThreadContext context, IRubyObject value) {
@@ -536,12 +536,12 @@ public class ByteBuf extends RubyObject {
     ensureBsonWrite(4);
 
     long temp = RubyNumeric.fix2long((RubyFixnum) value);
-    
+
     if (temp > UINT32_MAX || temp < 0) {
       throw getRuntime().newRangeError(format("Number %d is out of range [0, 2^32)", temp));
     }
 
-    // When a long is cast to an int, Java appears to take the bits of the long and 
+    // When a long is cast to an int, Java appears to take the bits of the long and
     // use them as is for the int value. For example, if temp is 2^32-1, (int) temp
     // would be -1, and if temp is 2^31, (int) temp would be -2^31.
     this.buffer.putInt((int) temp);
@@ -738,7 +738,7 @@ public class ByteBuf extends RubyObject {
     RubyString str = RubyString.newString(context.runtime, bytes, 0, bytes.length, UTF_8);
     // ... hence validate manually:
     convertToUtf8(context, str);
-    
+
     return str;
   }
 
