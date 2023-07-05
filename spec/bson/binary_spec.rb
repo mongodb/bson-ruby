@@ -164,75 +164,73 @@ describe BSON::Binary do
 
     it_behaves_like "a bson element"
 
-    context "when the type is :generic" do
+    [
+      {
+        types: [ nil, 0, 0.chr, :generic, 'generic' ],
+        bson: "#{7.to_bson}#{0.chr}testing",
+        type: :generic,
+      },
+      {
+        types: [ 1, 1.chr, :function, 'function' ],
+        bson: "#{7.to_bson}#{1.chr}testing",
+        type: :function,
+      },
+      {
+        types: [ 2, 2.chr, :old, 'old' ],
+        bson: "#{11.to_bson}#{2.chr}#{7.to_bson}testing",
+        type: :old,
+      },
+      {
+        types: [ 3, 3.chr, :uuid_old, 'uuid_old' ],
+        bson: "#{7.to_bson}#{3.chr}testing",
+        type: :uuid_old,
+      },
+      {
+        types: [ 4, 4.chr, :uuid, 'uuid' ],
+        bson: "#{7.to_bson}#{4.chr}testing",
+        type: :uuid,
+      },
+      {
+        types: [ 5, 5.chr, :md5, 'md5' ],
+        bson: "#{7.to_bson}#{5.chr}testing",
+        type: :md5,
+      },
+      {
+        types: [ 6, 6.chr, :ciphertext, 'ciphertext' ],
+        bson: "#{7.to_bson}#{6.chr}testing",
+        type: :ciphertext,
+      },
+      {
+        types: [ 0x80, 0x80.chr, :user, 'user' ],
+        bson: "#{7.to_bson}#{128.chr}testing",
+        type: :user,
+      },
+      {
+        types: [ 0xFF, 0xFF.chr ],
+        bson: "#{7.to_bson}#{0xFF.chr}testing",
+        type: :user,
+      },
+    ].each do |defn|
+      defn[:types].each do |type|
+        context "when the type is #{type ? type.inspect : 'not provided'}" do
+          let(:obj) do
+            if type
+              described_class.new("testing", type)
+            else
+              described_class.new("testing")
+            end
+          end
 
-      let(:obj)  { described_class.new("testing") }
-      let(:bson) { "#{7.to_bson}#{0.chr}testing" }
+          let(:bson) { defn[:bson] }
 
-      it_behaves_like "a serializable bson element"
-      it_behaves_like "a deserializable bson element"
-    end
+          it_behaves_like "a serializable bson element"
+          it_behaves_like "a deserializable bson element"
 
-    context "when the type is :function" do
-
-      let(:obj)  { described_class.new("testing", :function) }
-      let(:bson) { "#{7.to_bson}#{1.chr}testing" }
-
-      it_behaves_like "a serializable bson element"
-      it_behaves_like "a deserializable bson element"
-    end
-
-    context "when the type is :old" do
-
-      let(:obj)  { described_class.new("testing", :old) }
-      let(:bson) { "#{11.to_bson}#{2.chr}#{7.to_bson}testing" }
-
-      it_behaves_like "a serializable bson element"
-      it_behaves_like "a deserializable bson element"
-    end
-
-    context "when the type is :uuid_old" do
-
-      let(:obj)  { described_class.new("testing", :uuid_old) }
-      let(:bson) { "#{7.to_bson}#{3.chr}testing" }
-
-      it_behaves_like "a serializable bson element"
-      it_behaves_like "a deserializable bson element"
-    end
-
-    context "when the type is :uuid" do
-
-      let(:obj)  { described_class.new("testing", :uuid) }
-      let(:bson) { "#{7.to_bson}#{4.chr}testing" }
-
-      it_behaves_like "a serializable bson element"
-      it_behaves_like "a deserializable bson element"
-    end
-
-    context "when the type is :md5" do
-
-      let(:obj)  { described_class.new("testing", :md5) }
-      let(:bson) { "#{7.to_bson}#{5.chr}testing" }
-
-      it_behaves_like "a serializable bson element"
-      it_behaves_like "a deserializable bson element"
-    end
-
-    context "when the type is :user" do
-
-      let(:obj)  { described_class.new("testing", :user) }
-      let(:bson) { "#{7.to_bson}#{128.chr}testing" }
-
-      it_behaves_like "a serializable bson element"
-      it_behaves_like "a deserializable bson element"
-    end
-
-    context "when the type is :cyphertext" do
-      let(:obj)  { described_class.new("testing", :ciphertext) }
-      let(:bson) { "#{7.to_bson}#{6.chr}testing" }
-
-      it_behaves_like "a serializable bson element"
-      it_behaves_like "a deserializable bson element"
+          it "reports its type as #{defn[:type].inspect}" do
+            expect(obj.type).to be == defn[:type]
+          end
+        end
+      end
     end
 
     context 'when given binary string' do
