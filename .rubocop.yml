@@ -95,6 +95,9 @@ RSpec/MultipleMemoizedHelpers:
 RSpec/NestedGroups:
   Enabled: false
 
+Style/ClassVars:
+  Enabled: false
+
 Style/Documentation:
   Exclude:
     - 'spec/**/*'

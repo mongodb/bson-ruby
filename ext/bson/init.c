@@ -44,6 +44,8 @@ void Init_bson_native()
   _db_str = rb_str_new_cstr("$db");
   rb_gc_register_mark_object(_db_str);
 
+  rb_require("digest/md5");
+
   VALUE rb_bson_module = rb_define_module("BSON");
 
   /* Document-class: BSON::ByteBuffer

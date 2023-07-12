@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# rubocop:todo all
+
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require "digest/md5"
-require "securerandom"
-require "socket"
-require "thread"
-
 module BSON
-
   # Represents object_id data.
   #
   # @see http://bsonspec.org/#/specification
@@ -47,9 +41,10 @@ module BSON
     # @since 2.0.0
     def ==(other)
       return false unless other.is_a?(ObjectId)
+
       generate_data == other.send(:generate_data)
     end
-    alias :eql? :==
+    alias eql? ==
 
     # Check case equality on the object id.
     #
@@ -62,7 +57,8 @@ module BSON
     #
     # @since 2.0.0
     def ===(other)
-      return to_str === other.to_str if other.respond_to?(:to_str)
+      return to_str == other.to_str if other.respond_to?(:to_str)
+
       super
     end
 
@@ -74,19 +70,16 @@ module BSON
     #   object_id.as_json
     #
     # @return [ String ] The object id as a string.
-    def as_json(*args)
+    def as_json(*_)
       to_s
     end
 
     # Converts this object to a representation directly serializable to
     # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
     #
-    # @option opts [ nil | :relaxed | :legacy ] :mode Serialization mode
-    #   (default is canonical extended JSON)
-    #
     # @return [ Hash ] The extended json representation.
-    def as_extended_json(**options)
-      { "$oid" => to_s }
+    def as_extended_json(**_)
+      { '$oid' => to_s }
     end
 
     # Compare this object id with another object for use in sorting.
@@ -114,9 +107,9 @@ module BSON
     #
     # @since 2.0.0
     def generation_time
-      ::Time.at(generate_data.unpack1("N")).utc
+      ::Time.at(generate_data.unpack1('N')).utc
     end
-    alias :to_time :generation_time
+    alias to_time generation_time
 
     # Get the hash value for the object id.
     #
@@ -139,7 +132,7 @@ module BSON
     #
     # @since 2.0.0
     def inspect
-      "BSON::ObjectId('#{to_s}')"
+      "BSON::ObjectId('#{self}')"
     end
 
     # Dump the raw bson when calling Marshal.dump.
@@ -198,7 +191,7 @@ module BSON
     def to_s
       generate_data.to_hex_string.force_encoding(UTF8)
     end
-    alias :to_str :to_s
+    alias to_str to_s
 
     # Extract the process-specific part of the object id. This is used only
     # internally, for testing, and should not be used elsewhere.
@@ -207,7 +200,7 @@ module BSON
     #
     # @api private
     def _process_part
-      to_s[8,10]
+      to_s[8, 10]
     end
 
     # Extract the counter-specific part of the object id. This is used only
@@ -217,7 +210,26 @@ module BSON
     #
     # @api private
     def _counter_part
-      to_s[18,6]
+      to_s[18, 6]
+    end
+
+    # Extended by native code (see init.c, util.c, GeneratorExtension.java)
+    #
+    # @api private
+    #
+    # rubocop:disable Lint/EmptyClass
+    class Generator
+    end
+    # rubocop:enable Lint/EmptyClass
+
+    # We keep one global generator for object ids.
+    @@generator = Generator.new
+
+    # Accessor for querying the generator directly; used in testing.
+    #
+    # @api private
+    def self._generator
+      @@generator
     end
 
     private
@@ -229,7 +241,10 @@ module BSON
 
     def generate_data
       repair if defined?(@data)
+
+      # rubocop:disable Naming/MemoizedInstanceVariableName
       @raw_data ||= @@generator.next_object_id
+      # rubocop:enable Naming/MemoizedInstanceVariableName
     end
 
     def repair
@@ -238,20 +253,18 @@ module BSON
     end
 
     class << self
-
       # Deserialize the object id from raw BSON bytes.
       #
       # @example Get the object id from BSON.
       #   ObjectId.from_bson(bson)
       #
       # @param [ ByteBuffer ] buffer The byte buffer.
-      #
-      # @option options [ nil | :bson ] :mode Decoding mode to use.
+      # @param [ Hash ] _ An optional hash of keyword arguments (unused).
       #
       # @return [ BSON::ObjectId ] The object id.
       #
       # @since 2.0.0
-      def from_bson(buffer, **options)
+      def from_bson(buffer, **_)
         from_data(buffer.get_bytes(12))
       end
 
@@ -284,10 +297,9 @@ module BSON
       #
       # @since 2.0.0
       def from_string(string)
-        unless legal?(string)
-          raise Error::InvalidObjectId.new("'#{string}' is an invalid ObjectId.")
-        end
-        from_data([ string ].pack("H*"))
+        raise Error::InvalidObjectId, "'#{string}' is an invalid ObjectId." unless legal?(string)
+
+        from_data([ string ].pack('H*'))
       end
 
       # Create a new object id from a time.
@@ -308,7 +320,7 @@ module BSON
       #
       # @since 2.0.0
       def from_time(time, options = {})
-        from_data(options[:unique] ? @@generator.next_object_id(time.to_i) : [ time.to_i ].pack("Nx8"))
+        from_data(options[:unique] ? @@generator.next_object_id(time.to_i) : [ time.to_i ].pack('Nx8'))
       end
 
       # Determine if the provided string is a legal object id.
@@ -322,7 +334,7 @@ module BSON
       #
       # @since 2.0.0
       def legal?(string)
-        string.to_s =~ /\A[0-9a-f]{24}\z/i ? true : false
+        (string.to_s =~ /\A[0-9a-f]{24}\z/i) ? true : false
       end
 
       # Executes the provided block only if the size of the provided object is
@@ -339,11 +351,9 @@ module BSON
       #
       # @since 2.0.0
       def repair(object)
-        if object.size == 12
-          block_given? ? yield(object) : object
-        else
-          raise Error::InvalidObjectId.new("#{object.inspect} is not a valid object id.")
-        end
+        raise Error::InvalidObjectId, "#{object.inspect} is not a valid object id." if object.size != 12
+
+        block_given? ? yield(object) : object
       end
 
       # Returns an integer timestamp (seconds since the Epoch). Primarily used
@@ -353,22 +363,6 @@ module BSON
       def timestamp
         ::Time.now.to_i
       end
-    end
-
-    # Extended by native code (see init.c, util.c, GeneratorExtension.java)
-    #
-    # @api private
-    class Generator
-    end
-
-    # We keep one global generator for object ids.
-    @@generator = Generator.new
-
-    # Accessor for querying the generator directly; used in testing.
-    #
-    # @api private
-    def self._generator
-      @@generator
     end
 
     # Register this type when the module is loaded.
