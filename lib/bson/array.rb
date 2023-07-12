@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# rubocop:todo all
+
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# The top-level BSON module.
 module BSON
-
   # Injects behaviour for encoding and decoding arrays to
   # and from raw bytes as specified by the BSON spec.
   #
@@ -23,7 +23,6 @@ module BSON
   #
   # @since 2.0.0
   module Array
-
     # An array is type 0x04 in the BSON spec.
     #
     # @since 2.0.0
@@ -50,8 +49,10 @@ module BSON
         buffer.put_int32(0)
         each_with_index do |value, index|
           unless value.respond_to?(:bson_type)
-            raise Error::UnserializableClass, "Array element at position #{index} does not define its BSON serialized type: #{value}"
+            raise Error::UnserializableClass,
+                  "Array element at position #{index} does not define its BSON serialized type: #{value}"
           end
+
           buffer.put_byte(value.bson_type)
           buffer.put_cstring(index.to_s)
           value.to_bson(buffer)
@@ -75,7 +76,7 @@ module BSON
     #
     # @since 2.0.0
     def to_bson_object_id
-      ObjectId.repair(self) { pack("C*") }
+      ObjectId.repair(self) { pack('C*') }
     end
 
     # Converts the array to a normalized value in a BSON document.
@@ -87,7 +88,7 @@ module BSON
     #
     # @since 3.0.0
     def to_bson_normalized_value
-      map { |value| value.to_bson_normalized_value }
+      map(&:to_bson_normalized_value)
     end
 
     # Converts this object to a representation directly serializable to
@@ -106,8 +107,8 @@ module BSON
       end
     end
 
+    # Class-level methods to be added to the Array class.
     module ClassMethods
-
       # Deserialize the array from BSON.
       #
       # @note If the argument cannot be parsed, an exception will be raised
@@ -122,43 +123,62 @@ module BSON
       # @return [ Array ] The decoded array.
       #
       # @see http://bsonspec.org/#/specification
-      #
-      # @since 2.0.0
       def from_bson(buffer, **options)
         if buffer.respond_to?(:get_array)
           buffer.get_array(**options)
         else
-          array = new
+          parse_array_from_buffer(buffer, **options)
+        end
+      end
+
+      private
+
+      # Parse an array from the buffer.
+      #
+      # @param [ ByteBuf ] buffer the buffer to read from
+      # @param [ Hash ] options the optional keyword arguments
+      #
+      # @return [ Array ] the array that was parsed
+      #
+      # @raise [ BSON::Error::BSONDecodeError ] if the expected number of
+      #   bytes were not read from the buffer
+      def parse_array_from_buffer(buffer, **options)
+        new.tap do |array|
           start_position = buffer.read_position
           expected_byte_size = buffer.get_int32
-          while (type = buffer.get_byte) != NULL_BYTE
-            buffer.get_cstring
-            cls = BSON::Registry.get(type)
-            value = if options.empty?
-              cls.from_bson(buffer)
-            else
-              cls.from_bson(buffer, **options)
-            end
-            array << value
-          end
+          parse_array_elements_from_buffer(array, buffer, **options)
           actual_byte_size = buffer.read_position - start_position
           if actual_byte_size != expected_byte_size
-            raise Error::BSONDecodeError, "Expected array to take #{expected_byte_size} bytes but it took #{actual_byte_size} bytes"
+            raise Error::BSONDecodeError,
+                  "Expected array to take #{expected_byte_size} bytes but it took #{actual_byte_size} bytes"
           end
-          array
+        end
+      end
+
+      # Parse a sequence of array elements from the buffer.
+      #
+      # @param [ Array ] array the array to populate
+      # @param [ ByteBuf ] buffer the buffer to read from
+      # @param [ Hash ] options the optional keyword arguments
+      def parse_array_elements_from_buffer(array, buffer, **options)
+        while (type = buffer.get_byte) != NULL_BYTE
+          buffer.get_cstring
+          cls = BSON::Registry.get(type)
+          value = if options.empty?
+                    cls.from_bson(buffer)
+                  else
+                    cls.from_bson(buffer, **options)
+                  end
+          array << value
         end
       end
     end
 
     # Register this type when the module is loaded.
-    #
-    # @since 2.0.0
     Registry.register(BSON_TYPE, ::Array)
   end
 
   # Enrich the core Array class with this module.
-  #
-  # @since 2.0.0
-  ::Array.send(:include, Array)
-  ::Array.send(:extend, Array::ClassMethods)
+  ::Array.include Array
+  ::Array.extend Array::ClassMethods
 end
