@@ -66,6 +66,58 @@ module BSON
       transform_values { |value| value.as_extended_json(**options) }
     end
 
+    private
+
+    # Serialize this hash instance to the given buffer.
+    #
+    # @param [ ByteBuf ] buffer The buffer to receive the serialized hash.
+    def serialize_to_buffer(buffer)
+      position = buffer.length
+      buffer.put_int32(0)
+      serialize_key_value_pairs(buffer)
+      buffer.put_byte(NULL_BYTE)
+      buffer.replace_int32(position, buffer.length - position)
+    end
+
+    # Serialize the key/value pairs in this hash instance to the given
+    # buffer.
+    #
+    # @param [ ByteBuf ] buffer The buffer to received the serialized
+    #   key/value pairs.
+    #
+    # @raise [ Error::UnserializableClass ] if a value cannot be serialized
+    def serialize_key_value_pairs(buffer)
+      each do |field, value|
+        unless value.respond_to?(:bson_type)
+          raise Error::UnserializableClass,
+                "Hash value for key '#{field}' does not define its BSON serialized type: #{value}"
+        end
+
+        buffer.put_byte(value.bson_type)
+        key = field.to_bson_key
+        serialize_key(buffer, key)
+        value.to_bson(buffer)
+      end
+    end
+
+    # Serialize the key/value pairs in this hash instance to the given
+    # buffer.
+    #
+    # @param [ ByteBuf ] buffer The buffer to received the serialized
+    #   key/value pairs.
+    #
+    # @raise [ ArgumentError ] if the string cannot be serialized
+    # @raise [ EncodingError ] if the string is not a valid encoding
+    def serialize_key(buffer, key)
+      buffer.put_cstring(key)
+    rescue ArgumentError => e
+      raise ArgumentError, "Error serializing key #{key}: #{e.class}: #{e}"
+    rescue EncodingError => e
+      # Note this may convert exception class from a subclass of
+      # EncodingError to EncodingError itself
+      raise EncodingError, "Error serializing key #{key}: #{e.class}: #{e}"
+    end
+
     # The methods to augment the Hash class with (class-level methods).
     module ClassMethods
       # Deserialize the hash from BSON.
@@ -147,56 +199,6 @@ module BSON
                   end
           hash.store(field, value)
         end
-      end
-
-      # Serialize this hash instance to the given buffer.
-      #
-      # @param [ ByteBuf ] buffer The buffer to receive the serialized hash.
-      def serialize_to_buffer(buffer)
-        position = buffer.length
-        buffer.put_int32(0)
-        serialize_key_value_pairs(buffer)
-        buffer.put_byte(NULL_BYTE)
-        buffer.replace_int32(position, buffer.length - position)
-      end
-
-      # Serialize the key/value pairs in this hash instance to the given
-      # buffer.
-      #
-      # @param [ ByteBuf ] buffer The buffer to received the serialized
-      #   key/value pairs.
-      #
-      # @raise [ Error::UnserializableClass ] if a value cannot be serialized
-      def serialize_key_value_pairs(buffer)
-        each do |field, value|
-          unless value.respond_to?(:bson_type)
-            raise Error::UnserializableClass,
-                  "Hash value for key '#{field}' does not define its BSON serialized type: #{value}"
-          end
-
-          buffer.put_byte(value.bson_type)
-          key = field.to_bson_key
-          serialize_key(buffer, key)
-          value.to_bson(buffer)
-        end
-      end
-
-      # Serialize the key/value pairs in this hash instance to the given
-      # buffer.
-      #
-      # @param [ ByteBuf ] buffer The buffer to received the serialized
-      #   key/value pairs.
-      #
-      # @raise [ ArgumentError ] if the string cannot be serialized
-      # @raise [ EncodingError ] if the string is not a valid encoding
-      def serialize_key(buffer, key)
-        buffer.put_cstring(key)
-      rescue ArgumentError => e
-        raise ArgumentError, "Error serializing key #{key}: #{e.class}: #{e}"
-      rescue EncodingError => e
-        # Note this may convert exception class from a subclass of
-        # EncodingError to EncodingError itself
-        raise EncodingError, "Error serializing key #{key}: #{e.class}: #{e}"
       end
     end
 
