@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# rubocop:todo all
+
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 require 'base64'
 
 module BSON
-
   # Represents binary data.
   #
   # @see http://bsonspec.org/#/specification
@@ -41,15 +40,15 @@ module BSON
     #
     # @since 2.0.0
     SUBTYPES = {
-      :generic => 0.chr,
-      :function => 1.chr,
-      :old =>  2.chr,
-      :uuid_old => 3.chr,
-      :uuid => 4.chr,
-      :md5 => 5.chr,
-      :ciphertext => 6.chr,
-      :column => 7.chr,
-      :user => 128.chr,
+      generic: 0.chr,
+      function: 1.chr,
+      old: 2.chr,
+      uuid_old: 3.chr,
+      uuid: 4.chr,
+      md5: 5.chr,
+      ciphertext: 6.chr,
+      column: 7.chr,
+      user: 128.chr,
     }.freeze
 
     # The starting point of the user-defined subtype range.
@@ -85,6 +84,7 @@ module BSON
     # @since 2.0.0
     def ==(other)
       return false unless other.is_a?(Binary)
+
       type == other.type && data == other.data
     end
     alias eql? ==
@@ -97,7 +97,7 @@ module BSON
     #
     # @since 2.3.1
     def hash
-      data.hash + type.hash
+      [ data, type ].hash
     end
 
     # Return a representation of the object for use in
@@ -119,16 +119,14 @@ module BSON
     # @return [ Hash ] The extended json representation.
     def as_extended_json(**options)
       subtype = @raw_type.each_byte.map { |c| c.to_s(16) }.join
-      if subtype.length == 1
-        subtype = "0#{subtype}"
-      end
+      subtype = "0#{subtype}" if subtype.length == 1
 
       value = Base64.encode64(data).strip
 
       if options[:mode] == :legacy
-        { "$binary" => value, "$type" => subtype }
+        { '$binary' => value, '$type' => subtype }
       else
-        { "$binary" => {'base64' => value, "subType" => subtype }}
+        { '$binary' => { 'base64' => value, 'subType' => subtype } }
       end
     end
 
@@ -148,7 +146,7 @@ module BSON
     # @param [ Symbol ] type The binary type.
     #
     # @since 2.0.0
-    def initialize(data = "", type = :generic)
+    def initialize(data = '', type = :generic)
       @type = validate_type!(type)
 
       # The Binary class used to force encoding to BINARY when serializing to
@@ -156,9 +154,7 @@ module BSON
       # operation during Binary construction to make it clear that once
       # the string is given to the Binary, the data is treated as a binary
       # string and not a text string in any encoding.
-      unless data.encoding == Encoding.find('BINARY')
-        data = data.dup.force_encoding('BINARY')
-      end
+      data = data.dup.force_encoding('BINARY') unless data.encoding == Encoding.find('BINARY')
 
       @data = data
     end
@@ -203,37 +199,15 @@ module BSON
     # @api experimental
     def to_uuid(representation = nil)
       if representation.is_a?(String)
-        raise ArgumentError, "Representation must be given as a symbol: #{representation}"
+        raise ArgumentError,
+              "Representation must be given as a symbol: #{representation.inspect}"
       end
+
       case type
       when :uuid
-        if representation && representation != :standard
-          raise ArgumentError, "Binary of type :uuid can only be stringified to :standard representation, requested: #{representation.inspect}"
-        end
-
-        data.split('').map { |n| '%02x' % n.ord }.join.sub(/\A(.{8})(.{4})(.{4})(.{4})(.{12})\z/, '\1-\2-\3-\4-\5')
+        from_uuid_to_uuid(representation || :standard)
       when :uuid_old
-        if representation.nil?
-          raise ArgumentError, 'Representation must be specified for BSON::Binary objects of type :uuid_old'
-        end
-
-        hex = data.split('').map { |n| '%02x' % n.ord }.join
-
-        case representation
-        when :standard
-          raise ArgumentError, 'BSON::Binary objects of type :uuid_old cannot be stringified to :standard representation'
-        when :csharp_legacy
-          hex.sub(/\A(..)(..)(..)(..)(..)(..)(..)(..)(.{16})\z/, '\4\3\2\1\6\5\8\7\9')
-        when :java_legacy
-          hex.sub(/\A(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)\z/) do |m|
-            "#{$8}#{$7}#{$6}#{$5}#{$4}#{$3}#{$2}#{$1}" +
-            "#{$16}#{$15}#{$14}#{$13}#{$12}#{$11}#{$10}#{$9}"
-          end
-        when :python_legacy
-          hex
-        else
-          raise ArgumentError, "Invalid representation: #{representation}"
-        end.sub(/\A(.{8})(.{4})(.{4})(.{4})(.{12})\z/, '\1-\2-\3-\4-\5')
+        from_uuid_old_to_uuid(representation)
       else
         raise TypeError, "The type of Binary must be :uuid or :uuid_old, this object is: #{type.inspect}"
       end
@@ -269,7 +243,7 @@ module BSON
     # @see http://bsonspec.org/#/specification
     #
     # @since 2.0.0
-    def self.from_bson(buffer, **options)
+    def self.from_bson(buffer, **_options)
       length = buffer.get_int32
       type_byte = buffer.get_byte
 
@@ -278,7 +252,7 @@ module BSON
 
         if type.nil?
           raise Error::UnsupportedBinarySubtype,
-            "BSON data contains unsupported binary subtype #{'0x%02x' % type_byte.ord}"
+                "BSON data contains unsupported binary subtype #{'0x%02x' % type_byte.ord}"
         end
       else
         type = type_byte
@@ -315,30 +289,149 @@ module BSON
     #
     # @api experimental
     def self.from_uuid(uuid, representation = nil)
-      if representation.is_a?(String)
-        raise ArgumentError, "Representation must be given as a symbol: #{representation}"
+      raise ArgumentError, "Representation must be given as a symbol: #{representation}" if representation.is_a?(String)
+
+      uuid_binary = uuid.delete('-').scan(/../).map(&:hex).map(&:chr).join
+      representation ||= :standard
+
+      handler = :"from_#{representation}_uuid"
+      raise ArgumentError, "Invalid representation: #{representation}" unless respond_to?(handler)
+
+      send(handler, uuid_binary)
+    end
+
+    # Constructs a new binary object from a standard-format binary UUID
+    # representation.
+    #
+    # @param [ String ] uuid_binary the UUID data
+    #
+    # @return [ BSON::Binary ] the Binary object
+    #
+    # @api private
+    def self.from_standard_uuid(uuid_binary)
+      new(uuid_binary, :uuid)
+    end
+
+    # Constructs a new binary object from a csharp legacy-format binary UUID
+    # representation.
+    #
+    # @param [ String ] uuid_binary the UUID data
+    #
+    # @return [ BSON::Binary ] the Binary object
+    #
+    # @api private
+    def self.from_csharp_legacy_uuid(uuid_binary)
+      uuid_binary.sub!(/\A(.)(.)(.)(.)(.)(.)(.)(.)(.{8})\z/, '\4\3\2\1\6\5\8\7\9')
+      new(uuid_binary, :uuid_old)
+    end
+
+    # Constructs a new binary object from a java legacy-format binary UUID
+    # representation.
+    #
+    # @param [ String ] uuid_binary the UUID data
+    #
+    # @return [ BSON::Binary ] the Binary object
+    #
+    # @api private
+    def self.from_java_legacy_uuid(uuid_binary)
+      uuid_binary.sub!(/\A(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)\z/) do
+        (::Regexp.last_match[1..8].reverse + ::Regexp.last_match[9..16].reverse).join
       end
-      uuid_binary = uuid.gsub('-', '').scan(/../).map(&:hex).map(&:chr).join
-      case representation && representation
-      when nil, :standard
-        new(uuid_binary, :uuid)
-      when :csharp_legacy
-        uuid_binary.sub!(/\A(.)(.)(.)(.)(.)(.)(.)(.)(.{8})\z/, '\4\3\2\1\6\5\8\7\9')
-        new(uuid_binary, :uuid_old)
-      when :java_legacy
-        uuid_binary.sub!(/\A(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)\z/) do |m|
-          "#{$8}#{$7}#{$6}#{$5}#{$4}#{$3}#{$2}#{$1}" +
-          "#{$16}#{$15}#{$14}#{$13}#{$12}#{$11}#{$10}#{$9}"
-        end
-        new(uuid_binary, :uuid_old)
-      when :python_legacy
-        new(uuid_binary, :uuid_old)
-      else
-        raise ArgumentError, "Invalid representation: #{representation}"
-      end
+      new(uuid_binary, :uuid_old)
+    end
+
+    # Constructs a new binary object from a python legacy-format binary UUID
+    # representation.
+    #
+    # @param [ String ] uuid_binary the UUID data
+    #
+    # @return [ BSON::Binary ] the Binary object
+    #
+    # @api private
+    def self.from_python_legacy_uuid(uuid_binary)
+      new(uuid_binary, :uuid_old)
     end
 
     private
+
+    # Converts the Binary UUID object to a UUID of the given representation.
+    # Currently, only :standard representation is supported.
+    #
+    # @param [ Symbol ] representation The representation to target (must be
+    #   :standard)
+    #
+    # @return [ String ] the UUID as a string
+    def from_uuid_to_uuid(representation)
+      if representation != :standard
+        raise ArgumentError,
+              'Binary of type :uuid can only be stringified to :standard representation, ' \
+              "requested: #{representation.inspect}"
+      end
+
+      data
+        .chars
+        .map { |n| '%02x' % n.ord }
+        .join
+        .sub(/\A(.{8})(.{4})(.{4})(.{4})(.{12})\z/, '\1-\2-\3-\4-\5')
+    end
+
+    # Converts the UUID-old object to a UUID of the given representation.
+    #
+    # @param [ Symbol ] representation The representation to target
+    #
+    # @return [ String ] the UUID as a string
+    def from_uuid_old_to_uuid(representation)
+      if representation.nil?
+        raise ArgumentError, 'Representation must be specified for BSON::Binary objects of type :uuid_old'
+      end
+
+      hex = data.chars.map { |n| '%02x' % n.ord }.join
+      handler = :"from_uuid_old_to_#{representation}_uuid"
+
+      raise ArgumentError, "Invalid representation: #{representation}" unless respond_to?(handler, true)
+
+      send(handler, hex)
+        .sub(/\A(.{8})(.{4})(.{4})(.{4})(.{12})\z/, '\1-\2-\3-\4-\5')
+    end
+
+    # Tries to convert a UUID-old object to a standard representation, which is
+    # not supported.
+    #
+    # @param [ String ] hex The hexadecimal string to convert
+    #
+    # @raise [ ArgumentError ] because standard representation is not supported
+    def from_uuid_old_to_standard_uuid(_hex)
+      raise ArgumentError, 'BSON::Binary objects of type :uuid_old cannot be stringified to :standard representation'
+    end
+
+    # Converts a UUID-old object to a csharp-legacy representation.
+    #
+    # @param [ String ] hex The hexadecimal string to convert
+    #
+    # @return [ String ] the csharp-legacy-formatted UUID
+    def from_uuid_old_to_csharp_legacy_uuid(hex)
+      hex.sub(/\A(..)(..)(..)(..)(..)(..)(..)(..)(.{16})\z/, '\4\3\2\1\6\5\8\7\9')
+    end
+
+    # Converts a UUID-old object to a java-legacy representation.
+    #
+    # @param [ String ] hex The hexadecimal string to convert
+    #
+    # @return [ String ] the java-legacy-formatted UUID
+    def from_uuid_old_to_java_legacy_uuid(hex)
+      hex.sub(/\A(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)(..)\z/) do
+        (::Regexp.last_match[1..8].reverse + ::Regexp.last_match[9..16].reverse).join
+      end
+    end
+
+    # Converts a UUID-old object to a python-legacy representation.
+    #
+    # @param [ String ] hex The hexadecimal string to convert
+    #
+    # @return [ String ] the python-legacy-formatted UUID
+    def from_uuid_old_to_python_legacy_uuid(hex)
+      hex
+    end
 
     # Validate the provided type is a valid type.
     #
@@ -357,14 +450,14 @@ module BSON
     def validate_type!(type)
       case type
       when Integer then validate_integer_type!(type)
-      when String then
+      when String
         if type.length > 1
           validate_symbol_type!(type.to_sym)
         else
           validate_integer_type!(type.bytes.first)
         end
       when Symbol then validate_symbol_type!(type)
-      else raise BSON::Error::InvalidBinaryType.new(type)
+      else raise BSON::Error::InvalidBinaryType, type
       end
     end
 
@@ -379,7 +472,8 @@ module BSON
       @raw_type = type.chr.force_encoding('BINARY').freeze
 
       if type < USER_SUBTYPE
-        raise BSON::Error::InvalidBinaryType.new(type) unless TYPES.key?(@raw_type)
+        raise BSON::Error::InvalidBinaryType, type unless TYPES.key?(@raw_type)
+
         return TYPES[@raw_type]
       end
 
@@ -394,9 +488,9 @@ module BSON
     #
     # @raise [ BSON::Error::InvalidBinaryType] if the type is invalid.
     def validate_symbol_type!(type)
-      raise BSON::Error::InvalidBinaryType.new(type) unless SUBTYPES.key?(type)
-      @raw_type = SUBTYPES[type]
+      raise BSON::Error::InvalidBinaryType, type unless SUBTYPES.key?(type)
 
+      @raw_type = SUBTYPES[type]
       type
     end
 

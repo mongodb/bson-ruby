@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# rubocop:todo all
+
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# The top-level BSON module.
 module BSON
-
   # Injects behaviour for encoding and decoding regular expression values to
   # and from raw bytes as specified by the BSON spec.
   #
@@ -63,10 +63,8 @@ module BSON
     #   regexp.as_json
     #
     # @return [ Hash ] The regexp as a JSON hash.
-    #
-    # @since 2.0.0
-    def as_json(*args)
-      { "$regex" => source, "$options" => bson_options }
+    def as_json(*)
+      { '$regex' => source, '$options' => bson_options }
     end
 
     # Get the regular expression as encoded BSON.
@@ -88,8 +86,6 @@ module BSON
     # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
     #
     # @see http://bsonspec.org/#/specification
-    #
-    # @since 2.0.0
     def to_bson(buffer = ByteBuffer.new)
       buffer.put_cstring(source)
       buffer.put_cstring(bson_options)
@@ -103,23 +99,21 @@ module BSON
     end
 
     def bson_extended
-      (options & ::Regexp::EXTENDED != 0) ? EXTENDED_VALUE : NO_VALUE
+      (options & ::Regexp::EXTENDED).zero? ? NO_VALUE : EXTENDED_VALUE
     end
 
     def bson_ignorecase
-      (options & ::Regexp::IGNORECASE != 0) ? IGNORECASE_VALUE : NO_VALUE
+      (options & ::Regexp::IGNORECASE).zero? ? NO_VALUE : IGNORECASE_VALUE
     end
 
     def bson_dotall
       # Ruby Regexp's MULTILINE is equivalent to BSON's dotall value
-      (options & ::Regexp::MULTILINE != 0) ? NEWLINE_VALUE : NO_VALUE
+      (options & ::Regexp::MULTILINE).zero? ? NO_VALUE : NEWLINE_VALUE
     end
 
     # Represents the raw values for the regular expression.
     #
     # @see https://jira.mongodb.org/browse/RUBY-698
-    #
-    # @since 3.0.0
     class Raw
       include JSON
 
@@ -135,10 +129,8 @@ module BSON
       #   raw.compile
       #
       # @return [ ::Regexp ] The compiled regular expression.
-      #
-      # @since 3.0.0
       def compile
-        @compiled ||= ::Regexp.new(pattern, options_to_int)
+        @compile ||= ::Regexp.new(pattern, options_to_int)
       end
 
       # Initialize the new raw regular expression.
@@ -148,8 +140,6 @@ module BSON
       #
       # @param [ String ] pattern The regular expression pattern.
       # @param [ String | Symbol ] options The options.
-      #
-      # @since 3.0.0
       def initialize(pattern, options = '')
         if pattern.include?(NULL_BYTE)
           raise Error::InvalidRegexpPattern, "Regexp pattern cannot contain a null byte: #{pattern}"
@@ -158,7 +148,7 @@ module BSON
             raise Error::InvalidRegexpPattern, "Regexp options cannot contain a null byte: #{options}"
           end
         else
-          raise ArgumentError, "Regexp options must be a String or Symbol"
+          raise ArgumentError, 'Regexp options must be a String or Symbol'
         end
 
         @pattern = pattern
@@ -169,16 +159,10 @@ module BSON
       # returned by +compile+.
       #
       # @param [ String] method The name of a method.
-      #
-      # @since 3.1.0
-      def respond_to?(method, include_private = false)
-        if defined?(@pattern)
-          compile.respond_to?(method, include_private) || super
-        else
-          # YAML calls #respond_to? during deserialization, before the object
-          # is initialized.
-          super
-        end
+      def respond_to_missing?(method, include_private = false)
+        # YAML calls #respond_to? during deserialization, before the object
+        # is initialized.
+        defined?(@pattern) && compile.respond_to?(method, include_private)
       end
 
       # Encode the Raw Regexp object to BSON.
@@ -200,8 +184,6 @@ module BSON
       # @return [ BSON::ByteBuffer ] The buffer with the encoded object.
       #
       # @see http://bsonspec.org/#/specification
-      #
-      # @since 4.2.0
       def to_bson(buffer = ByteBuffer.new)
         buffer.put_cstring(source)
         buffer.put_cstring(options.chars.sort.join)
@@ -213,9 +195,7 @@ module BSON
       #   raw_regexp.as_json
       #
       # @return [ Hash ] The raw regexp as a JSON hash.
-      #
-      # @since 4.2.0
-      def as_json(*args)
+      def as_json(*)
         as_extended_json(mode: :legacy)
       end
 
@@ -228,9 +208,9 @@ module BSON
       # @return [ Hash ] The extended json representation.
       def as_extended_json(**opts)
         if opts[:mode] == :legacy
-          { "$regex" => source, "$options" => options }
+          { '$regex' => source, '$options' => options }
         else
-          {"$regularExpression" => {'pattern' => source, "options" => options}}
+          { '$regularExpression' => { 'pattern' => source, 'options' => options } }
         end
       end
 
@@ -242,19 +222,18 @@ module BSON
       # @param [ Object ] other The object to check against.
       #
       # @return [ true, false ] If the objects are equal.
-      #
-      # @since 4.2.0
       def ==(other)
         return false unless other.is_a?(::Regexp::Raw)
-        pattern == other.pattern &&
-          options == other.options
+
+        pattern == other.pattern && options == other.options
       end
-      alias :eql? :==
+      alias eql? ==
 
       private
 
       def method_missing(method, *arguments)
         return super unless respond_to?(method)
+
         compile.send(method, *arguments)
       end
 
@@ -267,8 +246,8 @@ module BSON
       end
     end
 
+    # Class-level methods to be added to the Regexp class.
     module ClassMethods
-
       # Deserialize the regular expression from BSON.
       #
       # @note If the argument cannot be parsed, an exception will be raised
@@ -283,9 +262,7 @@ module BSON
       # @return [ Regexp ] The decoded regular expression.
       #
       # @see http://bsonspec.org/#/specification
-      #
-      # @since 2.0.0
-      def from_bson(buffer, **opts)
+      def from_bson(buffer, **_)
         pattern = buffer.get_cstring
         options = buffer.get_cstring
         Raw.new(pattern, options)
@@ -293,14 +270,10 @@ module BSON
     end
 
     # Register this type when the module is loaded.
-    #
-    # @since 2.0.0
     Registry.register(BSON_TYPE, ::Regexp)
   end
 
   # Enrich the core Regexp class with this module.
-  #
-  # @since 2.0.0
-  ::Regexp.send(:include, Regexp)
-  ::Regexp.send(:extend, Regexp::ClassMethods)
+  ::Regexp.include Regexp
+  ::Regexp.extend Regexp::ClassMethods
 end
