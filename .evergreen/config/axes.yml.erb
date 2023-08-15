@@ -1,0 +1,156 @@
+axes:
+  - id: "topology"
+    display_name: Topology
+    values:
+      - id: "standalone"
+        display_name: Standalone
+        variables:
+           TOPOLOGY: "server"
+      - id: "replicaset"
+        display_name: Replica Set
+        variables:
+           TOPOLOGY: "replica_set"
+      - id: "sharded-cluster"
+        display_name: Sharded Cluster
+        variables:
+           TOPOLOGY: "sharded_cluster"
+  - id: "auth"
+    display_name: Authentication
+    values:
+      - id: "auth"
+        display_name: Auth
+        variables:
+           AUTH: "auth"
+      - id: "noauth"
+        display_name: NoAuth
+        variables:
+           AUTH: "noauth"
+  - id: "ssl"
+    display_name: SSL
+    values:
+      - id: "ssl"
+        display_name: SSL
+        variables:
+           SSL: "ssl"
+      - id: "nossl"
+        display_name: NoSSL
+        variables:
+           SSL: "nossl"
+  - id: "all-os"
+    display_name: OS
+    values:
+      - id: "debian92"
+        display_name: "Debian 9 x86"
+        run_on: debian92-small
+        variables:
+          MACHINE: "debian92"
+      - id: "ubuntu1604"
+        display_name: "Ubuntu 16.04"
+        run_on: ubuntu1604-small
+        variables:
+          MACHINE: "ubuntu1604"
+      - id: "ubuntu1804"
+        display_name: "Ubuntu 18.04"
+        run_on: ubuntu1804-small
+        variables:
+          MACHINE: "ubuntu1804"
+      - id: "rhel70"
+        display_name: "RHEL 7.0"
+        run_on: rhel70-small
+        variables:
+          MACHINE: "rhel70"
+  - id: "special-os"
+    display_name: OS
+    values:
+      #- id: "rhel71-ppc"
+      #  display_name: "RHEL 7.1 PowerPC"
+      #  run_on: rhel71-power8-small
+      #  variables:
+      #    MACHINE: "rhel71-ppc"
+
+      - id: "ubuntu1804-ppc"
+        display_name: "Ubuntu 18.04 PowerPC"
+        run_on: ubuntu1804-power8-small
+        variables:
+          MACHINE: ubuntu1804-ppc
+      - id: "ubuntu1604-arm"
+        display_name: "Ubuntu 16.04 ARM64"
+        run_on: ubuntu1604-arm64-small
+        variables:
+          MACHINE: "ubuntu1604-arm"
+      - id: "ubuntu1804-arm"
+        display_name: "Ubuntu 18.04 ARM64"
+        run_on: ubuntu1804-arm64-small
+        variables:
+          MACHINE: "ubuntu1804-arm"
+  - id: "mri-rubies"
+    display_name: Ruby Version
+    values:
+      - id: "ruby-2.5"
+        display_name: ruby-2.5
+        variables:
+           RVM_RUBY: "ruby-2.5"
+      - id: "ruby-2.6"
+        display_name: ruby-2.6
+        variables:
+           RVM_RUBY: "ruby-2.6"
+      - id: "ruby-2.7"
+        display_name: ruby-2.7
+        variables:
+           RVM_RUBY: "ruby-2.7"
+      - id: "ruby-3.0"
+        display_name: ruby-3.0
+        variables:
+           RVM_RUBY: "ruby-3.0"
+      - id: "ruby-3.1"
+        display_name: ruby-3.1
+        variables:
+           RVM_RUBY: "ruby-3.1"
+  - id: "jruby-rubies"
+    display_name: Ruby Version
+    values:
+      - id: "jruby-9.2"
+        display_name: jruby-9.2
+        variables:
+           RVM_RUBY: "jruby-9.2"
+      - id: "jruby-9.3"
+        display_name: jruby-9.3
+        variables:
+           RVM_RUBY: "jruby-9.3"
+  - id: "ruby-head"
+    display_name: Ruby Head
+    values:
+      - id: "ruby-head"
+        display_name: ruby-head
+        variables:
+          RVM_RUBY: "ruby-head"
+  - id: "as"
+    display_name: ActiveSupport
+    values:
+      - id: "5.1"
+        display_name: 5.1
+        variables:
+          WITH_ACTIVE_SUPPORT: "~> 5.1.0"
+      - id: "5.2"
+        display_name: 5.2
+        variables:
+          WITH_ACTIVE_SUPPORT: "~> 5.2.0"
+      - id: "6.0"
+        display_name: 6.0
+        variables:
+          WITH_ACTIVE_SUPPORT: "~> 6.0.0"
+      - id: "6.1"
+        display_name: 6.1
+        variables:
+          WITH_ACTIVE_SUPPORT: "~> 6.1.0"
+      - id: "7.0"
+        display_name: 7.0
+        variables:
+          WITH_ACTIVE_SUPPORT: "~> 7.0.0"
+  - id: "compact"
+    display_name: GC.compact
+    values:
+      - id: "on"
+        display_name: with GC.compact
+        variables:
+          COMPACT: true

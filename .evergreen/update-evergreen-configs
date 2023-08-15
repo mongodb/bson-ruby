@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'erb'
+require 'yaml'
+
+# A utility for building an evergreen config file.
+module ConfigProcessor
+  extend self
+
+  # Looks for a template in .evergreen/config with the given
+  # base name, and 'yml.erb' as the extension. Processes that
+  # template via ERB and writes the result to .evergreen with
+  # the same basename, and a 'yml' extension.
+  #
+  # @param [ String ] name the name of the config to build.
+  def build(name)
+    output_path = File.join(__dir__, "#{name}.yml")
+    File.write(output_path, template(name))
+  end
+
+  # Reads the config template with the given name, processes it via
+  # ERB, and returns the result.
+  #
+  # @param [ String ] name the (base) name of the template
+  #
+  # @return [ String ] the processed template
+  def template(name, params: {})
+    ERB.new(File.read(template_path(name))).result(binding)
+  end
+
+  # Returns the path to the config template with the given base name.
+  #
+  # @param [ String ] name the base name of the template
+  #
+  # @return [ String ] the path to the template with the given name.
+  def template_path(name)
+    File.join(__dir__, 'config', "#{name}.yml.erb")
+  end
+end
+
+ConfigProcessor.build 'config'
