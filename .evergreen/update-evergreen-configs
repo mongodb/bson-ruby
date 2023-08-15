@@ -16,7 +16,7 @@ module ConfigProcessor
   # @param [ String ] name the name of the config to build.
   def build(name)
     output_path = File.join(__dir__, "#{name}.yml")
-    File.write(output_path, template(name))
+    File.write(output_path, template(name, params: { header: false }))
   end
 
   # Reads the config template with the given name, processes it via
@@ -26,7 +26,9 @@ module ConfigProcessor
   #
   # @return [ String ] the processed template
   def template(name, params: {})
-    ERB.new(File.read(template_path(name))).result(binding)
+    source_file = template_path(name)
+    header_for(source_file, params.fetch(:header, true)) +
+      ERB.new(File.read(source_file)).result(binding)
   end
 
   # Returns the path to the config template with the given base name.
@@ -36,6 +38,31 @@ module ConfigProcessor
   # @return [ String ] the path to the template with the given name.
   def template_path(name)
     File.join(__dir__, 'config', "#{name}.yml.erb")
+  end
+
+  # Returns a banner to be used as a header in the config file,
+  # naming the given source file. This makes it easier to look at
+  # the generated config file and know where to look if something
+  # needs to be changed.
+  #
+  # @param [ String ] source_file the path to the source file
+  # @param [ true | false ] generate_header whether to return a header
+  #   banner or not.
+  #
+  # @return [ String ] the header banner (or an empty string if
+  #   generate_header is false)
+  def header_for(source_file, generate_header)
+    return '' unless generate_header
+
+    root_path = File.expand_path('..', __dir__)
+    simplified_path = source_file.sub(/^#{root_path}\//, '')
+
+    <<~HEADER
+      # -----------------------------------------------
+      # #{simplified_path}
+      # -----------------------------------------------
+
+    HEADER
   end
 end
 

@@ -1,6 +1,10 @@
 # GENERATED FILE - DO NOT EDIT.
 # Run ./.evergreen/update-evergreen-configs to regenerate this file.
 
+# -----------------------------------------------
+# .evergreen/config/settings.yml.erb
+# -----------------------------------------------
+
 # When a task that used to pass starts to fail
 # Go through all versions that may have been skipped to detect
 # when the task started failing
@@ -24,6 +28,10 @@ timeout:
     params:
       script: |
         ls -la
+
+# -----------------------------------------------
+# .evergreen/config/functions.yml.erb
+# -----------------------------------------------
 
 functions:
   "fetch source":
@@ -232,6 +240,10 @@ tasks:
       commands:
         - func: "run tests"
 
+# -----------------------------------------------
+# .evergreen/config/axes.yml.erb
+# -----------------------------------------------
+
 axes:
   - id: "topology"
     display_name: Topology
@@ -388,6 +400,10 @@ axes:
         display_name: with GC.compact
         variables:
           COMPACT: true
+
+# -----------------------------------------------
+# .evergreen/config/variants.yml.erb
+# -----------------------------------------------
 
 buildvariants:
 
