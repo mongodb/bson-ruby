@@ -28,7 +28,7 @@ module ConfigProcessor
   def template(name, params: {})
     source_file = template_path(name)
     header_for(source_file, params.fetch(:header, true)) +
-      ERB.new(File.read(source_file)).result(binding)
+      ERB.new(File.read(source_file), trim_mode: '<>').result(binding)
   end
 
   # Returns the path to the config template with the given base name.

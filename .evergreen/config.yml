@@ -1,6 +1,8 @@
 # GENERATED FILE - DO NOT EDIT.
 # Run ./.evergreen/update-evergreen-configs to regenerate this file.
 
+
+
 # -----------------------------------------------
 # .evergreen/config/settings.yml.erb
 # -----------------------------------------------
@@ -245,131 +247,70 @@ tasks:
 # -----------------------------------------------
 
 axes:
-  - id: "topology"
-    display_name: Topology
-    values:
-      - id: "standalone"
-        display_name: Standalone
-        variables:
-           TOPOLOGY: "server"
-      - id: "replicaset"
-        display_name: Replica Set
-        variables:
-           TOPOLOGY: "replica_set"
-      - id: "sharded-cluster"
-        display_name: Sharded Cluster
-        variables:
-           TOPOLOGY: "sharded_cluster"
-  - id: "auth"
-    display_name: Authentication
-    values:
-      - id: "auth"
-        display_name: Auth
-        variables:
-           AUTH: "auth"
-      - id: "noauth"
-        display_name: NoAuth
-        variables:
-           AUTH: "noauth"
-  - id: "ssl"
-    display_name: SSL
-    values:
-      - id: "ssl"
-        display_name: SSL
-        variables:
-           SSL: "ssl"
-      - id: "nossl"
-        display_name: NoSSL
-        variables:
-           SSL: "nossl"
   - id: "all-os"
     display_name: OS
     values:
-      - id: "debian92"
-        display_name: "Debian 9 x86"
-        run_on: debian92-small
+      - id: debian
+        display_name: "Debian 11"
+        run_on: debian11-small
         variables:
-          MACHINE: "debian92"
-      - id: "ubuntu1604"
-        display_name: "Ubuntu 16.04"
-        run_on: ubuntu1604-small
+          MACHINE: "debian11"
+      - id: "ubuntu"
+        display_name: "Ubuntu 22.04"
+        run_on: ubuntu2204-small
         variables:
-          MACHINE: "ubuntu1604"
-      - id: "ubuntu1804"
-        display_name: "Ubuntu 18.04"
-        run_on: ubuntu1804-small
+          MACHINE: "ubuntu2204"
+      - id: "rhel"
+        display_name: "RHEL 8.0"
+        run_on: rhel80-small
         variables:
-          MACHINE: "ubuntu1804"
-      - id: "rhel70"
-        display_name: "RHEL 7.0"
-        run_on: rhel70-small
-        variables:
-          MACHINE: "rhel70"
+          MACHINE: "rhel80"
+
   - id: "special-os"
     display_name: OS
     values:
-      #- id: "rhel71-ppc"
-      #  display_name: "RHEL 7.1 PowerPC"
-      #  run_on: rhel71-power8-small
-      #  variables:
-      #    MACHINE: "rhel71-ppc"
+      - id: "rhel82-arm64"
+        display_name: "RHEL 8.2 ARM64"
+        run_on: rhel82-arm64-small
+        variables:
+          MACHINE: rhel82-arm64
 
-      - id: "ubuntu1804-ppc"
-        display_name: "Ubuntu 18.04 PowerPC"
-        run_on: ubuntu1804-power8-small
-        variables:
-          MACHINE: ubuntu1804-ppc
-      - id: "ubuntu1604-arm"
-        display_name: "Ubuntu 16.04 ARM64"
-        run_on: ubuntu1604-arm64-small
-        variables:
-          MACHINE: "ubuntu1604-arm"
-      - id: "ubuntu1804-arm"
-        display_name: "Ubuntu 18.04 ARM64"
-        run_on: ubuntu1804-arm64-small
-        variables:
-          MACHINE: "ubuntu1804-arm"
-  - id: "mri-rubies"
+  - id: ruby
     display_name: Ruby Version
     values:
-      - id: "ruby-2.5"
-        display_name: ruby-2.5
+      - id: ruby-3.2
+        display_name: ruby-3.2
         variables:
-           RVM_RUBY: "ruby-2.5"
-      - id: "ruby-2.6"
-        display_name: ruby-2.6
-        variables:
-           RVM_RUBY: "ruby-2.6"
-      - id: "ruby-2.7"
-        display_name: ruby-2.7
-        variables:
-           RVM_RUBY: "ruby-2.7"
-      - id: "ruby-3.0"
-        display_name: ruby-3.0
-        variables:
-           RVM_RUBY: "ruby-3.0"
-      - id: "ruby-3.1"
+           RVM_RUBY: ruby-3.2
+      - id: ruby-3.1
         display_name: ruby-3.1
         variables:
-           RVM_RUBY: "ruby-3.1"
-  - id: "jruby-rubies"
-    display_name: Ruby Version
-    values:
-      - id: "jruby-9.2"
-        display_name: jruby-9.2
+           RVM_RUBY: ruby-3.1
+      - id: ruby-3.0
+        display_name: ruby-3.0
         variables:
-           RVM_RUBY: "jruby-9.2"
-      - id: "jruby-9.3"
+           RVM_RUBY: ruby-3.0
+      - id: ruby-2.7
+        display_name: ruby-2.7
+        variables:
+           RVM_RUBY: ruby-2.7
+      - id: ruby-2.6
+        display_name: ruby-2.6
+        variables:
+           RVM_RUBY: ruby-2.6
+      - id: ruby-2.5
+        display_name: ruby-2.5
+        variables:
+           RVM_RUBY: ruby-2.5
+      - id: jruby-9.3
         display_name: jruby-9.3
         variables:
-           RVM_RUBY: "jruby-9.3"
-  - id: "ruby-head"
-    display_name: Ruby Head
-    values:
-      - id: "ruby-head"
-        display_name: ruby-head
+           RVM_RUBY: jruby-9.3
+      - id: jruby-9.2
+        display_name: jruby-9.2
         variables:
-          RVM_RUBY: "ruby-head"
+           RVM_RUBY: jruby-9.2
+
   - id: "as"
     display_name: ActiveSupport
     values:
@@ -393,6 +334,7 @@ axes:
         display_name: 7.0
         variables:
           WITH_ACTIVE_SUPPORT: "~> 7.0.0"
+
   - id: "compact"
     display_name: GC.compact
     values:
@@ -405,84 +347,55 @@ axes:
 # .evergreen/config/variants.yml.erb
 # -----------------------------------------------
 
+
 buildvariants:
+  - matrix_name: "mri-latest"
+    matrix_spec: { ruby: ruby-3.2, all-os: '*' }
+    display_name: "${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
 
-- matrix_name: "mri-rhel"
-  matrix_spec: { mri-rubies: [ruby-2.5], all-os: "rhel70" }
-  display_name: "${mri-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
+  - matrix_name: "mri-sample"
+    matrix_spec: { ruby: ["ruby-2.7"], all-os: rhel }
+    display_name: "${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
 
-- matrix_name: "mri-debian"
-  matrix_spec: { mri-rubies: [ruby-2.7], all-os: "debian92" }
-  display_name: "${mri-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
+  - matrix_name: "activesupport-5-6"
+    matrix_spec:
+      ruby: ["ruby-3.0", "ruby-2.7", "ruby-2.6", "ruby-2.5"]
+      all-os: rhel
+      as: [ '5.1', '5.2', '6.0', '6.1' ]
+    display_name: "AS ${as} ${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
 
-- matrix_name: "mri-ubuntu"
-  matrix_spec: { mri-rubies: [ruby-2.5], all-os: "ubuntu1604" }
-  display_name: "${mri-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
+  - matrix_name: "activesupport-7"
+    matrix_spec:
+      ruby: ["ruby-3.2", "ruby-2.7"]
+      all-os: rhel
+      as: '7.0'
+    display_name: "AS ${as} ${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
 
-- matrix_name: "mri-ubuntu-ruby3"
-  matrix_spec: { mri-rubies: ["ruby-3.0", "ruby-3.1"], all-os: ubuntu1804 }
-  display_name: "${mri-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
+  - matrix_name: "special-os"
+    matrix_spec: { ruby: ["ruby-3.2", "ruby-3.1", "jruby-9.3"], special-os: '*' }
+    display_name: "${ruby}, ${special-os}"
+    tasks:
+      - name: "test"
 
-- matrix_name: "activesupport-5-6"
-  matrix_spec:
-    mri-rubies: [ruby-2.5, ruby-2.6, ruby-2.7, ruby-3.0]
-    all-os: "ubuntu1804"
-    as: ['5.1', '5.2', '6.0', '6.1']
-  display_name: "AS ${as} ${mri-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
+  - matrix_name: "jruby"
+    matrix_spec: { ruby: ["jruby-9.3", "jruby-9.2"], all-os: rhel }
+    display_name: "${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
 
-- matrix_name: "activesupport-7"
-  matrix_spec:
-    # Rails 7 requires Ruby 2.7
-    mri-rubies: [ruby-2.7, ruby-3.0]
-    all-os: "ubuntu1804"
-    as: ['7.0']
-  display_name: "AS ${as} ${mri-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
-
-- matrix_name: "activesupport-old-rubies"
-  matrix_spec:
-    mri-rubies: [ruby-2.5]
-    all-os: "ubuntu1604"
-    as: ['5.1', '5.2']
-  display_name: "AS ${as} ${mri-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
-
-- matrix_name: "special-os"
-  matrix_spec: { mri-rubies: ruby-2.7, special-os: [ubuntu1604-arm, ubuntu1804-ppc] }
-  display_name: "${mri-rubies}, ${special-os}"
-  tasks:
-     - name: "test"
-
-# - matrix_name: "ruby-head"
-#   matrix_spec: { ruby-head: "*", all-os: ["ubuntu1604"] }
-#   display_name: "${ruby-head}, ${all-os}"
-#   tasks:
-#      - name: "test"
-
-- matrix_name: "jruby"
-  matrix_spec: { jruby-rubies: "*", all-os: ["rhel70"] }
-  display_name: "${jruby-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
-
-- matrix_name: "compact"
-  matrix_spec:
-    mri-rubies: [ruby-2.7, ruby-3.0]
-    all-os: "ubuntu1804"
-    compact: "on"
-  display_name: "${mri-rubies} with GC.compact"
-  tasks:
-    - name: "test"
-
+  - matrix_name: "compact"
+    matrix_spec:
+      ruby: ["ruby-3.2", "ruby-2.7"]
+      all-os: ubuntu
+      compact: "on"
+    display_name: "${ruby} with GC.compact"
+    tasks:
+      - name: "test"

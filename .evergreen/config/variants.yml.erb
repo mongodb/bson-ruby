@@ -1,80 +1,53 @@
+<% sample_without_latest = params[:ruby][:mri][:sample].reject { |v| v == params[:ruby][:mri][:latest] } %>
+
 buildvariants:
+  - matrix_name: "mri-latest"
+    matrix_spec: { ruby: <%= params[:ruby][:mri][:latest] %>, all-os: '*' }
+    display_name: "${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
 
-- matrix_name: "mri-rhel"
-  matrix_spec: { mri-rubies: [ruby-2.5], all-os: "rhel70" }
-  display_name: "${mri-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
+  - matrix_name: "mri-sample"
+    matrix_spec: { ruby: <%= sample_without_latest %>, all-os: rhel }
+    display_name: "${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
 
-- matrix_name: "mri-debian"
-  matrix_spec: { mri-rubies: [ruby-2.7], all-os: "debian92" }
-  display_name: "${mri-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
+  - matrix_name: "activesupport-5-6"
+    matrix_spec:
+      ruby: <%= params[:ruby][:mri][:older] %>
+      all-os: rhel
+      as: [ '5.1', '5.2', '6.0', '6.1' ]
+    display_name: "AS ${as} ${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
 
-- matrix_name: "mri-ubuntu"
-  matrix_spec: { mri-rubies: [ruby-2.5], all-os: "ubuntu1604" }
-  display_name: "${mri-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
+  - matrix_name: "activesupport-7"
+    matrix_spec:
+      ruby: <%= params[:ruby][:mri][:sample] %>
+      all-os: rhel
+      as: '7.0'
+    display_name: "AS ${as} ${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
 
-- matrix_name: "mri-ubuntu-ruby3"
-  matrix_spec: { mri-rubies: ["ruby-3.0", "ruby-3.1"], all-os: ubuntu1804 }
-  display_name: "${mri-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
+  - matrix_name: "special-os"
+    matrix_spec: { ruby: <%= params[:ruby][:recent] %>, special-os: '*' }
+    display_name: "${ruby}, ${special-os}"
+    tasks:
+      - name: "test"
 
-- matrix_name: "activesupport-5-6"
-  matrix_spec:
-    mri-rubies: [ruby-2.5, ruby-2.6, ruby-2.7, ruby-3.0]
-    all-os: "ubuntu1804"
-    as: ['5.1', '5.2', '6.0', '6.1']
-  display_name: "AS ${as} ${mri-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
+  - matrix_name: "jruby"
+    matrix_spec: { ruby: <%= params[:ruby][:jruby][:supported] %>, all-os: rhel }
+    display_name: "${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
 
-- matrix_name: "activesupport-7"
-  matrix_spec:
-    # Rails 7 requires Ruby 2.7
-    mri-rubies: [ruby-2.7, ruby-3.0]
-    all-os: "ubuntu1804"
-    as: ['7.0']
-  display_name: "AS ${as} ${mri-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
-
-- matrix_name: "activesupport-old-rubies"
-  matrix_spec:
-    mri-rubies: [ruby-2.5]
-    all-os: "ubuntu1604"
-    as: ['5.1', '5.2']
-  display_name: "AS ${as} ${mri-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
-
-- matrix_name: "special-os"
-  matrix_spec: { mri-rubies: ruby-2.7, special-os: [ubuntu1604-arm, ubuntu1804-ppc] }
-  display_name: "${mri-rubies}, ${special-os}"
-  tasks:
-     - name: "test"
-
-# - matrix_name: "ruby-head"
-#   matrix_spec: { ruby-head: "*", all-os: ["ubuntu1604"] }
-#   display_name: "${ruby-head}, ${all-os}"
-#   tasks:
-#      - name: "test"
-
-- matrix_name: "jruby"
-  matrix_spec: { jruby-rubies: "*", all-os: ["rhel70"] }
-  display_name: "${jruby-rubies}, ${all-os}"
-  tasks:
-     - name: "test"
-
-- matrix_name: "compact"
-  matrix_spec:
-    mri-rubies: [ruby-2.7, ruby-3.0]
-    all-os: "ubuntu1804"
-    compact: "on"
-  display_name: "${mri-rubies} with GC.compact"
-  tasks:
-    - name: "test"
+  - matrix_name: "compact"
+    matrix_spec:
+      ruby: <%= params[:ruby][:mri][:sample] %>
+      all-os: ubuntu
+      compact: "on"
+    display_name: "${ruby} with GC.compact"
+    tasks:
+      - name: "test"
