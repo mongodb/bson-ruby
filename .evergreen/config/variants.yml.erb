@@ -46,7 +46,7 @@ buildvariants:
   - matrix_name: "compact"
     matrix_spec:
       ruby: <%= params[:ruby][:mri][:sample] %>
-      all-os: ubuntu
+      all-os: rhel
       compact: "on"
     display_name: "${ruby} with GC.compact"
     tasks:
