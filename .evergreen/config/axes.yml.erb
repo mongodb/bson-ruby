@@ -30,13 +30,11 @@ axes:
   - id: ruby
     display_name: Ruby Version
     values:
-<% %i[ mri jruby ].each do |ruby_flavor| %>
-<% params[:ruby][ruby_flavor][:supported].each do |ruby| %>
+<% supported_rubies.each do |ruby| %>
       - id: <%= ruby %>
         display_name: <%= ruby %>
         variables:
            RVM_RUBY: <%= ruby %>
-<% end %>
 <% end %>
 
   - id: "as"

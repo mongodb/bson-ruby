@@ -8,6 +8,12 @@ require 'yaml'
 module ConfigProcessor
   extend self
 
+  GENERATED_BANNER = <<~BANNER
+    # GENERATED FILE - DO NOT EDIT.
+    # Run ./.evergreen/update-evergreen-configs to regenerate this file.
+
+  BANNER
+
   # Looks for a template in .evergreen/config with the given
   # base name, and 'yml.erb' as the extension. Processes that
   # template via ERB and writes the result to .evergreen with
@@ -16,7 +22,7 @@ module ConfigProcessor
   # @param [ String ] name the name of the config to build.
   def build(name)
     output_path = File.join(__dir__, "#{name}.yml")
-    File.write(output_path, template(name, params: { header: false }))
+    File.write(output_path, GENERATED_BANNER + template(name, params: { header: false }))
   end
 
   # Reads the config template with the given name, processes it via
@@ -28,7 +34,8 @@ module ConfigProcessor
   def template(name, params: {})
     source_file = template_path(name)
     header_for(source_file, params.fetch(:header, true)) +
-      ERB.new(File.read(source_file), trim_mode: '<>').result(binding)
+      ERB.new(File.read(source_file), trim_mode: '<>').result(binding).strip +
+      "\n"
   end
 
   # Returns the path to the config template with the given base name.
@@ -58,11 +65,61 @@ module ConfigProcessor
     simplified_path = source_file.sub(/^#{root_path}\//, '')
 
     <<~HEADER
+
       # -----------------------------------------------
       # #{simplified_path}
       # -----------------------------------------------
 
     HEADER
+  end
+
+  # these are used for testing against a few recent ruby versions
+  def recent_rubies
+    @recent_rubies ||= %w[ ruby-3.2 ruby-3.1 jruby-9.3 ]
+  end
+
+  # the most recently released, stable version of Ruby (make sure this
+  # version is being built by 10gen/mongo-ruby-toolchain)
+  def latest_mri_ruby
+    "ruby-3.2"
+  end
+
+  # this is a list of the most most recent 3.x and 2.x MRI ruby versions
+  def sample_mri_rubies
+    @sample_mri_rubies ||= %w[ ruby-3.2 ruby-2.7 ]
+  end
+
+  # same as `sample_mri_rubies`, but without the `latest_mri_ruby` entry.
+  def sample_without_latest
+    @sample_without_latest ||= sample_mri_rubies.reject { |v| v == latest_mri_ruby }
+  end
+
+  # as above, but including the most recent JRuby release
+  def sample_rubies
+    @sample_rubies ||= sample_mri_rubies + %w[ jruby-9.3 ]
+  end
+
+  # older Ruby versions provided by 10gen/mongo-ruby-toolchain
+  def older_rubies
+    @older_rubies ||= %w[ ruby-3.0 ruby-2.7 ruby-2.6 ruby-2.5 ]
+  end
+
+  # all supported JRuby versions provided by 10gen/mongo-ruby-toolchain
+  def jrubies
+    @jrubies ||= %w[ jruby-9.3 jruby-9.2 ]
+  end
+
+  # all supported MRI ruby versions
+  def supported_mri_rubies
+    @supported_mri_rubies ||= %w[
+      ruby-3.2 ruby-3.1 ruby-3.0
+      ruby-2.7 ruby-2.6 ruby-2.5
+    ]
+  end
+
+  # all supported ruby versions (MRI & JRuby)
+  def supported_rubies
+    @supported_rubies ||= supported_mri_rubies + jrubies
   end
 end
 

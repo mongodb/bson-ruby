@@ -1,8 +1,6 @@
 # GENERATED FILE - DO NOT EDIT.
 # Run ./.evergreen/update-evergreen-configs to regenerate this file.
 
-
-
 # -----------------------------------------------
 # .evergreen/config/settings.yml.erb
 # -----------------------------------------------
@@ -346,7 +344,6 @@ axes:
 # -----------------------------------------------
 # .evergreen/config/variants.yml.erb
 # -----------------------------------------------
-
 
 buildvariants:
   - matrix_name: "mri-latest"
