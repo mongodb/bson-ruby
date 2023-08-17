@@ -1,0 +1,126 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'erb'
+require 'yaml'
+
+# A utility for building an evergreen config file.
+module ConfigProcessor
+  extend self
+
+  GENERATED_BANNER = <<~BANNER
+    # GENERATED FILE - DO NOT EDIT.
+    # Run ./.evergreen/update-evergreen-configs to regenerate this file.
+
+  BANNER
+
+  # Looks for a template in .evergreen/config with the given
+  # base name, and 'yml.erb' as the extension. Processes that
+  # template via ERB and writes the result to .evergreen with
+  # the same basename, and a 'yml' extension.
+  #
+  # @param [ String ] name the name of the config to build.
+  def build(name)
+    output_path = File.join(__dir__, "#{name}.yml")
+    File.write(output_path, GENERATED_BANNER + template(name, params: { header: false }))
+  end
+
+  # Reads the config template with the given name, processes it via
+  # ERB, and returns the result.
+  #
+  # @param [ String ] name the (base) name of the template
+  #
+  # @return [ String ] the processed template
+  def template(name, params: {})
+    source_file = template_path(name)
+    header_for(source_file, params.fetch(:header, true)) +
+      ERB.new(File.read(source_file), trim_mode: '<>').result(binding).strip +
+      "\n"
+  end
+
+  # Returns the path to the config template with the given base name.
+  #
+  # @param [ String ] name the base name of the template
+  #
+  # @return [ String ] the path to the template with the given name.
+  def template_path(name)
+    File.join(__dir__, 'config', "#{name}.yml.erb")
+  end
+
+  # Returns a banner to be used as a header in the config file,
+  # naming the given source file. This makes it easier to look at
+  # the generated config file and know where to look if something
+  # needs to be changed.
+  #
+  # @param [ String ] source_file the path to the source file
+  # @param [ true | false ] generate_header whether to return a header
+  #   banner or not.
+  #
+  # @return [ String ] the header banner (or an empty string if
+  #   generate_header is false)
+  def header_for(source_file, generate_header)
+    return '' unless generate_header
+
+    root_path = File.expand_path('..', __dir__)
+    simplified_path = source_file.sub(/^#{root_path}\//, '')
+
+    <<~HEADER
+
+      # -----------------------------------------------
+      # #{simplified_path}
+      # -----------------------------------------------
+
+    HEADER
+  end
+
+  # these are used for testing against a few recent ruby versions
+  def recent_rubies
+    @recent_rubies ||= %w[ ruby-3.2 ruby-3.1 jruby-9.3 ]
+  end
+
+  # the most recently released, stable version of Ruby (make sure this
+  # version is being built by 10gen/mongo-ruby-toolchain)
+  def latest_mri_ruby
+    "ruby-3.2"
+  end
+
+  # this is a list of the most most recent 3.x and 2.x MRI ruby versions
+  def sample_mri_rubies
+    @sample_mri_rubies ||= %w[ ruby-3.2 ruby-2.7 ]
+  end
+
+  # same as `sample_mri_rubies`, but without the `latest_mri_ruby` entry.
+  def sample_without_latest
+    @sample_without_latest ||= sample_mri_rubies.reject { |v| v == latest_mri_ruby }
+  end
+
+  # as above, but including the most recent JRuby release
+  def sample_rubies
+    @sample_rubies ||= sample_mri_rubies + %w[ jruby-9.3 ]
+  end
+
+  # older Ruby versions provided by 10gen/mongo-ruby-toolchain
+  def older_rubies
+    @older_rubies ||= %w[ ruby-3.0 ruby-2.7 ruby-2.6 ruby-2.5 ]
+  end
+
+  # all supported JRuby versions provided by 10gen/mongo-ruby-toolchain
+  def jrubies
+    @jrubies ||= %w[ jruby-9.3 jruby-9.2 ]
+  end
+
+  # all supported MRI ruby versions
+  def supported_mri_rubies
+    @supported_mri_rubies ||= %w[
+      ruby-3.2 ruby-3.1 ruby-3.0
+      ruby-2.7 ruby-2.6 ruby-2.5
+    ]
+  end
+
+  # all supported ruby versions (MRI & JRuby)
+  def supported_rubies
+    @supported_rubies ||= supported_mri_rubies + jrubies
+  end
+end
+
+ConfigProcessor.build 'config'

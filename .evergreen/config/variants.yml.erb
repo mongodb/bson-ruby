@@ -1,0 +1,51 @@
+buildvariants:
+  - matrix_name: "mri-latest"
+    matrix_spec: { ruby: <%= latest_mri_ruby %>, all-os: '*' }
+    display_name: "${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
+
+  - matrix_name: "mri-sample"
+    matrix_spec: { ruby: <%= sample_without_latest %>, all-os: rhel }
+    display_name: "${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
+
+  - matrix_name: "activesupport-5-6"
+    matrix_spec:
+      ruby: <%= older_rubies %>
+      all-os: rhel
+      as: [ '5.1', '5.2', '6.0', '6.1' ]
+    display_name: "AS ${as} ${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
+
+  - matrix_name: "activesupport-7"
+    matrix_spec:
+      ruby: <%= sample_mri_rubies %>
+      all-os: rhel
+      as: '7.0'
+    display_name: "AS ${as} ${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
+
+  - matrix_name: "special-os"
+    matrix_spec: { ruby: <%= recent_rubies %>, special-os: '*' }
+    display_name: "${ruby}, ${special-os}"
+    tasks:
+      - name: "test"
+
+  - matrix_name: "jruby"
+    matrix_spec: { ruby: <%= jrubies %>, all-os: rhel }
+    display_name: "${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
+
+  - matrix_name: "compact"
+    matrix_spec:
+      ruby: <%= sample_mri_rubies %>
+      all-os: rhel
+      compact: "on"
+    display_name: "${ruby} with GC.compact"
+    tasks:
+      - name: "test"
