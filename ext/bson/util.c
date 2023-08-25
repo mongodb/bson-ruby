@@ -186,7 +186,10 @@ VALUE pvt_rescue_load_secure_random(VALUE _arg, VALUE _exception) {
  * Initializes the RNG.
  */
 void pvt_init_rand() {
-  rb_rescue(pvt_load_secure_random, Qnil, pvt_rescue_load_secure_random, Qnil);
+  // SecureRandom may fail to load because it's not present (LoadError), or
+  // because it can't find a random device (NotImplementedError).
+  rb_rescue2(pvt_load_secure_random, Qnil, pvt_rescue_load_secure_random, Qnil,
+    rb_eLoadError, rb_eNotImpError, 0);
 }
 
 /**
