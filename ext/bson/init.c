@@ -354,6 +354,8 @@ void Init_bson_native()
   rb_bson_machine_id[255] = '\0';
   rb_bson_generate_machine_id(rb_md5_class, rb_bson_machine_id);
 
+  pvt_init_rand();
+
   // Set the object id counter to a random 3-byte integer
   rb_bson_object_id_counter = pvt_rand() % 0xFFFFFF;
 
