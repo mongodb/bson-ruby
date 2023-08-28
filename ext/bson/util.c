@@ -21,6 +21,18 @@
  */
 static char rb_bson_machine_id_hash[HOST_NAME_HASH_MAX];
 
+/**
+ * Holds a reference to the SecureRandom module, or Qnil if the modle is
+ * not available.
+ */
+static VALUE pvt_SecureRandom = Qnil;
+
+/**
+ * Indicates whether or not the SecureRandom module responds to the
+ * `random_number` method (depends on Ruby version).
+ */
+static int pvt_has_random_number = 0;
+
 void rb_bson_generate_machine_id(VALUE rb_md5_class, char *rb_bson_machine_id)
 {
   VALUE digest = rb_funcall(rb_md5_class, rb_intern("digest"), 1, rb_str_new2(rb_bson_machine_id));
@@ -151,43 +163,85 @@ uint8_t* pvt_get_object_id_random_value() {
 }
 
 /**
- * Fills the buffer with random bytes. If arc4random is available, it is used,
- * otherwise a less-ideal fallback is used.
+ * Attempts to load the SecureRandom module
  */
-void pvt_rand_buf(uint8_t* bytes, int len, int pid) {
-#if HAVE_ARC4RANDOM
-  arc4random_buf(bytes, len);
-#else
-  time_t t;
-  uint32_t seed;
-  int ofs = 0;
+VALUE pvt_load_secure_random(VALUE _arg) {
+  rb_require("securerandom");
+  pvt_SecureRandom = rb_const_get(rb_cObject, rb_intern("SecureRandom"));
+  pvt_has_random_number = rb_respond_to(pvt_SecureRandom, rb_intern("random_number"));
 
-  /* TODO: spec says to include hostname as part of the seed */
-  t = time(NULL);
-  seed = ((uint32_t)t << 16) + ((uint32_t)pid % 0xFFFF);
-  srand(seed);
-
-  while (ofs < len) {
-    int n = rand();
-    unsigned remaining = len - ofs;
-
-    if (remaining > sizeof(n)) remaining = sizeof(n);
-    memcpy(bytes+ofs, &n, remaining);
-
-    ofs += remaining;
-  }
-#endif
+  return Qnil;
 }
 
 /**
- * Returns a random integer between 0 and INT_MAX. If arc4random is available,
- * it is used, otherwise a less-ideal fallback is used.
+ * The fallback, if loading `securerandom` fails.
+ */
+VALUE pvt_rescue_load_secure_random(VALUE _arg, VALUE _exception) {
+  pvt_SecureRandom = Qnil;
+
+  return Qnil;
+}
+
+/**
+ * Initializes the RNG.
+ */
+void pvt_init_rand() {
+  // SecureRandom may fail to load because it's not present (LoadError), or
+  // because it can't find a random device (NotImplementedError).
+  rb_rescue2(pvt_load_secure_random, Qnil, pvt_rescue_load_secure_random, Qnil,
+    rb_eLoadError, rb_eNotImpError, 0);
+}
+
+/**
+ * Fills the buffer with random bytes. It prefers to use SecureRandom for
+ * this, but in the very unlikely event that SecureRandom is not available,
+ * it will fall back to a much-less-ideal generator using srand/rand.
+ *
+ * The `pid` argument is only used by the fallback, if SecureRandom is not
+ * available.
+ */
+void pvt_rand_buf(uint8_t* bytes, int len, int pid) {
+  if (pvt_SecureRandom != Qnil) {
+    VALUE rb_bytes = rb_funcall(pvt_SecureRandom, rb_intern("bytes"), 1, INT2NUM(len));
+    memcpy(bytes, StringValuePtr(rb_bytes), len);
+
+  } else {
+    time_t t;
+    uint32_t seed;
+    int ofs = 0;
+
+    t = time(NULL);
+    seed = ((uint32_t)t << 16) + ((uint32_t)pid % 0xFFFF);
+    srand(seed);
+
+    while (ofs < len) {
+      int n = rand();
+      unsigned remaining = len - ofs;
+
+      if (remaining > sizeof(n)) remaining = sizeof(n);
+      memcpy(bytes+ofs, &n, remaining);
+
+      ofs += remaining;
+    }
+  }
+}
+
+/**
+ * Returns a random integer between 0 and INT_MAX.
  */
 int pvt_rand() {
-#if HAVE_ARC4RANDOM
-  return arc4random();
-#else
-  srand((unsigned)time(NULL));
-  return rand();
-#endif
+  if (pvt_has_random_number) {
+    VALUE result = rb_funcall(pvt_SecureRandom, rb_intern("random_number"), 1, INT2NUM(INT_MAX));
+    return NUM2INT(result);
+
+  } else if (pvt_SecureRandom != Qnil) {
+    int result;
+    VALUE rb_result = rb_funcall(pvt_SecureRandom, rb_intern("bytes"), 1, INT2NUM(sizeof(result)));
+    memcpy(&result, StringValuePtr(rb_result), sizeof(result));
+    return result;
+
+  } else {
+    srand((unsigned)time(NULL));
+    return rand();
+  }
 }
