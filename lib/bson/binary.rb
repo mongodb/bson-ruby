@@ -147,7 +147,17 @@ module BSON
     #
     # @since 2.0.0
     def initialize(data = '', type = :generic)
-      @type = validate_type!(type)
+      init_with('data' => data, 'type' => type)
+    end
+
+    # For legacy deserialization support where BSON::Binary objects are
+    # expected to have a specific internal representation (with only
+    # @type and @data instance variables).
+    #
+    # @api private
+    def init_with(coder)
+      @type = validate_type!(coder['type'])
+      data = coder['data']
 
       # The Binary class used to force encoding to BINARY when serializing to
       # BSON. Instead of doing that during serialization, perform this
