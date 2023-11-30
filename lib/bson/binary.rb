@@ -147,16 +147,16 @@ module BSON
     #
     # @since 2.0.0
     def initialize(data = '', type = :generic)
-      @type = validate_type!(type)
+      initialize_instance(data, type)
+    end
 
-      # The Binary class used to force encoding to BINARY when serializing to
-      # BSON. Instead of doing that during serialization, perform this
-      # operation during Binary construction to make it clear that once
-      # the string is given to the Binary, the data is treated as a binary
-      # string and not a text string in any encoding.
-      data = data.dup.force_encoding('BINARY') unless data.encoding == Encoding.find('BINARY')
-
-      @data = data
+    # For legacy deserialization support where BSON::Binary objects are
+    # expected to have a specific internal representation (with only
+    # @type and @data instance variables).
+    #
+    # @api private
+    def init_with(coder)
+      initialize_instance(coder['data'], coder['type'])
     end
 
     # Get a nice string for use with object inspection.
@@ -353,6 +353,23 @@ module BSON
     end
 
     private
+
+    # initializes an instance of BSON::Binary.
+    #
+    # @param [ String ] data the data to initialize the object with
+    # @param [ Symbol ] type the type to assign the binary object
+    def initialize_instance(data, type)
+      @type = validate_type!(type)
+
+      # The Binary class used to force encoding to BINARY when serializing to
+      # BSON. Instead of doing that during serialization, perform this
+      # operation during Binary construction to make it clear that once
+      # the string is given to the Binary, the data is treated as a binary
+      # string and not a text string in any encoding.
+      data = data.dup.force_encoding('BINARY') unless data.encoding == Encoding.find('BINARY')
+
+      @data = data
+    end
 
     # Converts the Binary UUID object to a UUID of the given representation.
     # Currently, only :standard representation is supported.

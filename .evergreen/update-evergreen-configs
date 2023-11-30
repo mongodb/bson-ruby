@@ -101,7 +101,7 @@ module ConfigProcessor
 
   # older Ruby versions provided by 10gen/mongo-ruby-toolchain
   def older_rubies
-    @older_rubies ||= %w[ ruby-3.0 ruby-2.7 ruby-2.6 ruby-2.5 ]
+    @older_rubies ||= %w[ ruby-3.0 ruby-2.7 ruby-2.6 ]
   end
 
   # all supported JRuby versions provided by 10gen/mongo-ruby-toolchain
@@ -113,7 +113,7 @@ module ConfigProcessor
   def supported_mri_rubies
     @supported_mri_rubies ||= %w[
       ruby-3.2 ruby-3.1 ruby-3.0
-      ruby-2.7 ruby-2.6 ruby-2.5
+      ruby-2.7 ruby-2.6
     ]
   end
 

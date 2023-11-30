@@ -82,7 +82,7 @@ describe BSON::Binary do
       end
     end
 
-    context "when he type is invalid" do
+    context "when the type is invalid" do
 
       it "raises an error" do
         expect {
@@ -91,6 +91,15 @@ describe BSON::Binary do
           expect(error).to be_a(BSON::Error::InvalidBinaryType)
           expect(error.message).to match /is not a valid binary type/
         }
+      end
+    end
+
+    context 'when initialized via legacy YAML' do
+      let(:yaml) { "--- !ruby/object:BSON::Binary\ndata: hello\ntype: :generic\n" }
+      let(:deserialized) { YAML.safe_load(yaml, permitted_classes: [ Symbol, BSON::Binary ]) }
+
+      it 'correctly sets the raw_type' do
+        expect(deserialized.raw_type).to be == BSON::Binary::SUBTYPES[:generic]
       end
     end
   end

@@ -296,10 +296,6 @@ axes:
         display_name: ruby-2.6
         variables:
            RVM_RUBY: ruby-2.6
-      - id: ruby-2.5
-        display_name: ruby-2.5
-        variables:
-           RVM_RUBY: ruby-2.5
       - id: jruby-9.3
         display_name: jruby-9.3
         variables:
@@ -360,7 +356,7 @@ buildvariants:
 
   - matrix_name: "activesupport-5-6"
     matrix_spec:
-      ruby: ["ruby-3.0", "ruby-2.7", "ruby-2.6", "ruby-2.5"]
+      ruby: ["ruby-3.0", "ruby-2.7", "ruby-2.6"]
       all-os: rhel
       as: [ '5.1', '5.2', '6.0', '6.1' ]
     display_name: "AS ${as} ${ruby}, ${all-os}"
