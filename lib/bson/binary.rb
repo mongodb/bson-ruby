@@ -48,6 +48,7 @@ module BSON
       md5: 5.chr,
       ciphertext: 6.chr,
       column: 7.chr,
+      sensitive: 8.chr,
       user: 128.chr,
     }.freeze
 
