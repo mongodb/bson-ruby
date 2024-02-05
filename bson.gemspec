@@ -41,6 +41,11 @@ Gem::Specification.new do |s|
     s.platform   = 'java'
   end
 
+  if RUBY_VERSION > '3.2.99'
+    s.add_dependency 'base64'
+    s.add_dependency 'bigdecimal'
+  end
+
   s.test_files = Dir.glob('spec/**/*')
 
   s.require_path              = 'lib'
