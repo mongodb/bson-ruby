@@ -1,6 +1,6 @@
-.. https://www.mongodb.com/docs/ecosystem/tutorial/ruby-bson-tutorial-4-0/
+.. https://www.mongodb.com/docs/ecosystem/tutorial/ruby-bson-tutorial/
 
-.. _ruby-bson-tutorial-4-0:
+.. _ruby-bson-tutorial:
 
 *************
 BSON Tutorial
