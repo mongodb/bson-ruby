@@ -49,6 +49,6 @@ Gem::Specification.new do |s|
   s.test_files = Dir.glob('spec/**/*')
 
   s.require_path              = 'lib'
-  s.required_ruby_version     = '>= 2.5'
+  s.required_ruby_version     = '>= 2.6'
   s.required_rubygems_version = '>= 1.3.6'
 end
