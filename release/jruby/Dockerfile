@@ -1,4 +1,4 @@
-FROM debian:9
+FROM debian:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # https://github.com/hazelcast/hazelcast/issues/14214
 
 RUN apt-get update && \
-  apt-get -y install openjdk-8-jdk ruby git curl make g++
+  apt-get -y install openjdk-17-jdk ruby git curl make g++
 
 WORKDIR /rubies
 COPY release/jruby/install.sh /rubies/
