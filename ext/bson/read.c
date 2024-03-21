@@ -29,6 +29,7 @@ static VALUE pvt_get_symbol(byte_buffer_t *b, VALUE rb_buffer, int argc, VALUE *
 static VALUE pvt_get_boolean(byte_buffer_t *b);
 static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv);
 static void pvt_skip_cstring(byte_buffer_t *b);
+static size_t pvt_strnlen(const byte_buffer_t *b);
 
 void pvt_raise_decode_error(volatile VALUE msg) {
   VALUE klass = pvt_const_get_3("BSON", "Error", "BSONDecodeError");
@@ -143,7 +144,7 @@ VALUE rb_bson_byte_buffer_get_bytes(VALUE self, VALUE i)
 }
 
 VALUE pvt_get_boolean(byte_buffer_t *b){
-  VALUE result;
+  VALUE result = Qnil;
   char byte_value;
   ENSURE_BSON_READ(b, 1);
   byte_value = *READ_PTR(b);
@@ -236,7 +237,7 @@ VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
   int length;
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
-  length = (int)strlen(READ_PTR(b));
+  length = (int)pvt_strnlen(b);
   ENSURE_BSON_READ(b, length);
   string = rb_enc_str_new(READ_PTR(b), length, rb_utf8_encoding());
   b->read_position += length + 1;
@@ -249,7 +250,7 @@ VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
 void pvt_skip_cstring(byte_buffer_t *b)
 {
   int length;
-  length = (int)strlen(READ_PTR(b));
+  length = (int)pvt_strnlen(b);
   ENSURE_BSON_READ(b, length);
   b->read_position += length + 1;
 }
@@ -452,4 +453,18 @@ VALUE rb_bson_byte_buffer_get_array(int argc, VALUE *argv, VALUE self){
   }
 
   return array;
+}
+
+/**
+ * Returns the length of the given string `str`. If no null-terminating byte
+ * is present when `len` bytes have been scanned, then `len` is
+ * returned.
+ */
+size_t pvt_strnlen(const byte_buffer_t *b) {
+  const char *ptr = memchr(READ_PTR(b), '\0', READ_SIZE(b));
+
+  if (!ptr)
+    rb_raise(rb_eRangeError, "string is too long (possibly not null-terminated)");
+
+  return (size_t)(ptr - READ_PTR(b));
 }
