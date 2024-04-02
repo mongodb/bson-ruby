@@ -642,6 +642,10 @@ void pvt_put_array_index(byte_buffer_t *b, int32_t index)
     c_str = buffer;
     snprintf(buffer, sizeof(buffer), "%d", index);
   }
+  // strlen is a potential vector for out-of-bounds errors, but
+  // the only way for that to happen here, specifically, is if `index`
+  // is greater than 10e16 - 1, which is far beyond the domain of an
+  // int32.
   length = strlen(c_str) + 1;
   ENSURE_BSON_WRITE(b, length);
   memcpy(WRITE_PTR(b), c_str, length);
