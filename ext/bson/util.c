@@ -65,7 +65,7 @@ VALUE rb_bson_object_id_generator_next(int argc, VALUE* args, VALUE self)
    * obtaining the timestamp value." */
 
   timestamp = rb_funcall(rb_bson_object_id_class, rb_intern("timestamp"), 0);
-  time_component = BSON_UINT32_TO_BE(NUM2INT(timestamp));
+  time_component = BSON_UINT32_TO_BE(NUM2UINT(timestamp));
 
   /* "A 5-byte field consisting of a random value generated once per process.
    * This random value is unique to the machine and process.
