@@ -622,6 +622,20 @@ describe BSON::ObjectId do
     end
   end
 
+  context 'when the timestamp is larger than a 32-bit integer' do
+    let(:distant_future) { Time.at(2 ** 32) }
+
+    before do
+      allow(Time).to receive(:now).and_return(distant_future)
+    end
+
+    let(:object_id) { BSON::ObjectId.new }
+
+    it 'wraps the timestamp to 0' do
+      expect(object_id.to_time).to be == Time.at(0)
+    end
+  end
+
   context 'when fork changes the pid' do
     before do
       skip 'requires Process.fork' unless Process.respond_to?(:fork)

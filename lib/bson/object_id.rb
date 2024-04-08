@@ -356,12 +356,22 @@ module BSON
         block_given? ? yield(object) : object
       end
 
+      # The largest numeric value that can be converted to an integer by MRI's
+      # NUM2UINT. Further, the spec dictates that the time component of an
+      # ObjectID must be no more than 4 bytes long, so the spec itself is
+      # constrained in this regard.
+      MAX_INTEGER = 2 ** 32
+
       # Returns an integer timestamp (seconds since the Epoch). Primarily used
       # by the generator to produce object ids.
       #
+      # @note This value is guaranteed to be no more than 4 bytes in length. A
+      #   time value far enough in the future to require a larger integer than
+      #   4 bytes will be truncated to 4 bytes.
+      #
       # @return [ Integer ] the number of seconds since the Epoch.
       def timestamp
-        ::Time.now.to_i
+        ::Time.now.to_i % MAX_INTEGER
       end
     end
 
