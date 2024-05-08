@@ -29,6 +29,56 @@ BSON Specification
 
 The [BSON specification](http://bsonspec.org) is at bsonspec.org.
 
+## Bugs & Feature Requests
+
+To report a bug in the `bson` gem or request a feature:
+
+1. Visit [our issue tracker](https://jira.mongodb.org/) and login
+   (or create an account if you do not have one already).
+2. Navigate to the [RUBY project](https://jira.mongodb.org/browse/RUBY).
+3. Click 'Create Issue' and fill out all of the applicable form fields, making
+sure to select `BSON` in the _Component/s_ field.
+
+When creating an issue, please keep in mind that all information in JIRA
+for the RUBY project, as well as the core server (the SERVER project),
+is publicly visible.
+
+**PLEASE DO:**
+
+- Provide as much information as possible about the issue.
+- Provide detailed steps for reproducing the issue.
+- Provide any applicable code snippets, stack traces and log data.
+- Specify version numbers of the `bson` gem and/or Ruby driver and MongoDB 
+server.
+
+**PLEASE DO NOT:**
+
+- Provide any sensitive data or server logs.
+- Report potential security issues publicly (see 'Security Issues' below).
+
+## Security Issues
+
+If you have identified a potential security-related issue in the `bson` gem
+(or any other MongoDB product), please report it by following the
+[instructions here](https://www.mongodb.com/docs/manual/tutorial/create-a-vulnerability-report).
+
+## Product Feature Requests
+
+To request a feature which is not specific to the `bson` gem, or which
+affects more than the `bson` gem and/or Ruby driver alone (for example, a 
+feature which requires MongoDB server support), please submit your idea through 
+the [MongoDB Feedback Forum](https://feedback.mongodb.com/forums/924286-drivers).
+
+## Maintenance and Bug Fix Policy
+
+New library functionality is generally added in a backwards-compatible manner
+and results in new minor releases. Bug fixes are generally made on
+master first and are backported to the current minor library release. Exceptions
+may be made on a case-by-case basis, for example security fixes may be
+backported to older stable branches. Only the most recent minor release
+is officially supported. Customers should use the most recent release in
+their applications.
+
 Versioning
 ----------
 
