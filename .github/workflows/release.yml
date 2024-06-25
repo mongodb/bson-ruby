@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [ '3.2', '9.4' ]  # mri ruby-3.2, jruby-9.4
+        ruby: [ '3.2', jruby ]
     steps:
       - name: Check out the repository
         uses: mongodb-labs/drivers-github-tools/secure-checkout@v2
