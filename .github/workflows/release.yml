@@ -43,13 +43,11 @@ permissions:
   # also required by `rubygems/release-gem`
   id-token: write
 
-defaults:
-  environment: release
-  runs-on: ubuntu-latest
-
 jobs:
   build:
     name: "Build Gems"
+    environment: release
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -87,6 +85,8 @@ jobs:
   publish:
     name: Publish Gems
     needs: build
+    environment: release
+    runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
         uses: mongodb-labs/drivers-github-tools/secure-checkout@v2
