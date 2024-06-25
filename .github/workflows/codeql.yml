@@ -48,6 +48,7 @@ jobs:
             - .evergreen
             - spec
             - perf
+            - vendor
 
     - name: Setup Ruby
       if: matrix.build-mode == 'manual'
