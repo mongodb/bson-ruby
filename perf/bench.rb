@@ -15,6 +15,7 @@
 
 $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 require "benchmark"
+require 'bson'
 
 def benchmark!
   count = 1_000_000

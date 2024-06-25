@@ -23,15 +23,8 @@ Gem::Specification.new do |s|
     'source_code_uri' => 'https://github.com/mongodb/bson-ruby'
   }
 
-  if File.exist?('gem-private_key.pem')
-    s.signing_key = 'gem-private_key.pem'
-    s.cert_chain  = ['gem-public_cert.pem']
-  else
-    warn "[#{s.name}] Warning: No private key present, creating unsigned gem."
-  end
-
-  s.files      = %w(CONTRIBUTING.md CHANGELOG.md LICENSE NOTICE README.md Rakefile)
-  s.files      += Dir.glob('lib/**/*')
+  s.files = %w(CONTRIBUTING.md CHANGELOG.md LICENSE NOTICE README.md Rakefile)
+  s.files += Dir.glob('lib/**/*')
 
   unless RUBY_PLATFORM =~ /java/
     s.platform   = Gem::Platform::RUBY
