@@ -86,6 +86,7 @@ jobs:
 
   publish:
     name: Publish Gems
+    needs: build
     steps:
       - name: Check out the repository
         uses: mongodb-labs/drivers-github-tools/secure-checkout@v2
