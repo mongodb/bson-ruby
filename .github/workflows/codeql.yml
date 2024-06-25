@@ -49,7 +49,15 @@ jobs:
             - spec
             - perf
 
-    - if: matrix.build-mode == 'manual'
+    - name: Setup Ruby
+      if: matrix.build-mode == 'manual'
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+
+    - name: Manually build the native code
+      if: matrix.build-mode == 'manual'
       run: |
         bundle exec rake compile
 
