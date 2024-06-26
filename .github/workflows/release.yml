@@ -7,7 +7,8 @@ on:
       dry_run:
         description: Whether this is a dry run or not ("false" to deploy)
         required: true
-        type: string
+        default: true
+        type: boolean
 
 env:
   SILK_ASSET_GROUP: bson-ruby
