@@ -126,7 +126,7 @@ jobs:
         with:
           product_name: BSON for Ruby
           release_version: ${{ env.RELEASE_VERSION }}
-          dist_filenames: '*.gem ${{ env.RELEASE_ASSETS}}/*.sig'
+          dist_filenames: '*.gem'
           silk_asset_group: bson-ruby
 
       - name: Create the tag
