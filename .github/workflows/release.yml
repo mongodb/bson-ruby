@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: Whether this is a dry run or not ("false" to deploy)
+        description: Whether this is a dry run or not
         required: true
         default: true
         type: boolean
