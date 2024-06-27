@@ -47,7 +47,6 @@ permissions:
 jobs:
   build:
     name: "Build Gems"
-    environment: release
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -55,10 +54,7 @@ jobs:
         ruby: [ '3.2', jruby ]
     steps:
       - name: Check out the repository
-        uses: mongodb-labs/drivers-github-tools/secure-checkout@v2
-        with:
-          app_id: ${{ vars.APP_ID }}
-          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+        uses: actions/checkout@v4
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
