@@ -37,6 +37,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Setup Ruby
+      if: matrix.build-mode == 'manual'
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
@@ -49,13 +56,6 @@ jobs:
             - spec
             - perf
             - vendor
-
-    - name: Setup Ruby
-      if: matrix.build-mode == 'manual'
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.2'
-        bundler-cache: true
 
     - name: Manually build the native code
       if: matrix.build-mode == 'manual'
