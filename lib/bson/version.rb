@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 # rubocop:todo all
+
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,5 +16,5 @@
 # limitations under the License.
 
 module BSON
-  VERSION = "5.0.0"
+  VERSION = "5.0.1"
 end
