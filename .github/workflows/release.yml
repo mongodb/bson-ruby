@@ -85,13 +85,6 @@ jobs:
     environment: release
     runs-on: ubuntu-latest
     steps:
-      - name: testing value comparisons
-        if: inputs.dry_run == true
-        shell: bash
-        run: |
-          echo This should be printed
-          exit 1
-
       - name: Check out the repository
         uses: mongodb-labs/drivers-github-tools/secure-checkout@v2
         with:
