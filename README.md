@@ -1,16 +1,54 @@
 BSON
 [![Gem Version][rubygems-img]][rubygems-url]
 [![Build Status][ghactions-img]][ghactions-url]
-[![Coverage Status][coveralls-img]][coveralls-url]
-[![Inline docs][inch-img]][inch-url]
 ====
 
 An implementation of the BSON specification in Ruby.
 
+Installation
+------------
+
+BSON can be installed via RubyGems:
+
+```
+> gem install bson
+```
+
+Or by adding it to your project's Gemfile:
+
+```ruby
+gem 'bson'
+```
+
+### Release Integrity
+
+Each release of the BSON library for Ruby after version 5.0.0 has been automatically built and signed using the team's GPG key.
+
+To verify the bson gem file:
+
+1. [Download the GPG key](https://pgp.mongodb.com/ruby-driver.asc).
+2. Import the key into your GPG keyring with `gpg --import ruby-driver.asc`.
+3. Download the gem file (if you don't already have it). You can download it from RubyGems with `gem fetch bson`, or you can download it from the [releases page](https://github.com/mongodb/bson-ruby/releases) on GitHub.
+4. Download the corresponding detached signature file from the [same release](https://github.com/mongodb/bson-ruby/releases). Look at the bottom of the release that corresponds to the gem file, under the 'Assets' list, for a `.sig` file with the same version number as the gem you wish to install.
+5. Verify the gem with `gpg --verify bson-X.Y.Z.gem.sig bson-X.Y.Z.gem` (replacing `X.Y.Z` with the actual version number).
+
+You are looking for text like "Good signature from "MongoDB Ruby Driver Release Signing Key <packaging@mongodb.com>" in the output. If you see that, the signature was found to correspond to the given gem file.
+
+(Note that other output, like "This key is not certified with a trusted signature!", is related to *web of trust* and depends on how strongly you, personally, trust the `ruby-driver.asc` key that you downloaded from us. To learn more, see https://www.gnupg.org/gph/en/manual/x334.html)
+
+### Why not use RubyGems' gem-signing functionality?
+
+RubyGems' own gem signing is problematic, most significantly because there is no established chain of trust related to the keys used to sign gems. RubyGems' own documentation admits that "this method of signing gems is not widely used" (see https://guides.rubygems.org/security/). Discussions about this in the RubyGems community have been off-and-on for more than a decade, and while a solution will eventually arrive, we have settled on using GPG instead for the following reasons:
+
+1. Many of the other driver teams at MongoDB are using GPG to sign their product releases. Consistency with the other teams means that we can reuse existing tooling for our own product releases.
+2. GPG is widely available and has existing tools and procedures for dealing with web of trust (though they are admittedly quite arcane and intimidating to the uninitiated, unfortunately).
+
+Ultimately, most users do not bother to verify gems, and will not be impacted by our choice of GPG over RubyGems' native method.
+
 Compatibility
 -------------
 
-BSON is tested against MRI (2.6) and JRuby (9.2+).
+BSON is tested against MRI (2.7+) and JRuby (9.3+).
 
 Documentation
 -------------
@@ -106,7 +144,3 @@ limitations under the License.
 [rubygems-url]: http://badge.fury.io/rb/bson
 [ghactions-img]: https://github.com/mongodb/bson-ruby/actions/workflows/bson-ruby.yml/badge.svg?query=branch%3Amaster
 [ghactions-url]: https://github.com/mongodb/bson-ruby/actions/workflows/bson-ruby.yml?query=branch%3Amaster
-[coveralls-img]: https://coveralls.io/repos/mongodb/bson-ruby/badge.svg?branch=master
-[coveralls-url]: https://coveralls.io/r/mongodb/bson-ruby?branch=master
-[inch-img]: http://inch-ci.org/github/mongodb/bson-ruby.svg?branch=master
-[inch-url]: http://inch-ci.org/github/mongodb/bson-ruby
