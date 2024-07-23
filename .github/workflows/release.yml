@@ -165,6 +165,6 @@ jobs:
 
       - name: Publish the gems
         uses: rubygems/release-gem@v1
-        if: inputs.dry_run == 'false'
+        if: inputs.dry_run == false
         with:
           await-release: false
