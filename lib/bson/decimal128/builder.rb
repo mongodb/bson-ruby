@@ -156,7 +156,7 @@ module BSON
         # @return [ Regex ] The regex for a valid decimal128 string.
         #
         # @since 4.2.0
-        VALID_DECIMAL128_STRING_REGEX = /\A[\-\+]?(\d+(\.\d*)?|\.\d+)(E[\-\+]?\d+)?\Z/i
+        VALID_DECIMAL128_STRING_REGEX = /\A[\-\+]?(\d+(\.\d*)?|\.\d+)(E[\-\+]?\d+)?\z/i
 
         # Initialize the FromString Builder object.
         #
