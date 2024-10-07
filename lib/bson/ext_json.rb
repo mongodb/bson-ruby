@@ -19,7 +19,7 @@ require 'json'
 module BSON
 
   # This module contains methods for parsing Extended JSON 2.0.
-  # https://github.com/mongodb/specifications/blob/master/source/extended-json.rst
+  # https://github.com/mongodb/specifications/blob/master/source/extended-json/extended-json.md
   module ExtJSON
 
     # Parses JSON in a string into a Ruby object tree.

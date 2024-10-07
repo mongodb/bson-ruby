@@ -75,7 +75,7 @@ module BSON
     end
 
     # Converts this object to a representation directly serializable to
-    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json/extended-json.md).
     #
     # @return [ Hash ] The extended json representation.
     def as_extended_json(**_)

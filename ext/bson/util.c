@@ -43,7 +43,7 @@ void rb_bson_generate_machine_id(VALUE rb_md5_class, char *rb_bson_machine_id)
  * Generate the next object id.
  *
  * Specification:
- * https://github.com/mongodb/specifications/blob/master/source/objectid.rst
+ * https://github.com/mongodb/specifications/blob/master/source/bson-objectid/objectid.md
  *
  * The ObjectID BSON type is a 12-byte value consisting of three different portions (fields):
  *   * a 4-byte value representing the seconds since the Unix epoch in the highest order bytes,
