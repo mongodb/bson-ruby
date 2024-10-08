@@ -63,7 +63,7 @@ module BSON
     end
 
     # Converts this object to a representation directly serializable to
-    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json/extended-json.md).
     #
     # @option opts [ nil | :relaxed | :legacy ] :mode Serialization mode
     #   (default is canonical extended JSON)

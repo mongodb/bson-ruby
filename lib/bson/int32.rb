@@ -131,7 +131,7 @@ module BSON
     end
 
     # Converts this object to a representation directly serializable to
-    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json/extended-json.md).
     #
     # This method returns the integer value if relaxed representation is
     # requested, otherwise a $numberInt hash.

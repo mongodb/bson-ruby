@@ -49,7 +49,7 @@ module BSON
     end
 
     # Converts this object to a representation directly serializable to
-    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json.rst).
+    # Extended JSON (https://github.com/mongodb/specifications/blob/master/source/extended-json/extended-json.md).
     #
     # This method returns the float itself if relaxed representation is
     # requested and the value is finite, otherwise a $numberDouble hash.

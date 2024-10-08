@@ -151,7 +151,7 @@ public class GeneratorExtension {
 
   /**
    * Generate the next object id in the sequence, per the ObjectId spec:
-   * https://github.com/mongodb/specifications/blob/master/source/objectid.rst#specification
+   * https://github.com/mongodb/specifications/blob/master/source/bson-objectid/objectid.md#specification
    *
    * @param generator The object id generator.
    * @param time The time in seconds.
