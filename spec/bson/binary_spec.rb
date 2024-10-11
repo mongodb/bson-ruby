@@ -20,17 +20,56 @@ describe BSON::Binary do
   let(:testing1)  { described_class.new("testing") }
   let(:testing2)  { described_class.new("testing") }
   let(:not_testing) { described_class.new("not testing") }
+  let(:testing3) { described_class.new("testing", :user) }
 
-  describe "#eql?" do
-    context "for two equal objects" do
-      it "returns true" do
-        expect(testing1).to eql(testing2)
+  describe "Comparable" do
+    describe "#eql?" do
+      context "for two equal objects" do
+        it "returns true" do
+          expect(testing1).to eql(testing2)
+        end
+      end
+
+      context "for two different objects" do
+        it "returns false" do
+          expect(testing1).not_to eql(not_testing)
+        end
+      end
+
+      context 'for objects with identical data but different types' do
+        it 'returns false' do
+          expect(testing1).not_to eql(testing3)
+        end
       end
     end
 
-    context "for two different objects" do
-      it "returns false" do
-        expect(testing1).not_to eql(not_testing)
+    describe '#<=>' do
+      context 'with a non-Binary object' do
+        it 'returns nil' do
+          expect(testing1 <=> 'bogus').to be_nil
+        end
+      end
+
+      context 'with identical type and data' do
+        it 'returns 0' do
+          expect(testing1 <=> testing2).to be == 0
+        end
+      end
+
+      context 'with mismatched type' do
+        it 'returns nil' do
+          expect(testing1 <=> testing3).to be_nil
+        end
+      end
+
+      context 'with identical type but mismatched data' do
+        it 'returns -1 when a < b' do
+          expect(not_testing <=> testing1).to be == -1
+        end
+
+        it 'returns 1 when a > b' do
+          expect(testing1 <=> not_testing).to be == 1
+        end
       end
     end
   end
