@@ -24,6 +24,7 @@ module BSON
   # @since 2.0.0
   class Binary
     include JSON
+    include Comparable
 
     # A binary is type 0x05 in the BSON spec.
     #
@@ -89,6 +90,20 @@ module BSON
       type == other.type && data == other.data
     end
     alias eql? ==
+
+    # Compare this binary object to another object. The two objects must have
+    # the same type for any meaningful comparison.
+    #
+    # @param [ Object ] other The object to compare against.
+    # 
+    # @return [ Integer | nil ] If the objects have the same type, the result
+    #   is -1 if self < other, 0 if self == other, and 1 if self > other. If
+    #   other is not a Binary, or is a Binary of a different type, returns nil.
+    def <=>(other)
+      return nil unless other.is_a?(Binary) && type == other.type
+
+      data <=> other.data
+    end
 
     # Generates a Fixnum hash value for this object.
     #
