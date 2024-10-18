@@ -81,12 +81,12 @@ module ConfigProcessor
   # the most recently released, stable version of Ruby (make sure this
   # version is being built by 10gen/mongo-ruby-toolchain)
   def latest_mri_ruby
-    "ruby-3.2"
+    "ruby-3.3"
   end
 
   # this is a list of the most most recent 3.x and 2.x MRI ruby versions
   def sample_mri_rubies
-    @sample_mri_rubies ||= %w[ ruby-3.2 ruby-2.7 ]
+    @sample_mri_rubies ||= %w[ ruby-3.3 ruby-2.7 ]
   end
 
   # same as `sample_mri_rubies`, but without the `latest_mri_ruby` entry.
@@ -101,7 +101,7 @@ module ConfigProcessor
 
   # older Ruby versions provided by 10gen/mongo-ruby-toolchain
   def older_rubies
-    @older_rubies ||= %w[ ruby-3.0 ruby-2.7 ruby-2.6 ]
+    @older_rubies ||= %w[ ruby-3.0 ruby-2.7 ]
   end
 
   # all supported JRuby versions provided by 10gen/mongo-ruby-toolchain
@@ -112,8 +112,8 @@ module ConfigProcessor
   # all supported MRI ruby versions
   def supported_mri_rubies
     @supported_mri_rubies ||= %w[
-      ruby-3.2 ruby-3.1 ruby-3.0
-      ruby-2.7 ruby-2.6
+      ruby-3.3 ruby-3.2 ruby-3.1 ruby-3.0
+      ruby-2.7
     ]
   end
 
