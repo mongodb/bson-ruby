@@ -170,6 +170,9 @@ VALUE pvt_load_secure_random(VALUE _arg) {
   pvt_SecureRandom = rb_const_get(rb_cObject, rb_intern("SecureRandom"));
   pvt_has_random_number = rb_respond_to(pvt_SecureRandom, rb_intern("random_number"));
 
+  // mark SecureRandom so it does not get moved
+  rb_global_variable(&pvt_SecureRandom);
+
   return Qnil;
 }
 
