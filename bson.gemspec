@@ -37,6 +37,7 @@ Gem::Specification.new do |s|
   if RUBY_VERSION > '3.2.99'
     s.add_dependency 'base64'
     s.add_dependency 'bigdecimal'
+    s.add_dependency 'ostruct'
   end
 
   s.test_files = Dir.glob('spec/**/*')

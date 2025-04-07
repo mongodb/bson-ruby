@@ -402,7 +402,9 @@ module BSON
 
     def self.from_vector(vector, dtype, padding = 0)
       raise ArgumentError, 'Padding applies only to packed_bit' if padding != 0 && %i[int8 float32].include?(dtype)
-      raise ArgumentError, 'Padding cannot positive if vector is an empty PACKED_BIT' if padding.positive? && vector.empty?
+      if padding.positive? && vector.empty?
+        raise ArgumentError, 'Padding must be zero when the vector is empty for PACKED_BIT'
+      end
 
       format = case dtype
                when :int8
