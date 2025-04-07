@@ -410,7 +410,7 @@ module BSON
     # @return [ BSON::Binary ] The binary object.
     def self.from_vector(vector, dtype, padding = 0)
       data, dtype, padding = extract_args_for_vector(vector, dtype, padding)
-      validate_args_for_vector!(dtype, padding)
+      validate_args_for_vector!(data, dtype, padding)
 
       format = case dtype
                when :int8 then 'c*'
@@ -432,7 +432,7 @@ module BSON
     # @param [ Integer ] padding The padding. Must be 0 if vector is a BSON::Vector.
     #
     # @return [ Array ] The extracted data, dtype, and padding.
-    def extract_args_for_vector(vector, dtype, padding)
+    def self.extract_args_for_vector(vector, dtype, padding)
       if vector.is_a?(BSON::Vector)
         if dtype || padding != 0
           raise ArgumentError, 'Do not specify dtype and padding if the first argument is BSON::Vector'
@@ -446,22 +446,25 @@ module BSON
       end
       [ data, dtype, padding ]
     end
+    private_class_method :extract_args_for_vector
 
     # Validate the arguments for a binary vector.
+    # @param [ Array ] data The vector data.
     # @param [ ::Symbol ] dtype The vector data type.
     # @param [ Integer | nil ] padding The padding. Must be 0 if vector is a BSON::Vector.
     # @raise [ ArgumentError ] If the arguments are invalid.
-    def validate_args_for_vector!(dtype, padding)
+    def self.validate_args_for_vector!(data, dtype, padding)
       raise ArgumentError, "Unknown dtype #{dtype}" unless VECTOR_DATA_TYPES.key?(dtype)
 
       if %i[int8 float32].include?(dtype)
         raise ArgumentError, 'Padding applies only to packed_bit' if padding != 0
-      elsif padding.positive? && vector.empty?
+      elsif padding.positive? && data.empty?
         raise ArgumentError, 'Padding must be zero when the vector is empty for PACKED_BIT'
       elsif padding.negative? || padding > 7
         raise ArgumentError, "Padding must be between 1 and 7, got #{padding}"
       end
     end
+    private_class_method :validate_args_for_vector!
 
     # initializes an instance of BSON::Binary.
     #
