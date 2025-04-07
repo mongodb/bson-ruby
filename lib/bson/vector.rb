@@ -15,16 +15,27 @@
 # limitations under the License.
 
 module BSON
+  # Vector of numbers along with metadata for binary interoperability.
   class Vector < ::Array
 
+    # @return [ Integer ] The data type stored in the vector.
     attr_reader :dtype
 
+    # @return [ Integer ]  The number of bits in the final byte that are to
+    # be ignored when a vector element's size is less than a byte
+    # and the length of the vector is not a multiple of 8.
     attr_reader :padding
 
+    # @return [ BSON::ByteBuffer ] The data in the vector.
     def data
       self
     end
 
+    # @param [ ::Array ] data The data to initialize the vector with.
+    # @param [ Integer ] dtype The data type of the vector.
+    # @param [ Integer ] padding The number of bits in the final byte that are to
+    # be ignored when a vector element's size is less than a byte
+    # and the length of the vector is not a multiple of 8.
     def initialize(data, dtype, padding)
       @dtype = dtype
       @padding = padding

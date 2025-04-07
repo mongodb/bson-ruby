@@ -62,12 +62,14 @@ module BSON
     # @since 2.0.0
     TYPES = SUBTYPES.invert.freeze
 
+    # Types of vector data.
     VECTOR_DATA_TYPES = {
       int8: '0x03'.hex,
       float32: '0x27'.hex,
       packed_bit: '0x10'.hex
     }.freeze
 
+    # @api private
     VECTOR_DATA_TYPES_INVERSE = VECTOR_DATA_TYPES.invert.freeze
 
     # @return [ String ] The raw binary data.
@@ -123,7 +125,7 @@ module BSON
     #
     # @since 2.3.1
     def hash
-      [ data, type ].hash
+      [data, type].hash
     end
 
     # Return a representation of the object for use in
@@ -156,22 +158,20 @@ module BSON
       end
     end
 
+    # Decode the binary data as a vector data type.
+    #
+    # @return [ BSON::Vector ] The decoded vector data.
     def as_vector
+      raise BSON::Error, "Cannot decode subtype #{type} as vector" unless type == :vector
+
       dtype_value, padding, = data[0..1].unpack('CC')
       dtype = VECTOR_DATA_TYPES_INVERSE[dtype_value]
       raise ArgumentError, "Unsupported vector type: #{dtype_value}" unless dtype
 
       format = case dtype
-               when :int8
-                 raise ArgumentError, 'Padding does not apply to int8' if padding != 0
-
-                 'c*'
-               when :float32
-                 raise ArgumentError, 'Padding does not apply to float32' if padding != 0
-
-                 'f*'
-               when :packed_bit
-                 'C*'
+               when :int8 then 'c*'
+               when :float32 then 'f*'
+               when :packed_bit then 'C*'
                else
                  raise ArgumentError, "Unsupported type: #{dtype}"
                end
@@ -400,32 +400,68 @@ module BSON
       new(uuid_binary, :uuid_old)
     end
 
+    # Constructs a new binary object from a binary vector.
+
+    # @param [ BSON::Vector | Array ] vector The vector data.
+    # @param [ Symbol | nil ] dtype The vector data type, must be nil if vector is a BSON::Vector.
+    # @param [ Integer ] padding The number of bits in the final byte that are to
+    # be ignored when a vector element's size is less than a byte. Must be 0 if vector is a BSON::Vector.
+    # 
+    # @return [ BSON::Binary ] The binary object.
     def self.from_vector(vector, dtype, padding = 0)
-      raise ArgumentError, 'Padding applies only to packed_bit' if padding != 0 && %i[int8 float32].include?(dtype)
-      if padding.positive? && vector.empty?
-        raise ArgumentError, 'Padding must be zero when the vector is empty for PACKED_BIT'
-      end
+      data, dtype, padding = extract_args_for_vector(vector, dtype, padding)
+      validate_args_for_vector!(dtype, padding)
 
       format = case dtype
-               when :int8
-                 'c*'
-               when :float32
-                 'f*'
-               when :packed_bit
-                 if padding.negative? || padding > 7
-                   raise ArgumentError, "Padding must be between 1 and 7, got #{padding}"
-                 end
-
-                 'C*'
-               else
-                 raise ArgumentError, "Unsupported type: #{dtype}"
+               when :int8 then 'c*'
+               when :float32 then 'f*'
+               when :packed_bit then 'C*'
+               else raise ArgumentError, "Unsupported type: #{dtype}"
                end
-      metadata = [ VECTOR_DATA_TYPES[dtype], padding ].pack('CC')
-      data = vector.pack(format)
+      metadata = [VECTOR_DATA_TYPES[dtype], padding].pack('CC')
+      data = data.pack(format)
       new(metadata.concat(data), :vector)
     end
 
     private
+
+    # Extracts the arguments for a binary vector.
+    #
+    # @param [ BSON::Vector | Array ] vector The vector data.
+    # @param [ ::Symbol | nil ] dtype The vector data type, must be nil if vector is a BSON::Vector.
+    # @param [ Integer ] padding The padding. Must be 0 if vector is a BSON::Vector.
+    #
+    # @return [ Array ] The extracted data, dtype, and padding.
+    def extract_args_for_vector(vector, dtype, padding)
+      if vector.is_a?(BSON::Vector)
+        if dtype || padding != 0
+          raise ArgumentError, 'Do not specify dtype and padding if the first argument is BSON::Vector'
+        end
+
+        data = vector.data
+        dtype = vector.type
+        padding = vector.padding
+      else
+        data = vector
+      end
+      [ data, dtype, padding ]
+    end
+
+    # Validate the arguments for a binary vector.
+    # @param [ ::Symbol ] dtype The vector data type.
+    # @param [ Integer | nil ] padding The padding. Must be 0 if vector is a BSON::Vector.
+    # @raise [ ArgumentError ] If the arguments are invalid.
+    def validate_args_for_vector!(dtype, padding)
+      raise ArgumentError, "Unknown dtype #{dtype}" unless VECTOR_DATA_TYPES.key?(dtype)
+
+      if %i[int8 float32].include?(dtype)
+        raise ArgumentError, 'Padding applies only to packed_bit' if padding != 0
+      elsif padding.positive? && vector.empty?
+        raise ArgumentError, 'Padding must be zero when the vector is empty for PACKED_BIT'
+      elsif padding.negative? || padding > 7
+        raise ArgumentError, "Padding must be between 1 and 7, got #{padding}"
+      end
+    end
 
     # initializes an instance of BSON::Binary.
     #
