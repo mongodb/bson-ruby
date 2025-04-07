@@ -50,6 +50,7 @@ module BSON
       ciphertext: 6.chr,
       column: 7.chr,
       sensitive: 8.chr,
+      vector: 9.chr,
       user: 128.chr,
     }.freeze
 
@@ -60,6 +61,14 @@ module BSON
     #
     # @since 2.0.0
     TYPES = SUBTYPES.invert.freeze
+
+    VECTOR_DATA_TYPES = {
+      int8: '0x03'.hex,
+      float32: '0x27'.hex,
+      packed_bit: '0x10'.hex
+    }.freeze
+
+    VECTOR_DATA_TYPES_INVERSE = VECTOR_DATA_TYPES.invert.freeze
 
     # @return [ String ] The raw binary data.
     #
@@ -89,6 +98,7 @@ module BSON
 
       type == other.type && data == other.data
     end
+
     alias eql? ==
 
     # Compare this binary object to another object. The two objects must have
@@ -144,6 +154,28 @@ module BSON
       else
         { '$binary' => { 'base64' => value, 'subType' => subtype } }
       end
+    end
+
+    def as_vector
+      dtype_value, padding, = data[0..1].unpack('CC')
+      dtype = VECTOR_DATA_TYPES_INVERSE[dtype_value]
+      raise ArgumentError, "Unsupported vector type: #{dtype_value}" unless dtype
+
+      format = case dtype
+               when :int8
+                 raise ArgumentError, 'Padding does not apply to int8' if padding != 0
+
+                 'c*'
+               when :float32
+                 raise ArgumentError, 'Padding does not apply to float32' if padding != 0
+
+                 'f*'
+               when :packed_bit
+                 'C*'
+               else
+                 raise ArgumentError, "Unsupported type: #{dtype}"
+               end
+      BSON::Vector.new(data[2..-1].unpack(format), dtype, padding)
     end
 
     # Instantiate the new binary object.
@@ -368,6 +400,29 @@ module BSON
       new(uuid_binary, :uuid_old)
     end
 
+    def self.from_vector(vector, dtype, padding = 0)
+      raise ArgumentError, 'Padding applies only to packed_bit' if padding != 0 && %i[int8 float32].include?(dtype)
+      raise ArgumentError, 'Padding cannot positive if vector is an empty PACKED_BIT' if padding.positive? && vector.empty?
+
+      format = case dtype
+               when :int8
+                 'c*'
+               when :float32
+                 'f*'
+               when :packed_bit
+                 if padding.negative? || padding > 7
+                   raise ArgumentError, "Padding must be between 1 and 7, got #{padding}"
+                 end
+
+                 'C*'
+               else
+                 raise ArgumentError, "Unsupported type: #{dtype}"
+               end
+      metadata = [ VECTOR_DATA_TYPES[dtype], padding ].pack('CC')
+      data = vector.pack(format)
+      new(metadata.concat(data), :vector)
+    end
+
     private
 
     # initializes an instance of BSON::Binary.
@@ -398,7 +453,7 @@ module BSON
       if representation != :standard
         raise ArgumentError,
               'Binary of type :uuid can only be stringified to :standard representation, ' \
-              "requested: #{representation.inspect}"
+                "requested: #{representation.inspect}"
       end
 
       data
@@ -490,7 +545,8 @@ module BSON
           validate_integer_type!(type.bytes.first)
         end
       when Symbol then validate_symbol_type!(type)
-      else raise BSON::Error::InvalidBinaryType, type
+      else
+        raise BSON::Error::InvalidBinaryType, type
       end
     end
 
