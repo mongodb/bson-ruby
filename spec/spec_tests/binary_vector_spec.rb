@@ -43,7 +43,6 @@ describe 'Binary vector tests' do
 
       spec.invalid_tests.each do |test|
         it test.description do
-          pp test.description
           skip 'Ruby Array.pack does not validate input' if skipped_tests.include?(test.description)
 
           expect {

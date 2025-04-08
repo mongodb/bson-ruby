@@ -15,8 +15,9 @@ group :development, :test do
   if ENV['WITH_ACTIVE_SUPPORT'] =~ /[0-9]/ && ENV['WITH_ACTIVE_SUPPORT'] != '0'
     gem 'activesupport', ENV['WITH_ACTIVE_SUPPORT']
   else
-    gem 'activesupport', '<7.1'
+    gem 'activesupport', '<8.1'
   end
+  gem 'concurrent-ruby', '1.3.4'
   gem 'ruby-prof', platforms: :mri
 
   gem 'byebug', platforms: :mri
