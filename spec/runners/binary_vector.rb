@@ -53,10 +53,15 @@ module BSON
                                           end
       end
 
-      def canonical_bson_from_document
+      def canonical_bson_from_document(validate_vector_data: false)
         @canonical_bson_from_document ||= begin
                                             document ||= {
-                                              @spec.test_key => BSON::Binary.from_vector(@vector, @dtype, @padding)
+                                              @spec.test_key => BSON::Binary.from_vector(
+                                                @vector,
+                                                @dtype,
+                                                @padding,
+                                                validate_vector_data: validate_vector_data
+                                              ),
                                             }
                                             document.to_bson.to_s
                                           end

@@ -406,9 +406,10 @@ module BSON
     # @param [ Symbol | nil ] dtype The vector data type, must be nil if vector is a BSON::Vector.
     # @param [ Integer ] padding The number of bits in the final byte that are to
     # be ignored when a vector element's size is less than a byte. Must be 0 if vector is a BSON::Vector.
-    # 
+    # @param [ Boolean ] validate_vector_data Whether to validate the vector data.
+    #
     # @return [ BSON::Binary ] The binary object.
-    def self.from_vector(vector, dtype, padding = 0)
+    def self.from_vector(vector, dtype, padding = 0, validate_vector_data: true)
       data, dtype, padding = extract_args_for_vector(vector, dtype, padding)
       validate_args_for_vector!(data, dtype, padding)
 
@@ -418,7 +419,10 @@ module BSON
                when :packed_bit then 'C*'
                else raise ArgumentError, "Unsupported type: #{dtype}"
                end
-      metadata = [VECTOR_DATA_TYPES[dtype], padding].pack('CC')
+      if validate_vector_data
+        validate_vector_data!(data, dtype)
+      end
+      metadata = [ VECTOR_DATA_TYPES[dtype], padding ].pack('CC')
       data = data.pack(format)
       new(metadata.concat(data), :vector)
     end
@@ -465,6 +469,27 @@ module BSON
       end
     end
     private_class_method :validate_args_for_vector!
+
+    # Validate that all the values in the vector data are valid for the given dtype.
+    #
+    # @param [ Array ] data The vector data.
+    # @param [ ::Symbol ] dtype The vector data type.
+    def self.validate_vector_data!(data, dtype)
+      validator = case dtype
+                  when :int8
+                    ->(v) { v.is_a?(Integer) && v.between?(-128, 127) }
+                  when :float32
+                    ->(v) { v.is_a?(Float) }
+                  when :packed_bit
+                    ->(v) { v.is_a?(Integer) && v.between?(0, 255) }
+                  else
+                    raise ArgumentError, "Unsupported type: #{dtype}"
+                  end
+      data.each do |v|
+        raise ArgumentError, "Invalid value #{v} for type #{dtype}" unless validator.call(v)
+      end
+    end
+    private_class_method :validate_vector_data!
 
     # initializes an instance of BSON::Binary.
     #

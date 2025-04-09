@@ -42,13 +42,25 @@ describe 'Binary vector tests' do
       end
 
       spec.invalid_tests.each do |test|
-        it test.description do
-          skip 'Ruby Array.pack does not validate input' if skipped_tests.include?(test.description)
+        context 'with data validation' do
+          it test.description do
+            expect {
+              test.canonical_bson_from_document(validate_vector_data: true)
+            }.to raise_error do |err|
+              expect([ArgumentError, BSON::Error, RangeError]).to include(err.class)
+            end
+          end
+        end
 
-          expect {
-            test.canonical_bson_from_document
-          }.to raise_error do |err|
-            expect([ArgumentError, BSON::Error, RangeError]).to include(err.class)
+        context 'without data validation' do
+          it test.description do
+            skip 'Ruby Array.pack does not validate input' if skipped_tests.include?(test.description)
+
+            expect {
+              test.canonical_bson_from_document
+            }.to raise_error do |err|
+              expect([ArgumentError, BSON::Error, RangeError]).to include(err.class)
+            end
           end
         end
       end
