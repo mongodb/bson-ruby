@@ -465,7 +465,7 @@ module BSON
       elsif padding.positive? && data.empty?
         raise ArgumentError, 'Padding must be zero when the vector is empty for PACKED_BIT'
       elsif padding.negative? || padding > 7
-        raise ArgumentError, "Padding must be between 1 and 7, got #{padding}"
+        raise ArgumentError, "Padding must be between 0 and 7, got #{padding}"
       end
     end
     private_class_method :validate_args_for_vector!
