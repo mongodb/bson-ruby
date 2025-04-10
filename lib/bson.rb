@@ -95,6 +95,7 @@ require "bson/time"
 require "bson/timestamp"
 require "bson/true_class"
 require "bson/undefined"
+require "bson/vector"
 require "bson/version"
 
 # If we are using JRuby, attempt to load the Java extensions, if we are using

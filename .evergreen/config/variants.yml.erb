@@ -22,9 +22,18 @@ buildvariants:
 
   - matrix_name: "activesupport-7"
     matrix_spec:
-      ruby: <%= sample_mri_rubies %>
+      ruby: <%= latest_mri_ruby %>
       all-os: ubuntu2004
-      as: '7.0'
+      as: [ '7.0', '7.1' ]
+    display_name: "AS ${as} ${ruby}, ${all-os}"
+    tasks:
+      - name: "test"
+
+  - matrix_name: "activesupport-8"
+    matrix_spec:
+      ruby: <%= latest_mri_ruby %>
+      all-os: ubuntu2004
+      as: '8.0'
     display_name: "AS ${as} ${ruby}, ${all-os}"
     tasks:
       - name: "test"

@@ -50,6 +50,7 @@ module BSON
       ciphertext: 6.chr,
       column: 7.chr,
       sensitive: 8.chr,
+      vector: 9.chr,
       user: 128.chr,
     }.freeze
 
@@ -60,6 +61,16 @@ module BSON
     #
     # @since 2.0.0
     TYPES = SUBTYPES.invert.freeze
+
+    # Types of vector data.
+    VECTOR_DATA_TYPES = {
+      int8: '0x03'.hex,
+      float32: '0x27'.hex,
+      packed_bit: '0x10'.hex
+    }.freeze
+
+    # @api private
+    VECTOR_DATA_TYPES_INVERSE = VECTOR_DATA_TYPES.invert.freeze
 
     # @return [ String ] The raw binary data.
     #
@@ -89,6 +100,7 @@ module BSON
 
       type == other.type && data == other.data
     end
+
     alias eql? ==
 
     # Compare this binary object to another object. The two objects must have
@@ -113,7 +125,7 @@ module BSON
     #
     # @since 2.3.1
     def hash
-      [ data, type ].hash
+      [data, type].hash
     end
 
     # Return a representation of the object for use in
@@ -144,6 +156,26 @@ module BSON
       else
         { '$binary' => { 'base64' => value, 'subType' => subtype } }
       end
+    end
+
+    # Decode the binary data as a vector data type.
+    #
+    # @return [ BSON::Vector ] The decoded vector data.
+    def as_vector
+      raise BSON::Error, "Cannot decode subtype #{type} as vector" unless type == :vector
+
+      dtype_value, padding, = data[0..1].unpack('CC')
+      dtype = VECTOR_DATA_TYPES_INVERSE[dtype_value]
+      raise ArgumentError, "Unsupported vector type: #{dtype_value}" unless dtype
+
+      format = case dtype
+               when :int8 then 'c*'
+               when :float32 then 'f*'
+               when :packed_bit then 'C*'
+               else
+                 raise ArgumentError, "Unsupported type: #{dtype}"
+               end
+      BSON::Vector.new(data[2..-1].unpack(format), dtype, padding)
     end
 
     # Instantiate the new binary object.
@@ -368,7 +400,96 @@ module BSON
       new(uuid_binary, :uuid_old)
     end
 
+    # Constructs a new binary object from a binary vector.
+
+    # @param [ BSON::Vector | Array ] vector The vector data.
+    # @param [ Symbol | nil ] dtype The vector data type, must be nil if vector is a BSON::Vector.
+    # @param [ Integer ] padding The number of bits in the final byte that are to
+    # be ignored when a vector element's size is less than a byte. Must be 0 if vector is a BSON::Vector.
+    # @param [ Boolean ] validate_vector_data Whether to validate the vector data.
+    #
+    # @return [ BSON::Binary ] The binary object.
+    def self.from_vector(vector, dtype = nil, padding = 0, validate_vector_data: false)
+      data, dtype, padding = extract_args_for_vector(vector, dtype, padding)
+      validate_args_for_vector!(data, dtype, padding)
+
+      format = case dtype
+               when :int8 then 'c*'
+               when :float32 then 'f*'
+               when :packed_bit then 'C*'
+               else raise ArgumentError, "Unsupported type: #{dtype}"
+               end
+      if validate_vector_data
+        validate_vector_data!(data, dtype)
+      end
+      metadata = [ VECTOR_DATA_TYPES[dtype], padding ].pack('CC')
+      data = data.pack(format)
+      new(metadata.concat(data), :vector)
+    end
+
     private
+
+    # Extracts the arguments for a binary vector.
+    #
+    # @param [ BSON::Vector | Array ] vector The vector data.
+    # @param [ ::Symbol | nil ] dtype The vector data type, must be nil if vector is a BSON::Vector.
+    # @param [ Integer ] padding The padding. Must be 0 if vector is a BSON::Vector.
+    #
+    # @return [ Array ] The extracted data, dtype, and padding.
+    def self.extract_args_for_vector(vector, dtype, padding)
+      if vector.is_a?(BSON::Vector)
+        if dtype || padding != 0
+          raise ArgumentError, 'Do not specify dtype and padding if the first argument is BSON::Vector'
+        end
+
+        data = vector.data
+        dtype = vector.dtype
+        padding = vector.padding
+      else
+        data = vector
+      end
+      [ data, dtype, padding ]
+    end
+    private_class_method :extract_args_for_vector
+
+    # Validate the arguments for a binary vector.
+    # @param [ Array ] data The vector data.
+    # @param [ ::Symbol ] dtype The vector data type.
+    # @param [ Integer | nil ] padding The padding. Must be 0 if vector is a BSON::Vector.
+    # @raise [ ArgumentError ] If the arguments are invalid.
+    def self.validate_args_for_vector!(data, dtype, padding)
+      raise ArgumentError, "Unknown dtype #{dtype}" unless VECTOR_DATA_TYPES.key?(dtype)
+
+      if %i[int8 float32].include?(dtype)
+        raise ArgumentError, 'Padding applies only to packed_bit' if padding != 0
+      elsif padding.positive? && data.empty?
+        raise ArgumentError, 'Padding must be zero when the vector is empty for PACKED_BIT'
+      elsif padding.negative? || padding > 7
+        raise ArgumentError, "Padding must be between 0 and 7, got #{padding}"
+      end
+    end
+    private_class_method :validate_args_for_vector!
+
+    # Validate that all the values in the vector data are valid for the given dtype.
+    #
+    # @param [ Array ] data The vector data.
+    # @param [ ::Symbol ] dtype The vector data type.
+    def self.validate_vector_data!(data, dtype)
+      validator = case dtype
+                  when :int8
+                    ->(v) { v.is_a?(Integer) && v.between?(-128, 127) }
+                  when :float32
+                    ->(v) { v.is_a?(Float) }
+                  when :packed_bit
+                    ->(v) { v.is_a?(Integer) && v.between?(0, 255) }
+                  else
+                    raise ArgumentError, "Unsupported type: #{dtype}"
+                  end
+      data.each do |v|
+        raise ArgumentError, "Invalid value #{v} for type #{dtype}" unless validator.call(v)
+      end
+    end
+    private_class_method :validate_vector_data!
 
     # initializes an instance of BSON::Binary.
     #
@@ -398,7 +519,7 @@ module BSON
       if representation != :standard
         raise ArgumentError,
               'Binary of type :uuid can only be stringified to :standard representation, ' \
-              "requested: #{representation.inspect}"
+                "requested: #{representation.inspect}"
       end
 
       data
@@ -490,7 +611,8 @@ module BSON
           validate_integer_type!(type.bytes.first)
         end
       when Symbol then validate_symbol_type!(type)
-      else raise BSON::Error::InvalidBinaryType, type
+      else
+        raise BSON::Error::InvalidBinaryType, type
       end
     end
 
