@@ -47,24 +47,27 @@ module BSON
 
       def document_from_canonical_bson
         @document_from_canonical_bson ||= begin
-                                            bson_bytes = decode_hex(@canonical_bson)
-                                            buffer = BSON::ByteBuffer.new(bson_bytes)
-                                            BSON::Document.from_bson(buffer)
-                                          end
+          bson_bytes = decode_hex(@canonical_bson)
+          buffer = BSON::ByteBuffer.new(bson_bytes)
+          BSON::Document.from_bson(buffer)
+        end
       end
 
-      def canonical_bson_from_document(validate_vector_data: false)
+      def canonical_bson_from_document(use_vector_type: false, validate_vector_data: false)
+        args = if use_vector_type
+                 [ BSON::Vector.new(@vector, @dtype, @padding) ]
+               else
+                 [ @vector, @dtype, @padding ]
+               end
         @canonical_bson_from_document ||= begin
-                                            document ||= {
-                                              @spec.test_key => BSON::Binary.from_vector(
-                                                @vector,
-                                                @dtype,
-                                                @padding,
-                                                validate_vector_data: validate_vector_data
-                                              ),
-                                            }
-                                            document.to_bson.to_s
-                                          end
+          document ||= {
+            @spec.test_key => BSON::Binary.from_vector(
+              *args,
+              validate_vector_data: validate_vector_data
+            ),
+          }
+          document.to_bson.to_s
+        end
       end
 
       def bson
@@ -74,7 +77,7 @@ module BSON
       private
 
       def decode_hex(obj)
-        [obj].pack('H*')
+        [ obj ].pack('H*')
       end
     end
   end

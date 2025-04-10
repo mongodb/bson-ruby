@@ -409,7 +409,7 @@ module BSON
     # @param [ Boolean ] validate_vector_data Whether to validate the vector data.
     #
     # @return [ BSON::Binary ] The binary object.
-    def self.from_vector(vector, dtype, padding = 0, validate_vector_data: true)
+    def self.from_vector(vector, dtype = nil, padding = 0, validate_vector_data: true)
       data, dtype, padding = extract_args_for_vector(vector, dtype, padding)
       validate_args_for_vector!(data, dtype, padding)
 
@@ -443,7 +443,7 @@ module BSON
         end
 
         data = vector.data
-        dtype = vector.type
+        dtype = vector.dtype
         padding = vector.padding
       else
         data = vector
