@@ -321,6 +321,10 @@ module BSON
       raise ArgumentError, 'symbolize_keys! is not supported on BSON::Document instances. Please convert the document to hash first (using #to_h), then call #symbolize_keys! on the Hash instance'
     end
 
+    def deep_symbolize_keys!
+      raise ArgumentError, 'deep_symbolize_keys! is not supported on BSON::Document instances. Please convert the document to hash first (using #to_h), then call #deep_symbolize_keys! on the Hash instance'
+    end
+
     # Override the Hash implementation of to_bson_normalized_value.
     #
     # BSON::Document is already of the correct type and already provides
