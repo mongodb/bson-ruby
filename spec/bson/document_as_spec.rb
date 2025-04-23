@@ -52,9 +52,9 @@ describe BSON::Document do
       end
 
       it 'raises ArgumentError' do
-        lambda do
+        expect do
           doc.deep_symbolize_keys!
-        end.should raise_error(ArgumentError, /deep_symbolize_keys! is not supported on BSON::Document instances/)
+        end.to output(/\[DEPRECATION\] `deep_symbolize_keys!` is not supported on BSON::Document instances./).to_stderr
       end
     end
   end
