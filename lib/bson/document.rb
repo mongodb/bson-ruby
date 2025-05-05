@@ -372,6 +372,13 @@ module BSON
       end
     end
 
+    # Returns a new document with all nil-valued key pairs removed.
+    #
+    # @return [ BSON::Document ] A new compacted document.
+    def compact
+      dup.tap { |doc| doc.compact! }
+    end
+
     # Inverts the document by using values as keys and vice versa.
     #
     # @return [ BSON::Document ] A new document with keys and values switched.
