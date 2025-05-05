@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright (C) 2021 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -113,7 +114,7 @@ describe BSON::Document do
 
     it 'returns a new BSON::Document' do
       expect(result).to be_a(described_class)
-      expect(result).to_not be(document)
+      expect(result).not_to be(document)
     end
 
     it 'modifies only the top-level document keys' do
@@ -369,9 +370,9 @@ describe BSON::Document do
       let(:document) do
         described_class.new(
           'key1' => 'value1',
-          'array' => [1, 2, 3],
+          'array' => [ 1, 2, 3 ],
           'nested' => described_class.new(
-            'array' => [4, 5, 6]
+            'array' => [ 4, 5, 6 ]
           )
         )
       end
@@ -379,9 +380,9 @@ describe BSON::Document do
       let(:other) do
         {
           'key2' => 'value2',
-          'array' => [7, 8, 9],
+          'array' => [ 7, 8, 9 ],
           'nested' => {
-            'array' => [10, 11, 12]
+            'array' => [ 10, 11, 12 ]
           }
         }
       end
@@ -391,8 +392,8 @@ describe BSON::Document do
       end
 
       it 'replaces arrays instead of merging them' do
-        expect(result['array']).to eq([7, 8, 9])
-        expect(result['nested']['array']).to eq([10, 11, 12])
+        expect(result['array']).to eq([ 7, 8, 9 ])
+        expect(result['nested']['array']).to eq([ 10, 11, 12 ])
       end
     end
 
@@ -586,9 +587,9 @@ describe BSON::Document do
       let(:document) do
         described_class.new(
           'key1' => 'value1',
-          'array' => [1, 2, 3],
+          'array' => [ 1, 2, 3 ],
           'nested' => described_class.new(
-            'array' => [4, 5, 6]
+            'array' => [ 4, 5, 6 ]
           )
         )
       end
@@ -596,9 +597,9 @@ describe BSON::Document do
       let(:other) do
         {
           'key2' => 'value2',
-          'array' => [7, 8, 9],
+          'array' => [ 7, 8, 9 ],
           'nested' => {
-            'array' => [10, 11, 12]
+            'array' => [ 10, 11, 12 ]
           }
         }
       end
@@ -609,8 +610,8 @@ describe BSON::Document do
 
       it 'replaces arrays instead of merging them' do
         result
-        expect(document['array']).to eq([7, 8, 9])
-        expect(document['nested']['array']).to eq([10, 11, 12])
+        expect(document['array']).to eq([ 7, 8, 9 ])
+        expect(document['nested']['array']).to eq([ 10, 11, 12 ])
       end
     end
 
@@ -845,9 +846,9 @@ describe BSON::Document do
 
       it 'does not modify the original document' do
         result
-        expect(document).to eq(described_class.new(
-          'key1' => 'value1', 'key2' => 'value2', 'key3' => 'value3'
-        ))
+        expect(document).to eq(
+          described_class.new('key1' => 'value1', 'key2' => 'value2', 'key3' => 'value3')
+        )
       end
     end
 
@@ -932,7 +933,7 @@ describe BSON::Document do
     end
 
     it 'removes blank values' do
-      expect(result.keys).to eq(['key1'])
+      expect(result.keys).to eq([ 'key1' ])
       expect(result['key1']).to eq('value1')
     end
 
@@ -986,7 +987,7 @@ describe BSON::Document do
 
       it 'removes blank values' do
         result
-        expect(document.keys).to eq(['key1'])
+        expect(document.keys).to eq([ 'key1' ])
         expect(document['key1']).to eq('value1')
       end
     end

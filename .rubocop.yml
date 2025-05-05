@@ -72,9 +72,15 @@ Metrics/MethodLength:
 RSpec/BeforeAfterAll:
   Enabled: false
 
+RSpec/ContextWording:
+  Enabled: false
+
 # Ideally, we'd use this one, too, but our tests have not historically followed
 # this style and it's not worth changing right now, IMO
 RSpec/DescribeClass:
+  Enabled: false
+
+RSpec/ExampleLength:
   Enabled: false
 
 Style/FetchEnvVar:

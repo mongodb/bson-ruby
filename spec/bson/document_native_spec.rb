@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright (C) 2009-2020 MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -108,7 +109,7 @@ describe BSON::Document do
 
       it 'returns a Hash' do
         expect(hash).to be_a(Hash)
-        expect(hash).to_not be_a(described_class)
+        expect(hash).not_to be_a(described_class)
       end
 
       it 'returns a hash with the same keys and values' do
@@ -128,7 +129,7 @@ describe BSON::Document do
       it 'converts nested documents to hashes' do
         nested = hash['key2']
         expect(nested).to be_a(Hash)
-        expect(nested).to_not be_a(described_class)
+        expect(nested).not_to be_a(described_class)
       end
 
       it 'preserves the nested structure' do
@@ -142,12 +143,12 @@ describe BSON::Document do
       end
 
       let(:hash) do
-        document.to_h { |k, v| [k.to_sym, v.upcase] }
+        document.to_h { |k, v| [ k.to_sym, v.upcase ] }
       end
 
       it 'returns a Hash' do
         expect(hash).to be_a(Hash)
-        expect(hash).to_not be_a(described_class)
+        expect(hash).not_to be_a(described_class)
       end
 
       it 'applies the block to each key-value pair' do
@@ -161,23 +162,24 @@ describe BSON::Document do
       described_class.new('key1' => 'value1', 'key2' => { 'key3' => 'value3' })
     end
 
-    it 'is an alias for #to_h' do
-      expect(document.method(:to_hash)).to eq(document.method(:to_h))
-    end
-
     let(:hash) do
       document.to_hash
     end
 
+    it 'is an alias for #to_h' do
+      expect(document.method(:to_hash)).to eq(document.method(:to_h))
+    end
+
+
     it 'returns a Hash' do
       expect(hash).to be_a(Hash)
-      expect(hash).to_not be_a(described_class)
+      expect(hash).not_to be_a(described_class)
     end
 
     it 'converts nested documents' do
       nested = hash['key2']
       expect(nested).to be_a(Hash)
-      expect(nested).to_not be_a(described_class)
+      expect(nested).not_to be_a(described_class)
     end
 
     it 'contains the correct keys and values' do
@@ -232,7 +234,7 @@ describe BSON::Document do
 
     context 'with array values containing hashes' do
       let(:result) do
-        document['array'] = [1, 2, { 'a' => 1 }]
+        document['array'] = [ 1, 2, { 'a' => 1 } ]
       end
 
       it 'converts hashes within arrays to BSON::Document' do
@@ -284,19 +286,19 @@ describe BSON::Document do
   describe '#has_key?' do
     context 'with existing string keys' do
       it 'returns true' do
-        expect(document.has_key?('key1')).to be true
+        expect(document.key?('key1')).to be true
       end
     end
 
     context 'with existing symbol keys' do
       it 'returns true' do
-        expect(document.has_key?(:key1)).to be true
+        expect(document.key?(:key1)).to be true
       end
     end
 
     context 'with non-existent keys' do
       it 'returns false' do
-        expect(document.has_key?('non_existent')).to be false
+        expect(document.key?('non_existent')).to be false
       end
     end
   end
@@ -460,7 +462,7 @@ describe BSON::Document do
   describe '#has_value?' do
     context 'with existing values' do
       it 'returns true' do
-        expect(document.has_value?('value1')).to be true
+        expect(document.value?('value1')).to be true
       end
     end
 
@@ -470,13 +472,13 @@ describe BSON::Document do
       end
 
       it 'returns true when searching with a symbol' do
-        expect(document_with_symbols.has_value?(:symbol_value)).to be true
+        expect(document_with_symbols.value?(:symbol_value)).to be true
       end
     end
 
     context 'with non-existent values' do
       it 'returns false' do
-        expect(document.has_value?('non_existent')).to be false
+        expect(document.value?('non_existent')).to be false
       end
     end
   end
@@ -514,7 +516,7 @@ describe BSON::Document do
       end
 
       it 'returns nil for missing keys' do
-        expect(values).to eq(['value1', nil])
+        expect(values).to eq([ 'value1', nil ])
       end
     end
 
@@ -577,7 +579,7 @@ describe BSON::Document do
       end
 
       it 'returns the key-value pair' do
-        expect(result).to eq(['key1', 'value1'])
+        expect(result).to eq(%w[key1 value1])
       end
     end
 
@@ -591,7 +593,7 @@ describe BSON::Document do
       end
 
       it 'returns the first matching pair' do
-        expect(result).to eq(['key1', 'duplicate'])
+        expect(result).to eq(%w[key1 duplicate])
       end
     end
 
@@ -616,7 +618,7 @@ describe BSON::Document do
         end
 
         it 'finds the key-value pair' do
-          expect(result).to eq(['key1', :symbol_value])
+          expect(result).to eq([ 'key1', :symbol_value ])
         end
       end
 
@@ -645,7 +647,7 @@ describe BSON::Document do
       end
 
       it 'can find BSON::Document values' do
-        expect(result).to eq(['key1', nested_doc])
+        expect(result).to eq([ 'key1', nested_doc ])
       end
 
       context 'when searching with an equivalent hash' do
@@ -654,7 +656,7 @@ describe BSON::Document do
         end
 
         it 'finds the pair by equivalent hash' do
-          expect(result).to eq(['key1', { 'inner' => 'value' }])
+          expect(result).to eq([ 'key1', { 'inner' => 'value' } ])
         end
       end
     end
@@ -683,9 +685,9 @@ describe BSON::Document do
 
     context 'with missing keys and no block' do
       it 'raises KeyError for missing keys' do
-        expect {
+        expect do
           document.fetch_values('key1', 'missing')
-        }.to raise_error(KeyError)
+        end.to raise_error(KeyError)
       end
     end
 
@@ -1194,7 +1196,7 @@ describe BSON::Document do
       end
 
       it 'returns nil if no changes are made' do
-        result = document.reject!.each { |_key, _value| false }
+        result = document.reject!.each { |_key, _value| false } # rubocop:disable Lint/Void
         expect(result).to be_nil
         expect(document).to eq(described_class.new('key1' => 'value1', 'key2' => 'value2', 'key3' => 'value3'))
       end
@@ -1255,7 +1257,7 @@ describe BSON::Document do
       end
 
       it 'returns self if no changes are made' do
-        result = document.delete_if.each { |_key, _value| false }
+        result = document.delete_if.each { |_key, _value| false } # rubocop:disable Lint/Void
         expect(result).to be(document)
       end
     end
@@ -1378,9 +1380,9 @@ describe BSON::Document do
       end
 
       it 'returns nil if no changes are made' do
-        result = document.select!.each { |_key, _value| true }
+        result = document.select!.each { |_key, _value| true } # rubocop:disable Lint/Void
         expect(result).to be_nil
-        expect(document).to eq(document)
+        expect(document).to eq('key1' => 'value1', 'key2' => 'value2', 'key3' => 'value3')
       end
     end
   end
@@ -1471,7 +1473,7 @@ describe BSON::Document do
       end
 
       it 'returns self if no changes are made' do
-        result = document.keep_if.each { |_key, _value| true }
+        result = document.keep_if.each { |_key, _value| true } # rubocop:disable Lint/Void
         expect(result).to eq(document)
       end
     end
@@ -1543,7 +1545,6 @@ describe BSON::Document do
 
   describe '#slice' do
     context 'with a single-level document' do
-
       let(:result) do
         document.slice('key1', 'key3')
       end
@@ -1594,7 +1595,7 @@ describe BSON::Document do
 
   describe '#transform_keys' do
     let(:result) do
-      document.transform_keys { |key| key.upcase }
+      document.transform_keys(&:upcase)
     end
 
     it 'returns a new BSON::Document' do
@@ -1617,7 +1618,7 @@ describe BSON::Document do
       end
 
       let(:result) do
-        document.transform_keys { |key| key.upcase }
+        document.transform_keys(&:upcase)
       end
 
       it 'does not transform keys in nested documents' do
@@ -1643,7 +1644,7 @@ describe BSON::Document do
       end
 
       it 'produces a BSON::Document when used with a block' do
-        result = enumerator.each { |key| key.upcase }
+        result = enumerator.each(&:upcase)
         expect(result).to be_a(described_class)
         expect(result).to eq(described_class.new('KEY1' => 'value1', 'KEY2' => 'value2', 'KEY3' => 'value3'))
       end
@@ -1652,7 +1653,7 @@ describe BSON::Document do
 
   describe '#transform_keys!' do
     let(:result) do
-      document.transform_keys! { |key| key.upcase }
+      document.transform_keys!(&:upcase)
     end
 
     it 'returns self' do
@@ -1670,12 +1671,12 @@ describe BSON::Document do
       end
 
       let(:result) do
-        document.transform_keys! { |key| key.upcase }
+        document.transform_keys!(&:upcase)
       end
 
       it 'does not transform keys in nested documents' do
         result
-        expect(document['OUTER'].keys).to eq(['inner'])
+        expect(document['OUTER'].keys).to eq([ 'inner' ])
       end
 
       it 'preserves nested BSON::Document' do
@@ -1731,7 +1732,7 @@ describe BSON::Document do
       end
 
       it 'modifies the original document when used with a block' do
-        result = document.transform_keys!.each { |key| key.upcase }
+        result = document.transform_keys!.each(&:upcase)
         expect(result).to be(document)
         expect(document).to eq(described_class.new('KEY1' => 'value1', 'KEY2' => 'value2', 'KEY3' => 'value3'))
       end
@@ -1740,7 +1741,7 @@ describe BSON::Document do
 
   describe '#transform_values' do
     let(:result) do
-      document.transform_values { |value| value.upcase }
+      document.transform_values(&:upcase)
     end
 
     it 'returns a new BSON::Document' do
@@ -1790,7 +1791,7 @@ describe BSON::Document do
       it 'converts nested values to BSON::Document' do
         nested = result['key1']
         expect(nested).to be_a(described_class)
-        expect(nested.keys).to eq(['foo', 1])
+        expect(nested.keys).to eq([ 'foo', 1 ])
       end
     end
 
@@ -1808,7 +1809,7 @@ describe BSON::Document do
       end
 
       it 'produces a BSON::Document when used with a block' do
-        result = enumerator.each { |value| value.upcase }
+        result = enumerator.each(&:upcase)
         expect(result).to be_a(described_class)
         expect(result).to eq(described_class.new('key1' => 'VALUE1', 'key2' => 'VALUE2', 'key3' => 'VALUE3'))
       end
@@ -1849,7 +1850,7 @@ describe BSON::Document do
         end
 
         it 'allows transforming nested documents with enumerator' do
-          document.transform_values!.each { |v| v }
+          document.transform_values!.each { |v| v } # rubocop:disable Lint/Void
           expect(document['nested']).to be_a(described_class)
           expect(document['nested']['inner2']).to be_a(described_class)
         end
@@ -1862,11 +1863,9 @@ describe BSON::Document do
           end
 
           expect(result).to be_a(described_class)
-          expect(result).to eq(described_class.new(
-            'key1' => 'value1-0',
-            'key2' => 'value2-1',
-            'key3' => 'value3-2'
-          ))
+          expect(result).to eq(
+            described_class.new('key1' => 'value1-0', 'key2' => 'value2-1', 'key3' => 'value3-2')
+          )
         end
       end
     end
@@ -1874,7 +1873,7 @@ describe BSON::Document do
 
   describe '#transform_values!' do
     let(:result) do
-      document.transform_values! { |value| value.upcase }
+      document.transform_values!(&:upcase)
     end
 
     it 'returns self' do
@@ -1922,7 +1921,7 @@ describe BSON::Document do
         action
         nested = document['key1']
         expect(nested).to be_a(described_class)
-        expect(nested.keys).to eq(['foo', 1])
+        expect(nested.keys).to eq([ 'foo', 1 ])
       end
     end
 
@@ -1940,7 +1939,7 @@ describe BSON::Document do
       end
 
       it 'modifies the original document when used with a block' do
-        result = document.transform_values!.each { |value| value.upcase }
+        result = document.transform_values!.each(&:upcase)
         expect(result).to be(document)
         expect(document).to eq(described_class.new('key1' => 'VALUE1', 'key2' => 'VALUE2', 'key3' => 'VALUE3'))
       end
