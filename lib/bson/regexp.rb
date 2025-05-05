@@ -99,16 +99,16 @@ module BSON
     end
 
     def bson_extended
-      (options & ::Regexp::EXTENDED).zero? ? NO_VALUE : EXTENDED_VALUE
+      options.nobits?(::Regexp::EXTENDED) ? NO_VALUE : EXTENDED_VALUE
     end
 
     def bson_ignorecase
-      (options & ::Regexp::IGNORECASE).zero? ? NO_VALUE : IGNORECASE_VALUE
+      options.nobits?(::Regexp::IGNORECASE) ? NO_VALUE : IGNORECASE_VALUE
     end
 
     def bson_dotall
       # Ruby Regexp's MULTILINE is equivalent to BSON's dotall value
-      (options & ::Regexp::MULTILINE).zero? ? NO_VALUE : NEWLINE_VALUE
+      options.nobits?(::Regexp::MULTILINE) ? NO_VALUE : NEWLINE_VALUE
     end
 
     # Represents the raw values for the regular expression.
