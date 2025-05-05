@@ -356,20 +356,21 @@ module BSON
 
     # Recursively converts the document and all nested documents to a hash.
     #
-    # Accepts an optional block, which is applied to the newly converted hash.
-    # This is done to mimic the Ruby kernel object behavior of #to_h.
-    #
-    # @yield [ key, value ] Optional block for transforming the hash.
+    # @note #to_h only converts the top-level document to a hash. #to_hash
+    #   converts all nested documents to hashes as well. This follows the
+    #   convention of ActiveSupport::HashWithIndifferentAccess
     #
     # @return [ Hash ] A new hash object, containing nested hashes if applicable.
-    def to_h(&block)
-      hash = super do |key, value|
-        [key, value.is_a?(self.class) ? value.to_h : value]
+    #
+    # @note Code lovingly borrowed from ActiveSupport::HashWithIndifferentAccess.
+    def to_hash
+      ::Hash.new.tap do |hash|
+        set_defaults(hash)
+        each do |key, value|
+          hash[key] = value.is_a?(self.class) ? value.to_hash : value
+        end
       end
-      block_given? ? hash.send(:to_h, &block) : hash
     end
-
-    alias :to_hash :to_h
 
     # Inverts the document by using values as keys and vice versa.
     #
@@ -472,7 +473,7 @@ module BSON
     #
     # @return [ Hash ] A new hash with all keys as symbols.
     def deep_symbolize_keys
-      to_h.deep_symbolize_keys!
+      to_hash.deep_symbolize_keys!
     end
 
     # Raises an error because BSON::Document enforces string keys internally,
@@ -504,6 +505,15 @@ module BSON
 
     def convert_value(value)
       value.to_bson_normalized_value
+    end
+
+    # @note Code lovingly borrowed from ActiveSupport::HashWithIndifferentAccess.
+    def set_defaults(target)
+      if default_proc
+        target.default_proc = default_proc.dup
+      else
+        target.default = default
+      end
     end
   end
 end

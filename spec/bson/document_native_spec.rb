@@ -126,10 +126,9 @@ describe BSON::Document do
         document.to_h
       end
 
-      it 'converts nested documents to hashes' do
+      it 'does not convert nested documents to hashes' do
         nested = hash['key2']
-        expect(nested).to be_a(Hash)
-        expect(nested).not_to be_a(described_class)
+        expect(nested).to be_a(described_class)
       end
 
       it 'preserves the nested structure' do
@@ -155,35 +154,240 @@ describe BSON::Document do
         expect(hash).to eq({ key1: 'VALUE1', key2: 'VALUE2' })
       end
     end
+
+    context 'with a static default' do
+      let(:document) do
+        doc = described_class.new('key1' => 'value1', 'key2' => 'value2')
+        doc.default = 'default_value'
+        doc
+      end
+
+      let(:hash) do
+        document.to_h
+      end
+
+      it 'returns a Hash' do
+        expect(hash).to be_a(Hash)
+        expect(hash).not_to be_a(described_class)
+      end
+
+      it 'returns a hash with the same keys and values' do
+        expect(hash).to eq({ 'key1' => 'value1', 'key2' => 'value2' })
+      end
+
+      it 'transfers the default value to the resulting hash' do
+        expect(hash.default).to eq('default_value')
+      end
+
+      it 'allows accessing the default with a non-existent key' do
+        expect(hash['non_existent']).to eq('default_value')
+      end
+    end
+
+    context 'with a default proc' do
+      let(:document) do
+        doc = described_class.new('key1' => 'value1', 'key2' => 'value2')
+        doc.default_proc = ->(_hash, key) { "default_for_#{key}" }
+        doc
+      end
+
+      let(:hash) do
+        document.to_h
+      end
+
+      it 'returns a Hash' do
+        expect(hash).to be_a(Hash)
+        expect(hash).not_to be_a(described_class)
+      end
+
+      it 'returns a hash with the same keys and values' do
+        expect(hash).to eq({ 'key1' => 'value1', 'key2' => 'value2' })
+      end
+
+      it 'transfers the default proc to the resulting hash' do
+        expect(hash.default_proc).not_to be_nil
+      end
+
+      it 'allows accessing the default with a non-existent key' do
+        expect(hash['non_existent']).to eq('default_for_non_existent')
+      end
+    end
+
+    context 'with both default and default_proc set' do
+      let(:document) do
+        doc = described_class.new('key1' => 'value1')
+        doc.default = 'default_value'
+        doc.default_proc = ->(_hash, key) { "proc_for_#{key}" }
+        doc
+      end
+
+      let(:hash) do
+        document.to_h
+      end
+
+      it 'preserves the most recently set default behavior' do
+        # Ruby's behavior is to use the most recently set default mechanism
+        expect(hash.default).to be_nil
+        expect(hash.default_proc).not_to be_nil
+        expect(hash['non_existent']).to eq('proc_for_non_existent')
+      end
+    end
   end
 
   describe '#to_hash' do
-    let(:document) do
-      described_class.new('key1' => 'value1', 'key2' => { 'key3' => 'value3' })
+    context 'with a single-level document' do
+      let(:document) do
+        described_class.new('key1' => 'value1', 'key2' => 'value2')
+      end
+
+      let(:hash) do
+        document.to_hash
+      end
+
+      it 'returns a Hash' do
+        expect(hash).to be_a(Hash)
+        expect(hash).not_to be_a(described_class)
+      end
+
+      it 'returns a hash with the same keys and values' do
+        expect(hash).to eq({ 'key1' => 'value1', 'key2' => 'value2' })
+      end
     end
 
-    let(:hash) do
-      document.to_hash
+    context 'with a nested document' do
+      let(:document) do
+        described_class.new('key1' => 'value1', 'key2' => described_class.new('key3' => 'value3'))
+      end
+
+      let(:hash) do
+        document.to_hash
+      end
+
+      it 'converts nested documents to hashes' do
+        nested = hash['key2']
+        expect(nested).to be_a(Hash)
+        expect(nested).not_to be_a(described_class)
+      end
+
+      it 'preserves the nested structure' do
+        expect(hash).to eq({ 'key1' => 'value1', 'key2' => { 'key3' => 'value3' } })
+      end
     end
 
-    it 'is an alias for #to_h' do
-      expect(document.method(:to_hash)).to eq(document.method(:to_h))
+    context 'with a static default' do
+      let(:document) do
+        doc = described_class.new('key1' => 'value1', 'key2' => 'value2')
+        doc.default = 'default_value'
+        doc
+      end
+
+      let(:hash) do
+        document.to_hash
+      end
+
+      it 'returns a Hash' do
+        expect(hash).to be_a(Hash)
+        expect(hash).not_to be_a(described_class)
+      end
+
+      it 'returns a hash with the same keys and values' do
+        expect(hash).to eq({ 'key1' => 'value1', 'key2' => 'value2' })
+      end
+
+      it 'transfers the default value to the resulting hash' do
+        expect(hash.default).to eq('default_value')
+      end
+
+      it 'allows accessing the default with a non-existent key' do
+        expect(hash['non_existent']).to eq('default_value')
+      end
     end
 
+    context 'with a default proc' do
+      let(:document) do
+        doc = described_class.new('key1' => 'value1', 'key2' => 'value2')
+        doc.default_proc = ->(_hash, key) { "default_for_#{key}" }
+        doc
+      end
 
-    it 'returns a Hash' do
-      expect(hash).to be_a(Hash)
-      expect(hash).not_to be_a(described_class)
+      let(:hash) do
+        document.to_hash
+      end
+
+      it 'returns a Hash' do
+        expect(hash).to be_a(Hash)
+        expect(hash).not_to be_a(described_class)
+      end
+
+      it 'returns a hash with the same keys and values' do
+        expect(hash).to eq({ 'key1' => 'value1', 'key2' => 'value2' })
+      end
+
+      it 'transfers the default proc to the resulting hash' do
+        expect(hash.default_proc).not_to be_nil
+      end
+
+      it 'allows accessing the default with a non-existent key' do
+        expect(hash['non_existent']).to eq('default_for_non_existent')
+      end
     end
 
-    it 'converts nested documents' do
-      nested = hash['key2']
-      expect(nested).to be_a(Hash)
-      expect(nested).not_to be_a(described_class)
+    context 'with a nested document with defaults' do
+      let(:nested_document) do
+        doc = described_class.new('inner' => 'value')
+        doc.default = 'inner_default'
+        doc
+      end
+
+      let(:document) do
+        doc = described_class.new('key1' => 'value1', 'nested' => nested_document)
+        doc.default = 'outer_default'
+        doc
+      end
+
+      let(:hash) do
+        document.to_hash
+      end
+
+      it 'converts nested documents to hashes' do
+        nested = hash['nested']
+        expect(nested).to be_a(Hash)
+        expect(nested).not_to be_a(described_class)
+      end
+
+      it 'preserves the nested structure' do
+        expect(hash).to eq({ 'key1' => 'value1', 'nested' => { 'inner' => 'value' } })
+      end
+
+      it 'transfers the default values appropriately' do
+        expect(hash.default).to eq('outer_default')
+        expect(hash['nested'].default).to eq('inner_default')
+      end
+
+      it 'allows accessing the defaults with non-existent keys' do
+        expect(hash['non_existent']).to eq('outer_default')
+        expect(hash['nested']['non_existent']).to eq('inner_default')
+      end
     end
 
-    it 'contains the correct keys and values' do
-      expect(hash).to eq('key1' => 'value1', 'key2' => { 'key3' => 'value3' })
+    context 'with both default and default_proc set' do
+      let(:document) do
+        doc = described_class.new('key1' => 'value1')
+        doc.default = 'default_value'
+        doc.default_proc = ->(_hash, key) { "proc_for_#{key}" }
+        doc
+      end
+
+      let(:hash) do
+        document.to_hash
+      end
+
+      it 'preserves the most recently set default behavior' do
+        # Ruby's behavior is to use the most recently set default mechanism
+        expect(hash.default).to be_nil
+        expect(hash.default_proc).not_to be_nil
+        expect(hash['non_existent']).to eq('proc_for_non_existent')
+      end
     end
   end
 
