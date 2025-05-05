@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# rubocop:todo all
+
 # Copyright (C) 2025-present MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 module BSON
   # Vector of numbers along with metadata for binary interoperability.
   class Vector < ::Array
-
     # @return [ Integer ] The data type stored in the vector.
     attr_reader :dtype
 
