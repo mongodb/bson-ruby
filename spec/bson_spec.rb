@@ -30,7 +30,7 @@ describe BSON do
 
     context 'when given an object id' do
       let(:object_id) do
-        BSON::ObjectId.new
+        described_class::ObjectId.new
       end
 
       it 'returns the same object' do
