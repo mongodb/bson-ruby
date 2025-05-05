@@ -9,6 +9,7 @@ AllCops:
   Exclude:
     - 'spec/shared/**/*'
     - 'tmp/**/*'
+    - 'vendor/**/*'
 
 Bundler:
   Enabled: true
