@@ -19,11 +19,23 @@ describe BSON do
 
   describe ".ObjectId" do
 
-    let(:string) { "4e4d66343b39b68407000001" }
+    context 'when given a string' do
+      let(:string) { "4e4d66343b39b68407000001" }
 
-    it "returns an BSON::ObjectId from given string" do
-      expect(described_class::ObjectId(string)).to be_a BSON::ObjectId
-      expect(described_class::ObjectId(string)).to eq BSON::ObjectId.from_string(string)
+      it "returns an BSON::ObjectId from given string" do
+        expect(described_class::ObjectId(string)).to be_a BSON::ObjectId
+        expect(described_class::ObjectId(string)).to eq BSON::ObjectId.from_string(string)
+      end
+    end
+
+    context 'when given an object id' do
+      let(:object_id) do
+        BSON::ObjectId.new
+      end
+
+      it 'returns the same object' do
+        expect(described_class::ObjectId(object_id)).to be(object_id)
+      end
     end
   end
 

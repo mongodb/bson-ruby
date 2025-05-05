@@ -326,6 +326,16 @@ describe BSON::ObjectId do
         }.to raise_error(BSON::Error::InvalidObjectId)
       end
     end
+
+    context 'when given an object id' do
+      let(:object_id) do
+        described_class.new
+      end
+
+      it 'returns the same object' do
+        expect(described_class.from_string(object_id)).to be(object_id)
+      end
+    end
   end
 
   describe ".from_time" do
