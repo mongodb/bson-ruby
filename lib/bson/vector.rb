@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# rubocop:todo all
 # Copyright (C) 2025-present MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
