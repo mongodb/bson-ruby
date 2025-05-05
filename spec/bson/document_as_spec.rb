@@ -56,9 +56,8 @@ describe BSON::Document do
         expect(result[:key1]).to eq({ 'inner' => 'value' })
       end
 
-      it 'converts nested described_classs to plain Hashes' do
-        expect(result[:key1]).to be_a(Hash)
-        expect(result[:key1]).not_to be_a(described_class)
+      it 'does not convert nested BSON::Document to plain Hashes' do
+        expect(result[:key1]).to be_a(described_class)
       end
     end
   end
@@ -310,7 +309,7 @@ describe BSON::Document do
         expect(result['nested']['inner3']).to eq('value3')
       end
 
-      it 'returns nested documents as described_classs' do
+      it 'returns nested documents as BSON::Document' do
         expect(result['nested']).to be_a(described_class)
       end
 
