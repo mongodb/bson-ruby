@@ -17,7 +17,6 @@
 module BSON
   # Vector of numbers along with metadata for binary interoperability.
   class Vector < ::Array
-
     # @return [ Integer ] The data type stored in the vector.
     attr_reader :dtype
 

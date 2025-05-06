@@ -26,7 +26,6 @@ module BSON
     end
 
     class Test
-
       attr_reader :canonical_bson, :description, :dtype, :padding, :vector
 
       def initialize(spec, test)
@@ -49,7 +48,6 @@ module BSON
         bson_bytes = decode_hex(@canonical_bson)
         buffer = BSON::ByteBuffer.new(bson_bytes)
         BSON::Document.from_bson(buffer)
-
       end
 
       def canonical_bson_from_document(use_vector_type: false, validate_vector_data: false)
