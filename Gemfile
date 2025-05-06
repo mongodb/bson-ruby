@@ -24,10 +24,15 @@ group :development, :test do
   # https://github.com/jruby/jruby/wiki/UsingTheJRubyDebugger
   gem 'ruby-debug', platforms: :jruby
 
-  gem 'rubocop', '~> 1.75.5'
-  gem 'rubocop-performance', '~> 1.25.0'
-  gem 'rubocop-rake', '~> 0.7.1'
-  gem 'rubocop-rspec', '~> 3.6.0'
+  # JRuby 9.3 reports RUBY_VERSION as 2.6, and the latest versions of Rubocop
+  # wants 2.7 or higher. It enough to use rubocop only on MRI, so we can skip
+  # it on JRuby.
+  unless RUBY_PLATFORM =~ /java/
+    gem 'rubocop', '~> 1.75.5'
+    gem 'rubocop-performance', '~> 1.25.0'
+    gem 'rubocop-rake', '~> 0.7.1'
+    gem 'rubocop-rspec', '~> 3.6.0'
+  end
 end
 
 group :test do
