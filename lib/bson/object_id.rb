@@ -360,7 +360,7 @@ module BSON
       # NUM2UINT. Further, the spec dictates that the time component of an
       # ObjectID must be no more than 4 bytes long, so the spec itself is
       # constrained in this regard.
-      MAX_INTEGER = 2 ** 32
+      MAX_INTEGER = 2**32
 
       # Returns an integer timestamp (seconds since the Epoch). Primarily used
       # by the generator to produce object ids.
