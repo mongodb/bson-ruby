@@ -3,6 +3,20 @@ name: CI
 on: [push, pull_request]
 
 jobs:
+  rubocop:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Ruby 3.4
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4
+          bundler-cache: true
+      - name: Run RuboCop
+        run: bundle exec rubocop --parallel
+
   build:
     name: >-
       ${{ matrix.os }} ${{ matrix.ruby }}

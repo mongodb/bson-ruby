@@ -1,14 +1,15 @@
-require:
+plugins:
   - rubocop-performance
   - rubocop-rake
   - rubocop-rspec
 
 AllCops:
-  TargetRubyVersion: 2.5
+  TargetRubyVersion: 2.6
   NewCops: enable
   Exclude:
     - 'spec/shared/**/*'
     - 'tmp/**/*'
+    - 'vendor/**/*'
 
 Bundler:
   Enabled: true
