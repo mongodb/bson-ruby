@@ -167,7 +167,7 @@ module BSON
       #
       # @return [ Hash ] the hash parsed from the buffer
       def parse_hash_from_buffer(buffer, **options)
-        hash = Document.allocate
+        hash = ruby_base_type.allocate
         start_position = buffer.read_position
         expected_byte_size = buffer.get_int32
 
@@ -199,6 +199,12 @@ module BSON
                   end
           hash.store(field, value)
         end
+      end
+
+      private
+
+      def ruby_base_type
+        BSON::Registry.get(BSON_TYPE)
       end
     end
 
