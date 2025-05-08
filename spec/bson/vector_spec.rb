@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Copyright (C) 2025-present MongoDB Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +18,7 @@ require 'spec_helper'
 
 describe BSON::Vector do
   it 'behaves like an Array' do
-    expect(described_class.new([ 1, 2, 3 ], :int8)).to be_a_kind_of(Array)
+    expect(described_class.new([ 1, 2, 3 ], :int8)).to be_a(Array)
   end
 
   describe '#initialize' do
