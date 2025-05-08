@@ -35,7 +35,7 @@ module BSON
     # @param [ Integer ] padding The number of bits in the final byte that are to
     # be ignored when a vector element's size is less than a byte
     # and the length of the vector is not a multiple of 8.
-    def initialize(data, dtype, padding)
+    def initialize(data, dtype, padding = 0)
       @dtype = dtype
       @padding = padding
       super(data.dup)

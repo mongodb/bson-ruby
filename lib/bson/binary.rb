@@ -455,7 +455,7 @@ module BSON
     # Validate the arguments for a binary vector.
     # @param [ Array ] data The vector data.
     # @param [ ::Symbol ] dtype The vector data type.
-    # @param [ Integer | nil ] padding The padding. Must be 0 if vector is a BSON::Vector.
+    # @param [ Integer ] padding The padding. Must be 0 if vector is a BSON::Vector.
     # @raise [ ArgumentError ] If the arguments are invalid.
     def self.validate_args_for_vector!(data, dtype, padding)
       raise ArgumentError, "Unknown dtype #{dtype}" unless VECTOR_DATA_TYPES.key?(dtype)
