@@ -44,4 +44,18 @@ describe BSON::Document do
       end
     end
   end
+
+  describe '#deep_symbolize_keys!' do
+    context 'string keys' do
+      let(:doc) do
+        described_class.new('foo' => 'bar')
+      end
+
+      it 'raises ArgumentError' do
+        expect do
+          doc.deep_symbolize_keys!
+        end.to output(/\[DEPRECATION\] `deep_symbolize_keys!` is not supported on BSON::Document instances./).to_stderr
+      end
+    end
+  end
 end
