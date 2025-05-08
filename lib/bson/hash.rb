@@ -201,8 +201,6 @@ module BSON
         end
       end
 
-      private
-
       def ruby_base_type
         BSON::Registry.get(BSON_TYPE)
       end
