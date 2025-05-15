@@ -56,7 +56,7 @@ public class NativeService implements BasicLibraryService {
    * @since 2.0.0
    */
   public boolean basicLoad(final Ruby runtime) throws IOException {
-    RubyModule bson = runtime.fastGetModule(BSON);
+    RubyModule bson = runtime.getModule(BSON);
     GeneratorExtension.extend(bson);
 
     RubyClass byteBuffer = bson.defineClassUnder("ByteBuffer", runtime.getObject(), new ObjectAllocator() {
