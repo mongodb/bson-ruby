@@ -1,6 +1,6 @@
 name: CI
 
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   rubocop:
@@ -8,7 +8,8 @@ jobs:
     env:
       CI: true
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - name: Set up Ruby 3.4
         uses: ruby/setup-ruby@v1
         with:
@@ -34,27 +35,24 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu, macos, windows ]
-        ruby: [ 2.7, 3.0, 3.1, 3.2, 3.3, 3.4, head ]
+        ruby: [ 2.7, '3.0', 3.1, 3.2, 3.3, 3.4, head ]
         include:
-          - { os: windows , ruby: mingw }
+          - { os: windows , ruby: ucrt }
         exclude:
           - { os: windows , ruby: head }
-          - { os: windows , ruby: 3.1 }
 
     steps:
       - name: repo checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: load ruby, ragel
+      - name: load ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler: 2
-
-      - name: bundle install
-        run:  bundle install --jobs 4 --retry 3
+          rubygems: latest
+          bundler-cache: true
 
       - name: compile
         run:  bundle exec rake compile
