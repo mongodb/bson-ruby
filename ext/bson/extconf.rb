@@ -3,6 +3,6 @@
 
 require 'mkmf'
 
-$CFLAGS << ' -Wall -g -std=c99'
+append_cflags(["-Wall", "-g", "-std=c99"])
 
 create_makefile('bson_native')
