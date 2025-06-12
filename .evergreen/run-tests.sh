@@ -17,6 +17,11 @@ set_env_ruby
 
 install_deps
 
+# TODO: move this to shared/shlib/set_env.sh
+export JAVA_HOME="/opt/java/jdk21"
+export SOURCE_VERSION=21
+export TARGET_VERSION=21
+# END TODO
 echo "Running specs"
 bundle exec rake spec
 test_status=$?
