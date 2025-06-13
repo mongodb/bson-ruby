@@ -2,5 +2,5 @@
 name: BSON for Ruby
 package: bson
 version:
-  number: 5.0.2
+  number: 5.1.0
   file: lib/bson/version.rb
