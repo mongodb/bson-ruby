@@ -23,7 +23,7 @@ permissions:
 
   # only required for workflows in private repositories
   actions: read
-  pull-request: read
+  pull-requests: read
   contents: write
 
   # required by the mongodb-labs/drivers-github-tools/setup@v2 step
