@@ -45,6 +45,7 @@ jobs:
   build:
     name: "Build Gems"
     needs: check
+    environment: release
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
