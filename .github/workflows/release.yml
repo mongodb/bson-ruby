@@ -3,16 +3,22 @@ run-name: "BSON Release for ${{ github.ref }}"
 
 on:
   # for auto-deploy when merging a release-candidate PR
-  pull_request:
-    types: [ closed ]
+  push:
+    - 'master'
+    - '*-stable'
 
-  # for manual release trigger: "/release" in a comment on a merged
-  # release-candidate PR (useful if the auto-deploy fails)
-  issue_comment:
-    types: [ created ]
+  # for manual release
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "The number of the merged release candidate PR"
+        required: true
 
 env:
   SILK_ASSET_GROUP: bson-ruby
+  GEM_NAME: bson
+  PRODUCT_NAME: BSON for Ruby
+  PRODUCT_ID: mongodb-ruby-driver
 
 permissions:
   # required for all workflows
@@ -58,7 +64,7 @@ jobs:
           app_id: ${{ vars.APP_ID }}
           app_private_key: ${{ secrets.APP_PRIVATE_KEY }}
           artifact: ${{ matrix.ruby }}
-          gem_name: bson
+          gem_name: ${{ env.GEM_NAME }}
           ruby_version: ${{ matrix.ruby }}
           ref: ${{ needs.check.outputs.ref }}
 
@@ -77,9 +83,9 @@ jobs:
           aws_region_name: ${{ vars.AWS_REGION_NAME }}
           aws_secret_id: ${{ secrets.AWS_SECRET_ID }}
           dry_run: false
-          gem_name: bson
-          product_name: BSON for Ruby
-          product_id: mongodb-ruby-driver
+          gem_name: ${{ env.GEM_NAME }}
+          product_name: ${{ env.PRODUCT_NAME }}
+          product_id: ${{ env.PRODUCT_ID }}
           release_message: ${{ needs.check.outputs.message }}
           silk_asset_group: ${{ env.SILK_ASSET_GROUP }}
           ref: ${{ needs.check.outputs.ref }}
