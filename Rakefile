@@ -25,7 +25,9 @@ require "rake/extensiontask"
 require "rspec/core/rake_task"
 require 'fileutils'
 
-load 'spec/shared/lib/tasks/candidate.rake'
+if File.exist?('./spec/shared/lib/tasks/candidate.rake')
+  load './spec/shared/lib/tasks/candidate.rake'
+end
 
 def jruby?
   defined?(JRUBY_VERSION)
