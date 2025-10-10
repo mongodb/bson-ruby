@@ -2,32 +2,24 @@ name: "BSON Release"
 run-name: "BSON Release for ${{ github.ref }}"
 
 on:
+  # for auto-deploy when merging a release-candidate PR
+  push:
+    branches:
+      - 'master'
+      - '*-stable'
+
+  # for manual release
   workflow_dispatch:
     inputs:
-      dry_run:
-        description: Whether this is a dry run or not
+      pr:
+        description: "The number of the merged release candidate PR"
         required: true
-        default: true
-        type: boolean
 
 env:
   SILK_ASSET_GROUP: bson-ruby
-  RELEASE_MESSAGE_TEMPLATE: |
-    Version {0} of [BSON for Ruby](https://rubygems.org/gems/bson) is now available.
-
-    **Release Highlights**
-
-    TODO: one or more paragraphs describing important changes in this release
-
-    **Documentation**
-
-    Documentation is available at [MongoDB.com](https://www.mongodb.com/docs/ruby-driver/current/tutorials/bson/).
-
-    **Installation**
-
-    You may install this version via RubyGems, with:
-
-    gem install --version {0} bson
+  GEM_NAME: bson
+  PRODUCT_NAME: BSON for Ruby
+  PRODUCT_ID: mongodb-ruby-driver
 
 permissions:
   # required for all workflows
@@ -38,6 +30,7 @@ permissions:
 
   # only required for workflows in private repositories
   actions: read
+  pull-requests: read
   contents: write
 
   # required by the mongodb-labs/drivers-github-tools/setup@v2 step
@@ -45,126 +38,55 @@ permissions:
   id-token: write
 
 jobs:
+  check:
+    name: "Check Release"
+    runs-on: ubuntu-latest
+    outputs:
+      message: ${{ steps.check.outputs.message }}
+      ref: ${{ steps.check.outputs.ref }}
+    steps:
+      - name: "Run the check action"
+        id: check
+        uses: jamis/drivers-github-tools/ruby/pr-check@ruby-3643-update-release-process
+
   build:
     name: "Build Gems"
+    needs: check
+    environment: release
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        ruby: [ '3.2', jruby ]
+        ruby: [ 'ruby-3.2', 'jruby-9.4' ]
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v4
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - name: "Run the build action"
+        uses: jamis/drivers-github-tools/ruby/build@ruby-3643-update-release-process
         with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-
-      - name: Set output gem file name
-        shell: bash
-        run: |
-          echo "GEM_FILE_NAME=$(bundle exec rake gem_file_name)" >> "$GITHUB_ENV"
-
-      - name: Build the gem
-        shell: bash
-        run: bundle exec rake build
-
-      - name: Save the generated gem file for later
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.GEM_FILE_NAME }}
-          path: ${{ env.GEM_FILE_NAME }}
-          retention-days: 1
-          overwrite: true
+          app_id: ${{ vars.APP_ID }}
+          app_private_key: ${{ secrets.APP_PRIVATE_KEY }}
+          artifact: ${{ matrix.ruby }}
+          gem_name: ${{ env.GEM_NAME }}
+          ruby_version: ${{ matrix.ruby }}
+          ref: ${{ needs.check.outputs.ref }}
 
   publish:
     name: Publish Gems
-    needs: build
+    needs: [ check, build ]
     environment: release
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repository
-        uses: mongodb-labs/drivers-github-tools/secure-checkout@v2
+      - name: "Run the publish action"
+        uses: jamis/drivers-github-tools/ruby/publish@ruby-3643-update-release-process
         with:
           app_id: ${{ vars.APP_ID }}
-          private_key: ${{ secrets.APP_PRIVATE_KEY }}
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
-          bundler-cache: true
-
-      - name: Get the release version
-        shell: bash
-        run: echo "RELEASE_VERSION=$(bundle exec rake version)" >> "$GITHUB_ENV"
-
-      - name: Setup GitHub tooling for DBX Drivers
-        uses: mongodb-labs/drivers-github-tools/setup@v2
-        with:
+          app_private_key: ${{ secrets.APP_PRIVATE_KEY }}
           aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
           aws_region_name: ${{ vars.AWS_REGION_NAME }}
           aws_secret_id: ${{ secrets.AWS_SECRET_ID }}
-
-      - name: Fetch the gem artifacts
-        uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
-
-      - name: Sign the gems
-        uses: mongodb-labs/drivers-github-tools/gpg-sign@v2
-        with:
-          filenames: '*.gem'
-
-      - name: Generate SSDLC Reports
-        uses: mongodb-labs/drivers-github-tools/full-report@v2
-        with:
-          product_name: BSON for Ruby
-          release_version: ${{ env.RELEASE_VERSION }}
-          dist_filenames: '*.gem'
-          silk_asset_group: bson-ruby
-
-      - name: Create the tag
-        uses: mongodb-labs/drivers-github-tools/tag-version@v2
-        with:
-          version: ${{ env.RELEASE_VERSION }}
-          tag_template: "v${VERSION}"
-          tag_message_template: "Release tag for v${VERSION}"
-
-      - name: Create a new release
-        shell: bash
-        run: gh release create v${{ env.RELEASE_VERSION }} --title ${{ env.RELEASE_VERSION }} --generate-notes --draft
-
-      - name: Capture the changelog
-        shell: bash
-        run: gh release view v${{ env.RELEASE_VERSION }} --json body --template '{{ .body }}' >> changelog
-
-      - name: Prepare release message
-        shell: bash
-        run: |
-          echo "${{ format(env.RELEASE_MESSAGE_TEMPLATE, env.RELEASE_VERSION) }}" > release-message
-          cat changelog >> release-message
-
-      - name: Update release information
-        shell: bash
-        run: |
-          echo "RELEASE_URL=$(gh release edit v${{ env.RELEASE_VERSION }} --notes-file release-message)" >> "$GITHUB_ENV"
-
-      - name: Upload release artifacts
-        shell: bash
-        run: gh release upload v${{ env.RELEASE_VERSION }} *.gem ${{ env.RELEASE_ASSETS }}/*.sig
-
-      - name: Upload S3 assets
-        uses: mongodb-labs/drivers-github-tools/upload-s3-assets@v2
-        with:
-          version: ${{ env.RELEASE_VERSION }}
-          product_name: 'bson-ruby'
-          dry_run: ${{ inputs.dry_run }}
-
-      - name: Publish the gems
-        uses: rubygems/release-gem@v1
-        if: inputs.dry_run == false
-        with:
-          await-release: false
+          dry_run: false
+          gem_name: ${{ env.GEM_NAME }}
+          product_name: ${{ env.PRODUCT_NAME }}
+          product_id: ${{ env.PRODUCT_ID }}
+          release_message: ${{ needs.check.outputs.message }}
+          silk_asset_group: ${{ env.SILK_ASSET_GROUP }}
+          ref: ${{ needs.check.outputs.ref }}
