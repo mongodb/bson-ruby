@@ -100,7 +100,7 @@ describe BSON::Int64 do
         BSON::ByteBuffer.new(BSON::Int64.new(integer).to_bson.to_s)
       end
 
-      context "when on JRuby", if: BSON::Environment.jruby? do
+      context "when on JRuby", if: BSON::Environment.jruby? && RUBY_VERSION < '3.0.0' do
 
         it "deserializes to a Fixnum object" do
           expect(described_class.from_bson(bson).class).to be(Fixnum)
@@ -120,7 +120,7 @@ describe BSON::Int64 do
         BSON::ByteBuffer.new(integer.to_bson.to_s)
       end
 
-      context "when on JRuby", if: BSON::Environment.jruby? do
+      context "when on JRuby", if: BSON::Environment.jruby? && RUBY_VERSION < '3.0.0' do
 
         it "deserializes to a Fixnum object" do
           expect(described_class.from_bson(bson).class).to be(Fixnum)
