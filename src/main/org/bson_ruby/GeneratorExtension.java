@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyInteger;
+import org.jruby.RubyNumeric;
 import org.jruby.RubyModule;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
@@ -102,8 +103,7 @@ public class GeneratorExtension {
   public static IRubyObject next(final IRubyObject generator) {
     RubyModule bson = generator.getRuntime().getModule(BSON);
     RubyClass objectId = bson.getClass(OBJECT_ID);
-    RubyInteger time = (RubyInteger) objectId.callMethod("timestamp");
-    return nextObjectId(generator, (int) time.getLongValue());
+    return nextObjectId(generator, (int) RubyNumeric.num2long(objectId.callMethod("timestamp")));
   }
 
   /**
@@ -118,7 +118,7 @@ public class GeneratorExtension {
    */
   @JRubyMethod(name = { "next", "next_object_id" })
   public static IRubyObject next(final IRubyObject generator, final IRubyObject time) {
-    return nextObjectId(generator, (int) ((RubyInteger) time).getLongValue() / 1000);
+    return nextObjectId(generator, (int) (RubyNumeric.num2long(time) / 1000));
   }
 
  /**
@@ -145,7 +145,7 @@ public class GeneratorExtension {
    */
   @JRubyMethod(name = { "reset_counter" })
   public static IRubyObject resetCounter(final IRubyObject generator, final IRubyObject value) {
-    counter.set((int) ((RubyInteger) value).getLongValue());
+    counter.set((int) RubyNumeric.num2long(value));
     return generator;
   }
 

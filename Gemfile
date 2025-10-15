@@ -38,4 +38,5 @@ end
 group :test do
   gem 'fuubar'
   gem 'rfc'
+  gem "rspec_junit_formatter"
 end

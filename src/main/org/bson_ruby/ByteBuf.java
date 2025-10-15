@@ -564,7 +564,7 @@ public class ByteBuf extends RubyObject {
       value = ((RubyFloat) value).truncate(context);
     }
     ensureBsonWrite(8);
-    this.buffer.putLong(((RubyInteger) value).getLongValue());
+    this.buffer.putLong(RubyNumeric.num2long(value));
     this.writePosition += 8;
     return this;
   }
