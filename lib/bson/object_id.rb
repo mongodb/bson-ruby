@@ -284,19 +284,23 @@ module BSON
         object_id
       end
 
-      # Create a new object id from a string.
+      # Create a new object id from a string. If given a BSON::ObjectId object instead,
+      # this method returns that object id without creating a new one.
       #
       # @example Create an object id from the string.
       #   BSON::ObjectId.from_string(id)
       #
-      # @param [ String ] string The string to create the id from.
+      # @param [ String | BSON::ObjectId ] string The string to create the id from,
+      #   or the existing object id to return.
       #
       # @raise [ BSON::Error::InvalidObjectId ] If the provided string is invalid.
       #
-      # @return [ BSON::ObjectId ] The new object id.
+      # @return [ BSON::ObjectId ] The new or existing object id.
       #
       # @since 2.0.0
       def from_string(string)
+        return string if string.is_a?(self)
+
         raise Error::InvalidObjectId, "'#{string}' is an invalid ObjectId." unless legal?(string)
 
         from_data([ string ].pack('H*'))
