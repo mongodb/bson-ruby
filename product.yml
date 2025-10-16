@@ -5,5 +5,5 @@ description: a fully featured [BSON specification](https://bsonspec.org/) implem
 package: bson
 jira: https://jira.mongodb.org/projects/RUBY
 version:
-  number: 5.1.1
+  number: 5.2.0
   file: lib/bson/version.rb
