@@ -50,6 +50,7 @@ functions:
     # Make an evergreen exapanstion file with dynamic values
     - command: shell.exec
       params:
+        shell: bash
         working_dir: "src"
         script: |
            # Get the current unique version of this checkout
