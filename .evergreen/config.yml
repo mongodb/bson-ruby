@@ -281,6 +281,10 @@ axes:
   - id: ruby
     display_name: Ruby Version
     values:
+      - id: ruby-3.4
+        display_name: ruby-3.4
+        variables:
+           RVM_RUBY: ruby-3.4
       - id: ruby-3.3
         display_name: ruby-3.3
         variables:
@@ -399,13 +403,13 @@ buildvariants:
       - name: "test"
 
   - matrix_name: "special-os"
-    matrix_spec: { ruby: ["ruby-3.2", "ruby-3.1"], special-os: '*' }
+    matrix_spec: { ruby: ["ruby-3.4", "ruby-3.3"], special-os: '*' }
     display_name: "${ruby}, ${special-os}"
     tasks:
       - name: "test"
 
   - matrix_name: "jruby"
-    matrix_spec: { ruby: ["jruby-10.0", "jruby-9.4", "jruby-9.3"], all-os: ubuntu2204 }
+    matrix_spec: { ruby: ["jruby-10.0", "jruby-9.4", "jruby-9.3"], all-os: ubuntu2404 }
     display_name: "${ruby}, ${all-os}"
     tasks:
       - name: "test"
