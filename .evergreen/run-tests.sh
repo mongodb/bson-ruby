@@ -30,7 +30,7 @@ export SOURCE_VERSION=21
 export TARGET_VERSION=21
 # END TODO
 
-bundle exec rake clean
+install_deps
 
 export CI=1
 echo "Running specs"
