@@ -75,7 +75,7 @@ module ConfigProcessor
 
   # these are used for testing against a few recent ruby versions
   def recent_rubies
-    @recent_rubies ||= %w[ ruby-3.2 ruby-3.1 jruby-10.0 ]
+    @recent_rubies ||= %w[ ruby-3.4 ruby-3.3 jruby-10.0 ]
   end
 
   # the most recently released, stable version of Ruby (make sure this

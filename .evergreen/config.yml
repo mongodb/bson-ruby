@@ -398,8 +398,8 @@ buildvariants:
     tasks:
       - name: "test"
 
-  - matrix_name: "special-os"
-    matrix_spec: { ruby: ["ruby-3.2", "ruby-3.1"], special-os: '*' }
+  - matrix_name: "special-os"x
+    matrix_spec: { ruby: ["ruby-3.4", "ruby-3.3"], special-os: '*' }
     display_name: "${ruby}, ${special-os}"
     tasks:
       - name: "test"
