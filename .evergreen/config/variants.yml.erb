@@ -45,7 +45,7 @@ buildvariants:
       - name: "test"
 
   - matrix_name: "jruby"
-    matrix_spec: { ruby: <%= jrubies %>, all-os: ubuntu2204 }
+    matrix_spec: { ruby: <%= jrubies %>, all-os: ubuntu2404 }
     display_name: "${ruby}, ${all-os}"
     tasks:
       - name: "test"
