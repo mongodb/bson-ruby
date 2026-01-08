@@ -405,7 +405,7 @@ buildvariants:
       - name: "test"
 
   - matrix_name: "jruby"
-    matrix_spec: { ruby: ["jruby-10.0", "jruby-9.4", "jruby-9.3"], all-os: ubuntu2204 }
+    matrix_spec: { ruby: ["jruby-10.0", "jruby-9.4", "jruby-9.3"], all-os: ubuntu2404 }
     display_name: "${ruby}, ${all-os}"
     tasks:
       - name: "test"

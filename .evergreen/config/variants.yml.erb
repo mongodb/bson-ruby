@@ -38,14 +38,14 @@ buildvariants:
     tasks:
       - name: "test"
 
-  - matrix_name: "special-os"
+  - matrix_name: "special-os"x
     matrix_spec: { ruby: <%= recent_rubies - %w[ jruby-10.0 ] %>, special-os: '*' }
     display_name: "${ruby}, ${special-os}"
     tasks:
       - name: "test"
 
   - matrix_name: "jruby"
-    matrix_spec: { ruby: <%= jrubies %>, all-os: ubuntu2204 }
+    matrix_spec: { ruby: <%= jrubies %>, all-os: ubuntu2404 }
     display_name: "${ruby}, ${all-os}"
     tasks:
       - name: "test"
