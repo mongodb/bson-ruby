@@ -112,7 +112,7 @@ module ConfigProcessor
   # all supported MRI ruby versions
   def supported_mri_rubies
     @supported_mri_rubies ||= %w[
-      ruby-3.3 ruby-3.2 ruby-3.1 ruby-3.0
+      ruby-3.4 ruby-3.3 ruby-3.2 ruby-3.1 ruby-3.0
       ruby-2.7
     ]
   end
