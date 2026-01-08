@@ -23,14 +23,15 @@ eval "$(rbenv init - bash)"
 export FULL_RUBY_VERSION=$(ls ~/.rbenv/versions | head -n1)
 rbenv global $FULL_RUBY_VERSION
 
-install_deps
-
 # TODO: move this to shared/shlib/set_env.sh
 export JAVA_HOME="/opt/java/jdk21"
 export JAVACMD=$JAVA_HOME/bin/java
 export SOURCE_VERSION=21
 export TARGET_VERSION=21
 # END TODO
+
+bundle exec rake clean
+
 export CI=1
 echo "Running specs"
 bundle exec rake spec
