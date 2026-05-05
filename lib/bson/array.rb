@@ -143,7 +143,8 @@ module BSON
       # @raise [ BSON::Error::BSONDecodeError ] if the expected number of
       #   bytes were not read from the buffer
       def parse_array_from_buffer(buffer, **options)
-        BSON.with_nesting_depth do
+        BSON.enter_nesting_depth
+        begin
           new.tap do |array|
             start_position = buffer.read_position
             expected_byte_size = buffer.get_int32
@@ -154,6 +155,8 @@ module BSON
                     "Expected array to take #{expected_byte_size} bytes but it took #{actual_byte_size} bytes"
             end
           end
+        ensure
+          BSON.leave_nesting_depth
         end
       end
 

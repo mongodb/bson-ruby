@@ -167,7 +167,8 @@ module BSON
       #
       # @return [ Hash ] the hash parsed from the buffer
       def parse_hash_from_buffer(buffer, **options)
-        BSON.with_nesting_depth do
+        BSON.enter_nesting_depth
+        begin
           hash = Document.allocate
           start_position = buffer.read_position
           expected_byte_size = buffer.get_int32
@@ -179,6 +180,8 @@ module BSON
 
           raise Error::BSONDecodeError,
                 "Expected hash to take #{expected_byte_size} bytes but it took #{actual_byte_size} bytes"
+        ensure
+          BSON.leave_nesting_depth
         end
       end
 

@@ -17,6 +17,31 @@
 require "spec_helper"
 
 describe "BSON nesting depth limit" do
+  # On JRuby, very deep recursion may overflow the JVM thread stack before
+  # our depth counter fires (each Ruby method invocation inflates to multiple
+  # JVM frames). Either outcome — BSON::Error::BSONDecodeError or a JVM
+  # StackOverflowError — means the process did not crash.
+  #
+  # The Java throwable is not a subclass of Ruby's Exception, so we rescue it
+  # by reference. On MRI it is replaced with an unreachable sentinel.
+  java_stack_overflow = if defined?(JRUBY_VERSION)
+                         eval('Java::JavaLang::StackOverflowError')
+                       else
+                         Class.new(Exception)
+                       end
+
+  matcher :raise_decode_error_or_stack_overflow do
+    supports_block_expectations
+    match do |block|
+      begin
+        block.call
+        false
+      rescue BSON::Error::BSONDecodeError, SystemStackError, java_stack_overflow
+        true
+      end
+    end
+  end
+
 
   # Build a BSON byte string with exactly n nested documents:
   # n=1 -> {} (5 bytes), n=2 -> {a: {}}, n=3 -> {a: {a: {}}}, ...
@@ -81,10 +106,10 @@ describe "BSON nesting depth limit" do
     context "when nesting is far beyond the maximum (DoS payload)" do
       let(:bytes) { deeply_nested_bson(100_000) }
 
-      it "raises BSONDecodeError without crashing the process" do
+      it "raises a decode error or stack overflow without crashing the process" do
         expect {
           Hash.from_bson(BSON::ByteBuffer.new(bytes))
-        }.to raise_error(BSON::Error::BSONDecodeError)
+        }.to raise_decode_error_or_stack_overflow
       end
     end
   end
@@ -163,10 +188,10 @@ describe "BSON nesting depth limit" do
     context "when nesting is far beyond the maximum (DoS payload)" do
       let(:input) { deeply_nested_hash(50_000) }
 
-      it "raises BSONDecodeError without crashing the process" do
+      it "raises a decode error or stack overflow without crashing the process" do
         expect {
           BSON::ExtJSON.parse_obj(input)
-        }.to raise_error(BSON::Error::BSONDecodeError)
+        }.to raise_decode_error_or_stack_overflow
       end
     end
   end

@@ -62,24 +62,22 @@ module BSON
   # Go driver's ExtJSON parser.
   MAX_NESTING_DEPTH = 200
 
-  # Increment the per-thread BSON decode nesting depth, yield, and decrement
-  # on the way out. Raises BSON::Error::BSONDecodeError if the new depth
-  # exceeds MAX_NESTING_DEPTH.
-  #
-  # Used by the pure-Ruby decoders for Hash, Array, and Extended JSON to
-  # bound recursion. The C extension applies the same cap internally.
-  def self.with_nesting_depth
+  # Bump the per-thread BSON decode nesting counter and raise if it exceeds
+  # MAX_NESTING_DEPTH. Pair every call with `leave_nesting_depth` in an
+  # `ensure` block. The bump is inlined at each callsite (rather than a
+  # block-yielding helper) to keep JRuby JVM stack frame counts low enough
+  # that the check fires before the JVM stack overflows on adversarial input.
+  def self.enter_nesting_depth
     depth = (Thread.current[:_bson_nesting_depth] ||= 0) + 1
     if depth > MAX_NESTING_DEPTH
       raise Error::BSONDecodeError,
             "BSON document nesting depth exceeds maximum of #{MAX_NESTING_DEPTH}"
     end
     Thread.current[:_bson_nesting_depth] = depth
-    begin
-      yield
-    ensure
-      Thread.current[:_bson_nesting_depth] = depth - 1
-    end
+  end
+
+  def self.leave_nesting_depth
+    Thread.current[:_bson_nesting_depth] -= 1
   end
 end
 
