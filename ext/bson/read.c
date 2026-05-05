@@ -27,13 +27,29 @@ static VALUE pvt_get_double(byte_buffer_t *b);
 static VALUE pvt_get_string(byte_buffer_t *b, const char *data_type);
 static VALUE pvt_get_symbol(byte_buffer_t *b, VALUE rb_buffer, int argc, VALUE *argv);
 static VALUE pvt_get_boolean(byte_buffer_t *b);
-static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv);
+static VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv, int depth);
+static VALUE pvt_get_hash_at_depth(int argc, VALUE *argv, VALUE self, int depth);
+static VALUE pvt_get_array_at_depth(int argc, VALUE *argv, VALUE self, int depth);
+static void pvt_check_nesting_depth(int depth);
 static void pvt_skip_cstring(byte_buffer_t *b);
 static size_t pvt_strnlen(const byte_buffer_t *b);
+
+/* Maximum number of nested BSON documents or arrays the decoder will accept.
+ * Mirrors BSON::MAX_NESTING_DEPTH in lib/bson.rb. */
+#define BSON_RUBY_MAX_NESTING_DEPTH 200
 
 void pvt_raise_decode_error(volatile VALUE msg) {
   VALUE klass = pvt_const_get_3("BSON", "Error", "BSONDecodeError");
   rb_exc_raise(rb_exc_new_str(klass, msg));
+}
+
+/* Raise BSON::Error::BSONDecodeError if the depth exceeds the cap. */
+void pvt_check_nesting_depth(int depth) {
+  if (depth > BSON_RUBY_MAX_NESTING_DEPTH) {
+    pvt_raise_decode_error(rb_sprintf(
+      "BSON document nesting depth exceeds maximum of %d",
+      BSON_RUBY_MAX_NESTING_DEPTH));
+  }
 }
 
 /**
@@ -66,9 +82,10 @@ int32_t pvt_validate_length(byte_buffer_t *b)
 }
 
 /**
- * Read a single field from a hash or array
+ * Read a single field from a hash or array. `depth` is the current nesting
+ * depth; nested documents/arrays bump it before recursing.
  */
-VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv)
+VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, VALUE *argv, int depth)
 {
   switch(type) {
     case BSON_TYPE_INT32: return pvt_get_int32(b);
@@ -76,8 +93,8 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, 
     case BSON_TYPE_DOUBLE: return pvt_get_double(b);
     case BSON_TYPE_STRING: return pvt_get_string(b, "String");
     case BSON_TYPE_SYMBOL: return pvt_get_symbol(b, rb_buffer, argc, argv);
-    case BSON_TYPE_ARRAY: return rb_bson_byte_buffer_get_array(argc, argv, rb_buffer);
-    case BSON_TYPE_DOCUMENT: return rb_bson_byte_buffer_get_hash(argc, argv, rb_buffer);
+    case BSON_TYPE_ARRAY: return pvt_get_array_at_depth(argc, argv, rb_buffer, depth + 1);
+    case BSON_TYPE_DOCUMENT: return pvt_get_hash_at_depth(argc, argv, rb_buffer, depth + 1);
     case BSON_TYPE_BOOLEAN: return pvt_get_boolean(b);
     default:
     {
@@ -397,12 +414,18 @@ static int pvt_is_dbref(VALUE doc) {
 }
 
 VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
+  return pvt_get_hash_at_depth(argc, argv, self, 1);
+}
+
+VALUE pvt_get_hash_at_depth(int argc, VALUE *argv, VALUE self, int depth){
   VALUE doc = Qnil;
   byte_buffer_t *b = NULL;
   uint8_t type;
   VALUE cDocument = pvt_const_get_2("BSON", "Document");
   int32_t length;
   char *start_ptr;
+
+  pvt_check_nesting_depth(depth);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
@@ -413,7 +436,7 @@ VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
 
   while((type = pvt_get_type_byte(b)) != 0){
     VALUE field = rb_bson_byte_buffer_get_cstring(self);
-    rb_hash_aset(doc, field, pvt_read_field(b, self, type, argc, argv));
+    rb_hash_aset(doc, field, pvt_read_field(b, self, type, argc, argv, depth));
     RB_GC_GUARD(field);
   }
 
@@ -430,11 +453,17 @@ VALUE rb_bson_byte_buffer_get_hash(int argc, VALUE *argv, VALUE self){
 }
 
 VALUE rb_bson_byte_buffer_get_array(int argc, VALUE *argv, VALUE self){
+  return pvt_get_array_at_depth(argc, argv, self, 1);
+}
+
+VALUE pvt_get_array_at_depth(int argc, VALUE *argv, VALUE self, int depth){
   byte_buffer_t *b;
   VALUE array = Qnil;
   uint8_t type;
   int32_t length;
   char *start_ptr;
+
+  pvt_check_nesting_depth(depth);
 
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
 
@@ -444,7 +473,7 @@ VALUE rb_bson_byte_buffer_get_array(int argc, VALUE *argv, VALUE self){
   array = rb_ary_new();
   while((type = pvt_get_type_byte(b)) != 0){
     pvt_skip_cstring(b);
-    rb_ary_push(array,  pvt_read_field(b, self, type, argc, argv));
+    rb_ary_push(array,  pvt_read_field(b, self, type, argc, argv, depth));
   }
   RB_GC_GUARD(array);
 

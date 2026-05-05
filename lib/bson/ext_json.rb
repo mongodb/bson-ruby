@@ -115,8 +115,10 @@ module BSON
       when Hash
         parse_hash(value, **options)
       when Array
-        value.map do |item|
-          parse_obj(item, **options)
+        BSON.with_nesting_depth do
+          value.map do |item|
+            parse_obj(item, **options)
+          end
         end
       else
         raise Error::ExtJSONParseError, "Unknown value type: #{value}"
@@ -136,6 +138,10 @@ module BSON
     end].freeze
 
     module_function def parse_hash(hash, **options)
+      BSON.with_nesting_depth { parse_hash_inner(hash, **options) }
+    end
+
+    module_function def parse_hash_inner(hash, **options)
       if hash.empty?
         return {}
       end
