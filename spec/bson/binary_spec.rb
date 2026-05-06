@@ -204,6 +204,58 @@ describe BSON::Binary do
           /BSON data contains unsupported binary subtype 0x10/)
       end
     end
+
+    context 'when subtype 0x02 inner length is too long' do
+      let(:bson) do
+        ([6].pack('l<') + 2.chr + [3].pack('l<') + 'xxx').force_encoding('BINARY')
+      end
+
+      it 'raises BSONDecodeError' do
+        expect { obj }.to raise_error(
+          BSON::Error::BSONDecodeError,
+          /length mismatch.*outer=6.*inner=3/
+        )
+      end
+    end
+
+    context 'when subtype 0x02 inner length is too short' do
+      let(:bson) do
+        ([6].pack('l<') + 2.chr + [1].pack('l<') + 'xxx').force_encoding('BINARY')
+      end
+
+      it 'raises BSONDecodeError' do
+        expect { obj }.to raise_error(
+          BSON::Error::BSONDecodeError,
+          /length mismatch.*outer=6.*inner=1/
+        )
+      end
+    end
+
+    context 'when subtype 0x02 inner length is negative' do
+      let(:bson) do
+        ([6].pack('l<') + 2.chr + [-1].pack('l<') + 'xx').force_encoding('BINARY')
+      end
+
+      it 'raises BSONDecodeError' do
+        expect { obj }.to raise_error(
+          BSON::Error::BSONDecodeError,
+          /length mismatch.*outer=6.*inner=-1/
+        )
+      end
+    end
+
+    context 'when non-old subtype outer length is negative' do
+      let(:bson) do
+        ([-1].pack('l<') + 0.chr).force_encoding('BINARY')
+      end
+
+      it 'raises BSONDecodeError' do
+        expect { obj }.to raise_error(
+          BSON::Error::BSONDecodeError,
+          /length is negative.*-1/
+        )
+      end
+    end
   end
 
   describe "#to_bson/#from_bson" do
