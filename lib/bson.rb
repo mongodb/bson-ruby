@@ -56,6 +56,29 @@ module BSON
   #
   # @since 2.0.0
   UTF8 = "UTF-8"
+
+  # Maximum number of nested BSON documents or arrays the decoder will accept.
+  # Prevents stack-overflow DoS on adversarial input. Matches libbson and the
+  # Go driver's ExtJSON parser.
+  MAX_NESTING_DEPTH = 200
+
+  # Bump the per-thread BSON decode nesting counter and raise if it exceeds
+  # MAX_NESTING_DEPTH. Pair every call with `leave_nesting_depth` in an
+  # `ensure` block. The bump is inlined at each callsite (rather than a
+  # block-yielding helper) to keep JRuby JVM stack frame counts low enough
+  # that the check fires before the JVM stack overflows on adversarial input.
+  def self.enter_nesting_depth
+    depth = (Thread.current[:_bson_nesting_depth] ||= 0) + 1
+    if depth > MAX_NESTING_DEPTH
+      raise Error::BSONDecodeError,
+            "BSON document nesting depth exceeds maximum of #{MAX_NESTING_DEPTH}"
+    end
+    Thread.current[:_bson_nesting_depth] = depth
+  end
+
+  def self.leave_nesting_depth
+    Thread.current[:_bson_nesting_depth] -= 1
+  end
 end
 
 require "bson/config"
