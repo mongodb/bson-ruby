@@ -656,13 +656,16 @@ VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array){
   /* insert length placeholder */
   pvt_put_int32(b, 0);
 
-  int32_t original_len = (int32_t)RARRAY_LEN(array);
+  long original_len = RARRAY_LEN(array);
+  if (original_len > INT32_MAX) {
+    rb_raise(rb_eRangeError, "array too large for BSON serialization");
+  }
 
-  for (int32_t index = 0; index < original_len; index++) {
-    if ((int32_t)RARRAY_LEN(array) != original_len) {
+  for (int32_t index = 0; index < (int32_t)original_len; index++) {
+    if (RARRAY_LEN(array) != original_len) {
       rb_raise(rb_eRuntimeError, "array modified during BSON serialization");
     }
-    VALUE element = rb_ary_entry(array, index);
+    volatile VALUE element = rb_ary_entry(array, index);
     pvt_put_type_byte(b, element);
     pvt_put_array_index(b, index);
     pvt_put_field(b, self, element);
