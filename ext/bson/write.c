@@ -649,7 +649,6 @@ VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array){
   size_t new_position = 0;
   int32_t new_length = 0;
   size_t position = 0;
-  VALUE *array_element = NULL;
   TypedData_Get_Struct(self, byte_buffer_t, &rb_byte_buffer_data_type, b);
   Check_Type(array, T_ARRAY);
 
@@ -657,12 +656,16 @@ VALUE rb_bson_byte_buffer_put_array(VALUE self, VALUE array){
   /* insert length placeholder */
   pvt_put_int32(b, 0);
 
-  array_element = RARRAY_PTR(array);
+  int32_t original_len = (int32_t)RARRAY_LEN(array);
 
-  for(int32_t index=0; index < RARRAY_LEN(array); index++, array_element++){
-    pvt_put_type_byte(b, *array_element);
+  for (int32_t index = 0; index < original_len; index++) {
+    if ((int32_t)RARRAY_LEN(array) != original_len) {
+      rb_raise(rb_eRuntimeError, "array modified during BSON serialization");
+    }
+    VALUE element = rb_ary_entry(array, index);
+    pvt_put_type_byte(b, element);
     pvt_put_array_index(b, index);
-    pvt_put_field(b, self, *array_element);
+    pvt_put_field(b, self, element);
   }
   pvt_put_byte(b, 0);
 
