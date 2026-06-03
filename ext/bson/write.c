@@ -34,9 +34,13 @@ static void pvt_put_bson_key(byte_buffer_t *b, VALUE string);
 static VALUE pvt_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length);
 static VALUE pvt_bson_byte_buffer_put_binary_string(VALUE self, const char *str, int32_t length);
 
-/* Raise ArgumentError if length exceeds the BSON int32_t string-length limit. */
+/* Raise ArgumentError if length exceeds the BSON int32_t string-length limit.
+ * The bound is INT32_MAX - 5 rather than INT32_MAX because the binary-string
+ * path writes length + 5 bytes total (4-byte int32 length prefix + payload +
+ * 1-byte null terminator).  Allowing length == INT32_MAX would make that
+ * addition overflow signed 32-bit arithmetic (undefined behavior in C). */
 static void pvt_check_string_length(long length) {
-  if (length > INT32_MAX) {
+  if (length > INT32_MAX - 5) {
     rb_raise(rb_eArgError, "String length %ld exceeds BSON maximum", length);
   }
 }
