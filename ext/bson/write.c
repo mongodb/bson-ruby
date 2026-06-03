@@ -34,6 +34,13 @@ static void pvt_put_bson_key(byte_buffer_t *b, VALUE string);
 static VALUE pvt_bson_byte_buffer_put_bson_partial_string(VALUE self, const char *str, int32_t length);
 static VALUE pvt_bson_byte_buffer_put_binary_string(VALUE self, const char *str, int32_t length);
 
+/* Raise ArgumentError if length exceeds the BSON int32_t string-length limit. */
+static void pvt_check_string_length(long length) {
+  if (length > INT32_MAX) {
+    rb_raise(rb_eArgError, "String length %ld exceeds BSON maximum", length);
+  }
+}
+
 static int fits_int32(int64_t i64){
   return i64 >= INT32_MIN && i64 <= INT32_MAX;
 }
@@ -211,7 +218,7 @@ static VALUE pvt_bson_encode_to_utf8(VALUE string) {
   VALUE encoding;
   VALUE utf8_string;
   const char *str;
-  int32_t length;
+  long length;
 
   existing_encoding_name = rb_funcall(
     rb_funcall(string, rb_intern("encoding"), 0),
@@ -222,6 +229,7 @@ static VALUE pvt_bson_encode_to_utf8(VALUE string) {
 
     str = RSTRING_PTR(utf8_string);
     length = RSTRING_LEN(utf8_string);
+    pvt_check_string_length(length);
 
     rb_bson_utf8_validate(str, length, true, "String");
   } else {
@@ -238,17 +246,18 @@ VALUE rb_bson_byte_buffer_put_string(VALUE self, VALUE string)
 {
   VALUE utf8_string;
   const char *str;
-  int32_t length;
+  long length;
 
   utf8_string = pvt_bson_encode_to_utf8(string);
   /* At this point utf8_string contains valid utf-8 byte sequences only */
 
   str = RSTRING_PTR(utf8_string);
   length = RSTRING_LEN(utf8_string);
+  pvt_check_string_length(length);
 
   RB_GC_GUARD(utf8_string);
 
-  return pvt_bson_byte_buffer_put_binary_string(self, str, length);
+  return pvt_bson_byte_buffer_put_binary_string(self, str, (int32_t)length);
 }
 
 /**
@@ -271,7 +280,7 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE obj)
 {
   VALUE string;
   const char *str;
-  int32_t length;
+  long length;
 
   switch (TYPE(obj)) {
   case T_STRING:
@@ -289,8 +298,9 @@ VALUE rb_bson_byte_buffer_put_cstring(VALUE self, VALUE obj)
 
   str = RSTRING_PTR(string);
   length = RSTRING_LEN(string);
+  pvt_check_string_length(length);
   RB_GC_GUARD(string);
-  return pvt_bson_byte_buffer_put_bson_partial_string(self, str, length);
+  return pvt_bson_byte_buffer_put_bson_partial_string(self, str, (int32_t)length);
 }
 
 /**
@@ -317,10 +327,11 @@ VALUE rb_bson_byte_buffer_put_symbol(VALUE self, VALUE symbol)
 {
   VALUE symbol_str = rb_sym_to_s(symbol);
   const char *str = RSTRING_PTR(symbol_str);
-  const int32_t length = RSTRING_LEN(symbol_str);
+  long length = RSTRING_LEN(symbol_str);
+  pvt_check_string_length(length);
 
   RB_GC_GUARD(symbol_str);
-  return pvt_bson_byte_buffer_put_binary_string(self, str, length);
+  return pvt_bson_byte_buffer_put_binary_string(self, str, (int32_t)length);
 }
 
 /**
@@ -328,9 +339,10 @@ VALUE rb_bson_byte_buffer_put_symbol(VALUE self, VALUE symbol)
  */
 void pvt_put_bson_key(byte_buffer_t *b, VALUE string){
   char *c_str = RSTRING_PTR(string);
-  size_t length = RSTRING_LEN(string);
+  long length = RSTRING_LEN(string);
+  pvt_check_string_length(length);
 
-  pvt_put_cstring(b, c_str, length, "Key");
+  pvt_put_cstring(b, c_str, (int32_t)length, "Key");
 }
 
 void pvt_replace_int32(byte_buffer_t *b, int32_t position, int32_t newval)
