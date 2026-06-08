@@ -75,6 +75,30 @@ describe Array do
       end
     end
 
+    context 'when an array element mutates the array size during serialization',
+            if: BSON::ByteBuffer.new.respond_to?(:put_array) do
+      let(:array) { Array.new(10, 1) }
+
+      before do
+        evil = Class.new do
+          define_method(:initialize) { |a| @array = a; @mutated = false }
+          define_method(:bson_type) do
+            unless @mutated
+              @mutated = true
+              @array.replace(Array.new(200_000, 0))
+            end
+            BSON::Int32::BSON_TYPE
+          end
+          define_method(:to_bson) { |buffer| 123.to_bson(buffer) }
+        end
+        array[0] = evil.new(array)
+      end
+
+      it 'raises a RuntimeError' do
+        expect { array.to_bson }.to raise_error(RuntimeError, /array modified during BSON serialization/)
+      end
+    end
+
     context 'when array contains value of an unserializable class' do
       class ArraySpecUnserializableClass
       end
