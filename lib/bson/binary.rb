@@ -306,7 +306,20 @@ module BSON
         type = type_byte
       end
 
-      length = buffer.get_int32 if type == :old
+      if type == :old
+        inner_length = buffer.get_int32
+        unless inner_length == length - 4
+          raise Error::BSONDecodeError,
+                "BSON binary subtype 0x02 length mismatch: outer=#{length}, inner=#{inner_length}"
+        end
+        length = inner_length
+      end
+
+      if length.negative?
+        raise Error::BSONDecodeError,
+              "BSON binary length is negative: #{length}"
+      end
+
       data = buffer.get_bytes(length)
       new(data, type)
     end
