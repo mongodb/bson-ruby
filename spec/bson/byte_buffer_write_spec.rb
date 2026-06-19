@@ -508,7 +508,7 @@ describe BSON::ByteBuffer do
       it 'raises TypeError' do
         expect do
           modified
-        end.to raise_error(TypeError, /no implicit conversion to float from string|ClassCastException:.*RubyString cannot be cast to.*RubyFloat/)
+        end.to raise_error(TypeError, /no implicit conversion to float from string|no implicit conversion of String into Float|ClassCastException:.*RubyString cannot be cast to.*RubyFloat/)
         expect(buffer.write_position).to eq(0)
       end
     end
