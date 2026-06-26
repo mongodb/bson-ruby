@@ -22,7 +22,7 @@ describe BSON do
     context 'when given a string' do
       let(:string) { "4e4d66343b39b68407000001" }
 
-      it "returns an BSON::ObjectId from given string" do
+      it "returns a BSON::ObjectId from given string" do
         expect(described_class::ObjectId(string)).to be_a BSON::ObjectId
         expect(described_class::ObjectId(string)).to eq BSON::ObjectId.from_string(string)
       end
