@@ -86,7 +86,6 @@ module BSON
     # @return [ Hash ] The timestamp as a JSON hash.
     #
     # @since 2.0.0
-    # @deprecated Use as_extended_json instead.
     def as_json(*args)
       as_extended_json
     end
