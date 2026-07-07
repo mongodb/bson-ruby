@@ -34,18 +34,5 @@ module BSON
     def jruby?
       @jruby ||= defined?(JRUBY_VERSION)
     end
-
-    # Determine if we are using Ruby version 1.9.
-    #
-    # @example Are we running with Ruby version 1.9?
-    #   Environment.ruby_1_9?
-    #
-    # @return [ true, false ] If the Ruby version is 1.9.
-    #
-    # @since 4.2.0
-    # @deprecated
-    def ruby_1_9?
-      @ruby_1_9 ||= RUBY_VERSION < '2.0.0'
-    end
   end
 end
