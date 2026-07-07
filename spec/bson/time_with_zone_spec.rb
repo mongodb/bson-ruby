@@ -50,7 +50,7 @@ context 'when ActiveSupport support is enabled' do
       context "when the TimeWithZone is not in UTC" do
 
         let(:obj)  { Time.utc(2012, 12, 12, 0, 0, 0).in_time_zone("Pacific Time (US & Canada)") }
-        let(:bson) { [ (obj.utc.to_f * 1000).to_i ].pack(BSON::Int64::PACK) }
+        let(:bson) { [ (obj.utc.to_f * 1000).to_i ].pack(PackDirectives::INT64) }
 
         it_behaves_like "a serializable bson element"
         it_behaves_like 'deserializes as expected'
@@ -59,7 +59,7 @@ context 'when ActiveSupport support is enabled' do
       context "when the TimeWithZone is in UTC" do
 
         let(:obj)  { Time.utc(2012, 1, 1, 0, 0, 0).in_time_zone("UTC") }
-        let(:bson) { [ (obj.utc.to_f * 1000).to_i ].pack(BSON::Int64::PACK) }
+        let(:bson) { [ (obj.utc.to_f * 1000).to_i ].pack(PackDirectives::INT64) }
 
         it_behaves_like "a serializable bson element"
         it_behaves_like 'deserializes as expected'

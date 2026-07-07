@@ -24,7 +24,7 @@ describe DateTime do
     context "when the date time is post epoch" do
 
       let(:obj)  { DateTime.new(2012, 1, 1, 0, 0, 0) }
-      let(:bson) { [ (obj.to_time.to_f * 1000).to_i ].pack(BSON::Int64::PACK) }
+      let(:bson) { [ (obj.to_time.to_f * 1000).to_i ].pack(PackDirectives::INT64) }
 
       it_behaves_like "a serializable bson element"
     end
@@ -32,7 +32,7 @@ describe DateTime do
     context "when the date time is pre epoch" do
 
       let(:obj)  { DateTime.new(1969, 1, 1, 0, 0, 0) }
-      let(:bson) { [ (obj.to_time.to_f * 1000).to_i ].pack(BSON::Int64::PACK) }
+      let(:bson) { [ (obj.to_time.to_f * 1000).to_i ].pack(PackDirectives::INT64) }
 
       it_behaves_like "a serializable bson element"
     end

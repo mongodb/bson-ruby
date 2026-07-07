@@ -23,7 +23,7 @@ describe Integer do
 
       let(:type) { 16.chr }
       let(:obj)  { Integer::MAX_32BIT - 1 }
-      let(:bson) { [ obj ].pack(BSON::Int32::PACK) }
+      let(:bson) { [ obj ].pack(PackDirectives::INT32) }
 
       it_behaves_like "a serializable bson element"
     end
@@ -32,7 +32,7 @@ describe Integer do
 
       let(:type) { 18.chr }
       let(:obj)  { Integer::MAX_64BIT - 1 }
-      let(:bson) { [ obj ].pack(BSON::Int64::PACK) }
+      let(:bson) { [ obj ].pack(PackDirectives::INT64) }
 
       it_behaves_like "a serializable bson element"
     end

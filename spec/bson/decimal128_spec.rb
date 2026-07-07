@@ -51,7 +51,7 @@ describe BSON::Decimal128 do
       end
 
       let(:expected_bson) do
-        [expected_low_bits].pack(BSON::Int64::PACK) + [expected_high_bits].pack(BSON::Int64::PACK)
+        [expected_low_bits].pack(PackDirectives::INT64) + [expected_high_bits].pack(PackDirectives::INT64)
       end
 
       it 'sets the correct high order bits' do

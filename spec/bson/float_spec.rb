@@ -21,7 +21,7 @@ describe Float do
 
     let(:type) { 1.chr }
     let(:obj)  { 1.2332 }
-    let(:bson) { [ obj ].pack(Float::PACK) }
+    let(:bson) { [ obj ].pack(PackDirectives::FLOAT) }
 
     it_behaves_like "a bson element"
     it_behaves_like "a serializable bson element"

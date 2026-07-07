@@ -32,7 +32,10 @@ module BSON
     # The pack directive is for 8 byte floating points.
     #
     # @since 2.0.0
+    # @deprecated No longer used internally; retained for backward
+    #   compatibility and slated for removal in a future major version.
     PACK = "E"
+    deprecate_constant :PACK
 
     # Get the floating point as encoded BSON.
     #

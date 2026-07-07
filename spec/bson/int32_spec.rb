@@ -67,7 +67,7 @@ describe BSON::Int32 do
 
     let(:type) { 16.chr }
     let(:obj)  { 123 }
-    let(:bson) { [ obj ].pack(BSON::Int32::PACK) }
+    let(:bson) { [ obj ].pack(PackDirectives::INT32) }
 
     it_behaves_like "a bson element"
     it_behaves_like "a deserializable bson element"
@@ -76,9 +76,9 @@ describe BSON::Int32 do
   describe "when the integer is negative" do
 
     let(:decoded) { -1 }
-    let(:encoded) { BSON::ByteBuffer.new([ -1 ].pack(BSON::Int32::PACK)) }
+    let(:encoded) { BSON::ByteBuffer.new([ -1 ].pack(PackDirectives::INT32)) }
     let(:decoded_2) { -50 }
-    let(:encoded_2) { BSON::ByteBuffer.new([ -50 ].pack(BSON::Int32::PACK)) }
+    let(:encoded_2) { BSON::ByteBuffer.new([ -50 ].pack(PackDirectives::INT32)) }
 
     it "decodes a -1 correctly" do
       expect(BSON::Int32.from_bson(encoded)).to eq(decoded)
@@ -95,7 +95,7 @@ describe BSON::Int32 do
 
       let(:type) { 16.chr }
       let(:obj)  { BSON::Int32.new(Integer::MAX_32BIT - 1) }
-      let(:bson) { [ Integer::MAX_32BIT - 1 ].pack(BSON::Int32::PACK) }
+      let(:bson) { [ Integer::MAX_32BIT - 1 ].pack(PackDirectives::INT32) }
 
       it_behaves_like "a serializable bson element"
     end

@@ -32,7 +32,10 @@ module BSON
     # Constant for the int 64 pack directive.
     #
     # @since 2.0.0
+    # @deprecated No longer used internally; retained for backward
+    #   compatibility and slated for removal in a future major version.
     PACK = "q<"
+    deprecate_constant :PACK
 
     # Deserialize an Integer from BSON.
     #

@@ -238,7 +238,7 @@ describe BSON::ByteBuffer do
 
         it 'appends the string to the byte buffer' do
           expect(modified.to_s).to eq(
-            "#{[ 4 ].pack(BSON::Int32::PACK)}#{(string.bytesize + 1).to_bson.to_s}#{string}#{BSON::NULL_BYTE}"
+            "#{[ 4 ].pack(PackDirectives::INT32)}#{(string.bytesize + 1).to_bson.to_s}#{string}#{BSON::NULL_BYTE}"
           )
         end
 
@@ -457,7 +457,7 @@ describe BSON::ByteBuffer do
     end
 
     it 'appends the double to the buffer' do
-      expect(modified.to_s).to eq([ 1.2332 ].pack(Float::PACK))
+      expect(modified.to_s).to eq([ 1.2332 ].pack(PackDirectives::FLOAT))
     end
 
     it 'increments the write position by 8' do
@@ -471,7 +471,7 @@ describe BSON::ByteBuffer do
       end
 
       it 'writes a double' do
-        expect(modified.to_s).to eq([ 3 ].pack(Float::PACK))
+        expect(modified.to_s).to eq([ 3 ].pack(PackDirectives::FLOAT))
       end
 
       it 'increments the write position by 8' do
@@ -525,7 +525,7 @@ describe BSON::ByteBuffer do
         end
 
         let(:expected) do
-          [ Integer::MAX_32BIT - 1 ].pack(BSON::Int32::PACK)
+          [ Integer::MAX_32BIT - 1 ].pack(PackDirectives::INT32)
         end
 
         it 'appends the int32 to the byte buffer' do
@@ -544,7 +544,7 @@ describe BSON::ByteBuffer do
         end
 
         let(:expected) do
-          [ Integer::MIN_32BIT + 1 ].pack(BSON::Int32::PACK)
+          [ Integer::MIN_32BIT + 1 ].pack(PackDirectives::INT32)
         end
 
         it 'appends the int32 to the byte buffer' do
@@ -573,7 +573,7 @@ describe BSON::ByteBuffer do
       end
 
         let(:expected) do
-          [ 4 ].pack(BSON::Int32::PACK)
+          [ 4 ].pack(PackDirectives::INT32)
         end
 
       it 'appends the int32 to the byte buffer' do
@@ -627,7 +627,7 @@ describe BSON::ByteBuffer do
       end
 
       let(:expected) do
-        [ 4294967295 ].pack(BSON::Int32::PACK)
+        [ 4294967295 ].pack(PackDirectives::INT32)
       end
 
       it 'appends the int32 to the byte buffer' do
@@ -693,7 +693,7 @@ describe BSON::ByteBuffer do
         end
 
         let(:expected) do
-          [ Integer::MAX_64BIT - 1 ].pack(BSON::Int64::PACK)
+          [ Integer::MAX_64BIT - 1 ].pack(PackDirectives::INT64)
         end
 
         it 'appends the int64 to the byte buffer' do
@@ -712,7 +712,7 @@ describe BSON::ByteBuffer do
         end
 
         let(:expected) do
-          [ Integer::MIN_64BIT + 1 ].pack(BSON::Int64::PACK)
+          [ Integer::MIN_64BIT + 1 ].pack(PackDirectives::INT64)
         end
 
         it 'appends the int64 to the byte buffer' do
@@ -751,7 +751,7 @@ describe BSON::ByteBuffer do
       end
 
         let(:expected) do
-          [ 4 ].pack(BSON::Int64::PACK)
+          [ 4 ].pack(PackDirectives::INT64)
         end
 
       it 'appends the int64 to the byte buffer' do
@@ -767,19 +767,19 @@ describe BSON::ByteBuffer do
   describe '#replace_int32' do
 
     let(:exp_0) do
-      [ 0 ].pack(BSON::Int32::PACK)
+      [ 0 ].pack(PackDirectives::INT32)
     end
 
     let(:exp_first) do
-      [ 5 ].pack(BSON::Int32::PACK)
+      [ 5 ].pack(PackDirectives::INT32)
     end
 
     let(:exp_second) do
-      [ 4 ].pack(BSON::Int32::PACK)
+      [ 4 ].pack(PackDirectives::INT32)
     end
 
     let(:exp_42) do
-      [ 42 ].pack(BSON::Int32::PACK)
+      [ 42 ].pack(PackDirectives::INT32)
     end
 
     let(:modified) do

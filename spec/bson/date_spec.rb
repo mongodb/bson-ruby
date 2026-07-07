@@ -25,7 +25,7 @@ describe Date do
 
       let(:obj)  { Date.new(2012, 1, 1) }
       let(:time) { Time.utc(2012, 1, 1) }
-      let(:bson) { [ (time.to_f * 1000).to_i ].pack(BSON::Int64::PACK) }
+      let(:bson) { [ (time.to_f * 1000).to_i ].pack(PackDirectives::INT64) }
 
       it_behaves_like "a serializable bson element"
     end
@@ -34,7 +34,7 @@ describe Date do
 
       let(:obj)  { Date.new(1969, 1, 1) }
       let(:time) { Time.utc(1969, 1, 1) }
-      let(:bson) { [ (time.to_f * 1000).to_i ].pack(BSON::Int64::PACK) }
+      let(:bson) { [ (time.to_f * 1000).to_i ].pack(PackDirectives::INT64) }
 
       it_behaves_like "a serializable bson element"
     end

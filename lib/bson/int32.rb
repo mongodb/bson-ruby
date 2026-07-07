@@ -29,15 +29,13 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = ::String.new(16.chr, encoding: BINARY).freeze
 
-    # The number of bytes constant.
-    #
-    # @since 4.0.0
-    BYTES_LENGTH = 4
-
     # Constant for the int 32 pack directive.
     #
     # @since 2.0.0
+    # @deprecated No longer used internally; retained for backward
+    #   compatibility and slated for removal in a future major version.
     PACK = "l<"
+    deprecate_constant :PACK
 
     # Deserialize an Integer from BSON.
     #

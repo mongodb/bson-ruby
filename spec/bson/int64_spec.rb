@@ -67,7 +67,7 @@ describe BSON::Int64 do
 
     let(:type) { 18.chr }
     let(:obj)  { 1325376000000 }
-    let(:bson) { [ obj ].pack(BSON::Int64::PACK) }
+    let(:bson) { [ obj ].pack(PackDirectives::INT64) }
 
     it_behaves_like "a bson element"
     it_behaves_like "a deserializable bson element"
@@ -139,7 +139,7 @@ describe BSON::Int64 do
 
       let(:type) { 18.chr }
       let(:obj)  { BSON::Int64.new(Integer::MAX_64BIT - 1) }
-      let(:bson) { [ Integer::MAX_64BIT - 1 ].pack(BSON::Int64::PACK) }
+      let(:bson) { [ Integer::MAX_64BIT - 1 ].pack(PackDirectives::INT64) }
 
       it_behaves_like "a serializable bson element"
     end
