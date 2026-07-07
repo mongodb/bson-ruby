@@ -21,21 +21,6 @@ module BSON
   class DBRef < Document
     include JSON
 
-    # The constant for the collection reference field.
-    #
-    # @deprecated
-    COLLECTION = '$ref'.freeze
-
-    # The constant for the id field.
-    #
-    # @deprecated
-    ID = '$id'.freeze
-
-    # The constant for the database field.
-    #
-    # @deprecated
-    DATABASE = '$db'.freeze
-
     # @return [ String ] collection The collection name.
     def collection
       self['$ref']
