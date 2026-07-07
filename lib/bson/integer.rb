@@ -47,14 +47,23 @@ module BSON
     # The BSON index size.
     #
     # @since 2.0.0
+    # @deprecated No longer used internally; retained for backward
+    #   compatibility and slated for removal in a future major version.
     BSON_INDEX_SIZE = 1024
 
     # A hash of index values for array optimization.
     #
     # @since 2.0.0
+    # @deprecated No longer used internally; retained for backward
+    #   compatibility and slated for removal in a future major version.
     BSON_ARRAY_INDEXES = ::Array.new(BSON_INDEX_SIZE) do |i|
       (i.to_s.b << NULL_BYTE).freeze
     end.freeze
+
+    # Deprecated after BSON_ARRAY_INDEXES is built, since that (also
+    # deprecated) constant references BSON_INDEX_SIZE at load time.
+    deprecate_constant :BSON_INDEX_SIZE
+    deprecate_constant :BSON_ARRAY_INDEXES
 
     # Is this integer a valid BSON 32 bit value?
     #
