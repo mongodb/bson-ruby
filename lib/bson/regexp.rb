@@ -50,13 +50,6 @@ module BSON
     # @since 3.2.6
     NEWLINE_VALUE = 's'
 
-    # Ruby multiline constant.
-    #
-    # @since 3.2.6
-    #
-    # @deprecated Will be removed in 5.0
-    RUBY_MULTILINE_VALUE = 'ms'
-
     # Get the regexp as JSON hash data.
     #
     # @example Get the regexp as a JSON hash.
