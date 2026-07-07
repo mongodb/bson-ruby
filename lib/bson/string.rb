@@ -30,11 +30,6 @@ module BSON
     # @since 2.0.0
     BSON_TYPE = ::String.new(2.chr, encoding: BINARY).freeze
 
-    # Regex for matching illegal BSON keys.
-    #
-    # @since 4.1.0
-    ILLEGAL_KEY = /(\A[$])|(\.)/
-
     # Get the string as encoded BSON.
     #
     # @example Get the string as encoded BSON.
