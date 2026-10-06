@@ -106,7 +106,7 @@ module ConfigProcessor
 
   # all supported JRuby versions provided by 10gen/mongo-ruby-toolchain
   def jrubies
-    @jrubies ||= %w[ jruby-10.0 jruby-9.4 jruby-9.3 ]
+    @jrubies ||= %w[ jruby-10.1 jruby-10.0 jruby-9.4 jruby-9.3 ]
   end
 
   # all supported MRI ruby versions
