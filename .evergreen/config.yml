@@ -306,6 +306,10 @@ axes:
         display_name: ruby-2.7
         variables:
            RVM_RUBY: ruby-2.7
+      - id: jruby-10.1
+        display_name: jruby-10.1
+        variables:
+           RVM_RUBY: jruby-10.1
       - id: jruby-10.0
         display_name: jruby-10.0
         variables:
@@ -410,7 +414,7 @@ buildvariants:
       - name: "test"
 
   - matrix_name: "jruby"
-    matrix_spec: { ruby: ["jruby-10.0", "jruby-9.4", "jruby-9.3"], all-os: ubuntu2404 }
+    matrix_spec: { ruby: ["jruby-10.1", "jruby-10.0", "jruby-9.4", "jruby-9.3"], all-os: ubuntu2404 }
     display_name: "${ruby}, ${all-os}"
     tasks:
       - name: "test"

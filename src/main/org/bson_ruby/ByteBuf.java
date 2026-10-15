@@ -153,7 +153,7 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "length")
   public RubyFixnum getLength(ThreadContext context) {
-    return new RubyFixnum(context.runtime, getLengthInternal());
+    return RubyFixnum.newFixnum(context.runtime, getLengthInternal());
   }
 
   private int getLengthInternal() {
@@ -173,7 +173,7 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "read_position")
   public RubyFixnum getReadPosition(ThreadContext context) {
-    return new RubyFixnum(context.runtime, this.readPosition);
+    return RubyFixnum.newFixnum(context.runtime, this.readPosition);
   }
 
   /**
@@ -185,7 +185,7 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "write_position")
   public RubyFixnum getWritePosition(ThreadContext context) {
-    return new RubyFixnum(context.runtime, this.writePosition);
+    return RubyFixnum.newFixnum(context.runtime, this.writePosition);
   }
 
  /**
@@ -287,7 +287,7 @@ public class ByteBuf extends RubyObject {
    */
   @JRubyMethod(name = "get_decimal128_bytes")
   public RubyString getDecimal128Bytes() {
-    return getBytes(new RubyFixnum(getRuntime(), 16));
+    return getBytes(RubyFixnum.newFixnum(getRuntime(), 16));
   }
 
   /**
@@ -315,7 +315,7 @@ public class ByteBuf extends RubyObject {
   @JRubyMethod(name = "get_int32")
   public RubyFixnum getInt32() {
     ensureBsonRead();
-    RubyFixnum int32 = new RubyFixnum(getRuntime(), this.buffer.getInt());
+    RubyFixnum int32 = RubyFixnum.newFixnum(getRuntime(), this.buffer.getInt());
     this.readPosition += 4;
     return int32;
   }
@@ -335,7 +335,7 @@ public class ByteBuf extends RubyObject {
       temp += UINT32_MAX + 1;
     }
 
-    RubyFixnum int32 = new RubyFixnum(getRuntime(), temp);
+    RubyFixnum int32 = RubyFixnum.newFixnum(getRuntime(), temp);
     this.readPosition += 4;
     return int32;
   }
@@ -380,7 +380,7 @@ public class ByteBuf extends RubyObject {
   @JRubyMethod(name = "get_int64")
   public RubyFixnum getInt64() {
     ensureBsonRead();
-    RubyFixnum int64 = new RubyFixnum(getRuntime(), this.buffer.getLong());
+    RubyFixnum int64 = RubyFixnum.newFixnum(getRuntime(), this.buffer.getLong());
     this.readPosition += 8;
     return int64;
   }
