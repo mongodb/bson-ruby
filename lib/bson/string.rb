@@ -88,7 +88,7 @@ module BSON
     #
     # @since 2.0.0
     def to_hex_string
-      unpack("H*")[0]
+      unpack1("H*")
     end
 
     module ClassMethods
