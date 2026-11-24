@@ -38,6 +38,45 @@ describe 'Decoding document fields' do
     end
   end
 
+  context 'when the registry maps the types to their default classes' do
+    before do
+      skip 'C native extension not used on JRuby' if BSON::Environment.jruby?
+    end
+
+    let(:document) do
+      { 'n' => nil, 'id' => BSON::ObjectId.new, 't' => Time.at(1_700_000_000),
+        'a' => [ nil, BSON::ObjectId.new, Time.at(0) ] }
+    end
+
+    it 'decodes the values' do
+      expect(BSON::Document.from_bson(BSON::ByteBuffer.new(document.to_bson.to_s))).to eq(document)
+    end
+
+    it 'does not call from_bson for null, object id and datetime values' do
+      classes = [ NilClass, BSON::ObjectId, Time ]
+      bytes = document.to_bson.to_s
+      classes.each { |klass| allow(klass).to receive(:from_bson).and_call_original }
+      BSON::Document.from_bson(BSON::ByteBuffer.new(bytes))
+      classes.each { |klass| expect(klass).not_to have_received(:from_bson) }
+    end
+
+    [
+      [ 'null', nil ],
+      [ 'an object id', BSON::ObjectId.new ],
+      [ 'a datetime', Time.at(0) ]
+    ].each do |name, value|
+      it "rejects an argument that is not a hash when the value is #{name}" do
+        buffer = BSON::ByteBuffer.new([ value ].to_bson.to_s)
+        expect { buffer.get_array(5) }.to raise_error(TypeError)
+      end
+
+      it "rejects more than one argument when the value is #{name}" do
+        buffer = BSON::ByteBuffer.new([ value ].to_bson.to_s)
+        expect { buffer.get_array({}, {}) }.to raise_error(ArgumentError)
+      end
+    end
+  end
+
   context 'when the field is an object id' do
     let(:id) { BSON::ObjectId.new }
     let(:decoded) { decode('_id' => id, 'ids' => [ id ])['_id'] }
@@ -57,7 +96,8 @@ describe 'Decoding document fields' do
   context 'when the field is a datetime' do
     [
       0, 1, -1, 999, 1000, -999, -1000, -1001, 1_700_000_000_123, -86_400_500,
-      253_402_300_799_999, -62_135_596_800_000, (2**53) + 1, -(2**53) - 1
+      253_402_300_799_999, -62_135_596_800_000, (2**53) + 1, -(2**53) - 1,
+      (2**63) - 1, -(2**63)
     ].each do |millis|
       context "when it is #{millis} milliseconds from the epoch" do
         let(:decoded) { BSON::Document.from_bson(datetime_document(millis))['t'] }
@@ -91,12 +131,12 @@ describe 'Decoding document fields' do
 
     it 'raises for an object id' do
       bytes = without_last_value_bytes({ 'a' => BSON::ObjectId.new }, 3)
-      expect { BSON::Document.from_bson(BSON::ByteBuffer.new(bytes)) }.to raise_error(StandardError)
+      expect { BSON::Document.from_bson(BSON::ByteBuffer.new(bytes)) }.to raise_error(RangeError)
     end
 
     it 'raises for a datetime' do
       bytes = without_last_value_bytes({ 'a' => Time.at(0) }, 3)
-      expect { BSON::Document.from_bson(BSON::ByteBuffer.new(bytes)) }.to raise_error(StandardError)
+      expect { BSON::Document.from_bson(BSON::ByteBuffer.new(bytes)) }.to raise_error(RangeError)
     end
   end
 

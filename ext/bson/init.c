@@ -57,7 +57,7 @@ void Init_bson_native()
    */
   VALUE rb_byte_buffer_class = rb_define_class_under(rb_bson_module, "ByteBuffer", rb_cObject);
 
-  VALUE rb_bson_object_id_class = rb_const_get(rb_bson_module, rb_intern("ObjectId"));
+  rb_bson_object_id_class = rb_const_get(rb_bson_module, rb_intern("ObjectId"));
   VALUE rb_bson_object_id_generator_class = rb_const_get(rb_bson_object_id_class, rb_intern("Generator"));
   VALUE rb_digest_class = rb_const_get(rb_cObject, rb_intern("Digest"));
   VALUE rb_md5_class = rb_const_get(rb_digest_class, rb_intern("MD5"));
@@ -367,6 +367,5 @@ void Init_bson_native()
   rb_bson_registry_mappings = rb_const_get(rb_bson_registry, rb_intern("MAPPINGS"));
   rb_gc_register_mark_object(rb_bson_registry_mappings);
 
-  rb_bson_object_id_class = rb_const_get(rb_bson_module, rb_intern("ObjectId"));
   rb_gc_register_mark_object(rb_bson_object_id_class);
 }

@@ -34,6 +34,7 @@ static void pvt_check_nesting_depth(int depth);
 static void pvt_skip_cstring(byte_buffer_t *b);
 static size_t pvt_strnlen(const byte_buffer_t *b);
 static int pvt_default_class_for(uint8_t type, VALUE klass);
+static void pvt_check_field_args(int argc, VALUE *argv);
 static VALUE pvt_get_object_id(byte_buffer_t *b);
 static VALUE pvt_get_time(byte_buffer_t *b);
 static VALUE pvt_get_hash_key(byte_buffer_t *b);
@@ -109,12 +110,15 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, 
        * document. As long as the registry maps them to their default classes,
        * build them here instead of calling back into Ruby for each one. */
       if (type == BSON_TYPE_NULL && pvt_default_class_for(type, rb_cNilClass)) {
+        pvt_check_field_args(argc, argv);
         return Qnil;
       }
       if (type == BSON_TYPE_OBJECT_ID && pvt_default_class_for(type, rb_bson_object_id_class)) {
+        pvt_check_field_args(argc, argv);
         return pvt_get_object_id(b);
       }
       if (type == BSON_TYPE_DATE_TIME && pvt_default_class_for(type, rb_cTime)) {
+        pvt_check_field_args(argc, argv);
         value = pvt_get_time(b);
         if (value != Qundef) {
           return value;
@@ -150,6 +154,19 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, 
 int pvt_default_class_for(uint8_t type, VALUE klass)
 {
   return rb_hash_lookup(rb_bson_registry_mappings, INT2FIX(type)) == klass;
+}
+
+/**
+ * Applies the argument checks of the Ruby decoding path to the values that
+ * are built natively, so that both reject the same invalid arguments.
+ */
+void pvt_check_field_args(int argc, VALUE *argv)
+{
+  if (argc > 1) {
+    rb_raise(rb_eArgError, "At most one argument is allowed");
+  } else if (argc > 0) {
+    Check_Type(argv[0], T_HASH);
+  }
 }
 
 /**
