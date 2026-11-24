@@ -33,6 +33,10 @@ static VALUE pvt_get_array_at_depth(int argc, VALUE *argv, VALUE self, int depth
 static void pvt_check_nesting_depth(int depth);
 static void pvt_skip_cstring(byte_buffer_t *b);
 static size_t pvt_strnlen(const byte_buffer_t *b);
+static int pvt_default_class_for(uint8_t type, VALUE klass);
+static VALUE pvt_get_object_id(byte_buffer_t *b);
+static VALUE pvt_get_time(byte_buffer_t *b);
+static VALUE pvt_get_hash_key(byte_buffer_t *b);
 
 /* Maximum number of nested BSON documents or arrays the decoder will accept.
  * Mirrors BSON::MAX_NESTING_DEPTH in lib/bson.rb. */
@@ -98,8 +102,26 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, 
     case BSON_TYPE_BOOLEAN: return pvt_get_boolean(b);
     default:
     {
-      VALUE klass = rb_funcall(rb_bson_registry, rb_intern("get"), 1, INT2FIX(type));
+      VALUE klass;
       VALUE value;
+
+      /* Null, ObjectId and UTC datetime values make up most of a typical
+       * document. As long as the registry maps them to their default classes,
+       * build them here instead of calling back into Ruby for each one. */
+      if (type == BSON_TYPE_NULL && pvt_default_class_for(type, rb_cNilClass)) {
+        return Qnil;
+      }
+      if (type == BSON_TYPE_OBJECT_ID && pvt_default_class_for(type, rb_bson_object_id_class)) {
+        return pvt_get_object_id(b);
+      }
+      if (type == BSON_TYPE_DATE_TIME && pvt_default_class_for(type, rb_cTime)) {
+        value = pvt_get_time(b);
+        if (value != Qundef) {
+          return value;
+        }
+      }
+
+      klass = rb_funcall(rb_bson_registry, rb_intern("get"), 1, INT2FIX(type));
       if (argc > 1) {
         rb_raise(rb_eArgError, "At most one argument is allowed");
       } else if (argc > 0) {
@@ -119,6 +141,60 @@ VALUE pvt_read_field(byte_buffer_t *b, VALUE rb_buffer, uint8_t type, int argc, 
       return value;
     }
   }
+}
+
+/**
+ * Whether the registry still maps the given BSON type to the class the
+ * native decoder knows how to build.
+ */
+int pvt_default_class_for(uint8_t type, VALUE klass)
+{
+  return rb_hash_lookup(rb_bson_registry_mappings, INT2FIX(type)) == klass;
+}
+
+/**
+ * Builds a BSON::ObjectId the way BSON::ObjectId.from_data does.
+ */
+VALUE pvt_get_object_id(byte_buffer_t *b)
+{
+  VALUE object_id;
+
+  ENSURE_BSON_READ(b, 12);
+  object_id = rb_obj_alloc(rb_bson_object_id_class);
+  rb_ivar_set(object_id, rb_intern("@raw_data"), rb_str_new(READ_PTR(b), 12));
+  b->read_position += 12;
+  return object_id;
+}
+
+/**
+ * Builds a UTC Time from the milliseconds since the epoch, the way
+ * Time.from_bson does. Returns Qundef, without consuming anything, when the
+ * value does not fit in a time_t, so that the caller can fall back to Ruby.
+ */
+VALUE pvt_get_time(byte_buffer_t *b)
+{
+  int64_t millis;
+  int64_t seconds;
+  int64_t fraction;
+  VALUE time;
+
+  ENSURE_BSON_READ(b, 8);
+  memcpy(&millis, READ_PTR(b), 8);
+  millis = BSON_UINT64_FROM_LE(millis);
+
+  seconds = millis / 1000;
+  fraction = millis % 1000;
+  if (fraction < 0) {
+    fraction += 1000;
+    seconds -= 1;
+  }
+  if ((int64_t)(time_t)seconds != seconds) {
+    return Qundef;
+  }
+
+  b->read_position += 8;
+  time = rb_time_nano_new((time_t)seconds, (long)(fraction * 1000000));
+  return rb_funcall(time, rb_intern("utc"), 0);
 }
 
 /**
@@ -259,6 +335,27 @@ VALUE rb_bson_byte_buffer_get_cstring(VALUE self)
   string = rb_enc_str_new(READ_PTR(b), length, rb_utf8_encoding());
   b->read_position += length + 1;
   return string;
+}
+
+/**
+ * Reads the name of a document field. Hash#[]= stores a frozen, deduplicated
+ * copy of a string key, so ask for that string directly where Ruby lets us,
+ * rather than allocating a string that is thrown away right after.
+ */
+VALUE pvt_get_hash_key(byte_buffer_t *b)
+{
+  VALUE key;
+  int length;
+
+  length = (int)pvt_strnlen(b);
+  ENSURE_BSON_READ(b, length);
+#ifdef HAVE_RB_ENC_INTERNED_STR
+  key = rb_enc_interned_str(READ_PTR(b), length, rb_utf8_encoding());
+#else
+  key = rb_enc_str_new(READ_PTR(b), length, rb_utf8_encoding());
+#endif
+  b->read_position += length + 1;
+  return key;
 }
 
 /**
@@ -435,7 +532,7 @@ VALUE pvt_get_hash_at_depth(int argc, VALUE *argv, VALUE self, int depth){
   doc = rb_funcall(cDocument, rb_intern("allocate"), 0);
 
   while((type = pvt_get_type_byte(b)) != 0){
-    VALUE field = rb_bson_byte_buffer_get_cstring(self);
+    VALUE field = pvt_get_hash_key(b);
     rb_hash_aset(doc, field, pvt_read_field(b, self, type, argc, argv, depth));
     RB_GC_GUARD(field);
   }

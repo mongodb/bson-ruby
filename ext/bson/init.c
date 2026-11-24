@@ -22,6 +22,8 @@ uint32_t rb_bson_object_id_counter;
 
 
 VALUE rb_bson_registry;
+VALUE rb_bson_registry_mappings;
+VALUE rb_bson_object_id_class;
 
 const rb_data_type_t rb_byte_buffer_data_type = {
   "bson/byte_buffer",
@@ -361,4 +363,10 @@ void Init_bson_native()
 
   rb_bson_registry = rb_const_get(rb_bson_module, rb_intern("Registry"));
   rb_gc_register_mark_object(rb_bson_registry);
+
+  rb_bson_registry_mappings = rb_const_get(rb_bson_registry, rb_intern("MAPPINGS"));
+  rb_gc_register_mark_object(rb_bson_registry_mappings);
+
+  rb_bson_object_id_class = rb_const_get(rb_bson_module, rb_intern("ObjectId"));
+  rb_gc_register_mark_object(rb_bson_object_id_class);
 }

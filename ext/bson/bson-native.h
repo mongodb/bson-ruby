@@ -39,7 +39,10 @@ rb_bson_utf8_validate (const char *utf8, /* IN */
 #define BSON_TYPE_STRING        2
 #define BSON_TYPE_DOCUMENT      3
 #define BSON_TYPE_ARRAY         4
+#define BSON_TYPE_OBJECT_ID     7
 #define BSON_TYPE_BOOLEAN       8
+#define BSON_TYPE_DATE_TIME     9
+#define BSON_TYPE_NULL          0x0A
 #define BSON_TYPE_SYMBOL        0x0E
 #define BSON_TYPE_INT32         0x10
 #define BSON_TYPE_INT64         0x12
@@ -129,6 +132,8 @@ int pvt_rand();
 extern uint32_t rb_bson_object_id_counter;
 
 extern VALUE rb_bson_registry;
+extern VALUE rb_bson_registry_mappings;
+extern VALUE rb_bson_object_id_class;
 
 extern const rb_data_type_t rb_byte_buffer_data_type;
 
