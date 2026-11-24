@@ -344,16 +344,8 @@ module BSON
 
     private
 
-    if ::Symbol.method_defined?(:name)
-      # Symbol#name (Ruby 3.0+) returns the symbol's frozen string without
-      # allocating, where Symbol#to_s builds a new String on every call.
-      def convert_key(key)
-        key.instance_of?(::Symbol) ? key.name : key.to_bson_normalized_key
-      end
-    else
-      def convert_key(key)
-        key.to_bson_normalized_key
-      end
+    def convert_key(key)
+      key.to_bson_normalized_key
     end
 
     def convert_value(value)
