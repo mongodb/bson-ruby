@@ -334,7 +334,7 @@ module BSON
       #
       # @since 2.0.0
       def legal?(string)
-        (string.to_s =~ /\A[0-9a-f]{24}\z/i) ? true : false
+        string.to_s.match?(/\A[0-9a-f]{24}\z/i)
       end
 
       # Executes the provided block only if the size of the provided object is
