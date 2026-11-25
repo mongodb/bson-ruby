@@ -81,11 +81,18 @@ module BSON
     # @example Convert the symbol to a normalized key.
     #   :test.to_bson_normalized_key
     #
-    # @return [ String ] The symbol as a non interned string.
+    # @return [ String ] The symbol as a string. On Ruby 3.0 and later this
+    #   is the symbol's own frozen name, so that no string is allocated.
     #
     # @since 3.0.0
-    def to_bson_normalized_key
-      to_s
+    if ::Symbol.method_defined?(:name)
+      def to_bson_normalized_key
+        name
+      end
+    else
+      def to_bson_normalized_key
+        to_s
+      end
     end
 
     # Converts this object to a representation directly serializable to

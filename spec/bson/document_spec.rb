@@ -164,6 +164,28 @@ describe BSON::Document do
       expect(doc[key]).to eq(val)
     end
 
+    context "when the key is a symbol" do
+
+      let(:key) { :purple }
+
+      it "stores the key as a frozen string" do
+        expect(doc.keys.last).to eq("purple")
+        expect(doc.keys.last).to be_a(String)
+        expect(doc.keys.last).to be_frozen
+      end
+
+      it "returns the value for the symbol and for the string" do
+        expect(doc[:purple]).to eq(val)
+        expect(doc["purple"]).to eq(val)
+      end
+
+      it "does not store a second key when set again as a string" do
+        doc["purple"] = "other"
+        expect(doc.keys.count("purple")).to eq(1)
+        expect(doc[:purple]).to eq("other")
+      end
+    end
+
     context 'when value is a hash' do
       let(:val) do
         {'foo' => {'bar' => 'baz'}}
@@ -679,6 +701,15 @@ describe BSON::Document do
         expect(merged[:a]).to eq(0)
         expect(merged[:b]).to eq(3)
         expect(merged[:c]).to eq(7)
+      end
+
+      it "yields symbol keys as strings" do
+        yielded = []
+        described_class.new(a: 1).merge!(a: 2) do |key, _old_val, new_val|
+          yielded << key
+          new_val
+        end
+        expect(yielded).to eq(["a"])
       end
     end
   end

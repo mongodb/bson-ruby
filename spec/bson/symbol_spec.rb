@@ -116,6 +116,27 @@ describe Symbol do
     end
   end
 
+  describe "#to_bson_normalized_key" do
+
+    it "returns the symbol as a string" do
+      expect(:test.to_bson_normalized_key).to eq("test")
+      expect(:test.to_bson_normalized_key).to be_a(String)
+    end
+
+    it "keeps the encoding of the symbol" do
+      expect(:"ключ".to_bson_normalized_key.encoding).to eq(:"ключ".to_s.encoding)
+      expect(:"ключ".to_bson_normalized_key).to eq("ключ")
+    end
+
+    if Symbol.method_defined?(:name)
+      it "returns the same frozen string on every call" do
+        key = :test.to_bson_normalized_key
+        expect(key).to be_frozen
+        expect(:test.to_bson_normalized_key).to equal(key)
+      end
+    end
+  end
+
   describe '#as_extended_json' do
     let(:object) do
       :foobar
