@@ -28,9 +28,25 @@ module BSON
 
     # Create a new DBPointer object.
     #
+    # The types are enforced because the DBPointer wire format is a string
+    # followed by exactly 12 raw bytes. #to_bson writes the id duck-typed, so
+    # an id of any other type emits the wrong number of bytes and reframes the
+    # enclosing document for every conforming reader.
+    #
     # @param [ String ] ref The database collection name.
     # @param [ BSON::ObjectId ] id The DBPointer id.
+    #
+    # @raise [ ArgumentError ] If ref is not a String or id is not a
+    #   BSON::ObjectId.
     def initialize(ref, id)
+      unless ref.is_a?(::String)
+        raise ArgumentError, "DBPointer ref must be a String: #{ref.inspect}"
+      end
+
+      unless id.is_a?(ObjectId)
+        raise ArgumentError, "DBPointer id must be a BSON::ObjectId: #{id.inspect}"
+      end
+
       @ref = ref
       @id = id
     end

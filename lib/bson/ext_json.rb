@@ -260,10 +260,25 @@ module BSON
           # TODO consider returning Ruby regular expression object here
           create_regexp(value['pattern'], value['options'])
         when '$dbPointer'
-          unless value.keys.sort == %w($id $ref)
+          unless value.is_a?(Hash) && value.keys.sort == %w($id $ref)
             raise Error::ExtJSONParseError, "Invalid $dbPointer value: #{value}"
           end
-          DbPointer.new(value['$ref'], parse_hash(value['$id']))
+          ref = value['$ref']
+          unless ref.is_a?(String)
+            raise Error::ExtJSONParseError, "Invalid $dbPointer, $ref must be a string: #{value}"
+          end
+          # The DBPointer wire format is a string followed by exactly 12 raw
+          # bytes, so the id must be an ObjectId. Any other type serializes to
+          # a different number of bytes and reframes the enclosing document.
+          id = value['$id']
+          unless id.is_a?(Hash)
+            raise Error::ExtJSONParseError, "Invalid $dbPointer, $id must be an ObjectId: #{value}"
+          end
+          id = parse_hash(id, **options)
+          unless id.is_a?(ObjectId)
+            raise Error::ExtJSONParseError, "Invalid $dbPointer, $id must be an ObjectId: #{value}"
+          end
+          DbPointer.new(ref, id)
         when '$date'
           case value
           when String

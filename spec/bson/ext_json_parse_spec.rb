@@ -343,4 +343,118 @@ describe "BSON::ExtJSON.parse" do
       end
     end
   end
+
+  context 'when input is a DBPointer' do
+
+    context 'when $id is an ObjectId' do
+      let(:input) do
+        { '$dbPointer' => { '$ref' => 'coll', '$id' => { '$oid' => '56e1fc72e0c917e9c4714161' } } }
+      end
+
+      it 'returns a BSON::DbPointer instance' do
+        expect(parsed).to be_a(BSON::DbPointer)
+        expect(parsed.ref).to eq('coll')
+        expect(parsed.id).to eq(BSON::ObjectId.from_string('56e1fc72e0c917e9c4714161'))
+      end
+    end
+
+    context 'when $id is a binary' do
+      let(:input) do
+        { '$dbPointer' => { '$ref' => 'coll',
+          '$id' => { '$binary' => { 'base64' => '//8=', 'subType' => '00' } } } }
+      end
+
+      it 'raises an exception' do
+        expect do
+          parsed
+        end.to raise_error(BSON::Error::ExtJSONParseError, /\$id must be an ObjectId/)
+      end
+    end
+
+    context 'when $id is a plain object' do
+      let(:input) do
+        { '$dbPointer' => { '$ref' => 'coll', '$id' => { 'a' => 1 } } }
+      end
+
+      it 'raises an exception' do
+        expect do
+          parsed
+        end.to raise_error(BSON::Error::ExtJSONParseError, /\$id must be an ObjectId/)
+      end
+    end
+
+    context 'when $id is an integer' do
+      let(:input) do
+        { '$dbPointer' => { '$ref' => 'coll', '$id' => { '$numberInt' => '1' } } }
+      end
+
+      it 'raises an exception' do
+        expect do
+          parsed
+        end.to raise_error(BSON::Error::ExtJSONParseError, /\$id must be an ObjectId/)
+      end
+    end
+
+    context 'when $id is a hex string rather than an $oid wrapper' do
+      let(:input) do
+        { '$dbPointer' => { '$ref' => 'coll', '$id' => '56e1fc72e0c917e9c4714161' } }
+      end
+
+      it 'raises a parse error rather than a NoMethodError' do
+        expect do
+          parsed
+        end.to raise_error(BSON::Error::ExtJSONParseError, /\$id must be an ObjectId/)
+      end
+    end
+
+    context 'when $ref is null' do
+      let(:input) do
+        { '$dbPointer' => { '$ref' => nil, '$id' => { '$oid' => '56e1fc72e0c917e9c4714161' } } }
+      end
+
+      it 'raises a parse error rather than a NoMethodError' do
+        expect do
+          parsed
+        end.to raise_error(BSON::Error::ExtJSONParseError, /\$ref must be a string/)
+      end
+    end
+
+    context 'when $ref is not a string' do
+      let(:input) do
+        { '$dbPointer' => { '$ref' => 5, '$id' => { '$oid' => '56e1fc72e0c917e9c4714161' } } }
+      end
+
+      it 'raises a parse error rather than a NoMethodError' do
+        expect do
+          parsed
+        end.to raise_error(BSON::Error::ExtJSONParseError, /\$ref must be a string/)
+      end
+    end
+
+    # RUBY-3936. The DBPointer wire format is a string followed by exactly 12
+    # raw bytes. A $binary id makes DbPointer#to_bson emit an int32 length, a
+    # subtype byte and a payload of any length instead. A conforming reader
+    # consumes 12 of those bytes and reads whatever follows as further elements
+    # of the enclosing document, so the value escapes its own slot: the payload
+    # below is 7 bytes of filler followed by a forged int32 element named
+    # "injected". Before this was validated, the document serialized from this
+    # input read back as {"a" => ..., "injected" => 42}.
+    context 'when $id is a binary crafted to reframe the enclosing document' do
+      let(:payload) do
+        ("\x00" * 7) + "\x10injected\x00" + [ 42 ].pack('l<')
+      end
+
+      let(:input) do
+        { 'a' => { '$dbPointer' => { '$ref' => 'coll',
+          '$id' => { '$binary' => { 'base64' => Base64.strict_encode64(payload),
+            'subType' => '00' } } } } }
+      end
+
+      it 'rejects the input instead of emitting a document with forged fields' do
+        expect do
+          parsed
+        end.to raise_error(BSON::Error::ExtJSONParseError, /\$id must be an ObjectId/)
+      end
+    end
+  end
 end
