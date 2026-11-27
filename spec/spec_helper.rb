@@ -40,6 +40,7 @@ if SpecConfig.instance.active_support?
     # https://github.com/rails/rails/issues/43889, etc.
     require 'active_support'
   end
+  require "active_support/core_ext"
   require "active_support/time"
   require 'bson/active_support'
 end
